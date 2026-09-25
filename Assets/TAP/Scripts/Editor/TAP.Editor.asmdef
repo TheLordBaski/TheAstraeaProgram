@@ -1,0 +1,14 @@
+{
+    "name": "TAP.Editor",
+    "rootNamespace": "TAP.EditorTools",
+    "references": ["TAP.Core", "TAP.Parts", "TAP.Persistence", "TAP.Trajectory", "TAP.Simulation", "TAP.Construction", "TAP.Game", "TAP.UI", "TAP.App", "Unity.InputSystem", "Unity.TextMeshPro", "UnityEngine.UI", "Unity.RenderPipelines.Universal.Runtime", "Unity.RenderPipelines.Universal.Editor", "Unity.RenderPipelines.Core.Runtime"],
+    "includePlatforms": ["Editor"],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

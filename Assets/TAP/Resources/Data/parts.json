@@ -1,0 +1,528 @@
+{
+  "resources": [
+    { "id": "LiquidFuel", "name": "Liquid Propellant", "unit": "kg", "density": 1.0, "flow": "Stack", "color": [0.95, 0.72, 0.25] },
+    { "id": "SolidFuel", "name": "Solid Propellant", "unit": "kg", "density": 1.0, "flow": "Part", "color": [0.85, 0.4, 0.2] },
+    { "id": "Monoprop", "name": "Monopropellant", "unit": "kg", "density": 1.0, "flow": "Vessel", "color": [0.9, 0.9, 0.55] },
+    { "id": "Electric", "name": "Electric Charge", "unit": "EC", "density": 0.0, "flow": "Vessel", "color": [0.4, 0.8, 1.0] },
+    { "id": "Ablator", "name": "Ablator", "unit": "kg", "density": 1.0, "flow": "Part", "color": [0.6, 0.45, 0.35] }
+  ],
+  "categories": ["Command", "Propellant", "Engines", "Boosters", "Coupling", "Ground", "Recovery", "Utility", "Aero"],
+  "parts": [
+    {
+      "id": "pod_kestrel", "title": "Kestrel-1 Command Pod", "category": "Command",
+      "description": "Single-seat command pod with a side hatch for EVA, small built-in reaction wheel, battery and monopropellant reserve.",
+      "dryMass": 820, "diameter": 1.25, "height": 1.35,
+      "model": { "type": "capsule", "bottomDiameter": 1.25, "topDiameter": 0.64, "height": 1.35, "style": "pod" },
+      "nodes": [
+        { "id": "top", "pos": [0, 0.675, 0], "dir": [0, 1, 0], "size": 0 },
+        { "id": "bottom", "pos": [0, -0.675, 0], "dir": [0, -1, 0], "size": 1 }
+      ],
+      "surfaceAttach": { "allowed": false, "onto": true },
+      "resources": [ { "id": "Monoprop", "amount": 15 }, { "id": "Electric", "amount": 80 } ],
+      "maxTemp": 1100, "skinMaxTemp": 1600, "specificHeat": 900, "skinMassPerArea": 9, "emissivity": 0.45,
+      "impactTolerance": 14, "breakingForce": 200000, "breakingTorque": 150000,
+      "drag": { "cdTop": 0.35, "cdBottom": 1.05, "cdSide": 0.8 },
+      "crew": { "seats": 1, "hatchPos": [0, 0.02, -0.5], "hatchNormal": [0, 0.22, -0.975] },
+      "command": { "requiresCrew": true, "sas": true, "ecPerSecond": 0 },
+      "reactionWheel": { "torque": 3000, "ecPerSecond": 0.12 }
+    },
+    {
+      "id": "pod_albatross", "title": "Albatross-3 Command Pod", "category": "Command",
+      "description": "Roomy three-seat command pod with a large side hatch. Needs a 2.5 m heat shield for reentry.",
+      "dryMass": 2700, "diameter": 2.5, "height": 2.1,
+      "model": { "type": "capsule", "bottomDiameter": 2.5, "topDiameter": 1.25, "height": 2.1, "style": "pod" },
+      "nodes": [
+        { "id": "top", "pos": [0, 1.05, 0], "dir": [0, 1, 0], "size": 1 },
+        { "id": "bottom", "pos": [0, -1.05, 0], "dir": [0, -1, 0], "size": 2 }
+      ],
+      "surfaceAttach": { "allowed": false, "onto": true },
+      "resources": [ { "id": "Monoprop", "amount": 60 }, { "id": "Electric", "amount": 200 } ],
+      "maxTemp": 1100, "skinMaxTemp": 1600, "specificHeat": 900, "skinMassPerArea": 10, "emissivity": 0.45,
+      "impactTolerance": 14, "breakingForce": 600000, "breakingTorque": 600000,
+      "drag": { "cdTop": 0.35, "cdBottom": 1.05, "cdSide": 0.8 },
+      "crew": { "seats": 3, "hatchPos": [0, 0.05, -0.93], "hatchNormal": [0, 0.29, -0.957] },
+      "command": { "requiresCrew": true, "sas": true, "ecPerSecond": 0 },
+      "reactionWheel": { "torque": 10000, "ecPerSecond": 0.3 }
+    },
+    {
+      "id": "probe_wren", "title": "Wren Probe Core", "category": "Command",
+      "description": "Uncrewed guidance unit. Provides control and stability assist for test vehicles and spent stages. Draws a trickle of electric charge.",
+      "dryMass": 100, "diameter": 1.25, "height": 0.3,
+      "model": { "type": "probe", "diameter": 1.25, "height": 0.3, "style": "dark" },
+      "nodes": [
+        { "id": "top", "pos": [0, 0.15, 0], "dir": [0, 1, 0], "size": 1 },
+        { "id": "bottom", "pos": [0, -0.15, 0], "dir": [0, -1, 0], "size": 1 }
+      ],
+      "resources": [ { "id": "Electric", "amount": 50 } ],
+      "maxTemp": 1000, "skinMaxTemp": 1300,
+      "impactTolerance": 12, "breakingForce": 180000, "breakingTorque": 150000,
+      "drag": { "cdTop": 0.9, "cdBottom": 0.9, "cdSide": 0.9 },
+      "command": { "requiresCrew": false, "sas": true, "ecPerSecond": 0.02 },
+      "reactionWheel": { "torque": 600, "ecPerSecond": 0.05 }
+    },
+
+    {
+      "id": "tank_s1_short", "title": "LT-100 Propellant Tank", "category": "Propellant",
+      "description": "Short 1.25 m liquid propellant tank.",
+      "dryMass": 62.5, "diameter": 1.25, "height": 1.1,
+      "model": { "type": "tank", "diameter": 1.25, "height": 1.1, "style": "white" },
+      "nodes": [
+        { "id": "top", "pos": [0, 0.55, 0], "dir": [0, 1, 0], "size": 1 },
+        { "id": "bottom", "pos": [0, -0.55, 0], "dir": [0, -1, 0], "size": 1 }
+      ],
+      "surfaceAttach": { "allowed": true, "onto": true, "pos": [0, 0, -0.625], "dir": [0, 0, 1] },
+      "resources": [ { "id": "LiquidFuel", "amount": 500 } ],
+      "maxTemp": 1000, "skinMaxTemp": 1300, "impactTolerance": 6, "breakingForce": 180000, "breakingTorque": 150000,
+      "drag": { "cdTop": 0.9, "cdBottom": 0.9, "cdSide": 1.0 }
+    },
+    {
+      "id": "tank_s1_med", "title": "LT-200 Propellant Tank", "category": "Propellant",
+      "description": "Medium 1.25 m liquid propellant tank.",
+      "dryMass": 125, "diameter": 1.25, "height": 2.2,
+      "model": { "type": "tank", "diameter": 1.25, "height": 2.2, "style": "white" },
+      "nodes": [
+        { "id": "top", "pos": [0, 1.1, 0], "dir": [0, 1, 0], "size": 1 },
+        { "id": "bottom", "pos": [0, -1.1, 0], "dir": [0, -1, 0], "size": 1 }
+      ],
+      "surfaceAttach": { "allowed": true, "onto": true, "pos": [0, 0, -0.625], "dir": [0, 0, 1] },
+      "resources": [ { "id": "LiquidFuel", "amount": 1000 } ],
+      "maxTemp": 1000, "skinMaxTemp": 1300, "impactTolerance": 6, "breakingForce": 180000, "breakingTorque": 150000,
+      "drag": { "cdTop": 0.9, "cdBottom": 0.9, "cdSide": 1.0 }
+    },
+    {
+      "id": "tank_s1_long", "title": "LT-400 Propellant Tank", "category": "Propellant",
+      "description": "Long 1.25 m liquid propellant tank.",
+      "dryMass": 250, "diameter": 1.25, "height": 4.4,
+      "model": { "type": "tank", "diameter": 1.25, "height": 4.4, "style": "orange" },
+      "nodes": [
+        { "id": "top", "pos": [0, 2.2, 0], "dir": [0, 1, 0], "size": 1 },
+        { "id": "bottom", "pos": [0, -2.2, 0], "dir": [0, -1, 0], "size": 1 }
+      ],
+      "surfaceAttach": { "allowed": true, "onto": true, "pos": [0, 0, -0.625], "dir": [0, 0, 1] },
+      "resources": [ { "id": "LiquidFuel", "amount": 2000 } ],
+      "maxTemp": 1000, "skinMaxTemp": 1300, "impactTolerance": 6, "breakingForce": 180000, "breakingTorque": 150000,
+      "drag": { "cdTop": 0.9, "cdBottom": 0.9, "cdSide": 1.0 }
+    },
+    {
+      "id": "tank_s2_short", "title": "HT-800 Propellant Tank", "category": "Propellant",
+      "description": "Short 2.5 m liquid propellant tank.",
+      "dryMass": 500, "diameter": 2.5, "height": 1.9,
+      "model": { "type": "tank", "diameter": 2.5, "height": 1.9, "style": "white" },
+      "nodes": [
+        { "id": "top", "pos": [0, 0.95, 0], "dir": [0, 1, 0], "size": 2 },
+        { "id": "bottom", "pos": [0, -0.95, 0], "dir": [0, -1, 0], "size": 2 }
+      ],
+      "surfaceAttach": { "allowed": true, "onto": true, "pos": [0, 0, -1.25], "dir": [0, 0, 1] },
+      "resources": [ { "id": "LiquidFuel", "amount": 4000 } ],
+      "maxTemp": 1000, "skinMaxTemp": 1300, "impactTolerance": 6, "breakingForce": 600000, "breakingTorque": 600000,
+      "drag": { "cdTop": 0.9, "cdBottom": 0.9, "cdSide": 1.0 }
+    },
+    {
+      "id": "tank_s2_long", "title": "HT-3200 Propellant Tank", "category": "Propellant",
+      "description": "Long 2.5 m liquid propellant tank for heavy first stages.",
+      "dryMass": 2000, "diameter": 2.5, "height": 7.5,
+      "model": { "type": "tank", "diameter": 2.5, "height": 7.5, "style": "orange" },
+      "nodes": [
+        { "id": "top", "pos": [0, 3.75, 0], "dir": [0, 1, 0], "size": 2 },
+        { "id": "bottom", "pos": [0, -3.75, 0], "dir": [0, -1, 0], "size": 2 }
+      ],
+      "surfaceAttach": { "allowed": true, "onto": true, "pos": [0, 0, -1.25], "dir": [0, 0, 1] },
+      "resources": [ { "id": "LiquidFuel", "amount": 16000 } ],
+      "maxTemp": 1000, "skinMaxTemp": 1300, "impactTolerance": 6, "breakingForce": 600000, "breakingTorque": 600000,
+      "drag": { "cdTop": 0.9, "cdBottom": 0.9, "cdSide": 1.0 }
+    },
+    {
+      "id": "adapter_s2_s1", "title": "TA-21 Taper Adapter Tank", "category": "Propellant",
+      "description": "Conical 2.5 m to 1.25 m adapter carrying liquid propellant.",
+      "dryMass": 250, "diameter": 2.5, "height": 1.9,
+      "model": { "type": "adapter", "topDiameter": 1.25, "bottomDiameter": 2.5, "height": 1.9, "style": "white" },
+      "nodes": [
+        { "id": "top", "pos": [0, 0.95, 0], "dir": [0, 1, 0], "size": 1 },
+        { "id": "bottom", "pos": [0, -0.95, 0], "dir": [0, -1, 0], "size": 2 }
+      ],
+      "surfaceAttach": { "allowed": false, "onto": true },
+      "resources": [ { "id": "LiquidFuel", "amount": 2000 } ],
+      "maxTemp": 1000, "skinMaxTemp": 1300, "impactTolerance": 6, "breakingForce": 400000, "breakingTorque": 400000,
+      "drag": { "cdTop": 0.55, "cdBottom": 0.9, "cdSide": 1.0 }
+    },
+    {
+      "id": "tank_s0_mini", "title": "Pip-50 Mini Tank", "category": "Propellant",
+      "description": "Tiny 0.625 m propellant tank for probes and small landers.",
+      "dryMass": 25, "diameter": 0.625, "height": 0.9,
+      "model": { "type": "tank", "diameter": 0.625, "height": 0.9, "style": "white" },
+      "nodes": [
+        { "id": "top", "pos": [0, 0.45, 0], "dir": [0, 1, 0], "size": 0 },
+        { "id": "bottom", "pos": [0, -0.45, 0], "dir": [0, -1, 0], "size": 0 }
+      ],
+      "surfaceAttach": { "allowed": true, "onto": true, "pos": [0, 0, -0.3125], "dir": [0, 0, 1] },
+      "resources": [ { "id": "LiquidFuel", "amount": 200 } ],
+      "maxTemp": 1000, "skinMaxTemp": 1300, "impactTolerance": 7, "breakingForce": 60000, "breakingTorque": 40000,
+      "drag": { "cdTop": 0.9, "cdBottom": 0.9, "cdSide": 1.0 }
+    },
+
+    {
+      "id": "eng_hornet", "title": "Hornet LV-215 Engine", "category": "Engines",
+      "description": "Gimballed 1.25 m lifter engine. Strong at sea level, restartable. Generates electric charge while firing.",
+      "dryMass": 1500, "diameter": 1.25, "height": 1.6,
+      "model": { "type": "engine", "diameter": 1.25, "mountHeight": 0.45, "bellTop": 0.42, "bellBottom": 1.0, "bellLength": 1.15, "style": "engine" },
+      "nodes": [
+        { "id": "top", "pos": [0, 0.8, 0], "dir": [0, 1, 0], "size": 1 },
+        { "id": "bottom", "pos": [0, -0.8, 0], "dir": [0, -1, 0], "size": 1 }
+      ],
+      "surfaceAttach": { "allowed": false, "onto": false },
+      "maxTemp": 1800, "skinMaxTemp": 2000, "impactTolerance": 7, "breakingForce": 180000, "breakingTorque": 150000,
+      "drag": { "cdTop": 0.9, "cdBottom": 0.6, "cdSide": 0.9 },
+      "engine": { "type": "liquid", "thrustVac": 215000, "ispVac": 310, "ispAsl": 260, "gimbalRange": 3.0, "throttleResponse": 2.5,
+                  "propellant": "LiquidFuel", "alternator": 3.0, "nozzlePos": [0, -0.8, 0], "exhaustScale": 1.0, "exhaustColor": [1.0, 0.7, 0.35] }
+    },
+    {
+      "id": "eng_ember", "title": "Ember VX-60 Vacuum Engine", "category": "Engines",
+      "description": "Efficient restartable 1.25 m engine for upper stages and landers. Weak in thick air.",
+      "dryMass": 500, "diameter": 1.25, "height": 1.2,
+      "model": { "type": "engine", "diameter": 1.25, "mountHeight": 0.3, "bellTop": 0.3, "bellBottom": 0.85, "bellLength": 0.9, "style": "engine_gold" },
+      "nodes": [
+        { "id": "top", "pos": [0, 0.6, 0], "dir": [0, 1, 0], "size": 1 },
+        { "id": "bottom", "pos": [0, -0.6, 0], "dir": [0, -1, 0], "size": 1 }
+      ],
+      "surfaceAttach": { "allowed": false, "onto": false },
+      "maxTemp": 1800, "skinMaxTemp": 2000, "impactTolerance": 7, "breakingForce": 180000, "breakingTorque": 150000,
+      "drag": { "cdTop": 0.9, "cdBottom": 0.6, "cdSide": 0.9 },
+      "engine": { "type": "liquid", "thrustVac": 60000, "ispVac": 345, "ispAsl": 90, "gimbalRange": 4.0, "throttleResponse": 3.0,
+                  "propellant": "LiquidFuel", "alternator": 1.5, "nozzlePos": [0, -0.6, 0], "exhaustScale": 0.6, "exhaustColor": [0.75, 0.8, 1.0] }
+    },
+    {
+      "id": "eng_goliath", "title": "Goliath LV-650 Engine", "category": "Engines",
+      "description": "Heavy 2.5 m first-stage engine with a modest gimbal.",
+      "dryMass": 3000, "diameter": 2.5, "height": 2.8,
+      "model": { "type": "engine", "diameter": 2.5, "mountHeight": 0.8, "bellTop": 0.8, "bellBottom": 1.95, "bellLength": 2.0, "style": "engine" },
+      "nodes": [
+        { "id": "top", "pos": [0, 1.4, 0], "dir": [0, 1, 0], "size": 2 },
+        { "id": "bottom", "pos": [0, -1.4, 0], "dir": [0, -1, 0], "size": 2 }
+      ],
+      "surfaceAttach": { "allowed": false, "onto": false },
+      "maxTemp": 1800, "skinMaxTemp": 2000, "impactTolerance": 7, "breakingForce": 600000, "breakingTorque": 600000,
+      "drag": { "cdTop": 0.9, "cdBottom": 0.6, "cdSide": 0.9 },
+      "engine": { "type": "liquid", "thrustVac": 650000, "ispVac": 320, "ispAsl": 280, "gimbalRange": 2.5, "throttleResponse": 2.0,
+                  "propellant": "LiquidFuel", "alternator": 5.0, "nozzlePos": [0, -1.4, 0], "exhaustScale": 1.9, "exhaustColor": [1.0, 0.68, 0.32] }
+    },
+    {
+      "id": "eng_spark", "title": "Spark MX-18 Engine", "category": "Engines",
+      "description": "Tiny 0.625 m engine for probes, small landers and fine manoeuvring.",
+      "dryMass": 130, "diameter": 0.625, "height": 0.65,
+      "model": { "type": "engine", "diameter": 0.625, "mountHeight": 0.2, "bellTop": 0.16, "bellBottom": 0.42, "bellLength": 0.45, "style": "engine" },
+      "nodes": [
+        { "id": "top", "pos": [0, 0.325, 0], "dir": [0, 1, 0], "size": 0 },
+        { "id": "bottom", "pos": [0, -0.325, 0], "dir": [0, -1, 0], "size": 0 }
+      ],
+      "surfaceAttach": { "allowed": true, "onto": false, "pos": [0, 0.1, -0.3125], "dir": [0, 0, 1] },
+      "maxTemp": 1800, "skinMaxTemp": 2000, "impactTolerance": 7, "breakingForce": 60000, "breakingTorque": 40000,
+      "drag": { "cdTop": 0.9, "cdBottom": 0.6, "cdSide": 0.9 },
+      "engine": { "type": "liquid", "thrustVac": 18000, "ispVac": 315, "ispAsl": 265, "gimbalRange": 3.0, "throttleResponse": 4.0,
+                  "propellant": "LiquidFuel", "alternator": 0.5, "nozzlePos": [0, -0.325, 0], "exhaustScale": 0.35, "exhaustColor": [1.0, 0.72, 0.4] }
+    },
+
+    {
+      "id": "srb_pogo", "title": "Pogo SR-230 Solid Booster", "category": "Boosters",
+      "description": "Solid rocket booster. Cannot be throttled or shut down once lit; burns about 23 s.",
+      "dryMass": 750, "diameter": 1.25, "height": 3.6,
+      "model": { "type": "srb", "diameter": 1.25, "height": 3.6, "bellTop": 0.5, "bellBottom": 0.85, "bellLength": 0.45, "style": "srb" },
+      "nodes": [
+        { "id": "top", "pos": [0, 1.8, 0], "dir": [0, 1, 0], "size": 1 },
+        { "id": "bottom", "pos": [0, -1.8, 0], "dir": [0, -1, 0], "size": 1 }
+      ],
+      "surfaceAttach": { "allowed": true, "onto": true, "pos": [0, 0, -0.625], "dir": [0, 0, 1] },
+      "resources": [ { "id": "SolidFuel", "amount": 2800 } ],
+      "maxTemp": 1300, "skinMaxTemp": 1600, "impactTolerance": 7, "breakingForce": 550000, "breakingTorque": 400000,
+      "drag": { "cdTop": 0.75, "cdBottom": 0.6, "cdSide": 1.0 },
+      "engine": { "type": "solid", "thrustVac": 230000, "ispVac": 195, "ispAsl": 170, "gimbalRange": 0, "throttleResponse": 0,
+                  "propellant": "SolidFuel", "nozzlePos": [0, -1.8, 0], "exhaustScale": 1.1, "exhaustColor": [1.0, 0.55, 0.2] }
+    },
+    {
+      "id": "srb_kodiak", "title": "Kodiak SR-300 Solid Booster", "category": "Boosters",
+      "description": "Long-burning solid booster (about 44 s). Ideal as strap-on boosters via radial decouplers.",
+      "dryMass": 1500, "diameter": 1.25, "height": 6.8,
+      "model": { "type": "srb", "diameter": 1.25, "height": 6.8, "bellTop": 0.5, "bellBottom": 0.9, "bellLength": 0.5, "style": "srb" },
+      "nodes": [
+        { "id": "top", "pos": [0, 3.4, 0], "dir": [0, 1, 0], "size": 1 },
+        { "id": "bottom", "pos": [0, -3.4, 0], "dir": [0, -1, 0], "size": 1 }
+      ],
+      "surfaceAttach": { "allowed": true, "onto": true, "pos": [0, 0, -0.625], "dir": [0, 0, 1] },
+      "resources": [ { "id": "SolidFuel", "amount": 6400 } ],
+      "maxTemp": 1300, "skinMaxTemp": 1600, "impactTolerance": 7, "breakingForce": 700000, "breakingTorque": 500000,
+      "drag": { "cdTop": 0.75, "cdBottom": 0.6, "cdSide": 1.0 },
+      "engine": { "type": "solid", "thrustVac": 300000, "ispVac": 210, "ispAsl": 175, "gimbalRange": 0, "throttleResponse": 0,
+                  "propellant": "SolidFuel", "nozzlePos": [0, -3.4, 0], "exhaustScale": 1.2, "exhaustColor": [1.0, 0.55, 0.2] }
+    },
+
+    {
+      "id": "dec_s1", "title": "SD-1 Stack Decoupler", "category": "Coupling",
+      "description": "Separates the stage below from the vessel. Blocks propellant crossfeed. Stays with the lower stage.",
+      "dryMass": 50, "diameter": 1.25, "height": 0.2, "crossfeed": false,
+      "model": { "type": "decoupler", "diameter": 1.25, "height": 0.2, "style": "decoupler" },
+      "nodes": [
+        { "id": "top", "pos": [0, 0.1, 0], "dir": [0, 1, 0], "size": 1 },
+        { "id": "bottom", "pos": [0, -0.1, 0], "dir": [0, -1, 0], "size": 1 }
+      ],
+      "maxTemp": 1300, "skinMaxTemp": 1600, "impactTolerance": 9, "breakingForce": 180000, "breakingTorque": 150000,
+      "drag": { "cdTop": 0.9, "cdBottom": 0.9, "cdSide": 0.9 },
+      "decoupler": { "ejectionImpulse": 1500, "kind": "stack", "explosiveNode": "top" }
+    },
+    {
+      "id": "dec_s2", "title": "SD-2 Heavy Stack Decoupler", "category": "Coupling",
+      "description": "2.5 m stack decoupler. Blocks propellant crossfeed.",
+      "dryMass": 400, "diameter": 2.5, "height": 0.3, "crossfeed": false,
+      "model": { "type": "decoupler", "diameter": 2.5, "height": 0.3, "style": "decoupler" },
+      "nodes": [
+        { "id": "top", "pos": [0, 0.15, 0], "dir": [0, 1, 0], "size": 2 },
+        { "id": "bottom", "pos": [0, -0.15, 0], "dir": [0, -1, 0], "size": 2 }
+      ],
+      "maxTemp": 1300, "skinMaxTemp": 1600, "impactTolerance": 9, "breakingForce": 600000, "breakingTorque": 600000,
+      "drag": { "cdTop": 0.9, "cdBottom": 0.9, "cdSide": 0.9 },
+      "decoupler": { "ejectionImpulse": 5000, "kind": "stack", "explosiveNode": "top" }
+    },
+    {
+      "id": "dec_radial", "title": "RD-1 Radial Decoupler", "category": "Coupling",
+      "description": "Holds a side-mounted booster and pushes it clear when fired. Attach it to a tank, then attach the booster to it.",
+      "dryMass": 50, "diameter": 0.4, "height": 0.7, "crossfeed": false,
+      "model": { "type": "radialdecoupler", "diameter": 0.4, "height": 0.7, "style": "decoupler" },
+      "nodes": [],
+      "surfaceAttach": { "allowed": true, "onto": true, "pos": [0, 0, -0.1], "dir": [0, 0, 1] },
+      "maxTemp": 1300, "skinMaxTemp": 1600, "impactTolerance": 9, "breakingForce": 750000, "breakingTorque": 550000,
+      "drag": { "cdTop": 0.8, "cdBottom": 0.8, "cdSide": 0.8 },
+      "decoupler": { "ejectionImpulse": 20000, "kind": "radial", "explosiveNode": "srf" }
+    },
+
+    {
+      "id": "leg_ls2", "title": "LS-2 Landing Strut", "category": "Ground",
+      "description": "Retractable damped landing leg (toggle with G). Breaks if it strikes the ground faster than 12 m/s.",
+      "dryMass": 60, "diameter": 0.3, "height": 1.0,
+      "model": { "type": "leg", "diameter": 0.3, "height": 1.6, "style": "leg" },
+      "nodes": [],
+      "surfaceAttach": { "allowed": true, "onto": false, "pos": [0, 0, -0.1], "dir": [0, 0, 1] },
+      "maxTemp": 1000, "skinMaxTemp": 1300, "impactTolerance": 12, "breakingForce": 150000, "breakingTorque": 80000,
+      "drag": { "cdTop": 0.6, "cdBottom": 0.6, "cdSide": 0.6 },
+      "landingLeg": { "length": 1.6, "splayDeg": 28, "travel": 0.35, "spring": 45000, "damper": 7000, "impactTolerance": 12, "maxLoad": 90000, "footRadius": 0.18, "friction": 0.9 }
+    },
+    {
+      "id": "leg_ls5", "title": "LS-5 Heavy Landing Strut", "category": "Ground",
+      "description": "Long-travel landing leg for heavy landers.",
+      "dryMass": 150, "diameter": 0.4, "height": 1.5,
+      "model": { "type": "leg", "diameter": 0.4, "height": 2.4, "style": "leg" },
+      "nodes": [],
+      "surfaceAttach": { "allowed": true, "onto": false, "pos": [0, 0, -0.12], "dir": [0, 0, 1] },
+      "maxTemp": 1000, "skinMaxTemp": 1300, "impactTolerance": 12, "breakingForce": 250000, "breakingTorque": 150000,
+      "drag": { "cdTop": 0.6, "cdBottom": 0.6, "cdSide": 0.6 },
+      "landingLeg": { "length": 2.4, "splayDeg": 28, "travel": 0.5, "spring": 110000, "damper": 16000, "impactTolerance": 12, "maxLoad": 220000, "footRadius": 0.25, "friction": 0.9 }
+    },
+
+    {
+      "id": "chute_main", "title": "Canopy-16 Main Parachute", "category": "Recovery",
+      "description": "Main parachute. Arms when staged, semi-deploys once pressure exceeds 4 kPa (below ~18 km) and fully opens 1000 m above the ground. Tears if the canopy load exceeds 100 kN (opening far above terminal speed) and burns above 700 K (deployed in reentry heat).",
+      "dryMass": 100, "diameter": 0.64, "height": 0.35,
+      "model": { "type": "chute", "diameter": 0.64, "height": 0.35, "style": "chute" },
+      "nodes": [ { "id": "bottom", "pos": [0, -0.175, 0], "dir": [0, -1, 0], "size": 0 } ],
+      "surfaceAttach": { "allowed": false, "onto": false },
+      "maxTemp": 1100, "skinMaxTemp": 1400, "impactTolerance": 9, "breakingForce": 150000, "breakingTorque": 80000,
+      "drag": { "cdTop": 0.6, "cdBottom": 0.9, "cdSide": 0.8 },
+      "parachute": { "semiDeployedArea": 8, "deployedArea": 450, "minPressure": 4000, "deployAltitude": 1000, "semiDeployTime": 1.0, "deployTime": 4.0, "maxLoad": 100000, "maxCanopyTemp": 700, "canopyDiameter": 14, "canopyColor": [0.95, 0.45, 0.12] }
+    },
+    {
+      "id": "chute_drogue", "title": "Drogue-6 Drogue Chute", "category": "Recovery",
+      "description": "Small, strong chute that can open at higher speed and altitude (2500 m) to slow a capsule before the mains.",
+      "dryMass": 70, "diameter": 0.64, "height": 0.3,
+      "model": { "type": "chute", "diameter": 0.64, "height": 0.3, "style": "drogue" },
+      "nodes": [ { "id": "bottom", "pos": [0, -0.15, 0], "dir": [0, -1, 0], "size": 0 } ],
+      "surfaceAttach": { "allowed": true, "onto": false, "pos": [0, 0, -0.32], "dir": [0, 0, 1] },
+      "maxTemp": 1100, "skinMaxTemp": 1400, "impactTolerance": 9, "breakingForce": 200000, "breakingTorque": 80000,
+      "drag": { "cdTop": 0.6, "cdBottom": 0.9, "cdSide": 0.8 },
+      "parachute": { "semiDeployedArea": 2.5, "deployedArea": 30, "minPressure": 5000, "deployAltitude": 2500, "semiDeployTime": 0.6, "deployTime": 2.0, "maxLoad": 150000, "maxCanopyTemp": 900, "canopyDiameter": 4, "canopyColor": [0.9, 0.9, 0.9] }
+    },
+    {
+      "id": "chute_radial", "title": "Canopy-R Radial Parachute", "category": "Recovery",
+      "description": "Side-mounted main parachute for heavier capsules. Use in symmetric pairs.",
+      "dryMass": 80, "diameter": 0.35, "height": 0.6,
+      "model": { "type": "radialchute", "diameter": 0.35, "height": 0.6, "style": "chute" },
+      "nodes": [],
+      "surfaceAttach": { "allowed": true, "onto": false, "pos": [0, 0, -0.08], "dir": [0, 0, 1] },
+      "maxTemp": 1100, "skinMaxTemp": 1400, "impactTolerance": 9, "breakingForce": 150000, "breakingTorque": 80000,
+      "drag": { "cdTop": 0.6, "cdBottom": 0.6, "cdSide": 0.8 },
+      "parachute": { "semiDeployedArea": 6, "deployedArea": 320, "minPressure": 4000, "deployAltitude": 1000, "semiDeployTime": 1.0, "deployTime": 4.0, "maxLoad": 90000, "maxCanopyTemp": 700, "canopyDiameter": 12, "canopyColor": [0.95, 0.95, 0.95] }
+    },
+
+    {
+      "id": "shield_s1", "title": "HS-125 Ablative Heat Shield", "category": "Recovery",
+      "description": "Ablative shield for 1.25 m capsules. Point it into the airflow (retrograde) during reentry; ablator burns away as it absorbs heat.",
+      "dryMass": 90, "diameter": 1.35, "height": 0.25,
+      "model": { "type": "heatshield", "diameter": 1.35, "height": 0.25, "style": "shield" },
+      "nodes": [
+        { "id": "top", "pos": [0, 0.125, 0], "dir": [0, 1, 0], "size": 1 },
+        { "id": "bottom", "pos": [0, -0.125, 0], "dir": [0, -1, 0], "size": 1 }
+      ],
+      "resources": [ { "id": "Ablator", "amount": 140 } ],
+      "maxTemp": 2600, "skinMaxTemp": 3300, "specificHeat": 1300, "skinMassPerArea": 14, "emissivity": 0.85,
+      "impactTolerance": 12, "breakingForce": 180000, "breakingTorque": 150000,
+      "drag": { "cdTop": 0.9, "cdBottom": 1.2, "cdSide": 0.8 },
+      "heatShield": { "ablationStartTemp": 550, "ablationHeat": 1.6e7, "maxAblationRate": 0.8, "insulation": 3.0 }
+    },
+    {
+      "id": "shield_s2", "title": "HS-250 Ablative Heat Shield", "category": "Recovery",
+      "description": "Ablative shield for 2.5 m capsules.",
+      "dryMass": 300, "diameter": 2.65, "height": 0.35,
+      "model": { "type": "heatshield", "diameter": 2.65, "height": 0.35, "style": "shield" },
+      "nodes": [
+        { "id": "top", "pos": [0, 0.175, 0], "dir": [0, 1, 0], "size": 2 },
+        { "id": "bottom", "pos": [0, -0.175, 0], "dir": [0, -1, 0], "size": 2 }
+      ],
+      "resources": [ { "id": "Ablator", "amount": 500 } ],
+      "maxTemp": 2600, "skinMaxTemp": 3300, "specificHeat": 1300, "skinMassPerArea": 14, "emissivity": 0.85,
+      "impactTolerance": 12, "breakingForce": 600000, "breakingTorque": 600000,
+      "drag": { "cdTop": 0.9, "cdBottom": 1.2, "cdSide": 0.8 },
+      "heatShield": { "ablationStartTemp": 550, "ablationHeat": 1.6e7, "maxAblationRate": 2.5, "insulation": 6.0 }
+    },
+
+    {
+      "id": "battery_radial", "title": "Cell-100 Battery Pack", "category": "Utility",
+      "description": "Surface-mounted battery storing 100 EC for reaction wheels and probe cores.",
+      "dryMass": 5, "diameter": 0.3, "height": 0.4,
+      "model": { "type": "battery", "diameter": 0.3, "height": 0.4, "style": "dark" },
+      "nodes": [],
+      "surfaceAttach": { "allowed": true, "onto": false, "pos": [0, 0, -0.06], "dir": [0, 0, 1] },
+      "resources": [ { "id": "Electric", "amount": 100 } ],
+      "maxTemp": 1000, "skinMaxTemp": 1200, "impactTolerance": 8, "breakingForce": 30000, "breakingTorque": 20000,
+      "drag": { "cdTop": 0.5, "cdBottom": 0.5, "cdSide": 0.6 }
+    },
+    {
+      "id": "battery_s1", "title": "Cell-400 Battery Bank", "category": "Utility",
+      "description": "Inline 1.25 m battery bank storing 400 EC.",
+      "dryMass": 20, "diameter": 1.25, "height": 0.2,
+      "model": { "type": "disc", "diameter": 1.25, "height": 0.2, "style": "battery" },
+      "nodes": [
+        { "id": "top", "pos": [0, 0.1, 0], "dir": [0, 1, 0], "size": 1 },
+        { "id": "bottom", "pos": [0, -0.1, 0], "dir": [0, -1, 0], "size": 1 }
+      ],
+      "resources": [ { "id": "Electric", "amount": 400 } ],
+      "maxTemp": 1000, "skinMaxTemp": 1200, "impactTolerance": 8, "breakingForce": 180000, "breakingTorque": 150000,
+      "drag": { "cdTop": 0.9, "cdBottom": 0.9, "cdSide": 0.9 }
+    },
+    {
+      "id": "rw_s1", "title": "Gyro-S Reaction Wheel", "category": "Utility",
+      "description": "Inline 1.25 m reaction wheel: 12 kN*m per axis. Draws electric charge while applying torque.",
+      "dryMass": 100, "diameter": 1.25, "height": 0.25,
+      "model": { "type": "disc", "diameter": 1.25, "height": 0.25, "style": "wheel" },
+      "nodes": [
+        { "id": "top", "pos": [0, 0.125, 0], "dir": [0, 1, 0], "size": 1 },
+        { "id": "bottom", "pos": [0, -0.125, 0], "dir": [0, -1, 0], "size": 1 }
+      ],
+      "maxTemp": 1100, "skinMaxTemp": 1300, "impactTolerance": 8, "breakingForce": 180000, "breakingTorque": 150000,
+      "drag": { "cdTop": 0.9, "cdBottom": 0.9, "cdSide": 0.9 },
+      "reactionWheel": { "torque": 12000, "ecPerSecond": 0.45 }
+    },
+    {
+      "id": "rw_s2", "title": "Gyro-L Reaction Wheel", "category": "Utility",
+      "description": "Inline 2.5 m reaction wheel: 36 kN*m per axis.",
+      "dryMass": 400, "diameter": 2.5, "height": 0.4,
+      "model": { "type": "disc", "diameter": 2.5, "height": 0.4, "style": "wheel" },
+      "nodes": [
+        { "id": "top", "pos": [0, 0.2, 0], "dir": [0, 1, 0], "size": 2 },
+        { "id": "bottom", "pos": [0, -0.2, 0], "dir": [0, -1, 0], "size": 2 }
+      ],
+      "maxTemp": 1100, "skinMaxTemp": 1300, "impactTolerance": 8, "breakingForce": 600000, "breakingTorque": 600000,
+      "drag": { "cdTop": 0.9, "cdBottom": 0.9, "cdSide": 0.9 },
+      "reactionWheel": { "torque": 36000, "ecPerSecond": 0.9 }
+    },
+    {
+      "id": "rcs_quad", "title": "Quad-4 RCS Thruster Block", "category": "Utility",
+      "description": "Four monopropellant thrusters for rotation and translation (toggle RCS with R; translate with H/N/I/J/K/L). Mount in symmetric groups around the centre of mass.",
+      "dryMass": 40, "diameter": 0.4, "height": 0.4,
+      "model": { "type": "rcs", "diameter": 0.4, "height": 0.4, "style": "rcs" },
+      "nodes": [],
+      "surfaceAttach": { "allowed": true, "onto": false, "pos": [0, 0, -0.06], "dir": [0, 0, 1] },
+      "maxTemp": 1300, "skinMaxTemp": 1500, "impactTolerance": 10, "breakingForce": 30000, "breakingTorque": 20000,
+      "drag": { "cdTop": 0.5, "cdBottom": 0.5, "cdSide": 0.6 },
+      "rcs": { "thrust": 1000, "ispVac": 240, "ispAsl": 100, "propellant": "Monoprop",
+               "nozzles": [ [0, 0.2, 0.12, 0, 1, 0], [0, -0.2, 0.12, 0, -1, 0], [0.2, 0, 0.12, 1, 0, 0], [-0.2, 0, 0.12, -1, 0, 0] ] }
+    },
+    {
+      "id": "mono_s1", "title": "MP-150 Monopropellant Tank", "category": "Utility",
+      "description": "Inline tank with 150 kg of monopropellant for RCS.",
+      "dryMass": 40, "diameter": 1.25, "height": 0.4,
+      "model": { "type": "tank", "diameter": 1.25, "height": 0.4, "style": "mono" },
+      "nodes": [
+        { "id": "top", "pos": [0, 0.2, 0], "dir": [0, 1, 0], "size": 1 },
+        { "id": "bottom", "pos": [0, -0.2, 0], "dir": [0, -1, 0], "size": 1 }
+      ],
+      "resources": [ { "id": "Monoprop", "amount": 150 } ],
+      "maxTemp": 1000, "skinMaxTemp": 1300, "impactTolerance": 7, "breakingForce": 180000, "breakingTorque": 150000,
+      "drag": { "cdTop": 0.9, "cdBottom": 0.9, "cdSide": 0.9 }
+    },
+    {
+      "id": "mono_radial", "title": "MP-R Radial Monoprop Tank", "category": "Utility",
+      "description": "Small side-mounted monopropellant tank (40 kg).",
+      "dryMass": 12, "diameter": 0.35, "height": 0.8,
+      "model": { "type": "radialtank", "diameter": 0.35, "height": 0.8, "style": "mono" },
+      "nodes": [],
+      "surfaceAttach": { "allowed": true, "onto": false, "pos": [0, 0, -0.175], "dir": [0, 0, 1] },
+      "resources": [ { "id": "Monoprop", "amount": 40 } ],
+      "maxTemp": 1000, "skinMaxTemp": 1300, "impactTolerance": 7, "breakingForce": 30000, "breakingTorque": 20000,
+      "drag": { "cdTop": 0.5, "cdBottom": 0.5, "cdSide": 0.8 }
+    },
+    {
+      "id": "dock_s1", "title": "Clasp-1 Docking Port", "category": "Coupling",
+      "description": "Androgynous docking port. Two ports facing each other within 0.6 m and 1 m/s capture automatically. Undock from the part menu.",
+      "dryMass": 60, "diameter": 1.25, "height": 0.35,
+      "model": { "type": "dockingport", "diameter": 1.25, "height": 0.35, "style": "dock" },
+      "nodes": [
+        { "id": "top", "pos": [0, 0.175, 0], "dir": [0, 1, 0], "size": 1 },
+        { "id": "bottom", "pos": [0, -0.175, 0], "dir": [0, -1, 0], "size": 1 }
+      ],
+      "maxTemp": 1100, "skinMaxTemp": 1400, "impactTolerance": 9, "breakingForce": 180000, "breakingTorque": 150000,
+      "drag": { "cdTop": 0.9, "cdBottom": 0.9, "cdSide": 0.9 },
+      "dockingPort": { "nodeId": "top", "captureRange": 0.6, "captureSpeed": 1.0, "captureAngleDeg": 15, "undockImpulse": 150 }
+    },
+
+    {
+      "id": "nose_s1", "title": "Aero Nose Cone", "category": "Aero",
+      "description": "Streamlined 1.25 m nose cone. Greatly reduces drag on top of a stack or booster.",
+      "dryMass": 40, "diameter": 1.25, "height": 1.0,
+      "model": { "type": "nosecone", "diameter": 1.25, "height": 1.0, "style": "white" },
+      "nodes": [ { "id": "bottom", "pos": [0, -0.5, 0], "dir": [0, -1, 0], "size": 1 } ],
+      "surfaceAttach": { "allowed": false, "onto": true },
+      "maxTemp": 1600, "skinMaxTemp": 2200, "impactTolerance": 8, "breakingForce": 180000, "breakingTorque": 150000,
+      "drag": { "cdTop": 0.12, "cdBottom": 0.9, "cdSide": 0.75, "bodyLift": 0.25 }
+    },
+    {
+      "id": "fin_fs1", "title": "FS-1 Stabilizer Fin", "category": "Aero",
+      "description": "Fixed tail fin. Place 3-4 near the bottom of a rocket (symmetry) to move the centre of pressure aft and keep it pointing prograde.",
+      "dryMass": 30, "diameter": 0.1, "height": 0.9,
+      "model": { "type": "fin", "diameter": 0.7, "height": 0.9, "style": "fin" },
+      "nodes": [],
+      "surfaceAttach": { "allowed": true, "onto": false, "pos": [0, 0, 0], "dir": [0, 0, 1] },
+      "maxTemp": 1400, "skinMaxTemp": 1700, "impactTolerance": 8, "breakingForce": 40000, "breakingTorque": 25000,
+      "drag": { "cdTop": 0.1, "cdBottom": 0.1, "cdSide": 0.05 },
+      "fin": { "area": 0.55, "liftSlope": 3.5, "normal": [1, 0, 0], "stallDeg": 22 }
+    },
+
+    {
+      "id": "eva_crew", "title": "Rocketeer on EVA", "category": "Hidden",
+      "description": "A crew member in a pressure suit with a small monopropellant jetpack.",
+      "dryMass": 94, "diameter": 0.6, "height": 1.3,
+      "model": { "type": "eva", "diameter": 0.6, "height": 1.3, "style": "suit" },
+      "nodes": [],
+      "surfaceAttach": { "allowed": false, "onto": false },
+      "resources": [ { "id": "Monoprop", "amount": 10, "max": 10 } ],
+      "maxTemp": 380, "skinMaxTemp": 700, "specificHeat": 1200, "skinMassPerArea": 4, "emissivity": 0.6,
+      "impactTolerance": 12, "breakingForce": 1e9, "breakingTorque": 1e9,
+      "drag": { "cdTop": 1.0, "cdBottom": 1.0, "cdSide": 1.1 }
+    },
+    {
+      "id": "flag", "title": "Mission Flag", "category": "Hidden",
+      "description": "A flag planted to mark a landing site.",
+      "dryMass": 10, "diameter": 0.1, "height": 2.2,
+      "model": { "type": "flag", "diameter": 0.1, "height": 2.2 },
+      "nodes": [],
+      "surfaceAttach": { "allowed": false, "onto": false },
+      "maxTemp": 2000, "skinMaxTemp": 2000, "impactTolerance": 1000, "breakingForce": 1e9, "breakingTorque": 1e9,
+      "drag": { "cdTop": 0.1, "cdBottom": 0.1, "cdSide": 0.2 }
+    }
+  ]
+}

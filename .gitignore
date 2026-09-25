@@ -1,0 +1,68 @@
+# ================ #
+# Unity generated  #
+# ================ #
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+*_BackUpThisFolder_ButDontShipItWithYourGame/
+*_BurstDebugInformation_DoNotShip/
+SerializedBuildInfo/
+crashlytics-build.properties
+
+# ================ #
+# IDE generated    #
+# ================ #
+.vs/
+.vscode/
+.idea/
+.consulo/
+ExportedObj/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.DotSettings.user
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+*Unity3DRider.cs*
+
+# ================ #
+# Player builds    #
+# ================ #
+*.apk
+*.aab
+*.app
+*.unitypackage
+
+# ================ #
+# OS generated     #
+# ================ #
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ================ #
+# Blender backups  #
+# ================ #
+*.blend1
+*.blend2

@@ -1,0 +1,14 @@
+{
+    "name": "TAP.Simulation",
+    "rootNamespace": "TAP.Simulation",
+    "references": ["TAP.Core", "TAP.Parts", "TAP.Persistence", "TAP.Trajectory"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

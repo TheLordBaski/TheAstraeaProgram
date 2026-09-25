@@ -1,0 +1,14 @@
+{
+    "name": "TAP.UI",
+    "rootNamespace": "TAP.UI",
+    "references": ["TAP.Core", "TAP.Parts", "TAP.Persistence", "TAP.Trajectory", "TAP.Simulation", "TAP.Construction", "TAP.Game", "Unity.InputSystem", "Unity.TextMeshPro", "UnityEngine.UI", "Unity.RenderPipelines.Universal.Runtime", "Unity.RenderPipelines.Core.Runtime"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

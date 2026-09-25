@@ -1,0 +1,285 @@
+{
+  "name": "Meridian Orbiter",
+  "description": "Two-stage orbital rocket (~3,800 m/s). Gimballed lifter first stage, efficient vacuum upper stage, heat-shielded capsule.",
+  "version": 1,
+  "parts": [
+    {
+      "uid": 1,
+      "partId": "pod_kestrel",
+      "parent": -1,
+      "pos": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": -1,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 2,
+      "partId": "chute_main",
+      "parent": 0,
+      "parentNode": "top",
+      "attachNode": "bottom",
+      "pos": [
+        0.0,
+        0.85,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": 0,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 3,
+      "partId": "shield_s1",
+      "parent": 0,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -0.8,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": -1,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 4,
+      "partId": "dec_s1",
+      "parent": 2,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -1.025,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": 1,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 5,
+      "partId": "tank_s1_long",
+      "parent": 3,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -3.325,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": -1,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 6,
+      "partId": "eng_ember",
+      "parent": 4,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -6.125,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": 2,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 7,
+      "partId": "dec_s1",
+      "parent": 5,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -6.825,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": 2,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 8,
+      "partId": "tank_s1_long",
+      "parent": 6,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -9.125,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": -1,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 9,
+      "partId": "tank_s1_long",
+      "parent": 7,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -13.525,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": -1,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 10,
+      "partId": "eng_hornet",
+      "parent": 8,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -16.525,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": 3,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 11,
+      "partId": "fin_fs1",
+      "parent": 8,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        0.441941738,
+        -15.2249994,
+        0.441941738
+      ],
+      "rot": [
+        0.0,
+        0.382683456,
+        0.0,
+        0.923879564
+      ],
+      "stage": -1,
+      "symmetryGroup": 1
+    },
+    {
+      "uid": 12,
+      "partId": "fin_fs1",
+      "parent": 8,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        0.441941738,
+        -15.2249994,
+        -0.441941738
+      ],
+      "rot": [
+        0.0,
+        0.923879564,
+        0.0,
+        0.382683456
+      ],
+      "stage": -1,
+      "symmetryGroup": 1
+    },
+    {
+      "uid": 13,
+      "partId": "fin_fs1",
+      "parent": 8,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        -0.441941679,
+        -15.2249994,
+        -0.441941768
+      ],
+      "rot": [
+        0.0,
+        0.923879564,
+        0.0,
+        -0.3826834
+      ],
+      "stage": -1,
+      "symmetryGroup": 1
+    },
+    {
+      "uid": 14,
+      "partId": "fin_fs1",
+      "parent": 8,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        -0.4419418,
+        -15.2249994,
+        0.441941649
+      ],
+      "rot": [
+        0.0,
+        -0.3826835,
+        0.0,
+        0.9238795
+      ],
+      "stage": -1,
+      "symmetryGroup": 1
+    }
+  ]
+}

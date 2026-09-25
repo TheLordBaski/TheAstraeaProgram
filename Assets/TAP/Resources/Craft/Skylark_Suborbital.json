@@ -1,0 +1,168 @@
+{
+  "name": "Skylark Suborbital",
+  "description": "Solid-fuel sounding rocket: one crew, one burn well above the 70 km edge of space, then a heat-shielded fall and a parachute landing. Stage 1: ignite, stage 2: separate capsule, stage 3: arm chute.",
+  "version": 1,
+  "parts": [
+    {
+      "uid": 1,
+      "partId": "pod_kestrel",
+      "parent": -1,
+      "pos": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": -1,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 2,
+      "partId": "chute_main",
+      "parent": 0,
+      "parentNode": "top",
+      "attachNode": "bottom",
+      "pos": [
+        0.0,
+        0.85,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": 0,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 3,
+      "partId": "shield_s1",
+      "parent": 0,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -0.8,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": -1,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 4,
+      "partId": "dec_s1",
+      "parent": 2,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -1.025,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": 1,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 5,
+      "partId": "srb_kodiak",
+      "parent": 3,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -4.525,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": 2,
+      "symmetryGroup": -1,
+      "settings": {
+        "thrustLimit": 80.0
+      }
+    },
+    {
+      "uid": 6,
+      "partId": "fin_fs1",
+      "parent": 4,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        0.0,
+        -7.425,
+        0.625
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": -1,
+      "symmetryGroup": 1
+    },
+    {
+      "uid": 7,
+      "partId": "fin_fs1",
+      "parent": 4,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        0.541265845,
+        -7.425,
+        -0.31250003
+      ],
+      "rot": [
+        0.0,
+        0.8660254,
+        0.0,
+        0.49999997
+      ],
+      "stage": -1,
+      "symmetryGroup": 1
+    },
+    {
+      "uid": 8,
+      "partId": "fin_fs1",
+      "parent": 4,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        -0.5412659,
+        -7.425,
+        -0.31249994
+      ],
+      "rot": [
+        0.0,
+        -0.8660254,
+        0.0,
+        0.5000001
+      ],
+      "stage": -1,
+      "symmetryGroup": 1
+    }
+  ]
+}

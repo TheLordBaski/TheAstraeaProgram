@@ -1,0 +1,1025 @@
+{
+  "name": "Luma Pathfinder",
+  "description": "Complete crewed lunar mission. Four boosters and the core reach space, the transfer stage finishes the orbit and starts the transfer to Luma; the wide lander (legs on G) completes it, captures, lands, lifts off and burns home; the heat-shielded capsule returns under its main chute.",
+  "version": 1,
+  "parts": [
+    {
+      "uid": 1,
+      "partId": "pod_kestrel",
+      "parent": -1,
+      "pos": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": -1,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 2,
+      "partId": "chute_main",
+      "parent": 0,
+      "parentNode": "top",
+      "attachNode": "bottom",
+      "pos": [
+        0.0,
+        0.85,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": 0,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 3,
+      "partId": "shield_s1",
+      "parent": 0,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -0.8,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": -1,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 4,
+      "partId": "dec_s1",
+      "parent": 2,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -1.025,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": 1,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 5,
+      "partId": "rw_s1",
+      "parent": 3,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -1.25,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": -1,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 6,
+      "partId": "battery_s1",
+      "parent": 4,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -1.475,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": -1,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 7,
+      "partId": "adapter_s2_s1",
+      "parent": 5,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -2.525,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": -1,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 8,
+      "partId": "tank_s2_short",
+      "parent": 6,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -4.425,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": -1,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 9,
+      "partId": "eng_ember",
+      "parent": 7,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -5.975,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": 2,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 10,
+      "partId": "leg_ls5",
+      "parent": 7,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        0.9687363,
+        -5.025,
+        0.9687363
+      ],
+      "rot": [
+        0.0,
+        0.382683456,
+        0.0,
+        0.923879564
+      ],
+      "stage": -1,
+      "symmetryGroup": 1
+    },
+    {
+      "uid": 11,
+      "partId": "leg_ls5",
+      "parent": 7,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        0.9687363,
+        -5.025,
+        -0.9687363
+      ],
+      "rot": [
+        0.0,
+        0.923879564,
+        0.0,
+        0.382683456
+      ],
+      "stage": -1,
+      "symmetryGroup": 1
+    },
+    {
+      "uid": 12,
+      "partId": "leg_ls5",
+      "parent": 7,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        -0.9687362,
+        -5.025,
+        -0.968736351
+      ],
+      "rot": [
+        0.0,
+        0.923879564,
+        0.0,
+        -0.3826834
+      ],
+      "stage": -1,
+      "symmetryGroup": 1
+    },
+    {
+      "uid": 13,
+      "partId": "leg_ls5",
+      "parent": 7,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        -0.9687364,
+        -5.025,
+        0.9687361
+      ],
+      "rot": [
+        0.0,
+        -0.3826835,
+        0.0,
+        0.9238795
+      ],
+      "stage": -1,
+      "symmetryGroup": 1
+    },
+    {
+      "uid": 14,
+      "partId": "rcs_quad",
+      "parent": 7,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        0.9263099,
+        -3.97500014,
+        0.9263099
+      ],
+      "rot": [
+        0.0,
+        0.382683456,
+        0.0,
+        0.923879564
+      ],
+      "stage": -1,
+      "symmetryGroup": 2
+    },
+    {
+      "uid": 15,
+      "partId": "rcs_quad",
+      "parent": 7,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        0.9263099,
+        -3.97500014,
+        -0.9263099
+      ],
+      "rot": [
+        0.0,
+        0.923879564,
+        0.0,
+        0.382683456
+      ],
+      "stage": -1,
+      "symmetryGroup": 2
+    },
+    {
+      "uid": 16,
+      "partId": "rcs_quad",
+      "parent": 7,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        -0.926309764,
+        -3.97500014,
+        -0.926309943
+      ],
+      "rot": [
+        0.0,
+        0.923879564,
+        0.0,
+        -0.3826834
+      ],
+      "stage": -1,
+      "symmetryGroup": 2
+    },
+    {
+      "uid": 17,
+      "partId": "rcs_quad",
+      "parent": 7,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        -0.92631,
+        -3.97500014,
+        0.9263097
+      ],
+      "rot": [
+        0.0,
+        -0.3826835,
+        0.0,
+        0.9238795
+      ],
+      "stage": -1,
+      "symmetryGroup": 2
+    },
+    {
+      "uid": 18,
+      "partId": "dec_s1",
+      "parent": 8,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -6.67499971,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": 2,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 19,
+      "partId": "adapter_s2_s1",
+      "parent": 17,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -7.72499943,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": -1,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 20,
+      "partId": "tank_s2_short",
+      "parent": 18,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -9.624999,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "stage": -1,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 21,
+      "partId": "adapter_s2_s1",
+      "parent": 19,
+      "parentNode": "bottom",
+      "attachNode": "bottom",
+      "pos": [
+        0.0,
+        -11.5249987,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "stage": -1,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 22,
+      "partId": "eng_hornet",
+      "parent": 20,
+      "parentNode": "top",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -13.2749987,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "stage": 3,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 23,
+      "partId": "dec_s1",
+      "parent": 21,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -14.1749992,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "stage": 3,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 24,
+      "partId": "adapter_s2_s1",
+      "parent": 22,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -15.2249994,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "stage": -1,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 25,
+      "partId": "tank_s2_long",
+      "parent": 23,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -19.925,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "stage": -1,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 26,
+      "partId": "tank_s2_short",
+      "parent": 24,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -24.625,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "stage": -1,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 27,
+      "partId": "eng_goliath",
+      "parent": 25,
+      "parentNode": "bottom",
+      "attachNode": "top",
+      "pos": [
+        0.0,
+        -26.975,
+        0.0
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "stage": 5,
+      "symmetryGroup": -1
+    },
+    {
+      "uid": 28,
+      "partId": "fin_fs1",
+      "parent": 25,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        0.8838835,
+        -25.125,
+        0.8838835
+      ],
+      "rot": [
+        0.0,
+        -0.382683456,
+        0.0,
+        -0.923879564
+      ],
+      "stage": -1,
+      "symmetryGroup": 3
+    },
+    {
+      "uid": 29,
+      "partId": "fin_fs1",
+      "parent": 25,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        0.8838835,
+        -25.125,
+        -0.8838835
+      ],
+      "rot": [
+        0.0,
+        -0.923879564,
+        0.0,
+        -0.382683456
+      ],
+      "stage": -1,
+      "symmetryGroup": 3
+    },
+    {
+      "uid": 30,
+      "partId": "fin_fs1",
+      "parent": 25,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        -0.883883357,
+        -25.125,
+        -0.883883536
+      ],
+      "rot": [
+        0.0,
+        -0.923879564,
+        0.0,
+        0.3826834
+      ],
+      "stage": -1,
+      "symmetryGroup": 3
+    },
+    {
+      "uid": 31,
+      "partId": "fin_fs1",
+      "parent": 25,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        -0.8838836,
+        -25.125,
+        0.8838833
+      ],
+      "rot": [
+        0.0,
+        0.3826835,
+        0.0,
+        -0.9238795
+      ],
+      "stage": -1,
+      "symmetryGroup": 3
+    },
+    {
+      "uid": 32,
+      "partId": "dec_radial",
+      "parent": 24,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        1.35,
+        -18.925,
+        -6.656017E-08
+      ],
+      "rot": [
+        0.0,
+        -0.7071068,
+        0.0,
+        -0.7071068
+      ],
+      "stage": 4,
+      "symmetryGroup": 4
+    },
+    {
+      "uid": 33,
+      "partId": "dec_radial",
+      "parent": 24,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        -1.18020751E-07,
+        -18.925,
+        -1.35
+      ],
+      "rot": [
+        0.0,
+        -1.0,
+        0.0,
+        4.371139E-08
+      ],
+      "stage": 4,
+      "symmetryGroup": 4
+    },
+    {
+      "uid": 34,
+      "partId": "dec_radial",
+      "parent": 24,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        -1.35,
+        -18.925,
+        2.985172E-09
+      ],
+      "rot": [
+        0.0,
+        0.7071068,
+        0.0,
+        -0.7071068
+      ],
+      "stage": 4,
+      "symmetryGroup": 4
+    },
+    {
+      "uid": 35,
+      "partId": "dec_radial",
+      "parent": 24,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        2.360415E-07,
+        -18.925,
+        1.35
+      ],
+      "rot": [
+        0.0,
+        -8.742278E-08,
+        0.0,
+        -1.0
+      ],
+      "stage": 4,
+      "symmetryGroup": 4
+    },
+    {
+      "uid": 36,
+      "partId": "srb_kodiak",
+      "parent": 31,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        2.075,
+        -18.925,
+        -1.45996353E-07
+      ],
+      "rot": [
+        0.0,
+        -0.7071068,
+        0.0,
+        -0.7071068
+      ],
+      "stage": 5,
+      "symmetryGroup": 5
+    },
+    {
+      "uid": 37,
+      "partId": "srb_kodiak",
+      "parent": 32,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        -1.81402271E-07,
+        -18.925,
+        -2.075
+      ],
+      "rot": [
+        0.0,
+        -1.0,
+        0.0,
+        4.371139E-08
+      ],
+      "stage": 5,
+      "symmetryGroup": 5
+    },
+    {
+      "uid": 38,
+      "partId": "srb_kodiak",
+      "parent": 33,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        -2.075,
+        -18.925,
+        4.04592E-08
+      ],
+      "rot": [
+        0.0,
+        0.707106769,
+        0.0,
+        -0.7071069
+      ],
+      "stage": 5,
+      "symmetryGroup": 5
+    },
+    {
+      "uid": 39,
+      "partId": "srb_kodiak",
+      "parent": 34,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        3.62804542E-07,
+        -18.925,
+        2.075
+      ],
+      "rot": [
+        0.0,
+        -8.742278E-08,
+        0.0,
+        -1.0
+      ],
+      "stage": 5,
+      "symmetryGroup": 5
+    },
+    {
+      "uid": 40,
+      "partId": "nose_s1",
+      "parent": 35,
+      "parentNode": "top",
+      "attachNode": "bottom",
+      "pos": [
+        2.075,
+        -15.025,
+        -1.45996353E-07
+      ],
+      "rot": [
+        0.0,
+        -0.7071068,
+        0.0,
+        -0.7071068
+      ],
+      "stage": -1,
+      "symmetryGroup": 6
+    },
+    {
+      "uid": 41,
+      "partId": "nose_s1",
+      "parent": 36,
+      "parentNode": "top",
+      "attachNode": "bottom",
+      "pos": [
+        -1.81402271E-07,
+        -15.025,
+        -2.075
+      ],
+      "rot": [
+        0.0,
+        -1.0,
+        0.0,
+        4.371139E-08
+      ],
+      "stage": -1,
+      "symmetryGroup": 6
+    },
+    {
+      "uid": 42,
+      "partId": "nose_s1",
+      "parent": 37,
+      "parentNode": "top",
+      "attachNode": "bottom",
+      "pos": [
+        -2.075,
+        -15.025,
+        4.04592E-08
+      ],
+      "rot": [
+        0.0,
+        0.707106769,
+        0.0,
+        -0.7071069
+      ],
+      "stage": -1,
+      "symmetryGroup": 6
+    },
+    {
+      "uid": 43,
+      "partId": "nose_s1",
+      "parent": 38,
+      "parentNode": "top",
+      "attachNode": "bottom",
+      "pos": [
+        3.62804542E-07,
+        -15.025,
+        2.075
+      ],
+      "rot": [
+        0.0,
+        -8.742278E-08,
+        0.0,
+        -1.0
+      ],
+      "stage": -1,
+      "symmetryGroup": 6
+    },
+    {
+      "uid": 44,
+      "partId": "fin_fs1",
+      "parent": 35,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        2.075,
+        -21.8249989,
+        -0.6250002
+      ],
+      "rot": [
+        0.0,
+        -1.00000012,
+        0.0,
+        0.0
+      ],
+      "stage": -1,
+      "symmetryGroup": 7
+    },
+    {
+      "uid": 45,
+      "partId": "fin_fs1",
+      "parent": 35,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        2.075,
+        -21.8249989,
+        0.62499994
+      ],
+      "rot": [
+        0.0,
+        0.0,
+        0.0,
+        -1.00000012
+      ],
+      "stage": -1,
+      "symmetryGroup": 7
+    },
+    {
+      "uid": 46,
+      "partId": "fin_fs1",
+      "parent": 36,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        -0.6250002,
+        -21.8249989,
+        -2.075
+      ],
+      "rot": [
+        0.0,
+        -0.707106769,
+        0.0,
+        0.7071069
+      ],
+      "stage": -1,
+      "symmetryGroup": 8
+    },
+    {
+      "uid": 47,
+      "partId": "fin_fs1",
+      "parent": 36,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        0.6249998,
+        -21.8249989,
+        -2.075
+      ],
+      "rot": [
+        0.0,
+        -0.7071069,
+        0.0,
+        -0.707106769
+      ],
+      "stage": -1,
+      "symmetryGroup": 8
+    },
+    {
+      "uid": 48,
+      "partId": "fin_fs1",
+      "parent": 37,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        -2.075,
+        -21.8249989,
+        0.6250001
+      ],
+      "rot": [
+        0.0,
+        -8.42937E-08,
+        0.0,
+        -1.00000012
+      ],
+      "stage": -1,
+      "symmetryGroup": 9
+    },
+    {
+      "uid": 49,
+      "partId": "fin_fs1",
+      "parent": 37,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        -2.075,
+        -21.8249989,
+        -0.625
+      ],
+      "rot": [
+        0.0,
+        1.00000012,
+        0.0,
+        -8.42937E-08
+      ],
+      "stage": -1,
+      "symmetryGroup": 9
+    },
+    {
+      "uid": 50,
+      "partId": "fin_fs1",
+      "parent": 38,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        0.625000358,
+        -21.8249989,
+        2.07499981
+      ],
+      "rot": [
+        0.0,
+        -0.7071069,
+        0.0,
+        -0.707106769
+      ],
+      "stage": -1,
+      "symmetryGroup": 10
+    },
+    {
+      "uid": 51,
+      "partId": "fin_fs1",
+      "parent": 38,
+      "parentNode": "srf",
+      "attachNode": "srf",
+      "pos": [
+        -0.624999642,
+        -21.8249989,
+        2.075
+      ],
+      "rot": [
+        0.0,
+        0.707106769,
+        0.0,
+        -0.7071069
+      ],
+      "stage": -1,
+      "symmetryGroup": 10
+    }
+  ]
+}
