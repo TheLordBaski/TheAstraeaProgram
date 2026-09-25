@@ -82,6 +82,10 @@ namespace TAP.Simulation
             foreach (var c in _colliders.Values) if (c.Go != null) Destroy(c.Go);
             _colliders.Clear();
             _colliderBody = body;
+            // Structures of other bodies leave the scene: they are only moved while their body is the frame body, so
+            // their colliders would linger at stale coordinates (after a teleport, right where the vessel appears).
+            foreach (var s in SurfaceObjects)
+                if (s.Go != null && s.Go.activeSelf != (s.Body == body)) s.Go.SetActive(s.Body == body);
         }
 
         /// <summary>Places all surface objects at their exact pose for UT (teleport), e.g. right after initialization.</summary>
@@ -366,6 +370,7 @@ namespace TAP.Simulation
         {
             var so = new SurfaceObject { Body = body, Go = go, PositionBF = posBF, RotationBF = rotBF };
             go.transform.SetParent(transform, true);
+            if (_colliderBody != null && body != _colliderBody) go.SetActive(false); // see OnFrameBodyChanged
             if (physics)
             {
                 so.Rb = go.GetComponent<Rigidbody>();

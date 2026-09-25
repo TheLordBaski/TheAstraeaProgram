@@ -31,5 +31,18 @@ namespace TAP.Core
         }
 
         public static Vector3 East(Vector3 up) => Vector3.Cross(up, North(up)).normalized;
+
+        /// <summary>
+        /// Body-fixed direction for a geographic latitude (north positive, towards <see cref="NorthPole"/>) and longitude
+        /// (east positive). The terrain generator's own latitude counts towards +Y, which is geographic south.
+        /// </summary>
+        public static Vector3d FromLatLon(double latDeg, double lonDeg) => TerrainGenerator.DirectionFromLatLon(-latDeg, lonDeg);
+
+        /// <summary>Geographic latitude (north positive) and longitude of a body-fixed direction.</summary>
+        public static void ToLatLon(Vector3d dir, out double latDeg, out double lonDeg)
+        {
+            TerrainGenerator.LatLonFromDirection(dir, out latDeg, out lonDeg);
+            latDeg = -latDeg;
+        }
     }
 }

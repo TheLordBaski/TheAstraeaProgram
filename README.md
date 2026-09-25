@@ -21,6 +21,9 @@ Repository: <https://github.com/TheLordBaski/TheAstraeaProgram>. Images and othe
   and press Play. `Flight.unity` can also be played directly (it launches the Luma Pathfinder on the pad).
 * **Rebuild**: menu *TAP → Build Windows Player* (or `TAP.EditorTools.BuildScript.BuildWindows`).
   *TAP → Build All Assets* regenerates textures, icons, materials, starter craft and scenes.
+* **Developer tools** in flight: **Alt+F12** or **`** (cheats, teleports to orbit or to the surface, zoom speed).
+* **Part models**: *TAP → Part Models → Export All* writes every part as FBX/OBJ for editing; an FBX saved as
+  `Assets/TAP/Resources/PartModels/<part id>.fbx` replaces that part's model ([Docs/PART_MODELS.md](Docs/PART_MODELS.md)).
 
 ## Documentation
 
@@ -28,6 +31,7 @@ Repository: <https://github.com/TheLordBaski/TheAstraeaProgram>. Images and othe
 |---|---|
 | [Docs/CONTROLS.md](Docs/CONTROLS.md) | Every key and mouse control: flight, EVA, map, assembly building |
 | [Docs/LUNAR_WALKTHROUGH.md](Docs/LUNAR_WALKTHROUGH.md) | Step-by-step guide to the complete Luma mission with the starter rocket |
+| [Docs/PART_MODELS.md](Docs/PART_MODELS.md) | Exporting part models, editing them in Blender and using them in the game |
 | [Docs/PLANETARY_SYSTEM.md](Docs/PLANETARY_SYSTEM.md) | Radii, masses, gravity, atmosphere, rotation, orbits, SOI, warp limits, Δv budget |
 | [Docs/FEATURES_AND_LIMITATIONS.md](Docs/FEATURES_AND_LIMITATIONS.md) | What is implemented, what was verified and how, known limitations |
 | [Docs/IMPLEMENTATION_CHECKLIST.md](Docs/IMPLEMENTATION_CHECKLIST.md) | Milestone checklist and verification log |
@@ -63,7 +67,7 @@ and saves from the folder it used while it was called Starwright).
 
 ## Verification
 
-* **EditMode unit tests** (Unity Test Runner, 18 tests): Kepler propagation against numerical integration (elliptic,
+* **EditMode unit tests** (Unity Test Runner, 20 tests): Kepler propagation against numerical integration (elliptic,
   hyperbolic, radial), element round trips, apsis timing, manoeuvre nodes several orbits ahead in the patched-conic
   predictor, attachment maths, radial symmetry, staging order, rocket-equation Δv, fuel-flow blocking by decouplers,
   starter-rocket soundness, lossless craft and save JSON.

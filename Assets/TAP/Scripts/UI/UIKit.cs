@@ -154,6 +154,7 @@ namespace TAP.UI
             {
                 var o = Rect(rt, "Outline");
                 Stretch(o);
+                o.gameObject.AddComponent<LayoutElement>().ignoreLayout = true; // decoration, not a row of a layout group
                 var oi = o.gameObject.AddComponent<Image>();
                 oi.sprite = OutlineSprite;
                 oi.type = UnityEngine.UI.Image.Type.Sliced;
@@ -418,6 +419,38 @@ namespace TAP.UI
         public void OnPointerEnter(PointerEventData e) { TAP.Game.FlightCamera.UiBlocksScroll = true; }
         public void OnPointerExit(PointerEventData e) { TAP.Game.FlightCamera.UiBlocksScroll = false; }
         private void OnDisable() { TAP.Game.FlightCamera.UiBlocksScroll = false; }
+    }
+
+    /// <summary>
+    /// Drag handle for a window (put it on the title): dragging moves <see cref="Target"/>, keeping at least part of it
+    /// on screen; <see cref="Moved"/> reports the new anchored position when the drag ends.
+    /// </summary>
+    public sealed class DragWindow : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+    {
+        public RectTransform Target;
+        public Action<Vector2> Moved;
+        private Canvas _canvas;
+        private readonly Vector3[] _corners = new Vector3[4];
+
+        public void OnBeginDrag(PointerEventData e) { _canvas = GetComponentInParent<Canvas>(); }
+
+        public void OnDrag(PointerEventData e)
+        {
+            if (Target == null) return;
+            float scale = _canvas != null ? _canvas.scaleFactor : 1f;
+            Target.anchoredPosition += e.delta / scale;
+            // Keep the title reachable: 80 px of the window inside the screen horizontally, its top edge on screen.
+            Target.GetWorldCorners(_corners);
+            float keep = 80f * scale;
+            Vector2 shift = Vector2.zero;
+            if (_corners[2].x < keep) shift.x = keep - _corners[2].x;
+            else if (_corners[0].x > Screen.width - keep) shift.x = Screen.width - keep - _corners[0].x;
+            if (_corners[1].y > Screen.height) shift.y = Screen.height - _corners[1].y;
+            else if (_corners[1].y < keep) shift.y = keep - _corners[1].y;
+            Target.anchoredPosition += shift / scale;
+        }
+
+        public void OnEndDrag(PointerEventData e) { if (Target != null) Moved?.Invoke(Target.anchoredPosition); }
     }
 
     /// <summary>Hover tooltip source.</summary>

@@ -24,11 +24,12 @@ Most buttons and readouts show a tooltip when hovered.
 | **Alt + .** | Physics warp (2×, 3×, 4×) — the simulation keeps running |
 | **/** | Stop time warp |
 | **V** | Camera mode (orbit / chase / locked) |
-| **Right mouse drag, scroll** | Rotate and zoom the camera (Page Up / Page Down also zoom) |
+| **Right mouse drag, scroll** | Rotate and zoom the camera (Page Up / Page Down also zoom; zoom speed in the developer tools) |
 | **[ / ]** | Switch to the previous / next nearby vessel |
 | **F5 / F9** | Quicksave / quickload (hold F9) |
 | **Esc** | Pause menu (resume, quicksave, quickload, revert to launch, revert to assembly, recover, leave to assembly / main menu) |
 | **F1 / F2** | Control guide / hide the interface |
+| **Alt + F12** or **`** | Developer tools (also in the pause menu): cheats (infinite propellant / electricity, no crash damage, ignore heat, unbreakable joints), refill tanks, teleport to a circular orbit or land at a latitude/longitude on Tellus or Luma, mouse-wheel zoom speed. Drag the window by its title |
 | **Right-click a part** | Part actions: EVA, deploy / cut parachute, activate / shut down engine, decouple, legs, enable / disable reaction wheel or RCS block, undock |
 
 **Navball**: blue sky, brown ground, headings clockwise from north (facing east with the sky up, 45° is on the left and

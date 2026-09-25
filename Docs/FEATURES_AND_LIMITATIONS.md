@@ -4,7 +4,7 @@ Legend — **Verified**: exercised by an automated test or an observed run with 
 **Implemented**: in the game and playable, but not covered by an automated check. **Untested**: implemented but never
 exercised end to end. **Limitation**: simplified or missing compared with the specification or with KSP.
 
-Evidence sources: EditMode unit tests (`Assets/TAP/Tests/EditMode`, 18 tests), automated missions flown by the
+Evidence sources: EditMode unit tests (`Assets/TAP/Tests/EditMode`, 20 tests), automated missions flown by the
 scripted pilot through player controls (reports in [TestReports](TestReports)), every one of them re-run in the final
 **standalone Windows build** (`build_<mission>.md`, including the complete lunar mission in
 [TestReports/build_lunar.md](TestReports/build_lunar.md)), and screenshots taken during development and play-testing
@@ -12,18 +12,18 @@ scripted pilot through player controls (reports in [TestReports](TestReports)), 
 
 ## Acceptance: the complete mission
 
-| Step | Editor run 17 | Standalone build (final) |
+| Step | Editor run 17 | Standalone build (`TAP.exe`, 2026-09-25) |
 |---|---|---|
-| Build → launch (Luma Pathfinder starter, 80 t, 7,643 m/s) | liftoff, max Q 36.9 kPa | same |
-| Orbit | Pe 80.8 / Ap 82.9 km, 3,885 m/s left, 285 s after launch | Pe 80.8 / Ap 82.8 km, 3,885 m/s left, 285 s |
-| Plan and fly the transfer | node found by patched-conic search, 939 m/s; map shows the encounter | same (938.8 m/s) |
-| Luma orbit | capture 36.2 × 37.3 km | capture 36.2 × 37.3 km |
-| Landing | tilt 2.4°, legs 4/4, crew aboard | ground below was a 30.5° slope: hovered 48 m to a 0.6° spot, tilt 1.3°, legs 4/4 |
-| EVA, walk, jump, flag | 12 m in 6.9 s, jump apex 1.64 m, flag planted | 12 m in 7.0 s, 1.87 m, flag |
+| Build → launch (Luma Pathfinder starter, 80 t, 7,643 m/s) | liftoff, max Q 36.9 kPa | liftoff, max Q 37.0 kPa |
+| Orbit | Pe 80.8 / Ap 82.9 km, 3,885 m/s left, 285 s after launch | Pe 80.9 / Ap 82.8 km, 287 s after launch |
+| Plan and fly the transfer | node found by patched-conic search, 939 m/s; map shows the encounter | 870 m/s, encounter confirmed after the burn |
+| Luma orbit | capture 36.2 × 37.3 km | capture 36.7 × 37.3 km |
+| Landing | tilt 2.4°, legs 4/4, crew aboard | tilt 2.6°, legs 4/4, crew aboard |
+| EVA, walk, jump, flag | 12 m in 6.9 s, jump apex 1.64 m, flag planted | 12 m in 7.1 s, 1.69 m, flag |
 | Back to the spacecraft | boarded with the jetpack | boarded |
 | Launch from Luma | Luma orbit Pe 22.3 km | Pe 22.3 km |
-| Return home | 300 m/s burn, Tellus periapsis 32.6 km | 349 m/s, 31.3 km |
-| Reentry | heat shield peak 1,011 K, 7.8 g | 825 K, 6.4 g (parachute armed at 16.1 km, 422 m/s, when safe) |
+| Return home | 300 m/s burn, Tellus periapsis 32.6 km | 271 m/s, 35.3 km (planned 32.0 km) |
+| Reentry | heat shield peak 1,011 K, 7.8 g | 799 K, 6.4 g |
 | Parachute landing | touchdown 0.1 m/s with crew | splashdown 0.9 m/s with crew |
 | Result | **PASSED 19/19** | **PASSED 19/19** |
 
@@ -40,7 +40,7 @@ check: the scripted pilot now hovers over to the flattest spot within 60 m, as a
 | `suborbital` | Skylark to 170 km and back under the parachute | 3/3 | 3/3 |
 | `failures` | joint overload, unshielded burn-up, torn parachute, 111 m/s impact and crew loss | 6/6 | 6/6 |
 | `docking` | RCS approach from 9.8 m, capture, docked stack, undock, re-arm | 5/5 | 5/5 |
-| EditMode unit tests | orbits, patched conics, attachment, staging, Δv, JSON | 18/18 | — |
+| EditMode unit tests | orbits, patched conics, attachment, staging, Δv, JSON, wheel notches, geographic latitude | 20/20 | — |
 
 Reports: `Docs/TestReports/<mission>.md` (editor) and `build_<mission>.md` (standalone build). The editor runs were
 made during development; the standalone column is the release check of the shipped build, run after the last change.
@@ -81,7 +81,7 @@ made during development; the standalone column is the release check of the shipp
 | Atmosphere (pressure, density, temperature profile), per-part drag with occlusion, Mach effects, fins and body lift | Verified | Max dynamic pressure 33–49 kPa across designs; a high-thrust design lofted and a sluggish one fell back, as physics predicts |
 | Gimbal, reaction wheels, RCS with limited authority and resource use | Verified (gimbal, wheels) / Implemented (RCS) | SAS holds prograde through ascents; the lander steers with wheels and gimbal |
 | Throttle, staging, engine restart; sea-level vs vacuum Isp and thrust | Verified | The lander's engine restarts for descent, lunar ascent and the return burn |
-| Structural loads from simulated forces (tension, compression, shear, bending); weak joints break; broken parts become debris | Verified | Boosters tore off in shear before their mounts were strengthened; a lander that tipped over broke at the capsule joints; `failures` autotest |
+| Structural loads from simulated forces (tension, compression, shear, bending); weak joints break; broken parts become debris | Verified | Boosters tore off in shear before their mounts were strengthened; a lander that tipped over broke at the capsule joints; `failures` autotest. A rocket standing still on its engine bell broke at the capsule joints (213 kN·m of phantom bending): ground contact was split evenly over the points PhysX reported, often all on one side of the bell rim, and the mismatch landed on the top joint. Contacts now use each point's own impulse, and each joint's load is summed over the side without ground contact (else the lighter side); `failures` still passes 6/6 |
 | Collisions / impact damage per part (a part feels its share of the velocity change: light bodies cannot wreck heavy ones), crew loss | Verified | Failed runs: impacts at 58–243 m/s destroyed the parts and killed the crew; `failures` autotest; a rocketeer who stepped out 27 m up on the pad died on landing (20.8 m/s) while the rocket stayed intact |
 | Ground contact, landing legs (suspension, breakage), tipping | Verified | Landings with 4/4 legs at 2.4° and 7.4°; a tall lander tipped over on an 11° slope (logged 10° → 86°), which led to the wide lander |
 | Heating with density, speed and orientation; flow shadowing; ablation; overheating destroys parts | Verified | Orbital reentry 672–742 K on the heat shield; lunar-return reentry 783–1,011 K on the heat shield (depends on the return periapsis); `failures` autotest: an unshielded capsule entering nose first at 4.5 km/s loses its parachute to heat (1,402 K > 1,400 K) with the pod at 1,599 K of its 1,600 K limit |
@@ -109,9 +109,10 @@ made during development; the standalone column is the release check of the shipp
 | Navball with prograde/retrograde, normal, radial, target, manoeuvre markers; speed modes | Verified | Screenshots |
 | KSP axes: on the pad the rocket's right side faces east, so D tips it east and W/S pitch north/south; navball headings run clockwise | Verified | Holding D from the pad tipped the nose to heading 090°; the scripted pilot now pitches over with D (orbit and lunar missions). The world used to be mirror-imaged (east left of north) so the navball's heading ring ran backwards and its lettering was mirrored; north is now the −Y pole, which un-mirrors the view without changing any physics |
 | HUD: altitude (sea/terrain), vertical/horizontal speed, Mach, Q, g-meter, throttle, resources, EC, crew, staging stack, Δv, warnings | Verified | Screenshots (editor and build) |
-| Cameras: orbit (free), chase, locked; map camera | Implemented | Zoom: 25% per wheel notch in flight, 30% on the map, down to just above the focused body or ~10 m from a focused vessel (map markers no longer swallow the wheel) |
+| Cameras: orbit (free), chase, locked; map camera | Implemented | Zoom: 25% per wheel notch in flight, 30% on the map, 22% in the assembly building, down to just above the focused body or ~10 m from a focused vessel (map markers no longer swallow the wheel). The wheel reports ±120 per notch in the editor but ±1 in a player build, so the build zoomed 120 times slower; readings are now converted to notches, and the zoom speed can be changed in the developer tools (saved) |
 | Pause menu, quicksave/quickload, revert to launch, revert to assembly, recover, leave | Implemented / Verified (quickload) | `persistence` autotest |
 | Control guide (F1), tooltips, mission guide with hints | Implemented | Screenshots |
+| Developer tools (**Alt+F12** or **`**, or the pause menu), like KSP's cheat menu: infinite propellant and electricity, no crash damage, ignore heat, unbreakable joints (until the game is closed), refill tanks, teleport to a circular orbit (altitude, inclination) or land at a latitude/longitude on Tellus or Luma, zoom speed; the window can be dragged | Verified (editor play sessions) | Infinite propellant: tanks stayed at 36,000 / 25,600 kg through 9 s of full thrust, consumption resumed when switched off. No crash damage + unbreakable joints: the 51-part Pathfinder dropped onto the ground at ~45 m/s stayed whole. Orbits: Pe/Ap 100.0/100.0 km at Tellus, 30.0/30.0 km at Luma. Landing: the full Pathfinder stood on Luma (the tool moved it 12 m from an 11° slope to 1.5°) and beside the Tellus pad (0.0°), 51/51 parts after 30 s |
 
 ## Time warp and persistence
 
@@ -139,11 +140,13 @@ made during development; the standalone column is the release check of the shipp
 | Planets visible from any distance | Verified | Above ~500 km the terrain used to vanish (the user's screenshots): the sky, drawn by the skybox pass after the terrain, painted over ground whose depth had reached the far-plane value. The sky is now a background dome drawn first; screenshots at 550 km and 3,000 km show the full planet |
 | Sunlight, night sides, eclipses (nearby objects dark in a planet's shadow, planets still sunlit; map always sunlit) | Verified | Screenshots at Luma dawn and midnight (lander dark, map shows Luma and Tellus lit); fixed after the user reported planets going black |
 | Exhaust plumes with pressure-dependent expansion, smoke, staging and decoupling effects, reentry plasma, heat glow, explosions, canopy shreds | Implemented | |
+| Part models can be exported (FBX with hierarchy and pivots, OBJ + MTL, a reference sheet) and replaced by hand-made FBX models; collider, attach nodes and anchors stay data-driven | Verified | Blender 5.2 round trip on the Hornet engine: bell widened 30%, gold ring added; back in the game the unchanged body was identical, the bell kept its gimbal pivot, materials mapped to the shared ones ([PART_MODELS.md](PART_MODELS.md), `Screenshots/part_model_roundtrip.png`) |
 
 ## Known limitations
 
-* Part, character and building models are procedural low-poly meshes generated in code; the offered Blender MCP
-  server was not connected in these sessions, so no Blender art was made. There is no audio.
+* Part, character and building models are procedural low-poly meshes generated in code. Any part's model can be
+  exported and replaced with a hand-made FBX ([PART_MODELS.md](PART_MODELS.md)); characters and buildings cannot yet.
+  There is no audio.
 * Vessels are single rigid bodies with analytic joint loads: parts do not flex or wobble; failures happen at joints.
 * Aerodynamics are per-part approximations (no CFD). A flat end face counts as fully exposed unless a part at least
   ~88% as wide covers it (use a tapered adapter under a narrower stack).

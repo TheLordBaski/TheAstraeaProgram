@@ -384,15 +384,21 @@ namespace TAP.Simulation
             Vector3 impulse = c.impulse;
             float dt = Time.fixedDeltaTime;
             Vector3 relVel = c.relativeVelocity;
+            // Each point's own solver impulse puts the force where the ground actually pushes. Splitting the total
+            // evenly over the reported points (often all on one side of an engine bell's rim) invented a moment of
+            // weight x rim radius, which the structural check pinned on the joints of a rocket standing still.
+            bool perPoint = false;
+            for (int i = 0; i < n; i++) if (ContactBuffer[i].impulse.sqrMagnitude > 0f) { perPoint = true; break; }
             for (int i = 0; i < n; i++)
             {
                 var cp = ContactBuffer[i];
                 var part = cp.thisCollider != null ? cp.thisCollider.GetComponent<Part>() : null;
                 if (part == null || part.Destroyed) continue;
                 // The contact pushes this body away from the other one (the callback's normal points into this body);
-                // Collision.impulse has no guaranteed sign, so orient it by the normal.
-                Vector3 j = Vector3.Dot(impulse, cp.normal) < 0 ? -impulse : impulse;
-                Vector3 fContact = j / (dt * n);
+                // impulses have no guaranteed sign, so orient them by the normal.
+                Vector3 j = perPoint ? cp.impulse : impulse / n;
+                if (Vector3.Dot(j, cp.normal) < 0) j = -j;
+                Vector3 fContact = j / dt;
                 part.ContactForce += fContact;
                 part.ContactMoment += Vector3.Cross(cp.point, fContact);
                 float vn = Mathf.Abs(Vector3.Dot(relVel, cp.normal));

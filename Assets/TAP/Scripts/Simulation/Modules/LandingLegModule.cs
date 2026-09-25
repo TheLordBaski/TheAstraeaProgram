@@ -51,6 +51,9 @@ namespace TAP.Simulation
             Deployed = d;
         }
 
+        /// <summary>Lowest point of the foot when the leg is deployed and unloaded (world space).</summary>
+        public Vector3 DeployedFootBottom => Part.transform.TransformPoint(_footLocal) - Part.transform.up * Def.footRadius;
+
         public override void OnPreStep(double dt)
         {
             var v = Vessel;

@@ -48,6 +48,7 @@ namespace TAP.Game
             ("Esc", "Pause menu"),
             ("F1", "Control guide"),
             ("F2", "Hide interface"),
+            ("Alt+F12 or `", "Developer tools: cheats, teleports, zoom speed"),
             ("Right-click part", "Part actions (EVA, chutes, engines, undock...)"),
         };
 

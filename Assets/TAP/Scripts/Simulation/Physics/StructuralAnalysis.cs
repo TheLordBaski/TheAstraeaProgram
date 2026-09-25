@@ -12,6 +12,10 @@ namespace TAP.Simulation
     /// subtree is the sum of f_i over the subtree; the bending moment about the joint follows from the
     /// same sums. Loads are compared with the child's connection strength (compression is much stronger
     /// than tension/shear) and smoothed over ~80 ms to reject contact-solver spikes.
+    ///
+    /// The load can be summed over either side of a joint. Measured accelerations and contact forces never
+    /// balance exactly, and a sum over the side holding almost the whole vessel carries that mismatch into the
+    /// joint; so each joint is evaluated from the side without ground contact, or else from the lighter side.
     /// </summary>
     public static class StructuralAnalysis
     {
@@ -20,21 +24,38 @@ namespace TAP.Simulation
 
         private static readonly Dictionary<Part, Vector3> SubF = new Dictionary<Part, Vector3>();
         private static readonly Dictionary<Part, Vector3> SubM = new Dictionary<Part, Vector3>();
+        private static readonly Dictionary<Part, float> SubMass = new Dictionary<Part, float>();
+        private static readonly Dictionary<Part, int> SubContacts = new Dictionary<Part, int>();
 
         public static void Check(Vessel v, Vector3 aProperCm, Vector3 alpha, Vector3 omega, double dt)
         {
             if (v.Parts.Count < 2 || v.RootPart == null) return;
             SubF.Clear();
             SubM.Clear();
+            SubMass.Clear();
+            SubContacts.Clear();
             Vector3 com = v.Rb.worldCenterOfMass;
             Accumulate(v.RootPart, com, aProperCm, alpha, omega);
+            // Whole-vessel totals: zero if accelerations and forces agreed exactly.
+            Vector3 fTotal = SubF[v.RootPart], mTotal = SubM[v.RootPart];
+            float massTotal = SubMass[v.RootPart];
+            int contactsTotal = SubContacts[v.RootPart];
 
             foreach (var p in v.Parts)
             {
                 if (p == v.RootPart || p.ParentPart == null) continue;
                 Vector3 F = SubF[p];
+                Vector3 Msub = SubM[p];
+                bool childContact = SubContacts[p] > 0, parentContact = contactsTotal - SubContacts[p] > 0;
+                bool parentSide = childContact != parentContact ? childContact : SubMass[p] > massTotal - SubMass[p];
+                if (parentSide)
+                {
+                    // What the joint must give the child subtree, seen from the parent side (Newton's third law).
+                    F -= fTotal;
+                    Msub -= mTotal;
+                }
                 Vector3 jp = p.JointWorldPosition;
-                Vector3 M = SubM[p] - Vector3.Cross(jp, F);
+                Vector3 M = Msub - Vector3.Cross(jp, F);
                 Vector3 u = p.JointAxisTowardsParent;
                 float axial = Vector3.Dot(F, u);
                 float shear = (F - axial * u).magnitude;
@@ -81,15 +102,21 @@ namespace TAP.Simulation
             // moment of the required net force about the world origin, minus moments of external forces
             // applied at their true points (tracked in ExternalMoment).
             Vector3 M = Vector3.Cross(pos, m * a) - p.ExternalMoment - p.ContactMoment;
+            float mass = m;
+            int contacts = p.ContactForce.sqrMagnitude > 0f ? 1 : 0;
             for (int i = 0; i < p.Children.Count; i++)
             {
                 var c = p.Children[i];
                 Accumulate(c, com, aCm, alpha, omega);
                 F += SubF[c];
                 M += SubM[c];
+                mass += SubMass[c];
+                contacts += SubContacts[c];
             }
             SubF[p] = F;
             SubM[p] = M;
+            SubMass[p] = mass;
+            SubContacts[p] = contacts;
         }
     }
 }

@@ -117,8 +117,11 @@ namespace TAP.Simulation
             return v;
         }
 
-        /// <summary>Removes the physical vessel, storing its state back into the handle/record.</summary>
-        public void UnloadHandle(VesselHandle h)
+        /// <summary>
+        /// Removes the physical vessel, storing its state back into the handle/record. A vessel unloaded deep inside an
+        /// atmosphere is lost unless <paramref name="mayBeLost"/> is false (developer teleports).
+        /// </summary>
+        public void UnloadHandle(VesselHandle h, bool mayBeLost = true)
         {
             var v = h.Loaded;
             if (v == null) return;
@@ -130,7 +133,7 @@ namespace TAP.Simulation
 
             // Vessels unloaded deep inside an atmosphere are lost (they would be destroyed by the time they land).
             var body = h.Body;
-            if (!h.Landed && body.Atmosphere != null && h.Record.kind != VesselKind.Flag)
+            if (mayBeLost && !h.Landed && body.Atmosphere != null && h.Record.kind != VesselKind.Flag)
             {
                 double alt = h.PositionRelBody(UT).magnitude - body.Radius;
                 if (alt < body.Atmosphere.Height * AtmosphereDeleteAltitudeFraction)

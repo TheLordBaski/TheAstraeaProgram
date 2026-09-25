@@ -7,6 +7,9 @@ namespace TAP.Parts
     /// Builds part GameObjects (visual meshes, convex colliders and named anchor transforms)
     /// from part definitions. Meshes are generated procedurally and cached per part id.
     ///
+    /// A hand-made model in Resources/PartModels/&lt;part id&gt; (FBX, see Docs/PART_MODELS.md) replaces the generated
+    /// visuals; the collider, attach nodes and anchors still come from the part data, so art never changes physics.
+    ///
     /// Named children created for part modules:
     ///   "Model"            visual root
     ///   "Bell"             engine nozzle (gimbals about its throat)
@@ -27,27 +30,42 @@ namespace TAP.Parts
         }
 
         private static readonly Dictionary<string, CachedModel> Cache = new Dictionary<string, CachedModel>();
+        private static readonly Dictionary<string, GameObject> Custom = new Dictionary<string, GameObject>();
 
         public const int Seg = 32;
         public const int ColSeg = 12;
 
+        /// <summary>Resources folder of hand-made part models, one per part id.</summary>
+        public const string CustomFolder = "PartModels";
+
+        /// <summary>Anchors placed from the part data; copies inside a hand-made model are dropped.</summary>
+        private static readonly string[] AnchorNames = { "Nozzle", "CanopyAnchor", "Hatch" };
+
         /// <summary>Creates a new part GameObject (not parented) with visuals and colliders.</summary>
-        public static GameObject Build(PartDefinition def, int colliderLayer)
+        /// <param name="generated">Always use the generated model, even when a hand-made one exists (exporting).</param>
+        public static GameObject Build(PartDefinition def, int colliderLayer, bool generated = false)
         {
             var root = new GameObject(def.id);
-            BuildInto(root, def, colliderLayer);
+            BuildInto(root, def, colliderLayer, generated);
             return root;
         }
 
-        public static void BuildInto(GameObject root, PartDefinition def, int colliderLayer)
+        public static void BuildInto(GameObject root, PartDefinition def, int colliderLayer, bool generated = false)
         {
             var cm = GetModel(def);
-            var model = new GameObject("Model");
-            model.transform.SetParent(root.transform, false);
-            AddRenderer(model, cm.visual, cm.slots);
+            var custom = generated ? null : CustomModel(def.id);
+            Transform model;
+            if (custom != null) model = InstantiateCustom(custom, root.transform);
+            else
+            {
+                var go = new GameObject("Model");
+                go.transform.SetParent(root.transform, false);
+                AddRenderer(go, cm.visual, cm.slots);
+                model = go.transform;
+            }
 
-            // Sub parts (animated pieces) and anchors.
-            BuildRig(root.transform, model.transform, def, cm);
+            // Sub parts (animated pieces; a hand-made model brings its own) and anchors.
+            BuildRig(root.transform, model, def, cm, custom == null);
 
             if (cm.collider != null)
             {
@@ -108,9 +126,92 @@ namespace TAP.Parts
 
         // ------------------------------------------------------------------ rigs
 
-        private static void BuildRig(Transform root, Transform model, PartDefinition def, CachedModel cm)
+        /// <summary>Looks for hand-made models again at every start (also with domain reload turned off in the editor).</summary>
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ForgetCustomModels() => Custom.Clear();
+
+        /// <summary>The hand-made model for a part id, or null when the part uses its generated model.</summary>
+        public static GameObject CustomModel(string partId)
         {
-            foreach (var sp in cm.subParts)
+            if (!Custom.TryGetValue(partId, out var go))
+            {
+                go = Resources.Load<GameObject>(CustomFolder + "/" + partId);
+                Custom[partId] = go;
+            }
+            return go;
+        }
+
+        /// <summary>
+        /// Places a hand-made model under the part root as its "Model": the file's "Model" node if it has one (as
+        /// exported), else the whole file. Anchor copies are dropped and materials named after the shared part
+        /// materials ("Part_Metal", also Blender's "Part_Metal.001") use them, so the model is lit like the rest.
+        /// </summary>
+        private static Transform InstantiateCustom(GameObject prefab, Transform root)
+        {
+            var inst = Object.Instantiate(prefab, root, false);
+            Transform model = FindDeep(inst.transform, "Model");
+            if (model == null || model == inst.transform)
+            {
+                model = inst.transform;
+                model.name = "Model";
+            }
+            else
+            {
+                model.SetParent(root, true);
+                DestroyNow(inst);
+            }
+            var drop = new List<GameObject>();
+            foreach (var t in model.GetComponentsInChildren<Transform>(true))
+                if (t != model && (System.Array.IndexOf(AnchorNames, t.name) >= 0 || t.name.StartsWith("RcsNozzle"))) drop.Add(t.gameObject);
+            foreach (var go in drop) DestroyNow(go);
+            foreach (var r in model.GetComponentsInChildren<Renderer>(true))
+            {
+                var mats = r.sharedMaterials;
+                for (int i = 0; i < mats.Length; i++)
+                    if (mats[i] != null && SharedMaterial(mats[i].name, out var shared)) mats[i] = shared;
+                r.sharedMaterials = mats;
+            }
+            return model;
+        }
+
+        /// <summary>The shared material a hand-made model's material name refers to (Part_&lt;slot&gt;, Canopy, FlagCloth).</summary>
+        private static bool SharedMaterial(string name, out Material m)
+        {
+            string n = name.Replace(" (Instance)", "").Trim();
+            int dot = n.LastIndexOf('.');
+            if (dot > 0 && int.TryParse(n.Substring(dot + 1), out _)) n = n.Substring(0, dot);
+            if (n.StartsWith("Part_", System.StringComparison.OrdinalIgnoreCase)) n = n.Substring(5);
+            foreach (MatSlot slot in System.Enum.GetValues(typeof(MatSlot)))
+                if (string.Equals(n, slot.ToString(), System.StringComparison.OrdinalIgnoreCase))
+                {
+                    m = PartMaterials.Get(slot);
+                    return true;
+                }
+            m = string.Equals(n, "FlagCloth", System.StringComparison.OrdinalIgnoreCase) ? PartMaterials.FlagCloth : null;
+            return m != null;
+        }
+
+        private static Transform FindDeep(Transform t, string name)
+        {
+            if (t.name == name) return t;
+            for (int i = 0; i < t.childCount; i++)
+            {
+                var r = FindDeep(t.GetChild(i), name);
+                if (r != null) return r;
+            }
+            return null;
+        }
+
+        private static void DestroyNow(GameObject go)
+        {
+            go.transform.SetParent(null, false);
+            if (Application.isPlaying) Object.Destroy(go);
+            else Object.DestroyImmediate(go);
+        }
+
+        private static void BuildRig(Transform root, Transform model, PartDefinition def, CachedModel cm, bool subParts)
+        {
+            if (subParts) foreach (var sp in cm.subParts)
             {
                 // Names may be paths ("LegPivot/Piston"): parent under the already-created prefix.
                 Transform parent = model;

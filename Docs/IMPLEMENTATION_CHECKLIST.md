@@ -226,3 +226,50 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` implemented · `[
     are **set aside** — greyed out, not part of the craft, saved with it, never launched; they can be built on, picked
     up and attached again. Checked in a scripted editor session on the Meridian (set aside / re-attach, re-root and
     attach the whole craft under the set-aside capsule: identical staging, symmetry, Δv and TWR).
+- 2026-09-25 — Rename, repository, developer tools, part models:
+  * **The Astraea Program (TAP)**: the game was renamed from Starwright.
+    - Code: namespaces and assemblies `TAP.*`, folder `Assets/TAP`, editor menu *TAP*, shaders `TAP/…`.
+    - Product "The Astraea Program" by Astraea Works; the player is `Build/Windows/TAP.exe`.
+    - Ships and saves are copied once from the old Starwright data folder.
+    - Moves and renames went through the asset database, so every GUID was kept. Scenes and build settings follow the
+      new paths; 18/18 unit tests passed right after the rename.
+    - Git repository: <https://github.com/TheLordBaski/TheAstraeaProgram> (branch `main`, images and models in Git LFS).
+  * **Zoom in the build**: the mouse wheel reports ±120 per notch in the editor but ±1 in a player, so every notch in
+    the build was a 120th of a zoom step. Readings are now converted to notches (unit test), and the zoom speed can be
+    changed in the developer tools (saved).
+  * **Developer tools** (Alt+F12 or `, and the pause menu):
+    - Cheats: infinite propellant and electricity, no crash damage, ignore heat, unbreakable joints.
+    - Refill all tanks.
+    - Teleport to a circular orbit, or land at a latitude/longitude on Tellus or Luma.
+    - Zoom speed. The window is compact, sits beside the mission guide and can be dragged (its position is saved).
+  * Bugs found while testing the surface teleport:
+    - **Stale launch-site colliders.** Launch-site structures are only moved while Tellus is the frame body, so after a
+      switch to Luma the pad's collider stayed at stale coordinates. After a teleport that was right where the vessel
+      appeared, and it flung the rocket at 100 m/s. Structures of other bodies now leave the scene.
+    - **Phantom bending on a standing rocket.** It broke at the capsule joints (213 kN·m of bending) because each
+      contact impulse was split evenly over the points PhysX reported, which were often all on one side of the bell
+      rim. Contacts now use each point's own impulse. Each joint's load is summed over the side without ground contact
+      (else the lighter side), so a whole-vessel mismatch can no longer land on a small part; `failures` still passes.
+    - **Toppling.** Tall rockets toppled on slopes, so the landing tool looks for the nearest spot within 400 m where
+      the slope is under a quarter of the craft's tipping angle. The craft is set square to the ground, its lowest point
+      0.2 m up, with its legs deployed.
+    - Results: the full 51-part Pathfinder stands on Luma (moved 12 m from an 11° slope to 1.5°) and beside the Tellus
+      pad. Infinite propellant held the tanks full through 9 s of full thrust. No crash damage together with
+      unbreakable joints kept all 51 parts through a ~45 m/s impact.
+  * **Part models**:
+    - *TAP → Part Models → Export All* writes every part as FBX (named hierarchy, pivots, material names) and as
+      OBJ + MTL, plus a reference sheet (`Art/PartModels/Export/PARTS.md`).
+    - An FBX saved as `Assets/TAP/Resources/PartModels/<part id>.fbx` replaces that part's generated model everywhere.
+      Collider, attach nodes and anchors stay data-driven, and materials named `Part_<slot>` use the shared materials.
+    - Verified with a headless Blender 5.2 round trip of the Hornet engine (bell widened, gold ring added): the
+      unchanged body came back identical and the bell kept its pivot.
+    - Blender's *Apply Transform* option breaks the hierarchy on the way back, so the guide says to use the default
+      import and export settings (`Docs/PART_MODELS.md`).
+  * Unit tests 20/20 (new: wheel notches in the editor and a build; geographic latitude north positive).
+    - Editor `failures` mission: 6/6 after the structural change.
+    - **standalone build `TAP.exe`, run windowless (`-batchmode`): `lunar` 19/19, `orbit`
+      9/9, `persistence` 10/10, `suborbital` 3/3, `failures` 6/6, `docking` 5/5**. Lunar: landed at 2.6° with legs 4/4,
+      walk, jump 1.69 m, flag, boarding, return periapsis 35.3 km, heat shield 799 K, splashdown 0.9 m/s with crew.
+    - The earlier build lunar failure (Pe 48 km after a 102 s burn) came from keys pressed in the visible test window
+      (the log showed time warp requested during the burn); the same build passed windowless, and test runs now always
+      use `-batchmode`.

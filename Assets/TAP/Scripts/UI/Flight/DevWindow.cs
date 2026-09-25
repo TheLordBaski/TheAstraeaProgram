@@ -7,15 +7,19 @@ using TAP.Simulation;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 namespace TAP.UI
 {
     /// <summary>
     /// Developer window (Alt+F12 or ` in flight, or the pause menu), like KSP's cheat menu: cheats, teleports,
-    /// refills and camera settings. The cheats last until the game is closed.
+    /// refills and camera settings. The cheats last until the game is closed. Drag the title to move the window.
     /// </summary>
     public sealed class DevWindow : MonoBehaviour
     {
+        private const string PosKey = "TAP.DevWindowPos";
+        private const float Width = 430f;
+
         public static DevWindow Instance { get; private set; }
         public FlightSceneController Scene;
         private FlightSim Sim => Scene.Sim;
@@ -46,93 +50,130 @@ namespace TAP.UI
             var root = (RectTransform)_canvas.transform;
             var p = UIKit.Panel(root, "Developer", new Color(0.05f, 0.06f, 0.08f, 0.96f));
             _panel = p.gameObject;
-            UIKit.Place(p.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-260, 30), new Vector2(460, 640));
-            UIKit.VLayout(p, 6, 14);
+            var window = p.rectTransform;
+            // Top left, right of the mission guide and clear of the navball; the height follows the content.
+            UIKit.Place(window, new Vector2(0, 1), new Vector2(0, 1), SavedPosition(), new Vector2(Width, 100));
+            UIKit.VLayout(p, 5, 14);
+            p.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-            var title = UIKit.Label(p.transform, "DEVELOPER TOOLS  <size=13><color=#8ea0b8>Alt+F12 or ` to close</color></size>", 17, UIKit.Accent, TextAlignmentOptions.Left, FontStyles.Bold);
-            UIKit.Size(title, 26);
+            var title = UIKit.Label(p.transform, "DEVELOPER TOOLS", 17, UIKit.Accent, TextAlignmentOptions.Left, FontStyles.Bold);
+            UIKit.Size(title, 24);
+            title.raycastTarget = true;
+            var drag = title.gameObject.AddComponent<DragWindow>();
+            drag.Target = window;
+            drag.Moved = SavePosition;
+            var hint = UIKit.Label(p.transform, "Drag the title to move the window · Alt+F12 or ` closes it", 12, UIKit.TextDim);
+            UIKit.Size(hint, 16);
 
             Section(p.transform, "Cheats (until the game is closed)");
-            Toggle(p.transform, "Infinite propellant", () => DevCheats.InfinitePropellant, on => DevCheats.InfinitePropellant = on,
+            var r1 = Row(p.transform);
+            Toggle(r1, "Infinite propellant", () => DevCheats.InfinitePropellant, on => DevCheats.InfinitePropellant = on,
                    "Engines, RCS and the EVA pack draw from their tanks without emptying them (empty tanks supply too).");
-            Toggle(p.transform, "Infinite electricity", () => DevCheats.InfiniteElectricity, on => DevCheats.InfiniteElectricity = on,
+            Toggle(r1, "Infinite electricity", () => DevCheats.InfiniteElectricity, on => DevCheats.InfiniteElectricity = on,
                    "Electric charge is never used up.");
-            Toggle(p.transform, "No crash damage", () => DevCheats.NoCrashDamage, on => DevCheats.NoCrashDamage = on,
+            var r2 = Row(p.transform);
+            Toggle(r2, "No crash damage", () => DevCheats.NoCrashDamage, on => DevCheats.NoCrashDamage = on,
                    "Impacts, hard landings and splashdowns destroy nothing; landing legs don't break.");
-            Toggle(p.transform, "Ignore heat", () => DevCheats.IgnoreHeat, on => DevCheats.IgnoreHeat = on,
+            Toggle(r2, "Ignore heat", () => DevCheats.IgnoreHeat, on => DevCheats.IgnoreHeat = on,
                    "Parts heat up as usual but never burn up; parachutes don't burn.");
-            Toggle(p.transform, "Unbreakable joints", () => DevCheats.UnbreakableJoints, on => DevCheats.UnbreakableJoints = on,
+            var r3 = Row(p.transform);
+            Toggle(r3, "Unbreakable joints", () => DevCheats.UnbreakableJoints, on => DevCheats.UnbreakableJoints = on,
                    "Joints never fail from structural loads; parachutes don't tear.");
-            Action("Refill all tanks", () => Report(DevTools.Refill(Sim)), p.transform);
+            Flex(UIKit.Button(r3, "Refill all tanks", () => Report(DevTools.Refill(Sim)), 14).Button);
 
             Section(p.transform, "Teleport the active vessel");
-            var bodies = UIKit.Rect(p.transform, "Bodies");
-            UIKit.Size(bodies, 30);
-            UIKit.HLayout(bodies, 6, 0);
-            var lbl = UIKit.Label(bodies, "Body", 14, UIKit.TextDim);
-            UIKit.Size(lbl, 30, 90);
+            var bodies = Row(p.transform);
             _tellusBtn = UIKit.Button(bodies, "Tellus", () => SelectBody(Sim.System.Root), 14);
-            UIKit.Size(_tellusBtn.Button, 30, 120);
+            Flex(_tellusBtn.Button);
             _lumaBtn = UIKit.Button(bodies, "Luma", () => SelectBody(Sim.System.Get("luma")), 14);
-            UIKit.Size(_lumaBtn.Button, 30, 120);
-
-            _alt = Field(p.transform, "Orbit altitude (km)", "100");
-            _inc = Field(p.transform, "Inclination (°)", "0");
-            Action("Set circular orbit", SetOrbit, p.transform);
-            _lat = Field(p.transform, "Latitude (°)", "0");
-            _lon = Field(p.transform, "Longitude (°)", "0");
-            Action("Put down on the surface there", PutDown, p.transform);
+            Flex(_lumaBtn.Button);
+            var orbitRow = Row(p.transform);
+            _alt = Field(orbitRow, "Altitude (km)", "100");
+            _inc = Field(orbitRow, "Inclination (°)", "0");
+            Action(p.transform, "Set circular orbit", SetOrbit,
+                   "Circular prograde orbit at that altitude, starting above the vessel's current longitude.");
+            var landRow = Row(p.transform);
+            _lat = Field(landRow, "Latitude (°)", "0");
+            _lon = Field(landRow, "Longitude (°)", "0");
+            Action(p.transform, "Land there (legs down, at rest)", PutDown,
+                   "Stands the vessel upright on the ground at that latitude/longitude with its landing legs deployed.");
 
             Section(p.transform, "Camera");
-            var zoom = UIKit.Rect(p.transform, "Zoom");
-            UIKit.Size(zoom, 30);
-            UIKit.HLayout(zoom, 6, 0);
-            var zl = UIKit.Label(zoom, "Zoom speed", 14, UIKit.TextDim);
-            UIKit.Size(zl, 30, 150);
+            var zoom = Row(p.transform);
+            var zl = UIKit.Label(zoom, "Mouse-wheel zoom speed", 14, UIKit.TextDim);
+            UIKit.Size(zl, 28, 190);
             var minus = UIKit.Button(zoom, "−", () => ScrollZoom.Speed /= 1.25f, 16);
-            UIKit.Size(minus.Button, 30, 40);
+            UIKit.Size(minus.Button, 28, 40);
             _zoomText = UIKit.Label(zoom, "", 15, UIKit.TextColor, TextAlignmentOptions.Center);
-            UIKit.Size(_zoomText, 30, 70);
+            UIKit.Size(_zoomText, 28, 64);
             var plus = UIKit.Button(zoom, "+", () => ScrollZoom.Speed *= 1.25f, 16);
-            UIKit.Size(plus.Button, 30, 40);
+            UIKit.Size(plus.Button, 28, 40);
 
             _info = UIKit.Label(p.transform, "", 13, UIKit.TextDim);
             _info.textWrappingMode = TextWrappingModes.Normal;
-            UIKit.Size(_info, 40);
-            Action("Close", Toggle, p.transform);
+            UIKit.Size(_info, 36);
+            Action(p.transform, "Close", Toggle, null);
         }
 
         private static void Section(Transform parent, string text)
         {
             var l = UIKit.Label(parent, text, 14, UIKit.Accent, TextAlignmentOptions.Left, FontStyles.Bold);
-            UIKit.Size(l, 24);
+            UIKit.Size(l, 22);
         }
 
-        private void Toggle(Transform parent, string label, Func<bool> get, Action<bool> set, string tip)
+        private static RectTransform Row(Transform parent)
         {
-            UIKit.ButtonRef b = null;
-            b = UIKit.Button(parent, label, () => { set(!get()); Report($"{label}: {(get() ? "on" : "off")}"); }, 14);
-            UIKit.Size(b.Button, 28);
+            var row = UIKit.Rect(parent, "Row");
+            UIKit.Size(row, 28);
+            UIKit.HLayout(row, 6, 0);
+            return row;
+        }
+
+        private static void Flex(Component c) => UIKit.Size(c, 28).flexibleWidth = 1;
+
+        private void Toggle(Transform row, string label, Func<bool> get, Action<bool> set, string tip)
+        {
+            var b = UIKit.Button(row, label, () => { set(!get()); Report($"{label}: {(get() ? "on" : "off")}"); }, 14);
+            Flex(b.Button);
             UIKit.Tooltip(b.Button.gameObject, () => tip);
             _toggles.Add((b, get));
         }
 
-        private void Action(string label, Action act, Transform parent)
+        private static void Action(Transform parent, string label, Action act, string tip)
         {
             var b = UIKit.Button(parent, label, act, 14);
             UIKit.Size(b.Button, 30);
+            if (tip != null) UIKit.Tooltip(b.Button.gameObject, () => tip);
         }
 
-        private TMP_InputField Field(Transform parent, string label, string initial)
+        private static TMP_InputField Field(Transform row, string label, string initial)
         {
-            var row = UIKit.Rect(parent, label);
-            UIKit.Size(row, 30);
-            UIKit.HLayout(row, 6, 0);
             var l = UIKit.Label(row, label, 14, UIKit.TextDim);
-            UIKit.Size(l, 30, 200);
+            UIKit.Size(l, 28, 104);
             var f = UIKit.Input(row, initial, _ => { }, 15);
-            UIKit.Size(f, 30, 120);
+            UIKit.Size(f, 28, 88);
             return f;
+        }
+
+        private static Vector2 SavedPosition()
+        {
+            var def = new Vector2(330, -104);
+            try
+            {
+                string s = PlayerPrefs.GetString(PosKey, "");
+                var parts = s.Split(';');
+                if (parts.Length == 2 && float.TryParse(parts[0], NumberStyles.Float, CultureInfo.InvariantCulture, out float x)
+                    && float.TryParse(parts[1], NumberStyles.Float, CultureInfo.InvariantCulture, out float y))
+                    return new Vector2(x, y);
+            }
+            catch (Exception) { }
+            return def;
+        }
+
+        private static void SavePosition(Vector2 pos)
+        {
+            PlayerPrefs.SetString(PosKey, pos.x.ToString("0", CultureInfo.InvariantCulture) + ";" + pos.y.ToString("0", CultureInfo.InvariantCulture));
+            PlayerPrefs.Save();
         }
 
         private void SelectBody(CelestialBody b)
@@ -145,8 +186,8 @@ namespace TAP.UI
             else
             {
                 var site = Sim.System.Def.launchSite;
-                _lat.text = site.latitude.ToString("0.###", CultureInfo.InvariantCulture);
-                _lon.text = (site.longitude + 0.02).ToString("0.###", CultureInfo.InvariantCulture); // just east of the pad
+                _lat.text = (0.0 - site.latitude + 0.0).ToString("0.###", CultureInfo.InvariantCulture); // the site data counts latitude towards +Y (south)
+                _lon.text = (site.longitude + 0.02).ToString("0.###", CultureInfo.InvariantCulture); // ~200 m east of the pad
             }
         }
 
@@ -186,7 +227,7 @@ namespace TAP.UI
             _zoomText.text = $"{ScrollZoom.Speed:0.0#}×";
             var v = Sim.ActiveVessel;
             _info.text = v != null
-                ? $"{v.VesselName}: {v.Situation} at {v.MainBody.Name}, altitude {v.Altitude / 1000:0.0} km. Teleports keep parts, resources and crew; they clear manoeuvre nodes."
+                ? $"{v.VesselName}: {v.Situation} at {v.MainBody.Name}, altitude {v.Altitude / 1000:0.0} km. Teleports keep parts, resources and crew and clear manoeuvre nodes."
                 : "No active vessel";
         }
     }
