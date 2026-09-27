@@ -1,0 +1,210 @@
+id,title,file,milestone,milestone_span,claude_days,you_days,estimate_tbd,needs
+ART-01,Art direction and style guide,15-art.md,M1,M1,0.5,2.0,False,
+AUD-01,Audio architecture,14-audio.md,M1,M1,3.0,0.5,False,FND-08
+FND-01,The star becomes the root of the system,01-foundations.md,M1,M1,4.0,1.0,False,FND-15
+FND-02,Data-driven terrain and biome framework,01-foundations.md,M1,M1,5.0,1.0,False,
+FND-03,"Scaled-space rendering: planets, star and sky from anywhere",01-foundations.md,M1,M1,4.0,1.0,False,FND-01
+FND-04,Content validation and hot reload,01-foundations.md,M1,M1,2.0,0.5,False,
+FND-05,"Save format v2: versioning, migration, backups",01-foundations.md,M1,M1,3.0,0.5,False,FND-06
+FND-06,"Game modes: sandbox, science, career",01-foundations.md,M1,M1,2.0,0.5,False,
+FND-07,Scene flow with the space center hub,01-foundations.md,M1,M1,2.0,0.5,False,FND-06
+FND-08,Settings system,01-foundations.md,M1,M1,2.0,0.5,False,
+FND-09,"Input: rebinding, joysticks, precision controls",01-foundations.md,M1,M1,3.0,1.0,False,FND-08
+FND-10,Localization-ready text,01-foundations.md,M1,M1,2.0,0.5,False,
+FND-11,Linux build and continuous integration,01-foundations.md,M1,M1,3.0,1.0,False,
+FND-12,"Logs, crash handling and in-game bug reports",01-foundations.md,M1,M1,1.5,0.5,False,FND-05
+FND-13,Performance baseline and budgets,01-foundations.md,M1,M1,2.0,0.5,False,
+FND-14,Remove single-mission assumptions; game events and objectives,01-foundations.md,M1,M1,3.0,0.5,False,FND-01
+FND-15,"Multi-system data model: a galaxy of one system, ready for more",01-foundations.md,M1,M1,2.0,0.5,False,
+HUB-01,Site plan,11-space-center.md,M1,M1,1.0,1.0,False,
+PRT-01,"Catalogue spec, naming and stat framework",05-parts.md,M1,M1,2.0,2.0,False,D-01
+QA-01,Test strategy,17-quality.md,M1,M1,1.0,0.5,False,
+REL-01,Early Access plan and roadmap,18-release.md,M1,M1,1.0,2.0,False,
+REL-02,"Legal, licences and name",18-release.md,M1,M1,1.0,2.0,False,
+SYS-01,"Final system design, names and Δv budget",02-solar-system.md,M1,M1,1.0,2.0,False,
+UX-01,Interface design system v2,13-ui-ux.md,M1,M1,3.0,1.0,False,
+ART-02,"Pipeline v2: textures, LODs, validation, Blender add-on",15-art.md,EA1,EA1,3.0,1.0,False,ART-01
+ART-03a,"Hero parts, batch 1 (hand-made)",15-art.md,EA1,EA1,0.5,12.0,False,ART-02
+ART-04,Procedural part upgrade,15-art.md,EA1,EA1,4.0,1.0,False,ART-01
+ART-07a,Planet surfaces v2 (EA1 worlds),15-art.md,EA1,EA1,3.0,3.5,False,FND-02
+ART-08a,"Atmospheric scattering (Tellus, Rubra)",15-art.md,EA1,EA1,2.5,1.0,False,FND-03
+ART-11,Visual clarity pass,15-art.md,EA1,EA1,2.0,2.0,False,UX-04 ART-07a
+ART-12,Store and marketing art,15-art.md,EA1,EA1,1.0,3.0,False,ART-11
+ART-13,Interface icons and flags,15-art.md,EA1,EA1,1.0,2.0,False,UX-01
+ASM-01,Part browser v2,06-assembly-building.md,EA1,EA1,3.0,1.0,False,PRT-09
+ASM-02,Tweakables in the assembly building,06-assembly-building.md,EA1,EA1,2.0,0.5,False,
+ASM-03,Action group editor,06-assembly-building.md,EA1,EA1,2.0,0.5,False,FLT-07
+ASM-05,Craft browser v2,06-assembly-building.md,EA1,EA1,2.0,0.5,False,
+ASM-07,Crew assignment,06-assembly-building.md,EA1,EA1,2.0,0.5,False,CRW-01
+ASM-08,Engineer's Report and facility limits,06-assembly-building.md,EA1,EA1,3.0,0.5,False,FND-06
+ASM-09,Δv readout for any destination,06-assembly-building.md,EA1,EA1,1.0,0.5,False,FND-14 SYS-18
+ASM-10,Assembly building camera and interaction polish,06-assembly-building.md,EA1,EA1,2.0,1.0,False,FND-09
+AUD-02,Engine sounds,14-audio.md,EA1,EA1,3.0,2.0,False,AUD-01
+AUD-03,Vehicle sounds,14-audio.md,EA1,EA1,2.0,1.5,False,AUD-01
+AUD-04,Rocketeer sounds,14-audio.md,EA1,EA1,1.0,1.0,False,AUD-01
+AUD-05,Interface sounds,14-audio.md,EA1,EA1,1.0,0.5,False,AUD-01
+AUD-06,Music,14-audio.md,EA1,EA1,2.0,2.0,False,AUD-01 D-06
+AUD-07,Ambience,14-audio.md,EA1,EA1,1.0,1.0,False,AUD-01
+CRW-01,Crew data model v2,07-crew-eva.md,EA1,EA1,2.0,0.5,False,FND-05
+CRW-06,Ladders and climbing,07-crew-eva.md,EA1,EA1,3.0,1.0,False,PRT-02
+CRW-08,EVA science,07-crew-eva.md,EA1,EA1,2.0,0.5,False,SCI-03
+CRW-13,Names,07-crew-eva.md,EA1,EA1,1.0,0.5,False,
+FLT-01,Propellant model,04-flight-systems.md,EA1,EA1,3.0,1.0,False,D-01
+FLT-02,"Electric system: generation, consumption, starvation",04-flight-systems.md,EA1,EA1,5.0,1.0,False,SYS-02 PRT-03
+FLT-03,"Command, control and probe rules",04-flight-systems.md,EA1,EA1,2.0,0.5,False,FLT-02
+FLT-05,"Aerodynamics for rockets: fairings, bays, other atmospheres",04-flight-systems.md,EA1,EA1,4.0,1.0,False,PRT-04
+FLT-06,"Resource management: transfer, locks, crossfeed",04-flight-systems.md,EA1,EA1,3.0,0.5,False,FLT-01
+FLT-07,Action groups,04-flight-systems.md,EA1,EA1,3.0,0.5,False,ASM-03 FND-09
+FLT-09,Launch clamps,04-flight-systems.md,EA1,EA1,2.0,0.5,False,
+FLT-13,Precision at solar distances,04-flight-systems.md,EA1,EA1,2.0,0.0,False,FND-01
+FLT-14,Part-count performance,04-flight-systems.md,EA1,EA1,5.0,1.0,False,FND-13
+FLT-15,Tweakables,04-flight-systems.md,EA1,EA1,3.0,0.5,False,ASM-02
+HUB-02,"Hub scene, camera and facility screens",11-space-center.md,EA1,EA1,4.0,1.0,False,FND-07 HUB-01
+HUB-03,"Day, night and time in the hub",11-space-center.md,EA1,EA1,1.0,0.5,False,HUB-02 FND-01
+HUB-06,Launch and return flow,11-space-center.md,EA1,EA1,2.0,0.5,False,HUB-02 ASM-07 SCI-06
+NAV-01,Map view at solar-system scale,03-navigation.md,EA1,EA1,4.0,1.0,False,FND-01 FND-03
+NAV-02,Patched conics across several SOIs,03-navigation.md,EA1,EA1,3.0,0.5,False,NAV-01
+NAV-03,Rendezvous aids,03-navigation.md,EA1,EA1,3.0,0.5,False,NAV-02
+NAV-04,Manoeuvre planning precision,03-navigation.md,EA1,EA1,2.0,0.5,False,
+NAV-06,Tracking station,03-navigation.md,EA1,EA1,5.0,1.0,False,NAV-01 FND-07
+NAV-07,"Vessel types, names and icons",03-navigation.md,EA1,EA1,2.0,0.5,False,
+NAV-09,Body information panel,03-navigation.md,EA1,EA1,2.0,0.5,False,SYS-18
+PRT-02,Procedural models for the EA1 shapes,05-parts.md,EA1,EA1,4.0,1.0,False,PRT-03
+PRT-03,Deployables framework,05-parts.md,EA1,EA1,3.0,0.5,False,
+PRT-04,Procedural fairings,05-parts.md,EA1,EA1,5.0,1.0,False,PRT-03
+PRT-07,Science instrument parts,05-parts.md,EA1,EA1,1.0,0.5,False,SCI-03 PRT-02
+PRT-09,Part information and comparison,05-parts.md,EA1,EA1,2.0,0.5,False,
+PRT-10,Descriptions and manufacturer lore,05-parts.md,EA1,EA1,2.0,1.0,False,PRT-01
+PRT-12a,Content batch EA1 (40 parts),05-parts.md,EA1,EA1,3.0,2.0,False,PRT-01 PRT-02 PRT-07
+QA-02,Autotest framework v2,17-quality.md,EA1,EA1,3.0,0.5,False,FND-11
+QA-03,Save compatibility suite,17-quality.md,EA1,EA1,1.0,0.0,False,FND-05
+QA-04,Playtesting program,17-quality.md,EA1,EA1 → R1,1.0,12.0,False,REL-05
+QA-05,Release candidate testing,17-quality.md,EA1,EA1 → R1,1.0,6.0,False,FND-11
+REL-03,Steamworks,18-release.md,EA1,EA1,3.0,2.0,False,REL-02
+REL-04,Store page and trailer,18-release.md,EA1,EA1,1.0,5.0,False,ART-12 REL-03
+REL-05,Community and feedback channels,18-release.md,EA1,EA1,1.0,2.0,False,
+REL-06,Release pipeline,18-release.md,EA1,EA1,2.0,0.5,False,FND-11 REL-03
+REL-07,Linux and Steam Deck,18-release.md,EA1,EA1,2.0,1.0,False,FND-11
+REL-08,Demo (optional),18-release.md,EA1,EA1,1.0,1.0,False,REL-04
+SCI-01,Science data model,08-science.md,EA1,EA1,3.0,1.0,False,FND-05 FND-02
+SCI-02,Situations and biome detection,08-science.md,EA1,EA1,2.0,0.5,False,FND-02 SCI-01
+SCI-03,Experiment module and results dialog,08-science.md,EA1,EA1,4.0,1.0,False,SCI-02
+SCI-04,Result texts,08-science.md,EA1,EA1,3.0,2.0,False,SCI-03 FND-10
+SCI-05,Transmission and antennas,08-science.md,EA1,EA1,3.0,0.5,False,FLT-02 PRT-02
+SCI-06,Recovery science and the recovery dialog,08-science.md,EA1,EA1,2.0,0.5,False,SCI-01
+SCI-07,Storing and carrying data,08-science.md,EA1,EA1,2.0,0.5,False,SCI-03 CRW-08
+SCI-09,Science archive in R&D,08-science.md,EA1,EA1,2.0,0.5,False,SCI-01 HUB-02
+SCI-10,Science mode,08-science.md,EA1,EA1,2.0,1.0,False,FND-06 TEC-02 SCI-01
+SCI-11,Science balance,08-science.md,EA1,EA1,2.0,3.0,False,SCI-10 TEC-01
+SCI-12,Science autotests,08-science.md,EA1,EA1,2.0,0.0,False,SCI-03 QA-02
+SYS-02,"The star: light, heat and danger",02-solar-system.md,EA1,EA1,2.0,0.5,False,FND-01 FND-03
+SYS-03,"Pruina, the icy moon",02-solar-system.md,EA1,EA1,2.0,1.0,False,FND-02
+SYS-04,"Rubra, the red desert",02-solar-system.md,EA1,EA1,3.0,1.5,False,FND-02 FLT-05
+SYS-05,"Vigil, Rubra's moon",02-solar-system.md,EA1,EA1,1.5,0.5,False,SYS-04
+SYS-16,Body data tests,02-solar-system.md,EA1,EA1,1.0,0.0,False,FND-02
+SYS-18,Δv map and body pages,02-solar-system.md,EA1,EA1,1.0,0.5,False,SYS-01 UX-07
+TEC-01,Research tree design,09-tech-tree.md,EA1,EA1,2.0,2.0,False,PRT-01 SYS-01
+TEC-02,Tech state and unlocking,09-tech-tree.md,EA1,EA1,2.0,0.5,False,TEC-01 FND-06
+TEC-03,R&D facility screen,09-tech-tree.md,EA1,EA1,3.0,1.0,False,TEC-02 HUB-02
+TEC-04,Tree balance,09-tech-tree.md,EA1,EA1,1.0,2.0,False,TEC-01 SCI-11
+UX-02,Main menu and new-game flow,13-ui-ux.md,EA1,EA1,2.0,0.5,False,FND-05 FND-06
+UX-03,Settings screen,13-ui-ux.md,EA1,EA1,2.0,0.5,False,FND-08 FND-09
+UX-04,Flight HUD readability pass,13-ui-ux.md,EA1,EA1,3.0,2.0,False,UX-01
+UX-05,Training (interactive tutorials),13-ui-ux.md,EA1,EA1,5.0,2.0,False,FND-14 SCI-10
+UX-07,The handbook (in-game encyclopedia),13-ui-ux.md,EA1,EA1,3.0,2.0,False,FND-10
+UX-08,Notifications and the mission log,13-ui-ux.md,EA1,EA1,2.0,0.5,False,FND-14
+UX-09,Screenshots,13-ui-ux.md,EA1,EA1,1.0,0.0,False,
+UX-10,Accessibility,13-ui-ux.md,EA1,EA1,2.0,0.5,False,UX-01
+UX-11,Flags,13-ui-ux.md,EA1,EA1,1.0,1.0,False,
+UX-12,Loading screens and tips,13-ui-ux.md,EA1,EA1,1.0,0.5,False,FND-07
+UX-13,Credits and about,13-ui-ux.md,EA1,EA1,0.5,0.5,False,REL-02
+ART-03b,"Hero parts, batch 2",15-art.md,EA2,EA2,0.5,12.0,False,ART-03a
+ART-07b,Planet surfaces (EA2 worlds),15-art.md,EA2,EA2,1.0,3.5,False,ART-07a
+ART-08b,"Atmospheric scattering (Caligo, Maris, Magnus)",15-art.md,EA2,EA2,0.5,1.0,False,ART-08a
+ART-09,"Star, gas giant, rings and sky",15-art.md,EA2,EA2,3.0,2.0,False,FND-03
+ART-10,Effects v2,15-art.md,EA2,EA2,3.0,2.0,False,FLT-18
+ASM-04,Subassemblies,06-assembly-building.md,EA2,EA2,3.0,0.5,False,
+ASM-06,Offset and rotate gizmos,06-assembly-building.md,EA2,EA2,3.0,1.0,False,
+ASM-11,Stock craft library,06-assembly-building.md,EA2,EA2,3.0,2.0,False,PRT-12b SYS-17
+AUD-08,Mix and polish,14-audio.md,EA2,EA2,1.0,2.0,False,AUD-02 AUD-03 AUD-06
+CRW-09,External seats,07-crew-eva.md,EA2,EA2,2.0,0.5,False,PRT-06
+FLT-04,Thermal system v2,04-flight-systems.md,EA2,EA2,5.0,1.0,False,SYS-02
+FLT-08,Rovers and wheels,04-flight-systems.md,EA2,EA2,7.0,2.0,False,PRT-12b
+FLT-10,Docking v2: sizes and docking mode,04-flight-systems.md,EA2,EA2,3.0,0.5,False,PRT-12b
+FLT-12,Physics range and many vessels,04-flight-systems.md,EA2,EA2,3.0,0.5,False,
+FLT-17,"Control fins, airbrakes and lifting reentry",04-flight-systems.md,EA2,EA2,3.0,1.0,False,PRT-12b
+FLT-18,Engine families,04-flight-systems.md,EA2,EA2,4.0,1.0,False,FLT-01 FLT-02 FLT-04
+NAV-05,Transfer windows and planning help,03-navigation.md,EA2,EA2,4.0,1.0,False,NAV-02 SYS-01
+NAV-10,Alarm clock,03-navigation.md,EA2,EA2,2.0,0.5,False,NAV-02
+PRT-06,Crew parts and crew transfer,05-parts.md,EA2,EA2,3.0,0.5,False,CRW-01
+PRT-08,Procedural models for the EA2–EA4 shapes,05-parts.md,EA2,EA2,5.0,1.0,False,PRT-02
+PRT-11,Part balance,05-parts.md,EA2,EA2,2.0,3.0,False,PRT-01 SYS-17
+PRT-12b,Content batch EA2 (63 parts),05-parts.md,EA2,EA2,4.0,3.0,False,PRT-12a PRT-08
+SYS-06,"Ignis, the scorched inner planet",02-solar-system.md,EA2,EA2,2.0,1.0,False,FND-02 SYS-02
+SYS-07,"Caligo, the hazy sea world",02-solar-system.md,EA2,EA2,3.0,1.5,False,FND-02 FLT-04 FLT-05
+SYS-08,"Mica, Caligo's pebble",02-solar-system.md,EA2,EA2,1.0,0.5,False,FND-02
+SYS-09,Rupes and the asteroid belt,02-solar-system.md,EA2,EA2,2.0,1.0,False,FND-02 FND-03
+SYS-10,"Magnus, the ringed giant",02-solar-system.md,EA2,EA2,3.0,1.5,False,FND-03 FLT-04 FLT-05
+SYS-11,"Maris, the ocean moon",02-solar-system.md,EA2,EA2,2.5,1.0,False,FND-02 SYS-10
+SYS-12,"Gelida, the cracked ice moon",02-solar-system.md,EA2,EA2,1.0,0.5,False,FND-02
+SYS-13,"Gravis, the landing exam",02-solar-system.md,EA2,EA2,1.0,0.5,False,FND-02
+SYS-14,"Lapis and Granum, the small moons of Magnus",02-solar-system.md,EA2,EA2,1.5,0.5,False,FND-02
+SYS-15,"Remota, the far ice dwarf",02-solar-system.md,EA2,EA2,1.0,0.5,False,FND-02
+SYS-17,Autotest missions to every body,02-solar-system.md,EA2,EA2,5.0,1.0,False,QA-02 NAV-05
+ART-03c,"Hero parts, batch 3",15-art.md,EA3,EA3,0.5,6.0,False,ART-03b
+ART-06,Space center buildings,15-art.md,EA3,EA3,1.0,10.0,False,HUB-01 ART-01
+CAR-01,Currencies and the ledger,10-career.md,EA3,EA3,2.0,0.5,False,FND-06
+CAR-02,"Costs, launch and recovery",10-career.md,EA3,EA3,3.0,1.0,False,CAR-01 PRT-01
+CAR-03,"Facility levels, limits and upgrades",10-career.md,EA3,EA3,3.0,1.0,False,CAR-01 HUB-02
+CAR-04,Contract system core,10-career.md,EA3,EA3,5.0,1.0,False,FND-14 CAR-01
+CAR-05,Contract types,10-career.md,EA3,EA3,6.0,2.0,False,CAR-04 NAV-08 CRW-05
+CAR-06,Mission Control screen,10-career.md,EA3,EA3,3.0,1.0,False,CAR-04 HUB-02
+CAR-07,World firsts and progression,10-career.md,EA3,EA3,2.0,1.0,False,FND-14 CAR-01
+CAR-08,Strategies,10-career.md,EA3,EA3,3.0,1.0,False,CAR-01 CAR-03
+CAR-09,Difficulty presets and custom options,10-career.md,EA3,EA3,2.0,0.5,False,CAR-01
+CAR-10,Career economy balance,10-career.md,EA3,EA3,2.0,4.0,False,CAR-05 CAR-08 PRT-11
+CAR-11,Career start,10-career.md,EA3,EA3,1.0,0.5,False,CAR-05 UX-02
+CAR-12,Career autotests,10-career.md,EA3,EA3,3.0,0.5,False,CAR-05 QA-02
+CRW-02,Astronaut Complex,07-crew-eva.md,EA3,EA3,3.0,1.0,False,CRW-01 HUB-02
+CRW-03,Traits and abilities,07-crew-eva.md,EA3,EA3,4.0,1.0,False,CRW-01 FLT-03
+CRW-04,Experience and levels,07-crew-eva.md,EA3,EA3,2.0,1.0,False,CRW-01 FND-14
+CRW-05,Rescue and tourists,07-crew-eva.md,EA3,EA3,2.0,0.5,False,CRW-01 CAR-04
+CRW-12,Crew loss and the memorial,07-crew-eva.md,EA3,EA3,1.0,0.5,False,CRW-02
+HUB-04,Facility levels and upgrades,11-space-center.md,EA3,EA3,2.0,1.0,False,CAR-03 ART-06
+HUB-07,Agency identity,11-space-center.md,EA3,EA3,1.0,1.0,False,UX-11 CAR-07
+NAV-08,Waypoints,03-navigation.md,EA3,EA3,3.0,0.5,False,NAV-01
+ART-03d,"Hero parts, batch 4",15-art.md,EA4,EA4,0.5,10.0,False,ART-03c
+FLT-11,Grabbing unit,04-flight-systems.md,EA4,EA4,3.0,1.0,False,PRT-12c
+FLT-16,Struts and fuel lines in a single-rigid-body world,04-flight-systems.md,EA4,EA4,3.0,1.0,False,PRT-05
+PRT-05,Struts and fuel lines,05-parts.md,EA4,EA4,3.0,0.5,False,FLT-16
+PRT-12c,Content batch EA3–EA4 (29 parts),05-parts.md,EA4,EA4,3.0,2.0,False,PRT-12b
+RES-01,Resource distribution,12-resources-asteroids.md,EA4,EA4,3.0,1.0,False,FND-02
+RES-02,Scanning and overlays,12-resources-asteroids.md,EA4,EA4,3.0,1.0,False,RES-01 NAV-01
+RES-03,Drills,12-resources-asteroids.md,EA4,EA4,3.0,0.5,False,RES-01 PRT-03 FLT-04
+RES-04,Converters,12-resources-asteroids.md,EA4,EA4,2.0,0.5,False,RES-03 FLT-01
+RES-05,Asteroids,12-resources-asteroids.md,EA4,EA4,4.0,1.0,False,NAV-06 SYS-09
+RES-06,Capturing and moving asteroids,12-resources-asteroids.md,EA4,EA4,3.0,1.0,False,RES-05 FLT-11
+RES-07,ISRU and asteroid autotests,12-resources-asteroids.md,EA4,EA4,2.0,0.0,False,RES-04 RES-06 QA-02
+SCI-08,Research lab,08-science.md,EA4,EA4,3.0,1.0,False,SCI-07 PRT-06
+ART-03e,"Hero parts, batch 5",15-art.md,EA5,EA5,0.5,5.0,False,ART-03d
+ART-05,Rocketeers (characters),15-art.md,EA5,EA5,2.0,6.0,False,D-05
+CRW-07,"Swimming, falling and ragdoll",07-crew-eva.md,EA5,EA5,3.0,1.0,False,ART-05
+CRW-10,Portraits in flight,07-crew-eva.md,EA5,EA5,3.0,1.0,False,ART-05
+CRW-11,Interior views,07-crew-eva.md,EA5,EA5,4.0,3.0,False,CRW-10 ART-05 D-04
+HUB-05,Destructible facilities,11-space-center.md,EA5,EA5,3.0,1.0,False,HUB-04 ART-06
+MOD-01,Mods folder and content packs,16-modding.md,EA5,EA5,4.0,1.0,False,FND-04 ART-02
+MOD-02,Plugin API,16-modding.md,EA5,EA5,5.0,1.0,False,MOD-01 FND-14
+MOD-03,Modding documentation and examples,16-modding.md,EA5,EA5,2.0,1.0,False,MOD-01 MOD-02
+MOD-04,Mod list in the game,16-modding.md,EA5,EA5,1.0,0.5,False,MOD-01
+SYS-19,Landmarks and points of interest,02-solar-system.md,EA5,EA5,2.0,2.0,False,SYS-17 SCI-03 CAR-05
+UX-06,Scenarios,13-ui-ux.md,EA5,EA5,3.0,2.0,False,UX-05 CAR-05
+REL-09,1.0 launch,18-release.md,R1,R1,1.0,5.0,False,every R1 task
+MSY-01,Multi-system design,20-multi-system-and-trade.md,X1,X1,1.0,3.0,False,R1
+MSY-02,Galaxy map and system switching,20-multi-system-and-trade.md,X1,X1,0.0,0.0,True,MSY-01 FND-15
+MSY-03,The second system,20-multi-system-and-trade.md,X1,X1,0.0,0.0,True,MSY-01
+MSY-04,Travel between systems,20-multi-system-and-trade.md,X1,X1,0.0,0.0,True,MSY-01
+TRD-01,Trade design,20-multi-system-and-trade.md,X2,X2,1.0,3.0,False,R1
+TRD-02,Outposts and stations as economic nodes,20-multi-system-and-trade.md,X2,X2,0.0,0.0,True,TRD-01 RES-04
+TRD-03,Routes: creation and automation,20-multi-system-and-trade.md,X2,X2,0.0,0.0,True,TRD-01
+TRD-04,"Goods, prices and markets",20-multi-system-and-trade.md,X2,X2,0.0,0.0,True,TRD-01 CAR-10
+TRD-05,Trade interface,20-multi-system-and-trade.md,X2,X2,0.0,0.0,True,TRD-03

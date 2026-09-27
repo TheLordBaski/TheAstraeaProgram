@@ -1,0 +1,283 @@
+# 01 · Foundations (FND)
+
+Everything after the vertical slice needs these first. The slice was built around two bodies and one game mode:
+
+- `CelestialSystem.Root` is Tellus.
+- The sun is a fixed light direction (`system.json → sun.direction`).
+- `TerrainGenerator` has two hard-coded generators (`"tellus"`, `"luma"`).
+- `MissionTracker`, `DesignAnalysis` and the developer window name Luma directly.
+- Saves are `GameSave.version = 1`.
+- Keys are hard-coded in `FlightInput`, and there is no settings menu.
+- Builds are Windows only, and tests run from local scripts.
+
+These tasks turn the slice into a base that 15 more worlds, three game modes and two platforms can stand on.
+
+Task format used in every plan file: **Milestone** (when it ships) · **Claude** (build-and-test days at the
+vertical-slice pace) · **You** (your days: decisions, review, playtesting, art) · **Needs** (tasks that must land first).
+
+---
+
+### FND-01 · The star becomes the root of the system
+**Milestone** M1 · **Claude** 4 d · **You** 1 d · **Needs** FND-15
+
+Planets orbit a star, and transfers, launch windows, day and night, solar power and heating all depend on it. Today
+Tellus sits still at the origin and the sunlight comes from a constant direction. Build this on the multi-system data
+model (FND-15): the home system is the first of several, so nothing may assume there is only one star.
+
+- `system.json`: a new root body, the star (id, name, radius, GM, luminosity, colour, surface temperature). Tellus gets
+  an orbit around it (working value a ≈ 14 Gm, a year of about 440 Tellus days); Luma is unchanged.
+- The star has no terrain, atmosphere or SOI limit. `BodyPosition` already chains parents; audit every position path
+  for double precision at 10¹¹ m (floats only for origin-relative Unity coordinates).
+- `ReferenceFrame` accepts the star as frame body (heliocentric coasts); floating origin and Krakensbane keep working
+  at solar distances.
+- Lighting: the sun direction is recomputed each frame from the star's position to the camera, replacing
+  `sun.direction`. Eclipses test every body between the camera and the star, not only the frame body.
+- Calendar: the year is Tellus's orbital period, and the HUD clock shows year/day/hour from it.
+- Rails warp in the star frame; warp limits for the star (no limit beyond 1 Gm).
+- Saves: vessel states are stored relative to their body and remain valid; the migration comes with FND-05.
+
+**Done when**
+- [ ] Unit test: a vessel on a solar orbit returns to its start after one period within 1 m.
+- [ ] Unit test: leaving Tellus's SOI into the star frame and coming back in is continuous: under 0.1 m in position
+      and 10⁻⁴ m/s in velocity at each transition.
+- [ ] New autotest `escape`: launch, escape Tellus, coast 30 days at maximum warp, re-enter Tellus's SOI. It passes
+      in the build.
+- [ ] All existing missions (`orbit`, `lunar`, `persistence`, `docking`, `failures`, `suborbital`) pass in the build.
+- [ ] Screenshots from two dates half a year apart show the sunlight coming from a different direction.
+
+### FND-02 · Data-driven terrain and biome framework
+**Milestone** M1 · **Claude** 5 d · **You** 1 d · **Needs** —
+
+Fifteen new worlds can't each be a hard-coded generator, and science needs biomes on every body.
+
+- A layered generator described in `system.json` replaces the `"tellus"`/`"luma"` switch. Each layer is data with its
+  own seed, blending and masks:
+  - Base shape: radius, minimum and maximum height.
+  - Noise layers: fBm, ridged, billow.
+  - Crater fields: size distribution, depth, rim, age and erosion.
+  - Rifts/canyons, terraces, dunes, polar caps, ocean level.
+- **Biomes**: ordered rules. Each rule can test height band, latitude, slope, distance to shore, noise regions and
+  named special areas. A biome has an id, a display name, a map-overlay colour and a material index for rendering.
+- Flattened areas (the launch complex today) become a generic `flatAreas` list.
+- Chunk and collider generation runs in jobs (Burst if it helps). Heights are deterministic, identical on Windows
+  and Linux.
+- Tellus and Luma are re-expressed in the new format. Either heights stay within 1 m of today's at 10,000 sample
+  points, or a deliberate visual change is documented with before/after screenshots.
+
+**Done when**
+- [ ] Tellus and Luma look as before (screenshots) and the `lunar` mission passes.
+- [ ] `BiomeAt(body, lat, lon)` gives at least 8 biomes on Tellus and 6 on Luma, and a debug map overlay shows them.
+- [ ] Unit tests cover determinism (the same heights twice, and the same values on Linux) and biome rule order.
+- [ ] A new body can be added with JSON alone. SYS-03 (Pruina) proves it.
+
+### FND-03 · Scaled-space rendering: planets, star and sky from anywhere
+**Milestone** M1 · **Claude** 4 d · **You** 1 d · **Needs** FND-01
+
+- Distant bodies are drawn in a scaled-space layer: a separate camera at a 1:N scale, with a seamless hand-over to
+  the near terrain LOD.
+- The star has a disc, corona, bloom and lens flare. There's a starfield skybox. Night sides get a faint ambient.
+- Atmosphere shells work for every atmospheric body (today only Tellus). Bodies too small to resolve become a point
+  of light plus a label.
+- No z-fighting or jitter anywhere from low orbit to 10¹¹ m.
+
+**Done when**
+- [ ] Screenshots from low Tellus orbit, the Luma surface and 20 Gm out show every body in the right place.
+- [ ] No flicker while zooming the map from 1 km to 100 Gm.
+- [ ] The extra cost is under 1 ms per frame (benchmark from FND-13).
+
+### FND-04 · Content validation and hot reload
+**Milestone** M1 · **Claude** 2 d · **You** 0.5 d · **Needs** —
+
+- Schema checks at load for `parts.json` and `system.json`, and later for tech, experiments, contracts and
+  strategies. Errors are readable: file, entry, field, expected vs found.
+- Editor menu *TAP → Validate Content*, plus an EditMode test that loads all content.
+- Development hot reload of data in play mode (part stats, body parameters; meshes are excluded), so balancing
+  doesn't need a restart.
+
+**Done when**
+- [ ] A broken entry (for example a missing engine Isp) gives one clear error, not a NullReferenceException in
+      flight.
+- [ ] Changing a thrust value in the JSON and pressing F8 in the editor is visible in the next ignition.
+
+### FND-05 · Save format v2: versioning, migration, backups
+**Milestone** M1 · **Claude** 3 d · **You** 0.5 d · **Needs** FND-06
+
+- `GameSave.version` with a migration chain (v1 → v2 → …). Old saves always load, and the Early Access promise is
+  that saves survive updates (see decision D-13).
+- New sections: mode, science archive, tech, funds and reputation, contracts, facilities, crew traits.
+- Atomic writes (a temporary file, then rename) and rotating backups: the last 5 `persistent` saves and all
+  quicksaves.
+- An autosave interval (setting). Save metadata for the save browser: mode, in-game date, vessel count, play time
+  and a thumbnail.
+- A corrupted save is detected on load and restored from the newest good backup, with a message.
+- A save corpus in `Assets/TAP/Tests/Saves` (v1 saves from the slice), loaded by a test on every build.
+
+**Done when**
+- [ ] Every save in the corpus loads, with the same vessels, crew and positions.
+- [ ] Killing the game in the middle of a save never corrupts it (a test truncates the temp file).
+- [ ] Backups rotate.
+
+### FND-06 · Game modes: sandbox, science, career
+**Milestone** M1 · **Claude** 2 d · **You** 0.5 d · **Needs** —
+
+- The mode lives in `GameSave`.
+- One service answers the feature gates: is this part researched, can I afford it, is this facility level enough,
+  are contracts on, can crew be hired.
+- Sandbox answers "yes" to all of them, which is today's behaviour. Science gates parts by tech. Career gates
+  everything.
+- A stub new-game dialog (mode, name, difficulty placeholder); the full flow is in UX-02.
+
+**Done when**
+- [ ] One code path queries the gates, and a unit test covers each mode's answers.
+- [ ] Sandbox saves from the slice load as sandbox.
+
+### FND-07 · Scene flow with the space center hub
+**Milestone** M1 · **Claude** 2 d · **You** 0.5 d · **Needs** FND-06
+
+- Main menu → space center hub (placeholder: the launch complex with clickable building markers) → assembly
+  building, tracking station, launch. The finished hub is HUB-02.
+- Leaving a flight (recover, back to the center, revert) returns to the hub. Revert to launch and revert to assembly
+  keep working.
+- Scenes load asynchronously behind a loading screen with tips (UX-12).
+
+**Done when**
+- [ ] This loop works with no dead ends, and the `orbit` mission's recovery lands you back in the hub:
+      menu → hub → assembly → launch → recover → hub → tracking station → fly a vessel → hub.
+
+### FND-08 · Settings system
+**Milestone** M1 · **Claude** 2 d · **You** 0.5 d · **Needs** —
+
+- Settings are a JSON file in the user folder, next to saves, not the registry. The zoom-speed preference migrates.
+- Graphics: resolution, window mode, vsync, frame cap, quality preset, shadows, anti-aliasing, render scale, terrain
+  detail, scatter density.
+- Audio: master, music, effects, interface, ambience.
+- Gameplay: autosave interval, tooltips, units.
+- Interface: UI scale and HUD scale.
+- Everything applies at runtime without a restart where Unity allows. Safe defaults on first start, and command-line
+  overrides (`-screen-width`, `-safe-mode`).
+
+**Done when**
+- [ ] Every setting survives a restart.
+- [ ] Deleting the settings file restores the defaults.
+- [ ] `-safe-mode` starts at 1280×720, windowed, low quality.
+
+### FND-09 · Input: rebinding, joysticks, precision controls
+**Milestone** M1 · **Claude** 3 d · **You** 1 d · **Needs** FND-08
+
+- Every key (flight, EVA, map, assembly, developer) moves into the Input System actions asset. The in-game control
+  guide (F1) is generated from the bindings, so it can never be out of date.
+- Rebinding with conflict detection and reset to defaults, saved per user; the UI is in UX-03.
+- Bindings follow physical key positions, so QWERTZ and AZERTY keyboards get the same layout.
+- Joystick and HOTAS axes (pitch, yaw, roll, throttle, translation) with deadzone, sensitivity and inversion. A
+  basic gamepad map.
+- **Precision controls**: Caps Lock for fine attitude control (reduced authority, as in KSP) and trim
+  (Alt + W/A/S/D/Q/E, Alt+X to reset).
+- Action-group keys (FLT-07).
+
+**Done when**
+- [ ] Every action can be rebound.
+- [ ] A joystick flies the `orbit` mission by hand (you).
+- [ ] Trim holds a pitch without input.
+- [ ] F1 shows the rebound keys.
+
+### FND-10 · Localization-ready text
+**Milestone** M1 · **Claude** 2 d · **You** 0.5 d · **Needs** —
+
+- String tables (a JSON file per language) with keys; UIKit labels take keys.
+- Part, body, experiment, contract and handbook texts live in the tables.
+- Formatting helpers for numbers, units, dates and plurals.
+- A pseudo-locale (+40% length, accented letters) to catch overflow and hard-coded strings.
+- English only through 1.0 (D-12). Adding a language later must need no code changes.
+
+**Done when**
+- [ ] With the pseudo-locale, no visible hard-coded English is left in the menus, HUD, assembly building or map.
+
+### FND-11 · Linux build and continuous integration
+**Milestone** M1 · **Claude** 3 d · **You** 1 d · **Needs** —
+
+- A Linux x86_64 player from `BuildScript`, with the Mono scripting backend (plugin mods need it, D-11).
+- A first run on a real Linux machine (Ubuntu LTS with the Steam runtime), running the batch-mode autotests.
+- **GitHub Actions** (GameCI) on every push to `main`:
+  - EditMode tests;
+  - Windows and Linux builds kept as artifacts.
+- **Nightly**, on a self-hosted runner (your PC): all mission autotests in batch mode, with the results in the job
+  summary.
+- The version from `git describe` is stamped into the build and shown in the main menu and the logs.
+
+**Done when**
+- [ ] A push produces both builds and a test report.
+- [ ] The nightly run posts pass/fail per mission.
+- [ ] The Linux build passes `orbit` and `lunar`.
+
+### FND-12 · Logs, crash handling and in-game bug reports
+**Milestone** M1 · **Claude** 1.5 d · **You** 0.5 d · **Needs** FND-05
+
+- Rotating log files with version, OS, GPU and settings.
+- *Report a problem* in the main menu and pause menu. It zips the logs, current save, a screenshot, the settings and
+  the mod list into the user folder, then opens the feedback page (REL-05).
+- An unhandled exception shows a small non-blocking notice (write a report?) instead of failing silently.
+
+**Done when**
+- [ ] A forced exception in flight produces a notice, and the report zip contains everything needed to reproduce it.
+
+### FND-13 · Performance baseline and budgets
+**Milestone** M1 · **Claude** 2 d · **You** 0.5 d · **Needs** —
+
+- Benchmark scenes:
+  - launches of 50, 150 and 300-part rockets;
+  - a landed base of 10 vessels;
+  - the map with 40 vessels;
+  - maximum warp.
+- **Budgets**:
+  - 60 fps at 150 parts and 30 fps at 300 parts, on a GTX 1660 / Ryzen 5 class PC at 1080p;
+  - under 20 s from the main menu to the hub;
+  - under 4 GB of memory.
+- Profiler markers around each simulation step. `-benchmark` writes a CSV, and CI keeps the trend.
+
+**Done when**
+- [ ] The benchmark runs headless in CI.
+- [ ] The baseline numbers are recorded in `Docs/PERFORMANCE.md`.
+- [ ] Regressions over 10% show in the job summary.
+
+### FND-14 · Remove single-mission assumptions; game events and objectives
+**Milestone** M1 · **Claude** 3 d · **You** 0.5 d · **Needs** FND-01
+
+- The hard-coded bodies become data or a selectable destination:
+  - `"luma"` and `"tellus"` in `MissionTracker`;
+  - the Δv readout against Luma in `DesignAnalysis`;
+  - the body buttons in the developer window.
+- **A game-event bus**: launched, staged, reached space, orbit, SOI change, landed or splashed, EVA, flag planted,
+  docked, crew recovered, science collected, part destroyed, crew lost. It feeds the mission guide, progression,
+  contracts, achievements and tutorials.
+- **A generic objectives system**: conditions from the events plus the vessel state, and a panel in flight. The Luma
+  mission guide becomes one objective set in data.
+
+**Done when**
+- [ ] No gameplay code names a body.
+- [ ] The Luma mission guide behaves exactly as before, now driven by data.
+- [ ] A second objective set ("reach Pruina orbit") works without code changes.
+
+### FND-15 · Multi-system data model: a galaxy of one system, ready for more
+**Milestone** M1 · **Claude** 2 d · **You** 0.5 d · **Needs** —
+
+More planetary systems are planned (see [20-multi-system-and-trade.md](20-multi-system-and-trade.md)). They arrive
+after 1.0, but retrofitting a single-system game is far more expensive than starting multi-system now.
+
+- **Galaxy file** (`galaxy.json`): the list of star systems, each with an id, a name, its position in light-years and
+  its system file. 1.0 ships one entry, the home system.
+- **Namespaced ids**: body ids belong to a system (`home/tellus`), with the bare ids of the slice kept as aliases.
+- **One simulation per system.** Vessels, frames, rails, the map and scaled space live inside their system. Saves
+  store the system id for every vessel, flag and landmark; nothing is positioned in a galaxy frame.
+- **No single-star assumptions.** Code asks the current system for its star instead of reading a single
+  `System.Root`. Scaled-space layers, the sky and the map can switch systems.
+- **A test system**: a small debug system (a star and one planet) that the game can load instead of the home
+  system. It proves nothing names a home body.
+- **Interstellar travel is not built here.** The data model only has to allow it (vessels changing system, long
+  transits); the mechanics are decided later (D-17).
+
+**Done when**
+- [ ] The game runs end to end with the debug system as the home system: hub, assembly, launch, orbit, map, save and
+      load.
+- [ ] Saves carry system ids, and slice saves migrate to `home/...`.
+- [ ] Nothing in gameplay code assumes a single star (a test searches for `System.Root` use outside the system
+      service).
