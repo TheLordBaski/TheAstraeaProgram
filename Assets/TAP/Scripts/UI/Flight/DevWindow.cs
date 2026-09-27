@@ -34,7 +34,7 @@ namespace TAP.UI
         public bool IsOpen => _panel != null && _panel.activeSelf;
 
         /// <summary>The home planet's first moon (Luma in the home system).</summary>
-        private CelestialBody HomeMoon => Sim.System.HomeBody.Children.Count > 0 ? Sim.System.HomeBody.Children[0] : null;
+        private CelestialBody HomeMoon => Sim.System.HomeMoon;
 
         public static DevWindow Create(FlightSceneController scene)
         {

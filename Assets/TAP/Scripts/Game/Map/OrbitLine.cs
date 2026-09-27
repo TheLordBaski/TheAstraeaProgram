@@ -121,7 +121,12 @@ namespace TAP.Game
             Mesh.SetUVs(0, _uv);
             Mesh.SetColors(_c);
             Mesh.SetTriangles(_i, 0, false);
-            Mesh.bounds = new Bounds(Vector3.zero, Vector3.one * 1e7f);
+            // Bounds that hold every point, however large the orbit (a planet's orbit around the star spans 10¹⁰ m):
+            // a fixed box culled the home planet's own orbit line whenever the star was out of view.
+            var bounds = new Bounds(_v.Count > 0 ? _v[0] : Vector3.zero, Vector3.zero);
+            foreach (var p in _v) bounds.Encapsulate(p);
+            bounds.Expand(Mathf.Max(1f, bounds.size.magnitude * 1e-3f));
+            Mesh.bounds = bounds;
         }
 
         public void Destroy()

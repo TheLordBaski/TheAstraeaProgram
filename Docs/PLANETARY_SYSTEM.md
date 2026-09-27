@@ -27,7 +27,7 @@ after 1.0 (`product/plan/20-multi-system-and-trade.md`).
 | Gravitational parameter μ | 3.5316×10¹² m³/s² |
 | Mass | 5.29×10²² kg |
 | Surface gravity | 9.81 m/s² (1.00 g) |
-| Sidereal rotation | 6 h (21,600 s), prograde; equatorial surface speed 174.5 m/s |
+| Sidereal rotation | 21,551 s, prograde: a solar day (noon to noon) of exactly 6 h (21,600 s); equatorial surface speed 174.9 m/s |
 | Atmosphere | 70 km thick, 101.325 kPa at sea level, scale height 5.6 km, N₂/O₂ (M = 28.96 g/mol, γ = 1.4) |
 | Temperature profile | 288 K at sea level → 217 K (11–20 km) → 271 K (47–51 km) → 215 K at 70 km |
 | Ocean | Yes (sea level = radius); splashdowns float |
@@ -35,13 +35,18 @@ after 1.0 (`product/plan/20-multi-system-and-trade.md`).
 | Escape velocity (surface) | 3.43 km/s |
 | Circular orbit at 80 km | 2,279 m/s, period 31.2 min |
 | Orbit around Astraea | Circular, semi-major axis 14.0 Gm, inclination 0° (no seasons), mean anomaly 235° at UT 0 (the sun then shines from the same direction as the fixed sun of the first versions) |
-| Year | 9.50×10⁶ s ≈ 439.9 Tellus days (6 h days) |
+| Year | 9.50×10⁶ s = 439.87 Tellus days (6 h days); calendar years have 439 or 440 days |
 | Orbital speed | 9.26 km/s |
 | Sphere of influence | 85,831 km (beyond it a vessel orbits the star) |
 | Time-warp altitude limits | 5×/10×/50× above 70 km, 100× above 120 km, 1,000× above 240 km, 10,000× above 480 km, 100,000× above 960 km |
 
 **Launch site**: Astraea Launch Complex at 0° N, 0° E, pad deck 71.2 m above sea level, 700 m flattened radius.
-Launching east gains the 174.5 m/s rotation speed. The assembly building stands 420 m west of the pad.
+Launching east gains the 174.9 m/s rotation speed. The assembly building stands 420 m west of the pad.
+
+**Clock and calendar** (`Calendar`): the HUD clock starts at Y1 D001 00:00:00 at UT 0. A day is Tellus's solar day,
+6 h from noon to noon, so the time of day always follows the sun at the launch site. A year is Tellus's orbit, 439.87
+days: calendar years have 439 or 440 days and each new year begins within half a day of the orbital anniversary.
+Durations shown in the game (mission time, time to apoapsis, burn times) count the same 6-hour days.
 
 ## Luma (moon)
 

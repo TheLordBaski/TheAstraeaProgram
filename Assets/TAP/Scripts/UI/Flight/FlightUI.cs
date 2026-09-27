@@ -43,7 +43,9 @@ namespace TAP.UI
             g._text.textWrappingMode = TextWrappingModes.Normal;
             g._text.alignment = TextAlignmentOptions.TopLeft;
             UIKit.Stretch(g._text.rectTransform, 12, 12, 30, 8);
-            var title = UIKit.Label(p.transform, "MISSION: TO LUMA AND BACK", 13, UIKit.Accent, TextAlignmentOptions.Left, FontStyles.Bold);
+            var sys = TAP.Core.CelestialSystem.Default;
+            var moon = sys.HomeMoon ?? sys.HomeBody;
+            var title = UIKit.Label(p.transform, $"MISSION: TO {moon.Name.ToUpperInvariant()} AND BACK", 13, UIKit.Accent, TextAlignmentOptions.Left, FontStyles.Bold);
             UIKit.Place(title.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(12, -8), new Vector2(260, 18));
             g._toggle = UIKit.Button(p.transform, "–", () => g._expanded = !g._expanded, 16);
             UIKit.Place(g._toggle.Rect, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-6, -4), new Vector2(26, 22));

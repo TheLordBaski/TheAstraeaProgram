@@ -115,7 +115,7 @@ namespace TAP.Tests
             int dec = a.AttachStack(tank, "bottom", "dec_s1", "top");
             a.AttachStack(dec, "bottom", "eng_ember", "top");
             a.AutoStage();
-            var s = DesignAnalysis.Analyze(d, Db, EditorEnvironment.TellusVacuum);
+            var s = DesignAnalysis.Analyze(d, Db, EditorEnvironment.HomeVacuum);
             Assert.AreEqual(0, s.TotalDvVac, 1e-6);
             Assert.IsTrue(s.Warnings.Exists(w => w.Text.Contains("no propellant")), "engine without reachable fuel is reported");
         }
@@ -125,12 +125,12 @@ namespace TAP.Tests
         {
             foreach (var c in StarterCraft.All(Db))
             {
-                var s = DesignAnalysis.Analyze(c, Db, EditorEnvironment.TellusSeaLevel);
+                var s = DesignAnalysis.Analyze(c, Db, EditorEnvironment.HomeSeaLevel);
                 Assert.IsFalse(s.HasBlocking, c.name + " has a blocking problem");
                 Assert.Greater(s.LaunchTwr, 1.2, c.name + " launch TWR");
                 Assert.Less(s.StabilityMargin, 0f, c.name + " must be aerodynamically stable (CoP below CoM)");
             }
-            var lunar = DesignAnalysis.Analyze(StarterCraft.Pathfinder(Db), Db, EditorEnvironment.TellusVacuum);
+            var lunar = DesignAnalysis.Analyze(StarterCraft.Pathfinder(Db), Db, EditorEnvironment.HomeVacuum);
             Assert.Greater(lunar.TotalDvVac, 6300, "Pathfinder needs the Δv for the full lunar mission");
         }
 

@@ -156,7 +156,7 @@ namespace TAP.UI
                 var info = stats?.Stage(s);
                 string num = s == count - 1 ? $"<b>Stage {s}</b> <size=12>(first)</size>" : $"<b>Stage {s}</b>";
                 string dv = info != null && info.HasEngines && info.BurnTime > 0.05
-                    ?$"  <color=#{UIKit.Hex(UIKit.Accent)}>Δv {info.DeltaVCurrent:N0} m/s</color> · TWR {(stats.Environment == EditorEnvironment.TellusSeaLevel ? info.TwrAsl : info.TwrVac):0.00} · {info.BurnTime:0} s"
+                    ?$"  <color=#{UIKit.Hex(UIKit.Accent)}>Δv {info.DeltaVCurrent:N0} m/s</color> · TWR {(stats.Environment == EditorEnvironment.HomeSeaLevel ? info.TwrAsl : info.TwrVac):0.00} · {info.BurnTime:0} s"
                     : "";
                 var header = UIKit.Label(block.transform, num + dv, 14, UIKit.TextColor);
                 UIKit.Size(header, 20);
@@ -393,7 +393,7 @@ namespace TAP.UI
         {
             var row = UIKit.Panel(_loadContent, "Row", UIKit.PanelLight);
             UIKit.Size(row, 74);
-            var stats = DesignAnalysis.Analyze(craft, Ed.Db, EditorEnvironment.TellusSeaLevel);
+            var stats = DesignAnalysis.Analyze(craft, Ed.Db, EditorEnvironment.HomeSeaLevel);
             var text = UIKit.Label(row.transform,
                 $"<b>{craft.name}</b>  <size=13><color=#{UIKit.Hex(UIKit.TextDim)}>{craft.parts.Count} parts · {PartInfoText.Mass(stats.WetMass)} · Δv {stats.TotalDvVac:N0} m/s vac · TWR {stats.LaunchTwr:0.00}</color></size>\n" +
                 $"<size=13>{craft.description}</size>", 15, UIKit.TextColor);

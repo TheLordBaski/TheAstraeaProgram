@@ -29,7 +29,7 @@ namespace TAP.Game
             yield return Reentry();
         }
 
-        private CelestialBody Luma => Sim.System.Get("luma");
+        private CelestialBody Luma => Sim.System.HomeMoon;
         private CelestialBody Tellus => Sim.System.HomeBody;
 
         private IEnumerator LunarMission()

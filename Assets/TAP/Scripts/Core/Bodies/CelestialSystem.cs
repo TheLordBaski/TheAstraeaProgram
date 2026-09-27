@@ -117,6 +117,21 @@ namespace TAP.Core
 
         public CelestialBody LaunchBody => HomeBody;
 
+        /// <summary>The home body's first moon (the target of the first mission), or null when it has none.</summary>
+        public CelestialBody HomeMoon
+        {
+            get
+            {
+                var h = HomeBody;
+                return h != null && h.Children.Count > 0 ? h.Children[0] : null;
+            }
+        }
+
+        private Calendar _calendar;
+
+        /// <summary>The clock and calendar of this system's home planet.</summary>
+        public Calendar Calendar => _calendar ??= Calendar.Of(this);
+
         /// <summary>Unit direction towards the star from a position relative to the root (the star's centre).</summary>
         public Vector3d SunDirectionFrom(Vector3d rootRelative)
         {

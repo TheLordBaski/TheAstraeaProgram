@@ -19,24 +19,49 @@ namespace TAP.Game
             public Milestone(string id, string title, string hint) { Id = id; Title = title; Hint = hint; }
         }
 
-        public static readonly Milestone[] Lunar =
+        private static Milestone[] _lunar;
+        private static CelestialSystem _lunarSystem;
+
+        /// <summary>
+        /// The first mission, to the home planet's first moon and back, worded with the session system's names. The ids
+        /// are stored in saves and never change ("luma_soi" means the first moon's sphere of influence in any system).
+        /// </summary>
+        public static Milestone[] Lunar
         {
-            new Milestone("launch", "Launch", "Pick a rocket in the assembly building (Luma Pathfinder is ready to fly), press Launch, then Space to ignite. Z = full throttle."),
-            new Milestone("space", "Reach space (70 km)", "At ~60 m/s tap D to tip ~10° east, then select SAS Prograde. Stage (Space) when engines burn out."),
-            new Milestone("orbit", "Achieve a stable orbit", "Cut throttle when apoapsis is ~80 km. In the map (M) click your orbit at Ap, drag the prograde handle until Pe > 70 km, then SAS → Maneuver and burn when the timer reaches 0."),
-            new Milestone("transfer", "Plan a transfer to Luma", "In the map click Luma → Set as target. Add a node on your orbit and drag prograde (~860 m/s) and move it along the orbit until a Luma encounter appears."),
-            new Milestone("luma_soi", "Enter Luma's sphere of influence", "Execute the transfer burn, then time warp (.) — warp stops automatically near dangerous events."),
-            new Milestone("luma_orbit", "Orbit Luma", "Add a node at the Luma periapsis and drag retrograde until the orbit closes; burn."),
-            new Milestone("luma_land", "Land on Luma", "Deploy legs (G). Burn retrograde to drop periapsis below the surface, then use SAS Retrograde (surface speed) and throttle to touch down below 3 m/s."),
-            new Milestone("eva", "Walk on Luma (EVA)", "Right-click the capsule → EVA. WASD to walk, Space to jump, R for the jetpack."),
-            new Milestone("flag", "Plant a flag", "Stand on the ground and press G."),
-            new Milestone("board", "Board the lander", "Fly or walk to within 3 m of the hatch (jetpack R, Shift up) and press B."),
-            new Milestone("luma_ascent", "Launch from Luma back to orbit", "Retract legs (G), full throttle, tip east and follow prograde until Ap ~20 km; circularise with a node."),
-            new Milestone("return", "Return to Tellus", "Plan a node on the far side of Luma and burn prograde until the trajectory returns to Tellus with periapsis ~30 km."),
-            new Milestone("reentry", "Survive reentry", "Decouple the lander (Space), hold SAS Retrograde so the heat shield faces the airflow."),
-            new Milestone("landed_home", "Land safely", "Stage the parachute; it waits for safe pressure and opens fully at 1 km. Touch down under 6 m/s."),
-            new Milestone("recovered", "Recover the capsule", "Press Esc → Recover vessel once landed or splashed down."),
-        };
+            get
+            {
+                var sys = CelestialSystem.Default;
+                if (_lunar == null || _lunarSystem != sys) { _lunar = BuildLunar(sys); _lunarSystem = sys; }
+                return _lunar;
+            }
+        }
+
+        private static Milestone[] BuildLunar(CelestialSystem sys)
+        {
+            string home = sys.HomeBody.Name, moon = sys.HomeMoon?.Name ?? "the moon";
+            double space = SpaceAltitude(sys) / 1000;
+            return new[]
+            {
+                new Milestone("launch", "Launch", "Pick a rocket in the assembly building (Luma Pathfinder is ready to fly), press Launch, then Space to ignite. Z = full throttle."),
+                new Milestone("space", $"Reach space ({space:0} km)", "At ~60 m/s tap D to tip ~10° east, then select SAS Prograde. Stage (Space) when engines burn out."),
+                new Milestone("orbit", "Achieve a stable orbit", $"Cut throttle when apoapsis is ~{space + 10:0} km. In the map (M) click your orbit at Ap, drag the prograde handle until Pe > {space:0} km, then SAS → Maneuver and burn when the timer reaches 0."),
+                new Milestone("transfer", $"Plan a transfer to {moon}", $"In the map click {moon} → Set as target. Add a node on your orbit and drag prograde (~860 m/s) and move it along the orbit until a {moon} encounter appears."),
+                new Milestone("luma_soi", $"Enter {moon}'s sphere of influence", "Execute the transfer burn, then time warp (.) — warp stops automatically near dangerous events."),
+                new Milestone("luma_orbit", $"Orbit {moon}", $"Add a node at the {moon} periapsis and drag retrograde until the orbit closes; burn."),
+                new Milestone("luma_land", $"Land on {moon}", "Deploy legs (G). Burn retrograde to drop periapsis below the surface, then use SAS Retrograde (surface speed) and throttle to touch down below 3 m/s."),
+                new Milestone("eva", $"Walk on {moon} (EVA)", "Right-click the capsule → EVA. WASD to walk, Space to jump, R for the jetpack."),
+                new Milestone("flag", "Plant a flag", "Stand on the ground and press G."),
+                new Milestone("board", "Board the lander", "Fly or walk to within 3 m of the hatch (jetpack R, Shift up) and press B."),
+                new Milestone("luma_ascent", $"Launch from {moon} back to orbit", "Retract legs (G), full throttle, tip east and follow prograde until Ap ~20 km; circularise with a node."),
+                new Milestone("return", $"Return to {home}", $"Plan a node on the far side of {moon} and burn prograde until the trajectory returns to {home} with periapsis ~30 km."),
+                new Milestone("reentry", "Survive reentry", "Decouple the lander (Space), hold SAS Retrograde so the heat shield faces the airflow."),
+                new Milestone("landed_home", "Land safely", "Stage the parachute; it waits for safe pressure and opens fully at 1 km. Touch down under 6 m/s."),
+                new Milestone("recovered", "Recover the capsule", "Press Esc → Recover vessel once landed or splashed down."),
+            };
+        }
+
+        /// <summary>Where space begins above the home planet: the top of its atmosphere (70 km without one).</summary>
+        private static double SpaceAltitude(CelestialSystem sys) => sys.HomeBody.Atmosphere?.Height ?? 70000;
 
         public FlightSceneController Scene;
         public event Action<Milestone> MilestoneReached;
@@ -76,15 +101,16 @@ namespace TAP.Game
             if (v == null) return;
             var body = v.MainBody;
             bool home = body == sim.System.HomeBody;
+            var moon = sim.System.HomeMoon;
             if (v.Record.launchUT >= 0 && !v.IsFlag) Mark("launch");
-            if (home && v.Altitude > 70000) Mark("space");
+            if (home && v.Altitude > SpaceAltitude(sim.System)) Mark("space");
             if (v.Orbit != null && v.Situation == Situation.Orbiting && home) Mark("orbit");
             if (home && Scene.Trajectory != null)
             {
                 var enc = Scene.Trajectory.FirstEncounter(true);
-                if (enc != null && enc.Body.Id == "luma" && Has("orbit")) Mark("transfer");
+                if (enc != null && enc.Body == moon && Has("orbit")) Mark("transfer");
             }
-            if (body.Id == "luma")
+            if (moon != null && body == moon)
             {
                 Mark("luma_soi");
                 if (v.Situation == Situation.Orbiting) { if (Has("board")) Mark("luma_ascent"); else Mark("luma_orbit"); }
@@ -93,7 +119,7 @@ namespace TAP.Game
                 if (Has("eva") && !v.IsEva && v.CrewCount > 0) Mark("board");
             }
             foreach (var h in sim.Handles)
-                if (h.Kind == VesselKind.Flag && h.Body.Id == "luma") { Mark("flag"); break; }
+                if (h.Kind == VesselKind.Flag && moon != null && h.Body == moon) { Mark("flag"); break; }
             if (home && Has("luma_soi")) Mark("return");
             if (home && Has("return"))
             {

@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 using TAP.Core;
+using TAP.Persistence;
 using TAP.Trajectory;
 using UnityEngine;
 
@@ -33,7 +34,7 @@ namespace TAP.Tests
             Assert.AreSame(sys.Star, tellus.Parent);
             Assert.AreSame(tellus, sys.Get("home/tellus"), "qualified ids name bodies across systems");
             Assert.IsNull(sys.Get("debug/tellus"));
-            Assert.AreEqual(439.9, tellus.Orbit.Period / tellus.RotationPeriod, 0.5, "a Tellus year in Tellus days");
+            Assert.AreEqual(439.87, tellus.Orbit.Period / tellus.SolarDay, 0.01, "a Tellus year in Tellus days");
             Assert.AreEqual(85831e3, tellus.SOIRadius, 1e5, "Tellus's sphere of influence");
             Assert.Less(sys.Get("luma").Orbit.SemiMajorAxis, tellus.SOIRadius * 0.2);
         }
@@ -103,21 +104,50 @@ namespace TAP.Tests
         }
 
         [Test]
+        public void SliceSaves_LoadIntoTheHomeSystem()
+        {
+            // Saves from before star systems carry no system id: their vessels belong to the home system.
+            var save = SaveStorage.FromJson<GameSave>("{\"version\":1,\"ut\":100,\"vessels\":[{\"name\":\"Old\",\"bodyId\":\"luma\"}]}");
+            var v = save.vessels[0];
+            Assert.AreEqual("home", v.systemId);
+            var sys = CelestialSystem.LoadFromResources();
+            Assert.AreSame(sys.Get("luma"), sys.Get(v.systemId + "/" + v.bodyId));
+            // And the id survives a round trip.
+            v.systemId = "debug";
+            Assert.AreEqual("debug", SaveStorage.FromJson<GameSave>(SaveStorage.ToJson(save)).vessels[0].systemId);
+        }
+
+        [Test]
         public void GameplayCode_NeverTreatsTheRootAsThePlanet()
         {
             // The hierarchy root is the star; gameplay asks for HomeBody or Star. Only the system classes use Root.
+            var offenders = FindInScripts(new Regex(@"\b(System|sys)\.Root\b"), "Core/Bodies/");
+            Assert.IsEmpty(offenders, "use CelestialSystem.HomeBody or Star: " + string.Join(", ", offenders));
+        }
+
+        [Test]
+        public void GameplayCode_LooksUpNoBodyById()
+        {
+            // Bodies come from the system (HomeBody, HomeMoon, Star, the target...): a literal id only works in the home
+            // system. Core keeps the terrain generator ids ("tellus", "luma") and data defaults.
+            var offenders = FindInScripts(new Regex("\"(tellus|luma|astraea)\""), "Core/");
+            Assert.IsEmpty(offenders, "use CelestialSystem.HomeBody, HomeMoon or Star: " + string.Join(", ", offenders));
+        }
+
+        /// <summary>Lines of the game's scripts matching a pattern, as "path:line", skipping one folder.</summary>
+        private static System.Collections.Generic.List<string> FindInScripts(Regex pattern, string skipPrefix)
+        {
             string scripts = Path.Combine(Application.dataPath, "TAP", "Scripts");
-            var root = new Regex(@"\b(System|sys)\.Root\b");
-            var offenders = new System.Collections.Generic.List<string>();
+            var found = new System.Collections.Generic.List<string>();
             foreach (var file in Directory.GetFiles(scripts, "*.cs", SearchOption.AllDirectories))
             {
                 string rel = file.Substring(scripts.Length + 1).Replace('\\', '/');
-                if (rel.StartsWith("Core/Bodies/")) continue;
+                if (rel.StartsWith(skipPrefix)) continue;
                 string[] lines = File.ReadAllLines(file);
                 for (int i = 0; i < lines.Length; i++)
-                    if (root.IsMatch(lines[i])) offenders.Add($"{rel}:{i + 1}");
+                    if (pattern.IsMatch(lines[i])) found.Add($"{rel}:{i + 1}");
             }
-            Assert.IsEmpty(offenders, "use CelestialSystem.HomeBody or Star: " + string.Join(", ", offenders));
+            return found;
         }
     }
 }

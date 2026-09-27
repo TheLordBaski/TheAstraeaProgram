@@ -40,7 +40,7 @@
       "orbit": { "semiMajorAxis": 14000000000, "eccentricity": 0.0, "inclinationDeg": 0.0, "lanDeg": 0.0, "argPeDeg": 0.0, "meanAnomalyAtEpochDeg": 235.0, "epoch": 0 },
       "radius": 600000,
       "gm": 3.5316e12,
-      "rotationPeriod": 21600,
+      "rotationPeriod": 21551.0063,
       "tidallyLocked": false,
       "initialRotationDeg": 0,
       "hasOcean": true,

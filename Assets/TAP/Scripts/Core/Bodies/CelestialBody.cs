@@ -35,6 +35,24 @@ namespace TAP.Core
         public double AngularSpeed => MathD.TwoPi / RotationPeriod;
         public Vector3d AngularVelocity => Vector3d.up * AngularSpeed;
 
+        /// <summary>
+        /// A day seen from the surface: one turn relative to the star (s). Longer than the sidereal
+        /// <see cref="RotationPeriod"/> for prograde spin, because the body (or the planet it circles) moves around the
+        /// star meanwhile. Equals the rotation period for a star or in a system without one.
+        /// </summary>
+        public double SolarDay
+        {
+            get
+            {
+                var b = this;
+                while (b.Parent != null && !b.Parent.IsStar) b = b.Parent;
+                if (IsStar || b.Parent == null || b.Orbit == null || !b.Orbit.IsElliptic) return RotationPeriod;
+                // Spin and orbits share the +Y axis: a prograde orbit moves the star across the sky against the spin.
+                double rate = Math.Abs(1 / RotationPeriod - b.Orbit.W.y / b.Orbit.Period);
+                return rate > 1e-15 ? 1 / rate : double.PositiveInfinity;
+            }
+        }
+
         public CelestialBody(BodyDefinition def)
         {
             Def = def;

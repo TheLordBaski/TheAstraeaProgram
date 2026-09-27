@@ -103,7 +103,7 @@ namespace TAP.UI
             _snapBtn = Btn(bar.transform, "Angle snap", 104, Ed.ToggleAngleSnap, "Snap surface attachment to 15° steps and rotations to 90° (C)");
             _markerBtn = Btn(bar.transform, "CoM/CoT/CoP", 112, Ed.ToggleMarkers,
                 "Show centre of mass (yellow), centre of thrust (purple) and centre of pressure (cyan) (V). Stable rockets keep the CoP below the CoM.");
-            _envBtn = Btn(bar.transform, "Tellus sea level", 140, CycleEnvironment, "Environment used for the delta-v and TWR readouts");
+            _envBtn = Btn(bar.transform, EnvName(EditorEnvironment.HomeSeaLevel), 140, CycleEnvironment, "Environment used for the delta-v and TWR readouts");
             var flex = UIKit.Rect(bar.transform, "Flex");
             flex.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1;
             _flightsBtn = Btn(bar.transform, "Flights", 90, OpenFlightsDialog, "Vessels already in flight: switch to one");
@@ -136,7 +136,7 @@ namespace TAP.UI
             _scene.SetEnvironment(next);
         }
 
-        private static string EnvName(EditorEnvironment e) => e == EditorEnvironment.TellusSeaLevel ? "Tellus sea level" : e == EditorEnvironment.TellusVacuum ? "Tellus vacuum" : "Luma surface";
+        private static string EnvName(EditorEnvironment e) => DesignAnalysis.EnvironmentName(e);
 
         private void Launch()
         {

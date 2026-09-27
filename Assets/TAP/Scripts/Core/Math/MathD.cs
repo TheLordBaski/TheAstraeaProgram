@@ -79,21 +79,8 @@ namespace TAP.Core
             return 1.0 / 6.0 - z / 120.0 + z * z / 5040.0 - z * z * z / 362880.0;
         }
 
-        /// <summary>Formats a duration in seconds as a compact d/h/m/s string.</summary>
-        public static string FormatDuration(double seconds, bool showSign = false)
-        {
-            if (double.IsNaN(seconds) || double.IsInfinity(seconds)) return "--";
-            string sign = seconds < 0 ? "-" : (showSign ? "+" : "");
-            double s = Math.Abs(seconds);
-            long total = (long)Math.Floor(s);
-            long d = total / 86400; total %= 86400;
-            long h = total / 3600; total %= 3600;
-            long m = total / 60; long sec = total % 60;
-            if (d > 0) return $"{sign}{d}d {h:00}h {m:00}m";
-            if (h > 0) return $"{sign}{h}h {m:00}m {sec:00}s";
-            if (m > 0) return $"{sign}{m}m {sec:00}s";
-            return $"{sign}{s:0.0}s";
-        }
+        /// <summary>Formats a duration in seconds as a compact d/h/m/s string, in days of the home planet (<see cref="Calendar"/>).</summary>
+        public static string FormatDuration(double seconds, bool showSign = false) => Calendar.Current.FormatDuration(seconds, showSign);
 
         /// <summary>Formats a distance in metres with an adaptive unit (m, km, Mm).</summary>
         public static string FormatDistance(double meters, int decimals = 1)
@@ -109,18 +96,7 @@ namespace TAP.Core
 
         public static string FormatSpeed(double mps) => double.IsNaN(mps) ? "--" : mps.ToString(Math.Abs(mps) < 100 ? "F1" : "F0") + " m/s";
 
-        /// <summary>Formats universal time as "Y1 D001 00:00:00" using 6-hour days (one Tellus rotation).</summary>
-        public static string FormatUT(double ut, double dayLength = 21600)
-        {
-            if (ut < 0) ut = 0;
-            double yearLength = dayLength * 426;
-            long y = (long)(ut / yearLength);
-            double rem = ut - y * yearLength;
-            long d = (long)(rem / dayLength);
-            rem -= d * dayLength;
-            long h = (long)(rem / 3600); rem -= h * 3600;
-            long m = (long)(rem / 60); long s = (long)(rem - m * 60);
-            return $"Y{y + 1} D{d + 1:000} {h:00}:{m:00}:{s:00}";
-        }
+        /// <summary>Formats universal time as the home planet's date and time, "Y1 D001 00:00:00" (<see cref="Calendar"/>).</summary>
+        public static string FormatUT(double ut) => Calendar.Current.Format(ut);
     }
 }

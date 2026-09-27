@@ -10,7 +10,7 @@ namespace TAP.Game
         public static AssemblyScene Instance { get; private set; }
         public AssemblyEditor Editor;
         public EditorCamera CameraRig;
-        public EditorEnvironment Environment = EditorEnvironment.TellusSeaLevel;
+        public EditorEnvironment Environment = EditorEnvironment.HomeSeaLevel;
         public DesignStats Stats { get; private set; }
         /// <summary>Raised after the engineer's report was recomputed.</summary>
         public event Action StatsUpdated;

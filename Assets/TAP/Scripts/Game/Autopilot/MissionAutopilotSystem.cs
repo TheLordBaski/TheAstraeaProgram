@@ -41,7 +41,7 @@ namespace TAP.Game
             var solarPatch = plan[1];
             double tExit = exitPatch.EndUT, tReturn = solarPatch.EndUT;
             Check("return trajectory found by patched-conic search", true,
-                $"{how}; leaves {home.Name}'s sphere after {(tExit - ut0) / 3600:F1} h, back after {(tReturn - ut0) / home.RotationPeriod:F1} {home.Name} days, periapsis {(plan[2].Orbit.PeriapsisRadius - home.Radius) / 1000:F0} km");
+                $"{how}; leaves {home.Name}'s sphere after {(tExit - ut0) / 3600:F1} h, back after {(tReturn - ut0) / home.SolarDay:F1} {home.Name} days, periapsis {(plan[2].Orbit.PeriapsisRadius - home.Radius) / 1000:F0} km");
 
             // The probe starts at the planned periapsis (no engine needed: this checks the simulation, not a burn).
             var o0 = new Orbit(pos, vel, ut0, home.GM);
@@ -66,7 +66,7 @@ namespace TAP.Game
             var solar = V.Orbit;
             double periodRatio = solar.Period / home.Orbit.Period;
             Check($"solar orbit resonant with {home.Name}", Math.Abs(periodRatio - 1) < 0.002,
-                $"period {solar.Period / home.RotationPeriod:F2} vs {home.Orbit.Period / home.RotationPeriod:F2} {home.Name} days, e {solar.Eccentricity:F4}");
+                $"period {solar.Period / home.SolarDay:F2} vs {home.Orbit.Period / home.SolarDay:F2} {home.Name} days, e {solar.Eccentricity:F4}");
 
             SetPhase("a year around the star");
             double tCoast = Sim.UT;

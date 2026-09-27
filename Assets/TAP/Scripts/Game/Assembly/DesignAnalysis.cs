@@ -9,7 +9,8 @@ using UnityEngine;
 namespace TAP.Game
 {
     /// <summary>Reference environment for the editor's delta-v / TWR readouts.</summary>
-    public enum EditorEnvironment { TellusSeaLevel, TellusVacuum, LumaSurface }
+    /// <summary>Where the engineer's report evaluates thrust and TWR: the home planet (sea level or vacuum) or its first moon.</summary>
+    public enum EditorEnvironment { HomeSeaLevel, HomeVacuum, MoonSurface }
 
     public struct DesignWarning
     {
@@ -53,15 +54,24 @@ namespace TAP.Game
     /// <summary>Engineer's report for a craft design: masses, resources, per-stage delta-v/TWR, CoM/CoT/CoP, warnings.</summary>
     public static class DesignAnalysis
     {
+        /// <summary>Label of a readout environment, named after the session system's bodies ("Tellus sea level").</summary>
+        public static string EnvironmentName(EditorEnvironment e)
+        {
+            var sys = CelestialSystem.Default;
+            return e == EditorEnvironment.HomeSeaLevel ? $"{sys.HomeBody.Name} sea level"
+                 : e == EditorEnvironment.HomeVacuum ? $"{sys.HomeBody.Name} vacuum"
+                 : $"{(sys.HomeMoon ?? sys.HomeBody).Name} surface";
+        }
+
         public static DesignStats Analyze(CraftDesign d, PartDatabase db, EditorEnvironment env)
         {
             var s = new DesignStats { Environment = env };
             var sys = CelestialSystem.Default;
             var home = sys.HomeBody;
-            var moon = sys.Get("luma");
-            CelestialBody envBody = env == EditorEnvironment.LumaSurface && moon != null ? moon : home;
+            var moon = sys.HomeMoon;
+            CelestialBody envBody = env == EditorEnvironment.MoonSurface && moon != null ? moon : home;
             s.Gravity = envBody.GM / (envBody.Radius * envBody.Radius);
-            s.PressureAtm = env == EditorEnvironment.TellusSeaLevel ? 1.0 : 0.0;
+            s.PressureAtm = env == EditorEnvironment.HomeSeaLevel && home.Atmosphere != null ? home.Atmosphere.SeaLevelPressure / 101325.0 : 0.0;
             s.PartCount = d.parts.Count;
             if (d.parts.Count == 0)
             {
@@ -279,12 +289,12 @@ namespace TAP.Game
 
             if (hasCrewedCommand)
             {
-                if (!hasChute) Add("No parachute: the crew can't land safely on Tellus.");
+                if (!hasChute) Add($"No parachute: the crew can't land safely on {CelestialSystem.Default.HomeBody.Name}.");
                 if (!hasShield && s.TotalDvVac > 3000) Add("No heat shield: returning from orbit will overheat the capsule. Put a heat shield under the pod.");
             }
             if (s.HasCoP && s.StabilityMargin > 0.3f && s.LaunchTwr > 0)
                 Add($"Aerodynamically unstable: the centre of pressure is {s.StabilityMargin:F1} m ahead of the centre of mass. Add fins near the bottom or move mass up.");
-            if (!hasLegs && s.TotalDvVac > 6000) Add("No landing legs: needed for a safe touchdown on Luma.", info: true);
+            if (!hasLegs && s.TotalDvVac > 6000) Add($"No landing legs: needed for a safe touchdown on {CelestialSystem.Default.HomeMoon?.Name ?? "a moon"}.", info: true);
             if (s.ElectricCharge <= 0 && hasCommand) Add("No electric charge: SAS, reaction wheels and probe cores need power.");
         }
     }
