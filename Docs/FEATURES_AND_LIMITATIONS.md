@@ -4,7 +4,7 @@ Legend — **Verified**: exercised by an automated test or an observed run with 
 **Implemented**: in the game and playable, but not covered by an automated check. **Untested**: implemented but never
 exercised end to end. **Limitation**: simplified or missing compared with the specification or with KSP.
 
-Evidence sources: EditMode unit tests (`Assets/TAP/Tests/EditMode`, 20 tests), automated missions flown by the
+Evidence sources: EditMode unit tests (`Assets/TAP/Tests/EditMode`, 22 tests), automated missions flown by the
 scripted pilot through player controls (reports in [TestReports](TestReports)), every one of them re-run in the final
 **standalone Windows build** (`build_<mission>.md`, including the complete lunar mission in
 [TestReports/build_lunar.md](TestReports/build_lunar.md)), and screenshots taken during development and play-testing
@@ -40,7 +40,7 @@ check: the scripted pilot now hovers over to the flattest spot within 60 m, as a
 | `suborbital` | Skylark to 170 km and back under the parachute | 3/3 | 3/3 |
 | `failures` | joint overload, unshielded burn-up, torn parachute, 111 m/s impact and crew loss | 6/6 | 6/6 |
 | `docking` | RCS approach from 9.8 m, capture, docked stack, undock, re-arm | 5/5 | 5/5 |
-| EditMode unit tests | orbits, patched conics, attachment, staging, Δv, JSON, wheel notches, geographic latitude | 20/20 | — |
+| EditMode unit tests | orbits, patched conics, attachment, staging, Δv, JSON, wheel notches, geographic latitude, assembly building height limits | 22/22 | — |
 
 Reports: `Docs/TestReports/<mission>.md` (editor) and `build_<mission>.md` (standalone build). The editor runs were
 made during development; the standalone column is the release check of the shipped build, run after the last change.
@@ -65,6 +65,7 @@ made during development; the standalone column is the release check of the shipp
 | Pick up / move subtrees, copy (Alt), delete, undo/redo | Implemented | |
 | Set parts aside (KSP's detached parts): dropped in empty space they stay greyed out, are not part of the craft (not launched, not in the readouts), can be built on and attached again | Verified (scripted editor session) | Meridian: lower stage set aside (craft 6 parts, 8 set aside, info line in the report), picked up and re-attached (14 parts again, same staging) |
 | Pick up the root (the whole craft), re-root on any stack-attached part (part menu → Make root part), put back with Esc | Verified (scripted editor session) | Re-rooted on the upper decoupler, set the capsule section aside, attached the whole craft under it: 14 parts, root = heat shield, staging, fin symmetry, 3,901 m/s and TWR 1.81 identical to the original |
+| Move the whole craft up and down (pick up the root, click to put it down). It stays where it is put, between the floor and the building's height limit (60 m, `Resources/Settings/AssemblyBuilding.asset`, menu *TAP → Assembly Building Settings*, for future building upgrades). Parts attached below that would reach through the floor push it up; set-aside parts are kept inside the building too | Verified (scripted editor session, unit tests) | Meridian dropped at 20 m (root at 20.000 m, staging unchanged), below the floor (stands on it), at 150 m (top at 60.000 m); undo, redo and Esc restore the height. A pod placed at 10 m kept its height while two tanks went on below it, and the third and fourth pushed the craft up off the floor. Re-rooting a raised craft moved no part. A craft taller than the limit stands on the floor with a note in the engineer's report |
 | Configurable staging: automatic order, drag parts between stages, new stage gaps, reset | Implemented | Unit test `AutoStage_EnginesBelowFireFirst_ChuteLast` |
 | Readouts: mass, dry mass, TWR, Δv per stage and total (sea level / vacuum / Luma), burn time, EC, monoprop, crew seats, size | Verified | Unit tests; the in-flight Δv readout matches the assembly figures (6,926 m/s = 1,126 + 1,425 + 2,013 + 2,362 for the old Pathfinder) |
 | CoM / CoT / CoP markers and stability verdict; design warnings | Verified | Unit tests `DeltaV_DecouplerBlocksFuelFlow`, `DesignAnalysis_StarterRocketsAreSound` |

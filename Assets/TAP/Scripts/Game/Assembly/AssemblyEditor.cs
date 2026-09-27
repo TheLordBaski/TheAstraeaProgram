@@ -38,6 +38,14 @@ namespace TAP.Game
         public bool AutoStaging = true;
         public bool ShowMarkers = true;
         public float FloorHeight = 0f;
+        /// <summary>Gap between the floor and the lowest point of a craft standing on the build platform (its deck is 0.18 m high).</summary>
+        public const float FloorClearance = 0.25f;
+        /// <summary>Building limits (height), edited in the Unity editor.</summary>
+        public AssemblyBuildingSettings Building;
+        /// <summary>How high above the floor a craft's top may reach.</summary>
+        public float MaxCraftHeight => Building.maxCraftHeight;
+        /// <summary>The craft stands on the floor and still reaches above the height limit.</summary>
+        public bool TallerThanBuilding { get; private set; }
 
         /// <summary>Raised after every change of the design (parts, staging, name).</summary>
         public event Action DesignChanged;
@@ -58,6 +66,8 @@ namespace TAP.Game
         private bool _heldWholeCraft;
         private readonly List<List<GameObject>> _ghosts = new List<List<GameObject>>();
         private Quaternion _heldRotation = Quaternion.identity;
+        /// <summary>Whole craft held: height of the pointer above the root when it was grabbed (so the craft doesn't jump).</summary>
+        private float _grabHeight;
         private readonly List<string> _undo = new List<string>();
         private readonly List<string> _redo = new List<string>();
 
@@ -70,6 +80,7 @@ namespace TAP.Game
         {
             Instance = this;
             Db = PartDatabase.Instance;
+            Building = AssemblyBuildingSettings.Load();
             Design = new CraftDesign();
             Asm = new CraftAssembler(Design, Db);
         }
@@ -332,9 +343,14 @@ namespace TAP.Game
                 PrepareModel(go, def);
                 PartObjects.Add(go);
             }
-            // Stand the craft on the floor of the building.
-            float lowest = Design.parts.Count > 0 ? LaunchService.DesignLowestPoint(Design, Db) : 0;
-            CraftRoot.position = new Vector3(0, FloorHeight - lowest + 0.25f, 0);
+            // The craft stays where it was put, inside the building: pushed up when parts would reach below the floor,
+            // down when they would reach above the height limit.
+            LaunchService.VerticalExtent(Design.parts, Db, Quaternion.identity, out float lowest, out float highest);
+            Design.rootHeight = ClampRootHeight(Design.rootHeight, lowest, highest);
+            CraftRoot.position = new Vector3(0, Design.rootHeight, 0);
+            TallerThanBuilding = Design.rootHeight + highest > FloorHeight + MaxCraftHeight + 1e-3f;
+            // The camera can look anywhere in the building (and at the top of a craft taller than it).
+            if (CameraRig != null) CameraRig.MaxHeight = Mathf.Max(FloorHeight + MaxCraftHeight, Design.rootHeight + highest + 2f);
             RebuildDetached();
             Physics.SyncTransforms();
             _highlightDirty = true;
@@ -354,6 +370,17 @@ namespace TAP.Game
                         : Quaternion.AngleAxis(-172f, Vector3.right);
             }
         }
+
+        /// <summary>
+        /// Root height that keeps a group of parts (lowest / highest point relative to its root) inside the building:
+        /// its bottom above <paramref name="floor"/>, its top below <paramref name="ceiling"/>; a group taller than that
+        /// stands on the floor.
+        /// </summary>
+        public static float ClampRootHeight(float rootHeight, float lowest, float highest, float floor, float ceiling)
+            => Mathf.Max(floor - lowest, Mathf.Min(rootHeight, ceiling - highest));
+
+        private float ClampRootHeight(float rootHeight, float lowest, float highest)
+            => ClampRootHeight(rootHeight, lowest, highest, FloorHeight + FloorClearance, FloorHeight + MaxCraftHeight);
 
         public static void SetLayerRecursive(GameObject go, int layer)
         {
@@ -399,13 +426,16 @@ namespace TAP.Game
             BuildGhosts(1);
         }
 
-        /// <summary>Detaches a placed part (with its subtree and its symmetry counterparts) and holds it.</summary>
-        public void PickUp(int index)
+        /// <summary>
+        /// Detaches a placed part (with its subtree and its symmetry counterparts) and holds it. The root takes the whole
+        /// craft along, which then keeps its height relative to the <paramref name="pointer"/> it was grabbed at.
+        /// </summary>
+        public void PickUp(int index, Vector2? pointer = null)
         {
             if (index < 0 || index >= Design.parts.Count) return;
             if (index == 0)
             {
-                PickUpWholeCraft();
+                PickUpWholeCraft(pointer);
                 return;
             }
             PushUndo();
@@ -488,6 +518,7 @@ namespace TAP.Game
         {
             _held = null;
             _heldWholeCraft = false;
+            _grabHeight = 0;
             foreach (var g in _ghosts) foreach (var go in g) if (go != null) Destroy(go);
             _ghosts.Clear();
             HideNodeMarkers();

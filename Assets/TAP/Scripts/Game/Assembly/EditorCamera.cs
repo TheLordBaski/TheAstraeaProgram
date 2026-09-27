@@ -12,6 +12,7 @@ namespace TAP.Game
     {
         public Camera Cam;
         public Func<bool> PointerOverUi = () => false;
+        /// <summary>Pivot height range; the assembly editor keeps MaxHeight at the building's height limit.</summary>
         public float MinHeight = 0.5f, MaxHeight = 40f;
         public float MinDistance = 2.5f, MaxDistance = 120f;
 
@@ -42,7 +43,6 @@ namespace TAP.Game
             float size = Mathf.Max(b.extents.y * 2f, Mathf.Max(b.extents.x, b.extents.z) * 2f, 2f);
             _tHeight = Mathf.Clamp(b.center.y, MinHeight, MaxHeight);
             _tDist = Mathf.Clamp(size * 1.45f + 4f, MinDistance, MaxDistance);
-            MaxHeight = Mathf.Max(8f, b.max.y + 2f);
             if (instant) { _height = _tHeight; _dist = _tDist; _yaw = _tYaw; _pitch = _tPitch; Apply(); }
         }
 

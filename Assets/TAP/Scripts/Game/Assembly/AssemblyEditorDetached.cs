@@ -11,7 +11,8 @@ namespace TAP.Game
     /// Parts set aside in the building (KSP's detached parts): groups dropped in empty space stay where they were
     /// dropped, greyed out and not part of the craft (not launched, not in the readouts or staging). They can be picked
     /// up again, built on, and attached to the craft. Picking up the root part takes the whole craft along, which can be
-    /// put back or attached to a set-aside group (that group then becomes part of the craft, its root the new root).
+    /// moved up or down and put down again, or attached to a set-aside group (that group then becomes part of the craft,
+    /// its root the new root).
     /// </summary>
     public sealed partial class AssemblyEditor
     {
@@ -68,6 +69,10 @@ namespace TAP.Game
             _detachedRenderers.Clear();
             for (int k = 0; k < Design.detached.Count; k++)
             {
+                // Set-aside groups stay inside the building too.
+                var det = Design.detached[k];
+                LaunchService.VerticalExtent(det.parts, Db, CraftAssembler.Q(det.rot), out float lowest, out float highest);
+                det.pos[1] = ClampRootHeight(det.pos[1], lowest, highest);
                 var a = Detached(k);
                 var root = new GameObject($"SetAside {k}");
                 root.transform.SetPositionAndRotation(a.Origin, a.Rotation);
@@ -128,8 +133,11 @@ namespace TAP.Game
 
         // ------------------------------------------------------------------ picking up / setting aside
 
-        /// <summary>Picks up the root part: the whole craft is held (to put back or attach to a set-aside group).</summary>
-        private void PickUpWholeCraft()
+        /// <summary>
+        /// Picks up the root part: the whole craft is held, to move up or down and put down again, or to attach to a
+        /// set-aside group. It keeps its height relative to the pointer it was grabbed at (none: the root follows the pointer).
+        /// </summary>
+        private void PickUpWholeCraft(Vector2? pointer)
         {
             if (Design.parts.Count == 0) return;
             PushUndo();
@@ -137,11 +145,12 @@ namespace TAP.Game
             _heldRotation = Quaternion.identity;
             _heldFromCraft = true;
             _heldWholeCraft = true;
+            _grabHeight = pointer.HasValue && Cam != null ? FloatPoint(Cam.ScreenPointToRay(pointer.Value)).y - CraftRoot.position.y : 0f;
             Design.parts.Clear();
             Asm = new CraftAssembler(Design, Db);
             PartsChanged();
             BuildGhosts(1);
-            Message?.Invoke("Holding the whole craft: click to put it back, or attach it to a free node of a set-aside (grey) group");
+            Message?.Invoke("Holding the whole craft: move it up or down and click to put it down, or attach it to a free node of a set-aside (grey) group");
         }
 
         /// <summary>Picks up a part of a set-aside group together with the parts attached below it.</summary>
@@ -264,9 +273,10 @@ namespace TAP.Game
             nr.parent = -1;
             nr.parentNode = null;
             nr.attachNode = null;
-            // Poses relative to the new root, which moves to the origin unrotated.
+            // Poses relative to the new root, which moves to the origin unrotated (and stays at its height in the building).
             Vector3 p0 = CraftAssembler.V(nr.pos);
             Quaternion inv = Quaternion.Inverse(CraftAssembler.Q(nr.rot));
+            Design.rootHeight += p0.y;
             foreach (var r in Design.parts)
             {
                 r.pos = CraftAssembler.A(inv * (CraftAssembler.V(r.pos) - p0));

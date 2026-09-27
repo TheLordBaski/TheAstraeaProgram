@@ -35,6 +35,11 @@ namespace TAP.Persistence
         public string name = "Untitled Craft";
         public string description = "";
         public int version = 1;
+        /// <summary>
+        /// Height of the root part in the assembly building (metres above the floor). The building keeps the whole craft
+        /// between its floor and its height limit, so 0 stands the craft on the floor.
+        /// </summary>
+        public float rootHeight;
         public List<PartNodeRecord> parts = new List<PartNodeRecord>();
         /// <summary>Parts set aside in the assembly building, not connected to the craft (never launched).</summary>
         public List<DetachedAssembly> detached = new List<DetachedAssembly>();

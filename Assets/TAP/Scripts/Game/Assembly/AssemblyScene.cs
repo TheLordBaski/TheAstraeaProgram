@@ -55,6 +55,12 @@ namespace TAP.Game
                 try
                 {
                     Stats = DesignAnalysis.Analyze(Editor.Design, Editor.Db, Environment);
+                    if (Editor.TallerThanBuilding)
+                        Stats.Warnings.Add(new DesignWarning
+                        {
+                            Text = $"The craft ({Stats.Height:0.0} m) is taller than the building's {Editor.MaxCraftHeight:0} m height limit: it stands on the floor and can't be raised.",
+                            Info = true,
+                        });
                 }
                 catch (Exception e)
                 {

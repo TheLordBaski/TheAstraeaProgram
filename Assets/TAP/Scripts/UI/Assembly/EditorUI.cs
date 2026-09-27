@@ -274,7 +274,7 @@ namespace TAP.UI
             _toast.alpha = 1;
         }
 
-        private const string IdleHint = "LMB part: pick up (the root takes the whole craft) · Alt+LMB: copy · RMB: part menu · Del: delete · RMB drag: orbit · Scroll: zoom · Shift+Scroll: up/down · F: frame";
+        private const string IdleHint = "LMB part: pick up (the root moves the whole craft) · Alt+LMB: copy · RMB: part menu · Del: delete · RMB drag: orbit · Scroll: zoom · Shift+Scroll: up/down · F: frame";
         private const string HoldHint = "  ·  WASDQE rotate (Shift fine) · Space reset · X symmetry · C angle snap · Esc put back · Del delete";
 
         // ------------------------------------------------------------------ update

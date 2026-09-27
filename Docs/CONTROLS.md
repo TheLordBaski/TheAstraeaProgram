@@ -69,6 +69,7 @@ retrograde follow the selected speed mode.
 |---|---|
 | **Click the parts list** | Pick up a new part (categories + search box; hover for full part stats) |
 | **Left click** | Attach the held part / pick up a placed part together with everything attached to it; clicking the root part picks up the whole craft |
+| **Root part: click, move up / down, click** | Raise or lower the whole craft. It stays where you put it, between the floor and the building's height limit (60 m, *TAP → Assembly Building Settings* in the Unity editor); parts attached below that would go through the floor push it up |
 | **Click empty space** (holding parts) | Set them aside: they stay there greyed out, are not part of the craft (not launched, not counted in the readouts) and can be built on, picked up and attached again |
 | **Alt + click** | Copy a placed part (with its attached parts) |
 | **W A S D Q E** | Rotate the held part (90° steps; Shift for 5° steps); **Space** resets the rotation |

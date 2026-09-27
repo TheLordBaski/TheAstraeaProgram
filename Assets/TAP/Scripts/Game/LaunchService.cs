@@ -104,21 +104,33 @@ namespace TAP.Game
         /// <summary>Lowest point of the design along its local -Y axis (root space), from part bounding cylinders.</summary>
         public static float DesignLowestPoint(CraftDesign d, PartDatabase db)
         {
-            float lowest = float.MaxValue;
-            foreach (var p in d.parts)
+            VerticalExtent(d.parts, db, Quaternion.identity, out float lowest, out _);
+            return lowest;
+        }
+
+        /// <summary>
+        /// Lowest and highest point of parts (poses relative to their root) turned by <paramref name="frame"/>, from part
+        /// bounding cylinders; stowed landing legs count as short. Both 0 without parts.
+        /// </summary>
+        public static void VerticalExtent(List<PartNodeRecord> parts, PartDatabase db, Quaternion frame, out float lowest, out float highest)
+        {
+            lowest = float.MaxValue;
+            highest = float.MinValue;
+            foreach (var p in parts)
             {
                 var def = db.Get(p.partId);
                 if (def == null) continue;
-                Vector3 pos = new Vector3(p.pos[0], p.pos[1], p.pos[2]);
-                Quaternion q = new Quaternion(p.rot[0], p.rot[1], p.rot[2], p.rot[3]);
+                Vector3 pos = frame * new Vector3(p.pos[0], p.pos[1], p.pos[2]);
+                Quaternion q = frame * new Quaternion(p.rot[0], p.rot[1], p.rot[2], p.rot[3]);
                 float r = def.diameter * 0.5f, h = def.height * 0.5f;
                 if (def.model != null && def.model.type == "leg") { h = 0.3f; }
                 // extreme points of the bounding cylinder along world Y
                 Vector3 axis = q * Vector3.up;
                 float extent = Mathf.Abs(axis.y) * h + Mathf.Sqrt(Mathf.Max(0, 1 - axis.y * axis.y)) * r;
                 lowest = Mathf.Min(lowest, pos.y - extent);
+                highest = Mathf.Max(highest, pos.y + extent);
             }
-            return lowest == float.MaxValue ? 0 : lowest;
+            if (lowest > highest) lowest = highest = 0;
         }
     }
 }

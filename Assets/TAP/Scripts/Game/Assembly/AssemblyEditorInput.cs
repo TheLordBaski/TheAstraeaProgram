@@ -24,6 +24,8 @@ namespace TAP.Game
             public int Asm;
             public int Parent;
             public string ParentNode, AttachNode;
+            /// <summary>Root placement: height of the root and of the lowest / highest point of the placed parts.</summary>
+            public float RootHeight, Bottom, Top;
         }
 
         private struct CopyPose
@@ -91,7 +93,7 @@ namespace TAP.Game
                     if (HoveredPart >= 0)
                     {
                         if (copy) CopyPart(HoveredPart);
-                        else PickUp(HoveredPart);
+                        else PickUp(HoveredPart, mp);
                     }
                     else if (HoveredDetachedAsm > 0)
                     {
@@ -253,18 +255,23 @@ namespace TAP.Game
             if (Design.parts.Count == 0)
             {
                 // No craft: the held parts attach to a detached group if pointed at one, else they become the craft,
-                // standing upright on the floor.
+                // upright on the building's axis at the pointer's height (that's how the whole craft moves up and down),
+                // between the floor and the height limit.
                 if (Design.detached.Count > 0 && (TryStackSnap(mouse, rootDef) || TrySurfaceAttach(ray, rootDef))) return;
-                Current = new Placement { Kind = AttachKind.Root, Valid = true, Parent = -1 };
+                LaunchService.VerticalExtent(_held, Db, Quaternion.identity, out float lowest, out float highest);
+                float y = ClampRootHeight(FloatPoint(ray).y - _grabHeight, lowest, highest);
+                Current = new Placement { Kind = AttachKind.Root, Valid = true, Parent = -1, RootHeight = y, Bottom = y + lowest, Top = y + highest };
                 _copies.Clear();
-                _copies.Add(new CopyPose { Parent = -1, Pos = Vector3.up * (rootDef.height * 0.5f), Rot = Quaternion.identity });
+                _copies.Add(new CopyPose { Parent = -1, Pos = new Vector3(0, y, 0) - CraftRoot.position, Rot = Quaternion.identity });
                 return;
             }
             if (TryStackSnap(mouse, rootDef)) return;
             if (TrySurfaceAttach(ray, rootDef)) return;
 
-            // Free floating in front of the craft: a click sets it aside.
+            // Free floating in front of the craft (kept inside the building): a click sets it aside.
             Vector3 p = FloatPoint(ray);
+            LaunchService.VerticalExtent(_held, Db, _heldRotation, out float low, out float high);
+            p.y = ClampRootHeight(p.y, low, high);
             _copies.Add(new CopyPose { Parent = -1, Pos = p - CraftRoot.position, Rot = _heldRotation });
             Current.Reason = rootDef.surfaceAttach.allowed
                 ? "Move over a free node (green) or a part surface to attach"
@@ -529,13 +536,19 @@ namespace TAP.Game
                     parts.Add(r);
                 }
             }
-            if (root) parts[0].parent = -1;
-            // The whole craft attached onto a set-aside group: that group becomes the craft (its root is the new root).
+            if (root)
+            {
+                parts[0].parent = -1;
+                Design.rootHeight = Current.RootHeight;
+            }
+            // The whole craft attached onto a set-aside group: that group becomes the craft (its root is the new root,
+            // at the height the group was set aside at).
             if (_heldWholeCraft && Design.parts.Count == 0 && target.Id > 0)
             {
                 var det = Design.detached[target.Id - 1];
                 Design.detached.RemoveAt(target.Id - 1);
                 Design.parts.AddRange(det.parts);
+                Design.rootHeight = det.pos[1];
                 Design.parts[0].parent = -1;
                 Design.parts[0].parentNode = null;
                 Design.parts[0].attachNode = null;
@@ -689,8 +702,8 @@ namespace TAP.Game
                 switch (Current.Kind)
                 {
                     case AttachKind.Root:
-                        return _heldWholeCraft ? "Click to put the craft back · or attach it to a free node of a set-aside (grey) group"
-                                               : $"Click to place the {name} as the root part";
+                        return _heldWholeCraft ? $"Click to put the craft down ({RootHeightText()}) · or attach it to a set-aside (grey) group"
+                                               : $"Click to place the {name} as the root part ({RootHeightText()})";
                     case AttachKind.Stack:
                         return Current.Valid ? $"Click to attach {name} to the {Current.ParentNode} node of the {PartTitle(Current.Asm, Current.Parent)}{where}" : Current.Reason;
                     case AttachKind.Surface:
@@ -701,6 +714,15 @@ namespace TAP.Game
                         return (Current.Reason ?? "") + " · click empty space to set it aside (grey, not part of the craft) · drop it on the parts list to delete it";
                 }
             }
+        }
+
+        /// <summary>Where a root placement puts the craft: on the floor, or how far it is raised (and whether it's at the limit).</summary>
+        private string RootHeightText()
+        {
+            float raised = Current.Bottom - (FloorHeight + FloorClearance);
+            if (raised < 0.01f) return "on the floor";
+            bool atLimit = Current.Top >= FloorHeight + MaxCraftHeight - 0.01f;
+            return atLimit ? $"raised {raised:0.0} m, {MaxCraftHeight:0} m height limit" : $"raised {raised:0.0} m";
         }
 
         private string PartTitle(int asm, int index)

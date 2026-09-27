@@ -565,7 +565,8 @@ namespace TAP.UI
             "• <b>X</b> cycles radial symmetry (1, 2, 3, 4, 6, 8). Parts attached to a symmetric part (e.g. a nose cone on a booster) are copied onto every counterpart.\n" +
             "• <b>C</b> toggles angle snap (15° positions, 90° rotation steps). <b>W A S D Q E</b> rotate the held part, <b>Shift</b> for 5° steps, <b>Space</b> resets.\n" +
             "• Click a placed part to pick it up together with everything attached below/beside it. <b>Alt+click</b> copies it. " +
-            "Clicking the root part picks up the whole craft; right-click a part → <b>Make root part</b> to re-root the craft on it.\n" +
+            "Clicking the root part picks up the whole craft to move it up or down (between the floor and the building's height limit); " +
+            "right-click a part → <b>Make root part</b> to re-root the craft on it.\n" +
             "• Click empty space to <b>set the held parts aside</b>: they stay there greyed out, are not part of the craft (not launched, not in the readouts) " +
             "and can be built on, picked up and attached again.\n" +
             "• <b>Del</b> deletes the part under the cursor or the held part (or drop it on the parts list); <b>Esc</b> puts picked-up parts back.\n" +

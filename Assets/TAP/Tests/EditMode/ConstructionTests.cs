@@ -135,11 +135,47 @@ namespace TAP.Tests
         }
 
         [Test]
+        public void AssemblyBuilding_KeepsCraftBetweenFloorAndHeightLimit()
+        {
+            var d = StarterCraft.Meridian(Db);
+            LaunchService.VerticalExtent(d.parts, Db, Quaternion.identity, out float lowest, out float highest);
+            Assert.AreEqual(LaunchService.DesignLowestPoint(d, Db), lowest);
+            Assert.Greater(highest - lowest, 5f, "the Meridian is several metres tall");
+            const float floor = 0.25f, ceiling = 60f;
+            Assert.AreEqual(floor, AssemblyEditor.ClampRootHeight(-100f, lowest, highest, floor, ceiling) + lowest, 1e-4f,
+                "moved underground: stands on the floor");
+            Assert.AreEqual(ceiling, AssemblyEditor.ClampRootHeight(1000f, lowest, highest, floor, ceiling) + highest, 1e-4f,
+                "moved too high: its top at the height limit");
+            float raised = floor - lowest + 3f;
+            Assert.AreEqual(raised, AssemblyEditor.ClampRootHeight(raised, lowest, highest, floor, ceiling), 1e-4f,
+                "in between: stays where it was put");
+            float lowCeiling = floor + (highest - lowest) * 0.5f;
+            Assert.AreEqual(floor, AssemblyEditor.ClampRootHeight(1000f, lowest, highest, floor, lowCeiling) + lowest, 1e-4f,
+                "taller than the building: stands on the floor");
+        }
+
+        [Test]
+        public void VerticalExtent_FollowsTheGroupRotation()
+        {
+            // A tank set aside lying on its side is only as tall as it is wide.
+            var tank = new List<PartNodeRecord> { new PartNodeRecord { partId = "tank_s1_long" } };
+            var def = Db.Get("tank_s1_long");
+            LaunchService.VerticalExtent(tank, Db, Quaternion.identity, out float lo, out float hi);
+            Assert.AreEqual(-def.height * 0.5f, lo, 1e-4f);
+            Assert.AreEqual(def.height * 0.5f, hi, 1e-4f);
+            LaunchService.VerticalExtent(tank, Db, Quaternion.Euler(90, 0, 0), out lo, out hi);
+            Assert.AreEqual(-def.diameter * 0.5f, lo, 1e-4f);
+            Assert.AreEqual(def.diameter * 0.5f, hi, 1e-4f);
+        }
+
+        [Test]
         public void CraftDesign_JsonRoundTripIsLossless()
         {
             var d = StarterCraft.Pathfinder(Db);
+            d.rootHeight = 12.5f;
             string json = SaveStorage.ToJson(d);
             var back = SaveStorage.FromJson<CraftDesign>(json);
+            Assert.AreEqual(d.rootHeight, back.rootHeight);
             Assert.AreEqual(d.parts.Count, back.parts.Count);
             for (int i = 0; i < d.parts.Count; i++)
             {

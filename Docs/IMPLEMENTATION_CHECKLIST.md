@@ -273,3 +273,28 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` implemented · `[
     - The earlier build lunar failure (Pe 48 km after a 102 s burn) came from keys pressed in the visible test window
       (the log showed time warp requested during the burn); the same build passed windowless, and test runs now always
       use `-batchmode`.
+- 2026-09-26 — Assembly building: moving the craft up and down (user report: the root part couldn't be moved, which
+  made building below it awkward):
+  * Clicking the root picks up the whole craft. It follows the pointer up and down (held where it was grabbed, so it
+    doesn't jump), and a click puts it down there. The craft then stays where it was put. Its height is saved with the
+    design (`CraftDesign.rootHeight`), so undo, redo, Esc, saved craft and the return from flight keep it.
+  * A new root part from the list is placed at the pointer's height as well (on the floor when pointing low).
+  * The building keeps everything inside it:
+    - The craft's lowest point never goes below the floor. Parts attached below it that would reach through the floor
+      push the craft up; parts removed from below leave it where it is.
+    - Its top never goes above the **height limit**: 60 m, set in `Assets/TAP/Resources/Settings/AssemblyBuilding.asset`
+      (menu *TAP → Assembly Building Settings*), for future building upgrades to raise.
+    - A craft taller than the limit stands on the floor, and the engineer's report says so.
+    - Set-aside parts are held to the same limits, and the camera can pan up to the limit.
+  * Checked in a scripted editor session:
+    - The Meridian was dropped at 20 m (root at 20.000 m, same staging), below the floor (stood on it) and at 150 m
+      (top at 60.000 m). Undo, redo and Esc restored each height.
+    - A pod placed at 10 m kept its height while two tanks went on below it; the third and fourth pushed the craft up.
+    - A tank set aside below floor level landed on the floor, and re-rooting a raised craft moved no part.
+    - With an 8 m limit, the 19 m test craft stood on the floor with the report note.
+    - Unit tests 22/22. New: the floor and height-limit clamp, extents of a rotated group, and `rootHeight` in the JSON
+      round trip.
+  * **Standalone build `TAP.exe`, run windowless (`-batchmode`) after the change: `lunar` 19/19, `orbit` 9/9,
+    `persistence` 10/10, `suborbital` 3/3, `failures` 6/6, `docking` 5/5.** The suborbital and failures reports are
+    identical to the previous build's. Lunar: landed at 1.0° with legs 4/4, walk 12.0 m, jump 1.85 m, flag, boarding,
+    return periapsis 36.8 km, heat shield 782 K, splashdown 0.9 m/s with crew.

@@ -24,6 +24,8 @@ Repository: <https://github.com/TheLordBaski/TheAstraeaProgram>. Images and othe
 * **Developer tools** in flight: **Alt+F12** or **`** (cheats, teleports to orbit or to the surface, zoom speed).
 * **Part models**: *TAP → Part Models → Export All* writes every part as FBX/OBJ for editing; an FBX saved as
   `Assets/TAP/Resources/PartModels/<part id>.fbx` replaces that part's model ([Docs/PART_MODELS.md](Docs/PART_MODELS.md)).
+* **Assembly building limits**: *TAP → Assembly Building Settings* selects `Assets/TAP/Resources/Settings/AssemblyBuilding.asset`,
+  where the building's height limit is set (how high a craft can be raised; future building upgrades will change it).
 
 ## Documentation
 
@@ -67,10 +69,10 @@ and saves from the folder it used while it was called Starwright).
 
 ## Verification
 
-* **EditMode unit tests** (Unity Test Runner, 20 tests): Kepler propagation against numerical integration (elliptic,
+* **EditMode unit tests** (Unity Test Runner, 22 tests): Kepler propagation against numerical integration (elliptic,
   hyperbolic, radial), element round trips, apsis timing, manoeuvre nodes several orbits ahead in the patched-conic
   predictor, attachment maths, radial symmetry, staging order, rocket-equation Δv, fuel-flow blocking by decouplers,
-  starter-rocket soundness, lossless craft and save JSON.
+  starter-rocket soundness, lossless craft and save JSON, the assembly building's floor and height limits.
 * **Automated missions** flown by a scripted pilot that uses only the player's controls
   (`TAP.exe -autotest <mission> -report <file>`; in the editor set `PlayerPrefs "TAP.AutoTest"`):
   `orbit` (launch, orbit, drift checks, rails warp, orbital EVA and boarding, reentry, splashdown), `lunar`
