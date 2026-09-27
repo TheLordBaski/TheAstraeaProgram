@@ -111,6 +111,7 @@ namespace TAP.Game
                 case "orbit": body = OrbitMission(); break;
                 case "failures": body = FailuresMission(); break;
                 case "docking": body = DockingMission(); break;
+                case "escape": body = EscapeMission(); break;
                 case "persistence": body = PersistenceMission(); break;
                 case "ascent": body = AscentOnlyMission(); break;
                 case "lunar-surface": body = LunarSurfaceMission(); break;

@@ -52,7 +52,8 @@ namespace TAP.Simulation
             _mat.SetFloat("_PlanetRadius", (float)Body.Radius);
             _mat.SetFloat("_AtmoRadius", (float)atmoR);
             _mat.SetFloat("_Intensity", 1.6f * vis);
-            var sun = FlightSim.Instance != null ? FlightSim.Instance.System.SunDirection : Vector3d.up;
+            var sim = FlightSim.Instance;
+            var sun = sim != null ? sim.System.SunDirectionFrom(Body, Vector3d.zero, sim.RenderUT) : Vector3d.up;
             _mat.SetVector("_SunDir", (Vector3)sun);
         }
     }

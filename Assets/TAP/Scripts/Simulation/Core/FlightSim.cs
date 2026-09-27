@@ -69,7 +69,7 @@ namespace TAP.Simulation
             Time.fixedDeltaTime = 0.02f;
             Time.maximumDeltaTime = 0.1f;
             Layers.ConfigureCollisionMatrix();
-            Frame = new ReferenceFrame(System.Root);
+            Frame = new ReferenceFrame(System.HomeBody);
         }
 
         private void OnDestroy()

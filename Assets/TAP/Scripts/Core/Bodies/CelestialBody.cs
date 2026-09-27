@@ -5,7 +5,7 @@ namespace TAP.Core
 {
     /// <summary>
     /// Runtime celestial body. Positions returned by <see cref="GetPositionAtUT"/> are relative to the
-    /// root body (the home planet) in the shared inertial frame. Body rotation is about +Y.
+    /// root body (the system's star) in the shared inertial frame. Body rotation is about +Y.
     /// </summary>
     public sealed class CelestialBody
     {
@@ -24,6 +24,10 @@ namespace TAP.Core
         public TerrainGenerator Terrain { get; private set; }
         public readonly bool HasOcean;
         public readonly double[] WarpAltitudeLimits;
+        /// <summary>A star: no terrain or surface, lights the system (<see cref="Luminosity"/>).</summary>
+        public readonly bool IsStar;
+        /// <summary>Radiated power of a star (W); 0 for other bodies.</summary>
+        public readonly double Luminosity;
 
         public bool HasAtmosphere => Atmosphere != null;
         public double Mass => GM / MathD.G;
@@ -43,6 +47,8 @@ namespace TAP.Core
             if (def.atmosphere != null && def.atmosphere.height > 0) Atmosphere = new Atmosphere(def.atmosphere);
             HasOcean = def.hasOcean;
             WarpAltitudeLimits = def.warpAltitudeLimits;
+            IsStar = def.type == "star";
+            Luminosity = IsStar ? def.luminosity : 0;
         }
 
         internal void Link(CelestialBody parent, LaunchSiteDefinition site)
@@ -59,12 +65,12 @@ namespace TAP.Core
                 SOIRadius = o.semiMajorAxis * Math.Pow(GM / parent.GM, 0.4);
                 if (Def.tidallyLocked) RotationPeriod = Orbit.Period;
             }
-            Terrain = TerrainGenerator.Create(Def, site);
+            Terrain = IsStar ? null : TerrainGenerator.Create(Def, site);
         }
 
         // ------------------------------------------------------------------ position
 
-        /// <summary>Position relative to the root body (inertial).</summary>
+        /// <summary>Position relative to the root body, the star (inertial).</summary>
         public Vector3d GetPositionAtUT(double ut)
         {
             if (Parent == null) return Vector3d.zero;

@@ -331,7 +331,7 @@ namespace TAP.Simulation
         public bool CanRecover(Vessel v)
         {
             if (v == null || v.IsFlag) return false;
-            if (v.MainBody != System.Root) return false;
+            if (v.MainBody != System.HomeBody) return false;
             return (v.Situation == Situation.Landed || v.Situation == Situation.Splashed || v.Situation == Situation.Prelaunch) && v.SurfaceSpeed < 2;
         }
 

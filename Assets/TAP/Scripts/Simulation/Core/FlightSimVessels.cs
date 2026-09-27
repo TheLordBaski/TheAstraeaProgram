@@ -38,7 +38,7 @@ namespace TAP.Simulation
 
         public VesselHandle CreateHandle(VesselRecord r)
         {
-            var h = new VesselHandle { Record = r, Body = System.Get(r.bodyId) ?? System.Root };
+            var h = new VesselHandle { Record = r, Body = System.Get(r.bodyId) ?? System.HomeBody };
             if (r.landed && r.landedPos != null)
             {
                 h.Landed = true;
@@ -414,7 +414,11 @@ namespace TAP.Simulation
                 }
             }
             var list = new List<VesselRecord>();
-            foreach (var h in Handles) list.Add(h.Record);
+            foreach (var h in Handles)
+            {
+                h.Record.systemId = System.Id; // every simulated vessel is in this system
+                list.Add(h.Record);
+            }
             return list;
         }
     }

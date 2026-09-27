@@ -1,5 +1,5 @@
 {
-  "name": "Tellus System",
+  "name": "Astraea System",
   "startUT": 0,
   "sun": {
     "direction": [0.574, 0.15, -0.819],
@@ -18,10 +18,26 @@
   },
   "bodies": [
     {
+      "id": "astraea",
+      "displayName": "Astraea",
+      "description": "The home system's star, a calm yellow-white dwarf. The Astraea Program is named after it.",
+      "type": "star",
+      "parent": null,
+      "radius": 250000000,
+      "gm": 1.2e18,
+      "rotationPeriod": 432000,
+      "luminosity": 3.35e24,
+      "surfaceTemperature": 5800,
+      "warpAltitudeLimits": [0, 1000000000, 1000000000, 1000000000, 1000000000, 1000000000, 1000000000, 1000000000],
+      "mapColor": [1.0, 0.93, 0.75]
+    },
+    {
       "id": "tellus",
       "displayName": "Tellus",
       "description": "Temperate ocean world and home of the Astraea Program. Thick nitrogen-oxygen atmosphere up to 70 km.",
-      "parent": null,
+      "type": "planet",
+      "parent": "astraea",
+      "orbit": { "semiMajorAxis": 14000000000, "eccentricity": 0.0, "inclinationDeg": 0.0, "lanDeg": 0.0, "argPeDeg": 0.0, "meanAnomalyAtEpochDeg": 235.0, "epoch": 0 },
       "radius": 600000,
       "gm": 3.5316e12,
       "rotationPeriod": 21600,
@@ -50,6 +66,7 @@
     },
     {
       "id": "luma",
+      "type": "moon",
       "displayName": "Luma",
       "description": "Tellus's airless, tidally locked moon. Grey cratered highlands and dark basaltic maria.",
       "parent": "tellus",

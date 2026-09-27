@@ -11,7 +11,7 @@ namespace TAP.Game
         public static void Build(FlightSim sim, PlanetManager planets)
         {
             var site = sim.System.Def.launchSite;
-            var body = sim.System.Get(site.body) ?? sim.System.Root;
+            var body = sim.System.Get(site.body) ?? sim.System.HomeBody;
             Vector3d up = TerrainGenerator.DirectionFromLatLon(site.latitude, site.longitude);
             QuaternionD rot = LaunchService.SiteRotationBF(body, site); // +Y up, +Z east
             Vector3d deckTop = up * (body.Radius + site.padAltitude + site.padDeckHeight);

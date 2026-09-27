@@ -91,12 +91,12 @@ namespace TAP.Game
         {
             if (Sim == null || Cam == null) return;
             double rut = Sim.RenderUT;
-            Vector3d sunDir = Sim.System.SunDirection;
-            Sun.transform.rotation = Quaternion.LookRotation(-(Vector3)sunDir);
-
             // Camera position relative to the frame body (true).
             var frame = Sim.Frame;
             Vector3d camTrue = frame.RenderOrigin(Sim.RenderAlpha) + (Vector3d)Cam.transform.position;
+            // Sunlight comes from the star's actual position as seen from the camera.
+            Vector3d sunDir = Sim.System.SunDirectionFrom(frame.Body, camTrue, rut);
+            Sun.transform.rotation = Quaternion.LookRotation(-(Vector3)sunDir);
             // Closest body for atmosphere / horizon purposes.
             CelestialBody near = frame.Body;
             double best = double.MaxValue;
@@ -114,6 +114,7 @@ namespace TAP.Game
             InShadow = false;
             foreach (var b in Sim.System.Bodies)
             {
+                if (b.IsStar) continue; // the star lights; it doesn't shadow
                 Vector3d bc = frame.BodyPosition(b, rut);
                 Vector3d toCam = camTrue - bc;
                 double along = Vector3d.Dot(toCam, sunDir);

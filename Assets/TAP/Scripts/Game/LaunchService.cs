@@ -40,13 +40,14 @@ namespace TAP.Game
         {
             var sys = CelestialSystem.Default;
             var site = sys.Def.launchSite;
-            var body = sys.Get(site.body) ?? sys.Root;
+            var body = sys.Get(site.body) ?? sys.HomeBody;
             var rec = new VesselRecord
             {
                 name = design.name,
                 designName = design.name,
                 kind = VesselKind.Ship,
                 situation = Situation.Prelaunch,
+                systemId = sys.Id,
                 bodyId = body.Id,
                 landed = true,
             };

@@ -94,7 +94,8 @@ namespace TAP.Game
                 GameSession.Log($"Rolled out {rec.name} to the launch pad");
                 GameSession.PendingLaunch = null;
             }
-            Sim.Initialize(save.ut, save.vessels, activeId);
+            // Only this system's vessels are simulated; the others stay in the save untouched (FND-15).
+            Sim.Initialize(save.ut, save.vessels.FindAll(v => v.systemId == Sim.System.Id), activeId);
             Planets.SyncSurfaceObjects(Sim.UT);
             if (Sim.ActiveVessel == null)
             {
@@ -120,7 +121,7 @@ namespace TAP.Game
             Vector3d pad = LaunchService.PadPositionBF(body, site);
             save.vessels.RemoveAll(v =>
             {
-                if (!v.landed || v.landedPos == null || v.bodyId != body.Id) return false;
+                if (!v.landed || v.landedPos == null || v.systemId != sys.Id || v.bodyId != body.Id) return false;
                 var p = new Vector3d(v.landedPos[0], v.landedPos[1], v.landedPos[2]);
                 bool onPad = (p - pad).magnitude < 60;
                 if (onPad)
@@ -182,7 +183,9 @@ namespace TAP.Game
         {
             var save = GameSession.Save;
             save.ut = Sim.UT;
+            var elsewhere = save.vessels.FindAll(v => v.systemId != Sim.System.Id);
             save.vessels = Sim.CaptureAllRecords();
+            save.vessels.AddRange(elsewhere);
             save.activeVesselId = Sim.ActiveVessel != null ? Sim.ActiveVessel.Id : save.activeVesselId;
             GameSession.ReconcileCrew();
             return SaveStorage.DeepClone(save);
@@ -250,7 +253,7 @@ namespace TAP.Game
             bool crewed = v.CrewCount > 0;
             Tracker?.OnRecovered(crewed);
             Sim.Recover(v);
-            GameSession.Log($"{name} recovered on {Sim.System.Root.Name}");
+            GameSession.Log($"{name} recovered on {Sim.System.HomeBody.Name}");
             if (Sim.ActiveVessel == null)
             {
                 CaptureSave();

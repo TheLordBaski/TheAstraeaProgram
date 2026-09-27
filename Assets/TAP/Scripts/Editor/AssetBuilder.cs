@@ -126,7 +126,7 @@ namespace TAP.EditorTools
             SaveTexture(FlagTexture(256, 160), "Flag", wrap: TextureWrapMode.Clamp);
             var sys = CelestialSystem.LoadFromResources();
             foreach (var b in sys.Bodies)
-                SaveTexture(PlanetMap(b, 1024, 512), "Map_" + b.Id, wrap: TextureWrapMode.Clamp);
+                if (!b.IsStar) SaveTexture(PlanetMap(b, 1024, 512), "Map_" + b.Id, wrap: TextureWrapMode.Clamp);
             Debug.Log("[AssetBuilder] Textures built.");
         }
 
@@ -494,6 +494,7 @@ namespace TAP.EditorTools
             // Planet map materials (map view spheres)
             foreach (var b in CelestialSystem.LoadFromResources().Bodies)
             {
+                if (b.IsStar) continue; // the map draws stars unlit (MapView)
                 var pm = LoadOrCreate($"{dir}/Map_{b.Id}.mat", lit);
                 pm.SetTexture("_BaseMap", AssetDatabase.LoadAssetAtPath<Texture2D>($"{Res}/Textures/Map_{b.Id}.png"));
                 pm.SetColor("_BaseColor", Color.white);

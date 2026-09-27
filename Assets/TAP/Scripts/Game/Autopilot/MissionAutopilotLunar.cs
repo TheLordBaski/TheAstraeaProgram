@@ -30,7 +30,7 @@ namespace TAP.Game
         }
 
         private CelestialBody Luma => Sim.System.Get("luma");
-        private CelestialBody Tellus => Sim.System.Root;
+        private CelestialBody Tellus => Sim.System.HomeBody;
 
         private IEnumerator LunarMission()
         {

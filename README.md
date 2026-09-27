@@ -62,7 +62,7 @@ Code lives in `Assets/TAP/Scripts`, split into assemblies with one-way dependenc
 | `UI` | All interface (built from code): flight HUD and navball, map UI, pause menu, part menus, assembly editor UI, main menu |
 | `App` | Scene bootstraps and command line |
 
-Data files: `Resources/Data/system.json` (planets, launch site), `Resources/Data/parts.json` (36 parts + EVA suit and flag),
+Data files: `Resources/Data/galaxy.json` (the star systems), `Resources/Data/system.json` (the home system: star, planets, launch site), `Resources/Data/parts.json` (36 parts + EVA suit and flag),
 `Resources/Craft/*.json` (starter rockets). User data (saves, craft, test reports) goes to
 `%USERPROFILE%/AppData/LocalLow/Astraea Works/The Astraea Program/TAP/` (on first start the game copies ships
 and saves from the folder it used while it was called Starwright).

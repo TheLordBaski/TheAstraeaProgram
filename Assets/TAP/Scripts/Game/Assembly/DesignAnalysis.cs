@@ -57,7 +57,7 @@ namespace TAP.Game
         {
             var s = new DesignStats { Environment = env };
             var sys = CelestialSystem.Default;
-            var home = sys.Root;
+            var home = sys.HomeBody;
             var moon = sys.Get("luma");
             CelestialBody envBody = env == EditorEnvironment.LumaSurface && moon != null ? moon : home;
             s.Gravity = envBody.GM / (envBody.Radius * envBody.Radius);

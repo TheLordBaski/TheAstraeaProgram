@@ -111,6 +111,9 @@ namespace TAP.Persistence
         public string name = "Vessel";
         public VesselKind kind = VesselKind.Ship;
         public Situation situation = Situation.Prelaunch;
+        /// <summary>Star system the vessel is in (galaxy id); saves from before systems existed are "home".</summary>
+        public string systemId = "home";
+        /// <summary>Body within that system.</summary>
         public string bodyId;
         public int rootIndex;
         public List<PartRecord> parts = new List<PartRecord>();

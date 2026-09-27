@@ -75,7 +75,7 @@ namespace TAP.Game
             var v = sim.ActiveVessel;
             if (v == null) return;
             var body = v.MainBody;
-            bool home = body == sim.System.Root;
+            bool home = body == sim.System.HomeBody;
             if (v.Record.launchUT >= 0 && !v.IsFlag) Mark("launch");
             if (home && v.Altitude > 70000) Mark("space");
             if (v.Orbit != null && v.Situation == Situation.Orbiting && home) Mark("orbit");

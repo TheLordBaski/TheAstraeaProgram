@@ -60,6 +60,7 @@ namespace TAP.Simulation
             TerrainMaterial = terrainMat;
             foreach (var b in sim.System.Bodies)
             {
+                if (b.IsStar) continue; // no surface; the sky draws the star
                 var go = new GameObject("Terrain " + b.Name);
                 go.transform.SetParent(transform, false);
                 var t = go.AddComponent<PlanetTerrain>();
@@ -157,7 +158,7 @@ namespace TAP.Simulation
             var frame = Sim.Frame;
             var body = frame.Body;
             if (_colliderBody != body) OnFrameBodyChanged(body);
-            var terrain = Terrains[body];
+            if (!Terrains.TryGetValue(body, out var terrain)) return; // in the star's frame there is no ground
             int level = terrain.CollisionLevel;
 
             if (Sim.UT >= _nextNeedCheck)

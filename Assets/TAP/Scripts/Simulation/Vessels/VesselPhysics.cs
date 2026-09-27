@@ -360,7 +360,7 @@ namespace TAP.Simulation
             if (Splashed && SurfaceSpeed < 5) { Situation = Situation.Splashed; return; }
             if (body.Atmosphere != null && Altitude < body.Atmosphere.Height) { Situation = Situation.Flying; return; }
             if (Orbit == null) { Situation = Situation.SubOrbital; return; }
-            double limit = body.Radius + (body.Atmosphere != null ? body.Atmosphere.Height : body.Terrain.MaxHeight);
+            double limit = body.Radius + (body.Atmosphere != null ? body.Atmosphere.Height : body.Terrain != null ? body.Terrain.MaxHeight : 0);
             if (!Orbit.IsElliptic || Orbit.ApoapsisRadius > body.SOIRadius) Situation = Situation.Escaping;
             else if (Orbit.PeriapsisRadius < limit) Situation = Situation.SubOrbital;
             else Situation = Situation.Orbiting;

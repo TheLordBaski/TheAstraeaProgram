@@ -40,8 +40,9 @@ model (FND-15): the home system is the first of several, so nothing may assume t
 - [ ] Unit test: a vessel on a solar orbit returns to its start after one period within 1 m.
 - [ ] Unit test: leaving Tellus's SOI into the star frame and coming back in is continuous: under 0.1 m in position
       and 10⁻⁴ m/s in velocity at each transition.
-- [ ] New autotest `escape`: launch, escape Tellus, coast 30 days at maximum warp, re-enter Tellus's SOI. It passes
-      in the build.
+- [ ] New autotest `escape`: leave Tellus on a hyperbola whose solar orbit has Tellus's own period, circle the star
+      for a year at maximum warp and re-enter Tellus's SOI where the patched-conic prediction says. It passes in the
+      build.
 - [ ] All existing missions (`orbit`, `lunar`, `persistence`, `docking`, `failures`, `suborbital`) pass in the build.
 - [ ] Screenshots from two dates half a year apart show the sunlight coming from a different direction.
 

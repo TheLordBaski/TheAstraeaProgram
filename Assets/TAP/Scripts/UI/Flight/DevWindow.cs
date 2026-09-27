@@ -33,6 +33,9 @@ namespace TAP.UI
 
         public bool IsOpen => _panel != null && _panel.activeSelf;
 
+        /// <summary>The home planet's first moon (Luma in the home system).</summary>
+        private CelestialBody HomeMoon => Sim.System.HomeBody.Children.Count > 0 ? Sim.System.HomeBody.Children[0] : null;
+
         public static DevWindow Create(FlightSceneController scene)
         {
             var canvas = UIKit.CreateCanvas("DevWindow", 90);
@@ -83,9 +86,9 @@ namespace TAP.UI
 
             Section(p.transform, "Teleport the active vessel");
             var bodies = Row(p.transform);
-            _tellusBtn = UIKit.Button(bodies, "Tellus", () => SelectBody(Sim.System.Root), 14);
+            _tellusBtn = UIKit.Button(bodies, Sim.System.HomeBody.Name, () => SelectBody(Sim.System.HomeBody), 14);
             Flex(_tellusBtn.Button);
-            _lumaBtn = UIKit.Button(bodies, "Luma", () => SelectBody(Sim.System.Get("luma")), 14);
+            _lumaBtn = UIKit.Button(bodies, HomeMoon?.Name ?? "—", () => SelectBody(HomeMoon), 14);
             Flex(_lumaBtn.Button);
             var orbitRow = Row(p.transform);
             _alt = Field(orbitRow, "Altitude (km)", "100");
@@ -180,7 +183,7 @@ namespace TAP.UI
         {
             if (b == null) return;
             _body = b;
-            bool luma = b != Sim.System.Root;
+            bool luma = b != Sim.System.HomeBody;
             _alt.text = luma ? "30" : "100";
             if (luma) { _lat.text = "0"; _lon.text = "0"; }
             else
@@ -194,9 +197,9 @@ namespace TAP.UI
         private static double Num(TMP_InputField f, double fallback) =>
             double.TryParse(f.text, NumberStyles.Float, CultureInfo.InvariantCulture, out double d) ? d : fallback;
 
-        private void SetOrbit() => Report(DevTools.SetOrbit(Sim, _body ?? Sim.System.Root, Num(_alt, 100) * 1000, Num(_inc, 0)));
+        private void SetOrbit() => Report(DevTools.SetOrbit(Sim, _body ?? Sim.System.HomeBody, Num(_alt, 100) * 1000, Num(_inc, 0)));
 
-        private void PutDown() => Report(DevTools.PutDown(Sim, _body ?? Sim.System.Root, Num(_lat, 0), Num(_lon, 0)));
+        private void PutDown() => Report(DevTools.PutDown(Sim, _body ?? Sim.System.HomeBody, Num(_lat, 0), Num(_lon, 0)));
 
         private void Report(string msg)
         {
@@ -209,7 +212,7 @@ namespace TAP.UI
             if (_panel == null) return;
             bool open = !_panel.activeSelf;
             _panel.SetActive(open);
-            if (open && _body == null) SelectBody(Sim.ActiveVessel != null ? Sim.ActiveVessel.MainBody : Sim.System.Root);
+            if (open && _body == null) SelectBody(Sim.ActiveVessel != null ? Sim.ActiveVessel.MainBody : Sim.System.HomeBody);
         }
 
         private void Update()
@@ -222,8 +225,8 @@ namespace TAP.UI
             }
             if (!IsOpen) return;
             foreach (var (btn, get) in _toggles) if (btn.Active != get()) btn.SetActive(get());
-            _tellusBtn.SetActive(_body == Sim.System.Root);
-            _lumaBtn.SetActive(_body != null && _body != Sim.System.Root);
+            _tellusBtn.SetActive(_body == Sim.System.HomeBody);
+            _lumaBtn.SetActive(_body != null && _body != Sim.System.HomeBody);
             _zoomText.text = $"{ScrollZoom.Speed:0.0#}×";
             var v = Sim.ActiveVessel;
             _info.text = v != null

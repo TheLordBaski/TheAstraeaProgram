@@ -20,7 +20,10 @@ namespace TAP.Core
     [Serializable]
     public class SunDefinition
     {
-        /// <summary>Direction *towards* the sun in the inertial frame.</summary>
+        /// <summary>
+        /// Direction *towards* the sun in the inertial frame, for a system without a star body. With a star (a body of
+        /// type "star", the root), sunlight comes from the star's actual position.
+        /// </summary>
         public double[] direction = { 1, 0.15, -0.35 };
         public float intensity = 1.35f;
         public float[] color = { 1f, 0.97f, 0.92f };
@@ -49,6 +52,8 @@ namespace TAP.Core
         public string id;
         public string displayName;
         public string description;
+        /// <summary>"star", "planet", "moon", "dwarf" or "gasgiant". A star has no terrain and lights the system.</summary>
+        public string type = "planet";
         public string parent;
         public double radius;
         /// <summary>Standard gravitational parameter GM (m^3/s^2).</summary>
@@ -65,6 +70,10 @@ namespace TAP.Core
         public double[] warpAltitudeLimits;
         /// <summary>Scaled-space / map colour.</summary>
         public float[] mapColor = { 0.5f, 0.5f, 0.5f };
+        /// <summary>Stars: radiated power (W); sets the solar flux at any distance.</summary>
+        public double luminosity;
+        /// <summary>Stars: surface temperature (K), for the star's colour and glare.</summary>
+        public double surfaceTemperature;
     }
 
     [Serializable]
@@ -96,7 +105,7 @@ namespace TAP.Core
     [Serializable]
     public class TerrainDefinition
     {
-        /// <summary>Generator id: "tellus" (continents/oceans) or "luma" (cratered).</summary>
+        /// <summary>Generator id: "tellus" (continents/oceans), "luma" (cratered) or "flat". Stars have none.</summary>
         public string generator = "flat";
         public int seed = 1;
         /// <summary>Approximate maximum terrain height (m) — used for warp/rails safety and LOD bounds.</summary>

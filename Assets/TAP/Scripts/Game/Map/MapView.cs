@@ -116,10 +116,14 @@ namespace TAP.Game
             go.AddComponent<MeshFilter>().sharedMesh = PlanetSphereMesh();
             var mr = go.AddComponent<MeshRenderer>();
             var mat = Resources.Load<Material>("Materials/Map_" + b.Id);
-            if (mat == null)
+            var mapColor = new Color(b.Def.mapColor[0], b.Def.mapColor[1], b.Def.mapColor[2]);
+            if (mat == null && b.IsStar)
             {
-                mat = PartMaterials.CreateLit("map_" + b.Id, new Color(b.Def.mapColor[0], b.Def.mapColor[1], b.Def.mapColor[2]), 0, 0.1f, false);
+                // A star shines by itself: unlit, never shaded by the scene's sun light.
+                var unlit = Shader.Find("Universal Render Pipeline/Unlit");
+                mat = unlit != null ? new Material(unlit) { color = mapColor } : PartMaterials.CreateLit("map_" + b.Id, mapColor, 0, 0.1f, true);
             }
+            if (mat == null) mat = PartMaterials.CreateLit("map_" + b.Id, mapColor, 0, 0.1f, false);
             mr.sharedMaterial = mat;
             mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             _bodyObjects[b] = go;
@@ -268,7 +272,7 @@ namespace TAP.Game
                     hm.SetVector("_PlanetCenter", kv.Value.transform.position);
                     hm.SetFloat("_PlanetRadius", (float)(b.Radius / Scale));
                     hm.SetFloat("_AtmoRadius", (float)((b.Radius + b.Atmosphere.Height) / Scale));
-                    hm.SetVector("_SunDir", (Vector3)Sim.System.SunDirection);
+                    hm.SetVector("_SunDir", (Vector3)Sim.System.SunDirectionFrom(b.GetPositionAtUT(ut)));
                 }
             }
             foreach (var kv in _bodyLines)
@@ -390,7 +394,8 @@ namespace TAP.Game
         {
             Markers.Clear();
             foreach (var b in Sim.System.Bodies)
-                Add(MarkerType.Body, b.GetPositionAtUT(ut), focus, b.Name, $"{b.Name}\nRadius {b.Radius / 1000:F0} km  g {b.SurfaceGravity:F2} m/s²", Color.white, b);
+                Add(MarkerType.Body, b.GetPositionAtUT(ut), focus, b.Name,
+                    b.IsStar ? $"{b.Name}\nStar · radius {b.Radius / 1000:N0} km" : $"{b.Name}\nRadius {b.Radius / 1000:F0} km  g {b.SurfaceGravity:F2} m/s²", Color.white, b);
             foreach (var h in Sim.Handles)
             {
                 MarkerType t = h.Kind == VesselKind.Debris ? MarkerType.Debris : h.Kind == VesselKind.EVA ? MarkerType.Eva : h.Kind == VesselKind.Flag ? MarkerType.Flag : MarkerType.Vessel;
