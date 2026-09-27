@@ -92,6 +92,33 @@ namespace TAP.Tests
         }
 
         [Test]
+        public void ComingBackIntoTellus_IsContinuousFromTheStarFrame()
+        {
+            var sys = CelestialSystem.LoadFromResources();
+            var tellus = sys.Get("tellus");
+            var star = sys.Star;
+            // A probe on Tellus's orbit, 1.5 spheres of influence ahead and 200 m/s slower: Tellus catches up with it.
+            double t0 = 1000;
+            Vector3d r = tellus.GetPositionAtUT(t0) - star.GetPositionAtUT(t0);
+            Vector3d v = tellus.GetVelocityAtUT(t0) - star.GetVelocityAtUT(t0);
+            Vector3d along = v.normalized;
+            var o = new Orbit(r + along * (1.5 * tellus.SOIRadius), v - along * 200, t0, star.GM);
+            var patches = PatchedConics.Predict(o, star, t0, new System.Collections.Generic.List<NodeSpec>(), 3);
+            Assert.GreaterOrEqual(patches.Count, 2);
+            Assert.AreEqual(PatchEnd.SoiEnter, patches[0].EndType);
+            Assert.AreSame(tellus, patches[0].NextBody);
+            Assert.AreSame(tellus, patches[1].Body);
+            double t = patches[0].EndUT;
+            Vector3d before = patches[0].Orbit.GetPositionAtUT(t) + star.GetPositionAtUT(t);
+            Vector3d after = patches[1].Orbit.GetPositionAtUT(t) + tellus.GetPositionAtUT(t);
+            Vector3d vBefore = patches[0].Orbit.GetVelocityAtUT(t) + star.GetVelocityAtUT(t);
+            Vector3d vAfter = patches[1].Orbit.GetVelocityAtUT(t) + tellus.GetVelocityAtUT(t);
+            Assert.AreEqual(tellus.SOIRadius, patches[1].Orbit.GetPositionAtUT(t).magnitude, 1000, "the entry is on the sphere");
+            Assert.Less((before - after).magnitude, 0.1, "position jump at the SOI entry");
+            Assert.Less((vBefore - vAfter).magnitude, 1e-4, "velocity jump at the SOI entry");
+        }
+
+        [Test]
         public void DebugSystem_NamesNoHomeBodies()
         {
             var sys = Galaxy.LoadFromResources().LoadSystem("debug");

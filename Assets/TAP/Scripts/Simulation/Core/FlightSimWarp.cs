@@ -176,8 +176,10 @@ namespace TAP.Simulation
             {
                 double remaining = Warp.WarpToUT - UT;
                 if (remaining <= 0.05) { StopWarp(); return; }
-                // pick the highest rate that takes at least ~1.5 s of real time to cover the remainder
-                int idx = Warp.RailsIndex;
+                // The highest rate allowed here that still takes at least ~1.5 s of real time to cover the remainder.
+                // It starts from the altitude limit, not the current rate, so it climbs back once a limit clears (a
+                // warp-to that began in low orbit used to stay at 100× all the way out of the sphere of influence).
+                int idx = max;
                 while (idx > 1 && TimeWarp.RailsRates[idx] * 1.5 > remaining) idx--;
                 if (idx != Warp.RailsIndex) Warp.RailsIndex = idx;
                 rate = Warp.Rate;
