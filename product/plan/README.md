@@ -86,6 +86,7 @@ Open decisions, each with a recommendation, are in [19-decisions.md](19-decision
 | D-01 propellant model | M1 |
 | D-02 names | M1 |
 | D-11 scripting backend | M1 |
+| D-23 name and trademark filing | M1 |
 | D-06 sound and music sourcing | EA1 |
 
 ## Milestones
@@ -180,7 +181,7 @@ Everything else in EA1 is what a credible science-mode launch needs.
 | Science and career balance | Pacing simulations (SCI-11, CAR-10), playtests, optional telemetry (D-10) |
 | Breaking players' saves during Early Access | Versioned migrations and a save corpus tested on every build (FND-05, QA-03) |
 | Linux-only bugs | Linux in CI from M1; tested on real hardware every release |
-| A name conflict after launch | Trademark search in M1 (REL-02) |
+| A name conflict after launch | Trademark search done: no conflict for the full name ([TRADEMARK_SEARCH.md](../TRADEMARK_SEARCH.md)). File the EU and US marks before the store page (D-23) |
 | Engine upgrades mid-milestone | One Unity version per milestone; upgrade between milestones with a full test pass |
 | Multi-system and trade creeping into 1.0 | Prepared in data now (FND-15) but built after 1.0 (X1, X2) unless you decide otherwise |
 

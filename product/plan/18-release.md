@@ -40,6 +40,8 @@
 
 - A trademark and name search for "The Astraea Program" and "TAP" in the relevant classes (games, software; EU and
   US), and the Steam name. Do this before any marketing, to avoid a rename after launch.
+  **Done 2026-09-27** ([TRADEMARK_SEARCH.md](../TRADEMARK_SEARCH.md)): no conflict for the full name; "TAP" only as an
+  abbreviation. Filing the trade marks is D-23.
 - Domain and social handles.
 - **Licences**:
   - a third-party licence list: Unity packages, fonts (Liberation Sans in TextMesh Pro), sound libraries, music,
@@ -51,7 +53,7 @@
 - Not legal advice: for the trademark, a short consultation with a lawyer is worth the cost.
 
 **Done when**
-- [ ] The search result is recorded.
+- [x] The search result is recorded ([TRADEMARK_SEARCH.md](../TRADEMARK_SEARCH.md)).
 - [ ] The licence list is in `Docs/THIRD_PARTY.md` and in the credits (UX-13).
 
 ### REL-03 · Steamworks
