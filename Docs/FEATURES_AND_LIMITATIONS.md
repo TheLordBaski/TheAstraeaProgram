@@ -4,7 +4,7 @@ Legend — **Verified**: exercised by an automated test or an observed run with 
 **Implemented**: in the game and playable, but not covered by an automated check. **Untested**: implemented but never
 exercised end to end. **Limitation**: simplified or missing compared with the specification or with KSP.
 
-Evidence sources: EditMode unit tests (`Assets/TAP/Tests/EditMode`, 22 tests), automated missions flown by the
+Evidence sources: EditMode unit tests (`Assets/TAP/Tests/EditMode`, 37 tests), automated missions flown by the
 scripted pilot through player controls (reports in [TestReports](TestReports)), every one of them re-run in the final
 **standalone Windows build** (`build_<mission>.md`, including the complete lunar mission in
 [TestReports/build_lunar.md](TestReports/build_lunar.md)), and screenshots taken during development and play-testing
@@ -40,7 +40,8 @@ check: the scripted pilot now hovers over to the flattest spot within 60 m, as a
 | `suborbital` | Skylark to 170 km and back under the parachute | 3/3 | 3/3 |
 | `failures` | joint overload, unshielded burn-up, torn parachute, 111 m/s impact and crew loss | 6/6 | 6/6 |
 | `docking` | RCS approach from 9.8 m, capture, docked stack, undock, re-arm | 5/5 | 5/5 |
-| EditMode unit tests | orbits, patched conics, attachment, staging, Δv, JSON, wheel notches, geographic latitude, assembly building height limits | 22/22 | — |
+| `escape` | a probe leaves Tellus on a hyperbola whose solar orbit has Tellus's period, circles Astraea for a year at maximum warp and meets Tellus again where the patched-conic prediction said | 6/6 | 6/6 |
+| EditMode unit tests | orbits, patched conics, attachment, staging, Δv, JSON, wheel notches, geographic latitude, assembly building height limits, star systems, sunlight from the star, SOI transitions to and from the star, calendar, old saves | 37/37 | — |
 
 Reports: `Docs/TestReports/<mission>.md` (editor) and `build_<mission>.md` (standalone build). The editor runs were
 made during development; the standalone column is the release check of the shipped build, run after the last change.
@@ -51,6 +52,9 @@ made during development; the standalone column is the release check of the shipp
 |---|---|---|
 | Sandbox with launch site, assembly building, flight view, map view | Verified | Main menu → assembly → launch → flight exercised; all autotests start from the launch pad |
 | Tellus (atmosphere, ocean, rotation) and airless tidally locked Luma, data-driven | Verified | `system.json`; reference values in `PLANETARY_SYSTEM.md`; orbit and lunar autotests |
+| The star Astraea at the root of the home system: Tellus orbits it (a year of 439.87 Tellus days); sunlight, eclipses and solar flux come from its position | Verified | `escape` autotest; unit tests (sunlight direction, a solar orbit returning after one period, SOI transitions to and from the star within 0.1 m and 10⁻⁴ m/s); map screenshots half a year apart (`Screenshots/sun_direction_day1.png`, `sun_direction_halfyear.png`) |
+| Star systems: `galaxy.json` lists them; body ids belong to a system (`home/tellus`); vessels carry their system id; a debug system (a star, Testworld and Testmoon) can replace the home system (`-system debug`) | Verified | Unit tests (galaxy, qualified ids, old saves load into the home system, no literal body ids in gameplay code); the debug system played from the menu through assembly, launch, map and quicksave/quickload (`Screenshots/debug_system_*.png`); in the standalone build with `-system debug`: orbit 9/9 and persistence 10/10, the saves holding the vessel as `debug/testworld` ([build_debug_orbit.md](TestReports/build_debug_orbit.md), [build_debug_persistence.md](TestReports/build_debug_persistence.md)) |
+| Clock and calendar: 6-hour solar days (noon to noon), years of 439 or 440 days following Tellus's orbit; durations in Tellus days | Verified | Unit tests (the sun stands in the same place after one day; each new year within half a day of the orbital anniversary) |
 | Rockets only (no aircraft, wings, jets, runways, multiplayer, career, tech tree) | By design | Fins exist only as rocket stabilisers |
 
 ## Construction (assembly building)
@@ -93,7 +97,7 @@ made during development; the standalone column is the release check of the shipp
 
 | Feature | Status | Evidence / notes |
 |---|---|---|
-| Patched conics with SOI transitions (Tellus ↔ Luma) | Verified | Unit tests (incl. nodes several orbits ahead); lunar autotests |
+| Patched conics with SOI transitions (Tellus ↔ Luma, Tellus ↔ Astraea) | Verified | Unit tests (incl. nodes several orbits ahead); lunar and escape autotests |
 | Predictions agree with physics | Verified | Burns executed to 0.15–0.30 m/s residual; post-burn encounters confirmed; return periapsis 32.6/36.7 km for a 32 km plan |
 | Map view: bodies, vessels, debris, flags, orbit lines, Ap/Pe, encounters | Implemented | Screenshots |
 | Readouts: Ap, Pe, inclination, period, times to apsides, SOI, encounter Pe, escape | Implemented | |
@@ -151,8 +155,10 @@ made during development; the standalone column is the release check of the shipp
 * Vessels are single rigid bodies with analytic joint loads: parts do not flex or wobble; failures happen at joints.
 * Aerodynamics are per-part approximations (no CFD). A flat end face counts as fully exposed unless a part at least
   ~88% as wide covers it (use a tapered adapter under a narrower stack).
-* Only one planet and one moon; the sun is a fixed light direction, not a body. Eclipses are decided for the camera
-  position (one shadow test for all nearby objects).
+* The home system has only the star, one planet and one moon so far. The flight view draws the star as a sky disc of
+  fixed angular size and draws no body beyond 300,000 km (the camera's far plane); scaled-space rendering comes with
+  FND-03. The map zooms out to 400,000 km only, so Tellus's solar orbit shows as a straight line (NAV-01). Eclipses
+  are decided for the camera position (one shadow test for all nearby objects).
 * Docking was verified with two craft placed 12 m apart on the same orbit (`docking` test). A full rendezvous between
   separately launched craft has not been flown by the scripted pilot (the target readouts it would use exist).
 * Crew have no g-force limits or experience; crew are assigned automatically. Tank fill levels cannot be edited.

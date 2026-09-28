@@ -37,14 +37,15 @@ model (FND-15): the home system is the first of several, so nothing may assume t
 - Saves: vessel states are stored relative to their body and remain valid; the migration comes with FND-05.
 
 **Done when**
-- [ ] Unit test: a vessel on a solar orbit returns to its start after one period within 1 m.
-- [ ] Unit test: leaving Tellus's SOI into the star frame and coming back in is continuous: under 0.1 m in position
+- [x] Unit test: a vessel on a solar orbit returns to its start after one period within 1 m.
+- [x] Unit test: leaving Tellus's SOI into the star frame and coming back in is continuous: under 0.1 m in position
       and 10⁻⁴ m/s in velocity at each transition.
-- [ ] New autotest `escape`: leave Tellus on a hyperbola whose solar orbit has Tellus's own period, circle the star
+- [x] New autotest `escape`: leave Tellus on a hyperbola whose solar orbit has Tellus's own period, circle the star
       for a year at maximum warp and re-enter Tellus's SOI where the patched-conic prediction says. It passes in the
       build.
-- [ ] All existing missions (`orbit`, `lunar`, `persistence`, `docking`, `failures`, `suborbital`) pass in the build.
-- [ ] Screenshots from two dates half a year apart show the sunlight coming from a different direction.
+- [x] All existing missions (`orbit`, `lunar`, `persistence`, `docking`, `failures`, `suborbital`) pass in the build.
+- [x] Screenshots from two dates half a year apart show the sunlight coming from a different direction.
+      ([day 1](../../Screenshots/sun_direction_day1.png), [day 220](../../Screenshots/sun_direction_halfyear.png))
 
 ### FND-02 · Data-driven terrain and biome framework
 **Milestone** M1 · **Claude** 5 d · **You** 1 d · **Needs** —
@@ -277,8 +278,8 @@ after 1.0, but retrofitting a single-system game is far more expensive than star
   transits); the mechanics are decided later (D-17).
 
 **Done when**
-- [ ] The game runs end to end with the debug system as the home system: hub, assembly, launch, orbit, map, save and
+- [x] The game runs end to end with the debug system as the home system: hub, assembly, launch, orbit, map, save and
       load.
-- [ ] Saves carry system ids, and slice saves migrate to `home/...`.
-- [ ] Nothing in gameplay code assumes a single star (a test searches for `System.Root` use outside the system
-      service).
+- [x] Saves carry system ids, and slice saves migrate to `home/...`.
+- [x] Nothing in gameplay code assumes a single star (a test searches for `System.Root` use outside the system
+      service, and another for literal body ids).
