@@ -83,9 +83,13 @@ Fifteen new worlds can't each be a hard-coded generator, and science needs biome
 - No z-fighting or jitter anywhere from low orbit to 10¹¹ m.
 
 **Done when**
-- [ ] Screenshots from low Tellus orbit, the Luma surface and 20 Gm out show every body in the right place.
-- [ ] No flicker while zooming the map from 1 km to 100 Gm.
-- [ ] The extra cost is under 1 ms per frame (benchmark from FND-13).
+- [x] Screenshots from low Tellus orbit, the Luma surface and 20 Gm out show every body in the right place
+      (`Screenshots/far_view_low_orbit_sun.png`, `far_view_low_orbit_luma.png`, `far_view_luma_surface.png`,
+      `far_view_20gm.png`; every body within 0.00 px of its true direction).
+- [x] No flicker while zooming the map from 1 km to 100 Gm (17 zoom steps, two consecutive frames identical at each;
+      `map_zoom_1km.png`, `map_zoom_100gm.png`).
+- [x] The extra cost is under 1 ms per frame: 0.8 ms CPU and 0.5 ms GPU in the editor (profiler recorders on the far
+      camera). FND-13 repeats the measurement in its player benchmark.
 
 ### FND-04 · Content validation and hot reload
 **Milestone** M1 · **Claude** 2 d · **You** 0.5 d · **Needs** —

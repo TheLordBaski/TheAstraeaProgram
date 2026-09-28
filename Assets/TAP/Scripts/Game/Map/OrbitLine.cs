@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TAP.Core;
 using TAP.Trajectory;
@@ -5,7 +6,12 @@ using UnityEngine;
 
 namespace TAP.Game
 {
-    /// <summary>A sampled trajectory arc in body-relative map units, rendered with constant screen width.</summary>
+    /// <summary>
+    /// A sampled trajectory arc in body-relative map units, rendered with constant screen width. The mesh holds the
+    /// points relative to an <see cref="Anchor"/> near the map's focus and gathers extra samples there
+    /// (<see cref="KeepExactNear"/>), so even an orbit around the star, 10¹⁰ m across, runs exactly through the focus at
+    /// the closest zoom: neither float rounding nor the chords between samples show.
+    /// </summary>
     public sealed class OrbitLine
     {
         public GameObject Go;
@@ -16,11 +22,19 @@ namespace TAP.Game
         public CelestialBody Body;
         public OrbitPatch Patch;
         public Color Color;
+        /// <summary>The mesh's origin: metres relative to the body. The line object sits there on the map.</summary>
+        public Vector3d Anchor;
         private readonly List<Vector3> _v = new List<Vector3>();
         private readonly List<Vector3> _n = new List<Vector3>();
         private readonly List<Vector4> _uv = new List<Vector4>();
         private readonly List<Color> _c = new List<Color>();
         private readonly List<int> _i = new List<int>();
+        private readonly List<double> _nus = new List<double>();
+        private int _samples;
+        private double _maxRadius;
+        private double _scale = 1;
+        private double _fade = 1;
+        private double _refineNu = double.NaN, _refineStep;
 
         public OrbitLine(Transform parent, Material mat, int layer)
         {
@@ -43,14 +57,23 @@ namespace TAP.Game
         {
             Patch = p;
             Body = p.Body;
+            _samples = samples;
+            _maxRadius = maxRadius;
+            _refineNu = double.NaN;
+            Sample();
+        }
+
+        private void Sample()
+        {
+            var p = Patch;
             PointsRel.Clear();
             PointsUT.Clear();
             var o = p.Orbit;
             if (o.IsRadial)
             {
-                for (int i = 0; i <= samples; i++)
+                for (int i = 0; i <= _samples; i++)
                 {
-                    double t = p.StartUT + (p.EndUT - p.StartUT) * i / samples;
+                    double t = p.StartUT + (p.EndUT - p.StartUT) * i / _samples;
                     PointsRel.Add(o.GetPositionAtUT(t));
                     PointsUT.Add(t);
                 }
@@ -69,34 +92,88 @@ namespace TAP.Game
                 {
                     // Clamp hyperbolic arcs to a sensible display radius.
                     double lim = o.MaxTrueAnomaly - 1e-3;
-                    double nuMaxR = o.TrueAnomalyAtRadius(maxRadius);
-                    if (!double.IsNaN(nuMaxR)) lim = System.Math.Min(lim, nuMaxR);
+                    double nuMaxR = o.TrueAnomalyAtRadius(_maxRadius);
+                    if (!double.IsNaN(nuMaxR)) lim = Math.Min(lim, nuMaxR);
                     double end = Clamp(nu0 + dnu, -lim, lim);
                     dnu = end - nu0;
                 }
             }
-            for (int i = 0; i <= samples; i++)
+            _nus.Clear();
+            for (int i = 0; i <= _samples; i++) _nus.Add(nu0 + dnu * i / _samples);
+            if (!double.IsNaN(_refineNu) && dnu > 0)
             {
-                double nu = nu0 + dnu * i / samples;
+                // Around the focus: the finest step next to it, doubling outwards until it meets the even spacing.
+                double t = o.IsElliptic ? MathD.WrapTwoPi(_refineNu - nu0) : _refineNu - nu0;
+                double coarse = dnu / _samples;
+                if (t > 0 && t < dnu)
+                {
+                    _nus.Add(nu0 + t);
+                    for (double h = _refineStep; h < coarse; h *= 2)
+                    {
+                        if (t - h > 0) _nus.Add(nu0 + t - h);
+                        if (t + h < dnu) _nus.Add(nu0 + t + h);
+                    }
+                    _nus.Sort();
+                }
+            }
+            foreach (double nu in _nus)
+            {
                 var pos = o.PositionAtTrueAnomaly(nu);
                 if (!pos.IsFinite()) continue;
                 PointsRel.Add(pos);
-                PointsUT.Add(o.IsElliptic ? (fullLoop ? o.UTAtTrueAnomaly(nu, p.StartUT) : o.UTAtTrueAnomaly(nu, p.StartUT)) : o.UTAtTrueAnomaly(nu, p.StartUT));
+                PointsUT.Add(o.UTAtTrueAnomaly(nu, p.StartUT));
             }
         }
 
         private static double Clamp(double v, double a, double b) => v < a ? a : (v > b ? b : v);
 
-        /// <summary>Rebuilds the line mesh in map units relative to the line object's origin.</summary>
+        /// <summary>
+        /// Keeps the line exact where the map camera looks, <paramref name="view"/> metres from the focus
+        /// (<paramref name="focusRel"/>, relative to the body). Where the line passes the focus, the mesh is anchored on
+        /// it and samples gather around it so that no chord cuts more than a thousandth of the view inside the arc.
+        /// Returns true when the mesh was rebuilt.
+        /// </summary>
+        public bool KeepExactNear(Vector3d focusRel, double view)
+        {
+            if (Patch == null || Patch.Orbit.IsRadial || PointsRel.Count < 2 || view <= 0) return false;
+            var o = Patch.Orbit;
+            double nuF = o.TrueAnomalyOfPosition(focusRel);
+            Vector3d onLine = o.PositionAtTrueAnomaly(nuF);
+            bool near = onLine.IsFinite() && (onLine - focusRel).magnitude < 50 * view;
+            // A chord spanning Δν cuts r·Δν²/8 inside the arc.
+            double step = near ? Math.Sqrt(8e-3 * view / Math.Max(onLine.magnitude, 1)) : 0;
+            bool refine = near && step * _samples < MathD.TwoPi;
+            bool resample;
+            if (refine)
+                resample = double.IsNaN(_refineNu) || Math.Abs(MathD.WrapPi(nuF - _refineNu)) > 2 * _refineStep
+                           || step < _refineStep * 0.5 || step > _refineStep * 2;
+            else resample = !double.IsNaN(_refineNu);
+            // Float vertices keep ~7 digits of their distance from the anchor: that must stay far below the view.
+            bool reanchor = near && (resample || (Anchor - focusRel).magnitude > 1e3 * view);
+            if (!resample && !reanchor) return false;
+            if (resample)
+            {
+                _refineNu = refine ? nuF : double.NaN;
+                _refineStep = step;
+                Sample();
+            }
+            if (reanchor) Anchor = onLine;
+            BuildMesh(_scale, Color, _fade);
+            return true;
+        }
+
+        /// <summary>Rebuilds the line mesh in map units relative to the anchor (the line object's origin).</summary>
         public void BuildMesh(double scale, Color color, double fadeStartFraction = 1.0)
         {
             Color = color;
+            _scale = scale;
+            _fade = fadeStartFraction;
             _v.Clear(); _n.Clear(); _uv.Clear(); _c.Clear(); _i.Clear();
             int n = PointsRel.Count;
             float along = 0;
             for (int k = 0; k < n - 1; k++)
             {
-                Vector3 a = (Vector3)(PointsRel[k] / scale), b = (Vector3)(PointsRel[k + 1] / scale);
+                Vector3 a = (Vector3)((PointsRel[k] - Anchor) / scale), b = (Vector3)((PointsRel[k + 1] - Anchor) / scale);
                 float seg = (b - a).magnitude;
                 float alphaA = 1f, alphaB = 1f;
                 if (fadeStartFraction < 1.0)
@@ -131,8 +208,8 @@ namespace TAP.Game
 
         public void Destroy()
         {
-            if (Go != null) Object.Destroy(Go);
-            if (Mesh != null) Object.Destroy(Mesh);
+            if (Go != null) UnityEngine.Object.Destroy(Go);
+            if (Mesh != null) UnityEngine.Object.Destroy(Mesh);
         }
     }
 }

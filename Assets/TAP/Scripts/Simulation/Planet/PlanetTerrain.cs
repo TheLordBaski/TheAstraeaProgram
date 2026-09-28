@@ -68,6 +68,12 @@ namespace TAP.Simulation
     /// </summary>
     public sealed class PlanetTerrain : MonoBehaviour
     {
+        /// <summary>
+        /// The faint light on night sides seen from space, and on airless ground at night: dim, but enough to make out
+        /// the ground after tone mapping. The far view uses the same, so nothing changes where it takes over.
+        /// </summary>
+        public static readonly Color SpaceAmbient = new Color(0.2f, 0.215f, 0.265f);
+
         public CelestialBody Body;
         public int ChunkResolution = 32;
         public int MaxLevel = 12;
@@ -86,6 +92,11 @@ namespace TAP.Simulation
         private int _frame;
         public int VisibleChunks => _shownLastFrame.Count;
         public bool Hidden;
+        /// <summary>
+        /// Everything in view is drawn: every root chunk facing the camera has its mesh. A node only splits once all its
+        /// children are ready, so there are no holes deeper down. Until then the far view fills in behind.
+        /// </summary>
+        public bool Complete { get; private set; }
 
         public void Init(CelestialBody body, Material mat)
         {
@@ -124,8 +135,14 @@ namespace TAP.Simulation
             _horizonAngle = _camDist > r ? Math.Acos(Math.Min(1, r / _camDist)) : Math.PI;
             BuildCompleted();
             _shownThisFrame.Clear();
+            bool complete = !Hidden;
             if (!Hidden)
-                foreach (var root in _roots) Visit(root);
+                foreach (var root in _roots)
+                {
+                    Visit(root);
+                    if (root.State != 2 && IsVisible(root)) complete = false;
+                }
+            Complete = complete;
 
             Quaternion rot = bodyRot.ToQuaternion();
             foreach (var n in _shownThisFrame)

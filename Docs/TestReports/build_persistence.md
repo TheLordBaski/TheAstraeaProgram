@@ -6,10 +6,10 @@ Checks: 10/10 passed
 - [x] max dynamic pressure survivable: 39.4 kPa
 - [x] stable orbit reached: Pe 81.1 km, Ap 81.5 km, e 0.0003
 - [x] quicksave file written: C:/Users/jakub/AppData/LocalLow/Astraea Works/The Astraea Program\TAP\Saves\AutoTest\quicksave.json
-- [x] quickload restores the universe time: UT 324.62: 2.52 s after the saved 322.10, 2.51 s after the reload
+- [x] quickload restores the universe time: UT 324.64: 2.54 s after the saved 322.10, 2.52 s after the reload
 - [x] quickload restores position and velocity: Δr 0.000 m, Δv 0.0000 m/s
 - [x] quickload restores the vessel: Meridian Orbiter: 6 parts, crew 1
-- [x] quickload restores resources: largest difference 0.0007 (Electric)
+- [x] quickload restores resources: largest difference 0.0008 (Electric)
 - [x] quickload restores all vessels and milestones: 1 vessels, 3 milestones
 - [x] orbit continues seamlessly after quickload + warp: Δr 0.00 m after one more orbit
 
@@ -26,10 +26,10 @@ Checks: 10/10 passed
     [AutoTest      179.2] PHASE coast to space
     [AutoTest      216.9] PHASE circularize
     [AutoTest      216.9] circularization: dv 403.9 m/s, burn 15.6 s, in 95 s
-    [AutoTest      303.6] circularization: 404 m/s to go, 0.0° off, throttle 1.00, spin 0.001 rad/s, SAS Maneuver
-    [AutoTest      307.7] circularization: 308 m/s to go, 0.0° off, throttle 1.00, spin 0.001 rad/s, SAS Maneuver
+    [AutoTest      303.6] circularization: 404 m/s to go, 0.0° off, throttle 1.00, spin 0.000 rad/s, SAS Maneuver
+    [AutoTest      307.7] circularization: 308 m/s to go, 0.1° off, throttle 1.00, spin 0.000 rad/s, SAS Maneuver
     [AutoTest      311.7] circularization: 206 m/s to go, 0.0° off, throttle 1.00, spin 0.001 rad/s, SAS Maneuver
-    [AutoTest      315.7] circularization: 100 m/s to go, 0.1° off, throttle 1.00, spin 0.001 rad/s, SAS Maneuver
+    [AutoTest      315.7] circularization: 100 m/s to go, 0.0° off, throttle 1.00, spin 0.001 rad/s, SAS Maneuver
     [AutoTest      319.7] circularization: 9 m/s to go, 0.1° off, throttle 0.29, spin 0.004 rad/s, SAS Maneuver
     [AutoTest      322.1] circularization: burn complete, residual 0.30 m/s after 18.5 s
     [AutoTest      322.1] CHECK PASS: stable orbit reached — Pe 81.1 km, Ap 81.5 km, e 0.0003
@@ -39,9 +39,9 @@ Checks: 10/10 passed
     [AutoTest      322.1] CHECK PASS: quicksave file written — C:/Users/jakub/AppData/LocalLow/Astraea Works/The Astraea Program\TAP\Saves\AutoTest\quicksave.json
     [AutoTest     1074.1] warped to UT 1074.1; quickloading
     [AutoTest      323.6] PHASE verify quickload
-    [AutoTest      324.6] CHECK PASS: quickload restores the universe time — UT 324.62: 2.52 s after the saved 322.10, 2.51 s after the reload
+    [AutoTest      324.6] CHECK PASS: quickload restores the universe time — UT 324.64: 2.54 s after the saved 322.10, 2.52 s after the reload
     [AutoTest      324.6] CHECK PASS: quickload restores position and velocity — Δr 0.000 m, Δv 0.0000 m/s
     [AutoTest      324.6] CHECK PASS: quickload restores the vessel — Meridian Orbiter: 6 parts, crew 1
-    [AutoTest      324.6] CHECK PASS: quickload restores resources — largest difference 0.0007 (Electric)
+    [AutoTest      324.6] CHECK PASS: quickload restores resources — largest difference 0.0008 (Electric)
     [AutoTest      324.6] CHECK PASS: quickload restores all vessels and milestones — 1 vessels, 3 milestones
     [AutoTest     2206.8] CHECK PASS: orbit continues seamlessly after quickload + warp — Δr 0.00 m after one more orbit

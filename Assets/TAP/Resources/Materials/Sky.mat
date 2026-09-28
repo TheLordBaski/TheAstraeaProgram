@@ -32,7 +32,9 @@ Material:
     - _Atmosphere: 1
     - _HorizonDip: 0
     - _StarBrightness: 1
+    - _SunDiscIntensity: 1
     - _SunSize: 0.012
+    - _ZTest: 4
     m_Colors:
     - _HorizonColor: {r: 0.75, g: 0.85, b: 1, a: 1}
     - _SkyColor: {r: 0.29999998, g: 0.54999995, b: 0.95, a: 1}

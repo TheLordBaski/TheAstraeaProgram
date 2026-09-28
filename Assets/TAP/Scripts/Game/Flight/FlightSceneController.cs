@@ -21,6 +21,7 @@ namespace TAP.Game
         public FlightEffects Effects;
         public FlightCamera Camera;
         public SkyController Sky;
+        public ScaledSpace FarView;
         public MapView Map;
         public TrajectoryService Trajectory;
         public FlightInput Input;
@@ -49,6 +50,7 @@ namespace TAP.Game
             Planets.Init(Sim, Camera.Cam, terrainMat);
             Sim.Planets = Planets;
             Sky = SkyController.Create(Sim, Camera.Cam);
+            FarView = ScaledSpace.Create(Sim, Camera, Sky, Planets);
             LaunchSiteBuilder.Build(Sim, Planets);
 
             Trajectory = new GameObject("Trajectory").AddComponent<TrajectoryService>();

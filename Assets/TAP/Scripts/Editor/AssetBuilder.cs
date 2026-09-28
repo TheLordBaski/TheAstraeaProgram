@@ -477,6 +477,8 @@ namespace TAP.EditorTools
             EditorUtility.SetDirty(sky);
 
             LoadOrCreate($"{dir}/AtmosphereShell.mat", Shader.Find("TAP/AtmosphereShell"));
+            LoadOrCreate($"{dir}/Star.mat", Shader.Find("TAP/Star"));
+            LoadOrCreate($"{dir}/Glow.mat", Shader.Find("TAP/Glow"));
             LoadOrCreate($"{dir}/Plume.mat", Shader.Find("TAP/Plume"));
             LoadOrCreate($"{dir}/OrbitLine.mat", Shader.Find("TAP/OrbitLine"));
             LoadOrCreate($"{dir}/Overlay.mat", Shader.Find("TAP/Overlay"));
@@ -507,6 +509,8 @@ namespace TAP.EditorTools
             AddAlwaysIncluded("TAP/NavballUI");
             AddAlwaysIncluded("TAP/Plume");
             AddAlwaysIncluded("TAP/AtmosphereShell");
+            AddAlwaysIncluded("TAP/Star");
+            AddAlwaysIncluded("TAP/Glow");
             AddAlwaysIncluded("TAP/Terrain");
             AddAlwaysIncluded("TAP/Sky");
             AddAlwaysIncluded("Universal Render Pipeline/Particles/Unlit");

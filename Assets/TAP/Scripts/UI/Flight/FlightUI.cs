@@ -10,6 +10,7 @@ namespace TAP.UI
     {
         public static void Create(FlightSceneController scene)
         {
+            BodyLabels.Create(scene);
             FlightHud.Create(scene);
             PauseMenu.Create(scene);
             PartActionMenu.Create(scene);

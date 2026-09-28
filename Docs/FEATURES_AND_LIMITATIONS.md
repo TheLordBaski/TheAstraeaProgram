@@ -4,7 +4,7 @@ Legend — **Verified**: exercised by an automated test or an observed run with 
 **Implemented**: in the game and playable, but not covered by an automated check. **Untested**: implemented but never
 exercised end to end. **Limitation**: simplified or missing compared with the specification or with KSP.
 
-Evidence sources: EditMode unit tests (`Assets/TAP/Tests/EditMode`, 37 tests), automated missions flown by the
+Evidence sources: EditMode unit tests (`Assets/TAP/Tests/EditMode`, 41 tests), automated missions flown by the
 scripted pilot through player controls (reports in [TestReports](TestReports)), every one of them re-run in the final
 **standalone Windows build** (`build_<mission>.md`, including the complete lunar mission in
 [TestReports/build_lunar.md](TestReports/build_lunar.md)), and screenshots taken during development and play-testing
@@ -41,7 +41,7 @@ check: the scripted pilot now hovers over to the flattest spot within 60 m, as a
 | `failures` | joint overload, unshielded burn-up, torn parachute, 111 m/s impact and crew loss | 6/6 | 6/6 |
 | `docking` | RCS approach from 9.8 m, capture, docked stack, undock, re-arm | 5/5 | 5/5 |
 | `escape` | a probe leaves Tellus on a hyperbola whose solar orbit has Tellus's period, circles Astraea for a year at maximum warp and meets Tellus again where the patched-conic prediction said | 6/6 | 6/6 |
-| EditMode unit tests | orbits, patched conics, attachment, staging, Δv, JSON, wheel notches, geographic latitude, assembly building height limits, star systems, sunlight from the star, SOI transitions to and from the star, calendar, old saves | 37/37 | — |
+| EditMode unit tests | orbits, patched conics, attachment, staging, Δv, JSON, wheel notches, geographic latitude, assembly building height limits, star systems, sunlight from the star, SOI transitions to and from the star, calendar, old saves, the far view (positions, star coverage, points of light), map lines at every zoom | 41/41 | — |
 
 Reports: `Docs/TestReports/<mission>.md` (editor) and `build_<mission>.md` (standalone build). The editor runs were
 made during development; the standalone column is the release check of the shipped build, run after the last change.
@@ -142,7 +142,13 @@ made during development; the standalone column is the release check of the shipp
 | Feature | Status | Evidence / notes |
 |---|---|---|
 | Clean 3D: procedural parts, launch complex, assembly hangar, cube-sphere terrain with LOD, sky and horizon, atmosphere shell | Verified | Screenshots (editor and standalone build) |
-| Planets visible from any distance | Verified | Above ~500 km the terrain used to vanish (the user's screenshots): the sky, drawn by the skybox pass after the terrain, painted over ground whose depth had reached the far-plane value. The sky is now a background dome drawn first; screenshots at 550 km and 3,000 km show the full planet |
+| Planets visible from any distance | Verified | Above ~500 km the terrain used to vanish (the user's screenshots): the sky, drawn by the skybox pass after the terrain, painted over ground whose depth had reached the far-plane value. The sky became a background dome drawn first; since FND-03 it is the far view's background, and the far view draws every body at any distance (below) |
+| Far view (scaled space): a second camera behind the flight camera draws the sky, every body, the star, distant atmospheres and points of light, shrunk 1:100,000 about the eye and placed relative to the camera in doubles. A body's own terrain takes over within 6 radii, where its quadtree still shows only the six root chunks the far view draws | Verified | Tellus at 6.5 radii drawn both ways in the same frame: 4 of 1.44 million pixels differ by more than 8/255 (`Screenshots/far_view_handover_far.png`, `far_view_handover_terrain.png`); every body within 0.00 px of its true direction in all the screenshots; unit test (bodies 100 km to 10¹¹ m away land on the same pixel). Views from low Tellus orbit, the Luma surface and 20 Gm out: `far_view_low_orbit_sun.png`, `far_view_low_orbit_luma.png`, `far_view_luma_surface.png`, `far_view_20gm.png`. Cost (editor, profiler recorders, low orbit): far camera 0.69 ms CPU + 0.07–0.1 ms update, 0.46 ms GPU, plus 0.13 ms GPU for the sky dome the flight camera drew before |
+| The star: disc with limb darkening, corona, bloom and a lens flare; the flare fades as a body covers the star, and behind vessels and nearby terrain | Verified | `far_view_low_orbit_sun.png`; unit test for the covered fraction of the disc; from Luma's night side the star is covered (flare off) |
+| Points of light with labels for bodies smaller than 1.5 px, brighter for large, near, well-lit bodies, never too faint to find; labels of points within 12 px merge ("Tellus · Luma") | Verified | `far_view_20gm.png`; unit test |
+| Night sides: a faint ambient, the same for nearby terrain and the far view; airless ground at night stays readable | Verified | `far_view_luma_surface.png` (Tellus as a crescent, its night side and atmosphere rim); the handover test above |
+| Atmosphere shells for every atmospheric body, near (flight camera) and far (far view) | Verified | The debug system's Testmoon has a thin reddish atmosphere for this: rim from Testworld orbit, glow from low orbit, orange sky on its surface (`Screenshots/debug_moon_atmosphere_space.png`, `debug_moon_atmosphere_surface.png`) |
+| Map zoom from 1 km to 100 Gm; orbit lines exact at every zoom (anchored and finely sampled around the focus) | Verified | Zoom sweep in 17 steps with the game paused: two consecutive frames identical at every step (`Screenshots/map_zoom_1km.png`, `map_zoom_100gm.png`); unit test: a probe on a solar orbit, the map zoomed from 1 km to 100 Gm, the line within 1/1000 of the view (the old lines missed it by up to 637 km) |
 | Sunlight, night sides, eclipses (nearby objects dark in a planet's shadow, planets still sunlit; map always sunlit) | Verified | Screenshots at Luma dawn and midnight (lander dark, map shows Luma and Tellus lit); fixed after the user reported planets going black |
 | Exhaust plumes with pressure-dependent expansion, smoke, staging and decoupling effects, reentry plasma, heat glow, explosions, canopy shreds | Implemented | |
 | Part models can be exported (FBX with hierarchy and pivots, OBJ + MTL, a reference sheet) and replaced by hand-made FBX models; collider, attach nodes and anchors stay data-driven | Verified | Blender 5.2 round trip on the Hornet engine: bell widened 30%, gold ring added; back in the game the unchanged body was identical, the bell kept its gimbal pivot, materials mapped to the shared ones ([PART_MODELS.md](PART_MODELS.md), `Screenshots/part_model_roundtrip.png`) |
@@ -155,10 +161,10 @@ made during development; the standalone column is the release check of the shipp
 * Vessels are single rigid bodies with analytic joint loads: parts do not flex or wobble; failures happen at joints.
 * Aerodynamics are per-part approximations (no CFD). A flat end face counts as fully exposed unless a part at least
   ~88% as wide covers it (use a tapered adapter under a narrower stack).
-* The home system has only the star, one planet and one moon so far. The flight view draws the star as a sky disc of
-  fixed angular size and draws no body beyond 300,000 km (the camera's far plane); scaled-space rendering comes with
-  FND-03. The map zooms out to 400,000 km only, so Tellus's solar orbit shows as a straight line (NAV-01). Eclipses
-  are decided for the camera position (one shadow test for all nearby objects).
+* The home system has only the star, one planet and one moon so far. Bodies cast no shadows on each other (an
+  eclipse doesn't darken Luma or Tellus) and there is no planetshine; eclipses of nearby objects are decided for the
+  camera position (one shadow test for all of them). Distant bodies show their six coarsest terrain chunks; there are
+  no clouds or atmospheric scattering yet (ART-08). The map has no marker declutter yet (NAV-01).
 * Docking was verified with two craft placed 12 m apart on the same orbit (`docking` test). A full rendezvous between
   separately launched craft has not been flown by the scripted pilot (the target readouts it would use exist).
 * Crew have no g-force limits or experience; crew are assigned automatically. Tank fill levels cannot be edited.

@@ -22,8 +22,17 @@ namespace TAP.Game
         public double CameraAltitude;
         public double AtmosphereFactor;
         public bool InShadow;
+        /// <summary>The sun's light as it reaches the camera: reddened and dimmed near the horizon inside an atmosphere.</summary>
+        public Color SunTint = Color.white;
+        /// <summary>The colour of the daytime sky around the camera (black in space), for haze over distant bodies.</summary>
+        public Color SkyColor = Color.black;
+        /// <summary>The sun's colour times its intensity in space, in linear space (as the renderer lights with it).</summary>
+        public Color SunColor;
+        /// <summary>How much of the starry sky shows through the air (1 in space or at night, 0 under a bright sky).</summary>
+        public float StarVisibility = 1f;
+        /// <summary>The sky dome: background of the far view (ScaledSpace), which places it around its camera.</summary>
+        public Transform Dome;
         private UniversalAdditionalLightData _sunData;
-        private Transform _dome;
 
         public static SkyController Create(FlightSim sim, Camera cam)
         {
@@ -42,18 +51,20 @@ namespace TAP.Game
             var sd = sim.System.Def.sun;
             sc.Sun.color = new Color(sd.color[0], sd.color[1], sd.color[2]);
             sc.SunIntensity = sd.intensity;
+            sc.SunColor = sc.Sun.color.linear * sd.intensity;
             var mat = Resources.Load<Material>("Materials/Sky");
             sc.SkyMaterial = mat != null ? new Material(mat) : null;
             if (sc.SkyMaterial != null)
             {
-                RenderSettings.skybox = sc.SkyMaterial; // environment reference; the flight view draws the dome below
-                // The sky is drawn first, as a dome around the camera (background queue, no depth test), not by the
-                // skybox pass after the opaque geometry: with the depth range a camera next to a small vessel needs,
-                // terrain several hundred kilometres away lands on the far-plane depth and that pass painted the sky
-                // over it (the planet vanished above ~500 km).
+                RenderSettings.skybox = sc.SkyMaterial; // environment reference; the far view draws the dome below
+                // The sky is drawn first, as a dome around the far view's camera (background queue, no depth test), not
+                // by the skybox pass after the opaque geometry, which painted the sky over distant terrain on the
+                // far-plane depth. The star is an object of the far view, so the sky draws no sun disc of its own.
                 sc.SkyMaterial.SetFloat("_ZTest", (float)CompareFunction.Always);
+                sc.SkyMaterial.SetFloat("_SunDiscIntensity", 0f);
                 sc.SkyMaterial.renderQueue = (int)RenderQueue.Background;
                 var dome = new GameObject("SkyDome");
+                dome.layer = Layers.Scaled;
                 dome.transform.SetParent(go.transform, false);
                 var mb = new TAP.Parts.MeshBuilder();
                 mb.Sphere(0, Vector3.zero, 1f, 48, 24);
@@ -64,27 +75,13 @@ namespace TAP.Game
                 mr.receiveShadows = false;
                 mr.lightProbeUsage = LightProbeUsage.Off;
                 mr.reflectionProbeUsage = ReflectionProbeUsage.Off;
-                dome.transform.localScale = Vector3.one * 1000f;
-                sc._dome = dome.transform;
-                cam.clearFlags = CameraClearFlags.SolidColor;
-                cam.backgroundColor = Color.black;
-                RenderPipelineManager.beginCameraRendering += sc.OnBeginCamera;
+                sc.Dome = dome.transform;
             }
             RenderSettings.sun = sc.Sun;
             sc._sunData = sc.Sun.GetUniversalAdditionalLightData();
             RenderSettings.ambientMode = AmbientMode.Custom;
             RenderSettings.fogMode = FogMode.Exponential;
             return sc;
-        }
-
-        private void OnBeginCamera(ScriptableRenderContext ctx, Camera c)
-        {
-            if (c == Cam && _dome != null) _dome.position = c.transform.position;
-        }
-
-        private void OnDestroy()
-        {
-            RenderPipelineManager.beginCameraRendering -= OnBeginCamera;
         }
 
         private void LateUpdate()
@@ -153,6 +150,17 @@ namespace TAP.Game
             // Sunset reddening only through an atmosphere (never in space or on the map).
             float white = atm > 0 ? Mathf.Clamp01(sunElev * 3f + 0.2f + (1 - (float)atm)) : 1f;
             Sun.color = Color.Lerp(new Color(1f, 0.62f, 0.38f), new Color(1f, 0.97f, 0.92f), white);
+            SunTint = Color.Lerp(new Color(1f, 0.62f, 0.38f), Color.white, white) * ext;
+            float skyDay = Mathf.Clamp01(sunElev * 3f + 0.25f); // as in the sky shader
+            SkyColor = skyC * (float)atm * skyDay;
+            StarVisibility = Mathf.Clamp01(1f - (float)atm * (0.3f + skyDay * 1.5f));
+
+            // Nearby terrain takes the sky's ambient inside an atmosphere, and the sunlit ground's own glow when the
+            // camera is right above it; seen from space its night side only gets the faint ambient of space, the same
+            // as the far view gives it, so nothing changes where the far view takes over.
+            float groundGlow = sunVisible * Mathf.Clamp01(1f - (float)CameraAltitude / 50000f);
+            var terrainMat = Sim.Planets != null ? Sim.Planets.TerrainMaterial : null;
+            if (terrainMat != null) terrainMat.SetFloat("_SkyAmbient", Mathf.Max((float)atm, groundGlow));
 
             if (SkyMaterial != null)
             {

@@ -147,7 +147,7 @@
       "id": "testmoon",
       "type": "moon",
       "displayName": "Testmoon",
-      "description": "Debug moon.",
+      "description": "Debug moon with a thin reddish atmosphere: atmospheres must work on any body, not only the home world.",
       "parent": "testworld",
       "radius": 180000,
       "gm": 45360000000.0,
@@ -155,6 +155,33 @@
       "tidallyLocked": true,
       "initialRotationDeg": 180,
       "hasOcean": false,
+      "atmosphere": {
+        "height": 30000,
+        "seaLevelPressure": 5000,
+        "scaleHeight": 5000,
+        "molarMass": 0.044,
+        "adiabaticIndex": 1.3,
+        "temperatureCurve": [
+          [
+            0,
+            210
+          ],
+          [
+            30000,
+            160
+          ]
+        ],
+        "skyColor": [
+          0.78,
+          0.52,
+          0.36
+        ],
+        "horizonColor": [
+          0.93,
+          0.74,
+          0.55
+        ]
+      },
       "orbit": {
         "semiMajorAxis": 11000000,
         "eccentricity": 0.0,
@@ -173,11 +200,11 @@
       },
       "warpAltitudeLimits": [
         0,
-        6000,
-        6000,
-        8000,
-        12000,
         30000,
+        30000,
+        30000,
+        30000,
+        60000,
         60000,
         120000
       ],

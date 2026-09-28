@@ -10,8 +10,11 @@ namespace TAP.Game
     /// <summary>Developer tools used by the developer window: teleports and refills for the active vessel.</summary>
     public static class DevTools
     {
-        /// <summary>Puts the active vessel into a circular, prograde orbit around a body (inclination in degrees).</summary>
-        public static string SetOrbit(FlightSim sim, CelestialBody body, double altitude, double inclinationDeg)
+        /// <summary>
+        /// Puts the active vessel into a circular, prograde orbit around a body (inclination in degrees), starting above
+        /// the vessel's current position, or above <paramref name="over"/> (a direction from the body's centre).
+        /// </summary>
+        public static string SetOrbit(FlightSim sim, CelestialBody body, double altitude, double inclinationDeg, Vector3d? over = null)
         {
             var h = sim.ActiveHandle;
             if (h == null) return "No active vessel";
@@ -19,7 +22,7 @@ namespace TAP.Game
             if (altitude < minAlt) return $"The orbit must be above {minAlt / 1000:F0} km at {body.Name}";
             if (body.Radius + altitude > body.SOIRadius * 0.9) return $"That is outside {body.Name}'s sphere of influence";
             // Start above the vessel's current position when it is at that body (projected onto the equator).
-            Vector3d rel = h.AbsolutePosition(sim.UT) - body.GetPositionAtUT(sim.UT);
+            Vector3d rel = over ?? h.AbsolutePosition(sim.UT) - body.GetPositionAtUT(sim.UT);
             Vector3d up = Vector3d.ProjectOnPlane(rel, Geo.NorthPole);
             up = up.sqrMagnitude > 1 ? up.normalized : Vector3d.right;
             double r = body.Radius + altitude;

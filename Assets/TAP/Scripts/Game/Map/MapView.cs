@@ -35,6 +35,8 @@ namespace TAP.Game
     public sealed class MapView : MonoBehaviour
     {
         public const double Scale = 1000.0; // metres per map unit
+        /// <summary>The farthest the map camera zooms out: 100 Gm (map units).</summary>
+        public const float MaxDistance = 1e8f;
         public FlightSim Sim;
         public TrajectoryService Trajectory;
         public Camera MapCamera;
@@ -94,6 +96,7 @@ namespace TAP.Game
                 _mapSky = new Material(sky);
                 _mapSky.SetFloat("_Atmosphere", 0);
                 _mapSky.SetFloat("_StarBrightness", 0.9f);
+                _mapSky.SetFloat("_SunDiscIntensity", 0); // the map draws the star as a body
             }
             foreach (var b in sim.System.Bodies) CreateBody(b);
             foreach (var b in sim.System.Bodies)
@@ -276,7 +279,7 @@ namespace TAP.Game
                 }
             }
             foreach (var kv in _bodyLines)
-                kv.Value.Go.transform.position = ToMap(kv.Key.Parent.GetPositionAtUT(ut), focus);
+                PlaceLine(kv.Value, kv.Key.Parent.GetPositionAtUT(ut), focus);
 
             if (Trajectory.Version != _lastTrajVersion) RebuildTrajectoryLines();
             PositionTrajectoryLines(focus, ut);
@@ -304,9 +307,10 @@ namespace TAP.Game
                 if (kb.tabKey.wasPressedThisFrame) CycleFocus();
                 if (kb.backspaceKey.wasPressedThisFrame) FocusOn(Sim.ActiveHandle);
             }
-            // Down to just above the focused body's surface, or to ~10 m from a focused vessel.
+            // Down to just above the focused body's surface, or to ~10 m from a focused vessel; out to 100 Gm, where
+            // the whole home system fits in view (FND-03).
             float minDist = FocusBody != null ? (float)(FocusBody.Radius / Scale * 1.02) : 0.01f;
-            _targetDistance = Mathf.Clamp(_targetDistance, minDist, 400000f);
+            _targetDistance = Mathf.Clamp(_targetDistance, minDist, MaxDistance);
             CamDistance = Mathf.Lerp(CamDistance, _targetDistance, 1 - Mathf.Exp(-Time.unscaledDeltaTime * 8f));
             // Seen from the north (-Y, see Geo), so prograde orbits run counter-clockwise as on KSP's map.
             Quaternion rot = Quaternion.AngleAxis(180f, Vector3.right) * Quaternion.Euler(CamPitch, CamYaw, 0);
@@ -342,8 +346,18 @@ namespace TAP.Game
 
         private void PositionTrajectoryLines(Vector3d focus, double ut)
         {
-            foreach (var l in _currentLines) if (l.Go.activeSelf && l.Body != null) l.Go.transform.position = ToMap(l.Body.GetPositionAtUT(ut), focus);
-            foreach (var l in _plannedLines) if (l.Go.activeSelf && l.Body != null) l.Go.transform.position = ToMap(l.Body.GetPositionAtUT(ut), focus);
+            foreach (var l in _currentLines) if (l.Go.activeSelf && l.Body != null) PlaceLine(l, l.Body.GetPositionAtUT(ut), focus);
+            foreach (var l in _plannedLines) if (l.Go.activeSelf && l.Body != null) PlaceLine(l, l.Body.GetPositionAtUT(ut), focus);
+        }
+
+        /// <summary>
+        /// Puts a line on the map at its body, first keeping it exact around the focus at the current zoom (anchored
+        /// and finely sampled there), so that neither float rounding nor sampling shows however close the camera is.
+        /// </summary>
+        private void PlaceLine(OrbitLine l, Vector3d bodyAbs, Vector3d focus)
+        {
+            l.KeepExactNear(focus - bodyAbs, CamDistance * Scale);
+            l.Go.transform.position = ToMap(bodyAbs + l.Anchor, focus);
         }
 
         private float _vesselLineTimer;
@@ -374,7 +388,7 @@ namespace TAP.Game
                     line.BuildMesh(Scale, isTarget ? TargetColor : OtherColor);
                 }
                 line.SetVisible(true);
-                line.Go.transform.position = ToMap(h.Body.GetPositionAtUT(ut), focus);
+                PlaceLine(line, h.Body.GetPositionAtUT(ut), focus);
             }
             var remove = new List<string>();
             foreach (var kv in _vesselLines) if (!seen.Contains(kv.Key)) remove.Add(kv.Key);
@@ -504,10 +518,10 @@ namespace TAP.Game
             {
                 if (!l.Go.activeSelf || l.Body == null || l.PointsRel.Count == 0) continue;
                 Vector3 origin = l.Go.transform.position;
-                Vector3 prev = MapCamera.WorldToScreenPoint(origin + (Vector3)(l.PointsRel[0] / Scale));
+                Vector3 prev = MapCamera.WorldToScreenPoint(origin + (Vector3)((l.PointsRel[0] - l.Anchor) / Scale));
                 for (int i = 1; i < l.PointsRel.Count; i++)
                 {
-                    Vector3 cur = MapCamera.WorldToScreenPoint(origin + (Vector3)(l.PointsRel[i] / Scale));
+                    Vector3 cur = MapCamera.WorldToScreenPoint(origin + (Vector3)((l.PointsRel[i] - l.Anchor) / Scale));
                     Vector3 a = prev;
                     prev = cur;
                     if (a.z <= 0 || cur.z <= 0) continue;

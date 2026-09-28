@@ -57,14 +57,16 @@ namespace TAP.Simulation
         {
             Sim = sim;
             Camera = cam;
-            TerrainMaterial = terrainMat;
+            // A copy: the sky sets its ambient weight every frame, and the asset must not change.
+            TerrainMaterial = terrainMat != null ? new Material(terrainMat) : null;
+            if (TerrainMaterial != null) TerrainMaterial.SetColor("_SpaceAmbient", PlanetTerrain.SpaceAmbient);
             foreach (var b in sim.System.Bodies)
             {
-                if (b.IsStar) continue; // no surface; the sky draws the star
+                if (b.IsStar) continue; // no surface; the far view draws the star
                 var go = new GameObject("Terrain " + b.Name);
                 go.transform.SetParent(transform, false);
                 var t = go.AddComponent<PlanetTerrain>();
-                t.Init(b, terrainMat);
+                t.Init(b, TerrainMaterial);
                 Terrains[b] = t;
                 if (b.Atmosphere != null)
                 {
@@ -75,6 +77,17 @@ namespace TAP.Simulation
             _colliderRoot = new GameObject("TerrainColliders");
             _colliderRoot.transform.SetParent(transform, false);
             _groundMat = new PhysicsMaterial("Ground") { dynamicFriction = 0.7f, staticFriction = 0.9f, bounciness = 0.02f, frictionCombine = PhysicsMaterialCombine.Average };
+        }
+
+        /// <summary>
+        /// Whether the flight camera draws a body's terrain and atmosphere (it is near). Far away the far view
+        /// (ScaledSpace) draws the body instead; everything is local until it says otherwise.
+        /// </summary>
+        public void SetLocal(CelestialBody body, bool local)
+        {
+            if (Terrains.TryGetValue(body, out var t) && t.Hidden == local) t.SetHidden(!local);
+            foreach (var a in Atmospheres)
+                if (a.Body == body) a.Local = local;
         }
 
         public void OnFrameBodyChanged(CelestialBody body)

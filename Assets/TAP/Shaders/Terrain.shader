@@ -8,6 +8,17 @@ Shader "TAP/Terrain"
         _DetailStrength ("Detail Strength", Range(0, 1)) = 0.45
         _WaterSpecular ("Water Specular", Float) = 1.3
         _AmbientBoost ("Ambient Boost", Float) = 1.0
+        // Ambient: the scene's (sky) ambient weighted by _SkyAmbient, else the faint ambient of space that keeps night
+        // sides readable. The far view always uses the latter; nearby terrain uses the sky's inside an atmosphere.
+        _SpaceAmbient ("Ambient in Space", Color) = (0.2, 0.215, 0.265, 1)
+        _SkyAmbient ("Sky Ambient Weight", Range(0, 1)) = 1
+        // Far view (FND-03): metres per world unit, the body's own sunlight (w = 1 to use it instead of the scene's
+        // sun light, whose direction is the camera's) and the air between a camera inside an atmosphere and the body.
+        _DistanceScale ("Metres per Unit", Float) = 1
+        _BodySunDir ("Body Sun Direction (w = use)", Vector) = (0, 1, 0, 0)
+        _BodySunColor ("Body Sun Colour (linear, not converted)", Vector) = (1, 1, 1, 1)
+        _HazeColor ("Haze (added)", Color) = (0, 0, 0, 0)
+        _Transmittance ("Transmittance", Range(0, 1)) = 1
     }
     SubShader
     {
@@ -61,6 +72,13 @@ Shader "TAP/Terrain"
                 float _DetailStrength;
                 float _WaterSpecular;
                 float _AmbientBoost;
+                float4 _SpaceAmbient;
+                float _SkyAmbient;
+                float _DistanceScale;
+                float4 _BodySunDir;
+                float4 _BodySunColor;
+                float4 _HazeColor;
+                float _Transmittance;
             CBUFFER_END
 
             Varyings vert(Attributes v)
@@ -93,7 +111,7 @@ Shader "TAP/Terrain"
                 float3 n = normalize(i.normalWS);
                 float water = i.color.a;
                 float3 albedo = i.color.rgb;
-                float dist = length(i.positionWS - _WorldSpaceCameraPos);
+                float dist = length(i.positionWS - _WorldSpaceCameraPos) * _DistanceScale;
                 float3 nOS = normalize(i.normalOS);
                 float dNear = Triplanar(i.detailPos, nOS, _DetailScaleNear);
                 float dFar = Triplanar(i.detailPos, nOS, _DetailScaleFar);
@@ -103,18 +121,33 @@ Shader "TAP/Terrain"
                              * lerp(1.0, lerp(0.8, 1.2, dFar), farFade * _DetailStrength);
                 albedo *= lerp(detail, 1.0, water);
 
-                float4 shadowCoord = TransformWorldToShadowCoord(i.positionWS);
-                Light mainLight = GetMainLight(shadowCoord);
-                float ndl = saturate(dot(n, mainLight.direction));
-                float3 ambient = SampleSH(n) * _AmbientBoost;
-                float3 lit = albedo * (mainLight.color * ndl * mainLight.shadowAttenuation + ambient);
+                float3 lightDir, lightColor;
+                float shadow;
+                if (_BodySunDir.w > 0.5)
+                {
+                    lightDir = normalize(_BodySunDir.xyz);
+                    lightColor = _BodySunColor.rgb;
+                    shadow = 1.0;
+                }
+                else
+                {
+                    float4 shadowCoord = TransformWorldToShadowCoord(i.positionWS);
+                    Light mainLight = GetMainLight(shadowCoord);
+                    lightDir = mainLight.direction;
+                    lightColor = mainLight.color;
+                    shadow = mainLight.shadowAttenuation;
+                }
+                float ndl = saturate(dot(n, lightDir));
+                float3 ambient = lerp(_SpaceAmbient.rgb, SampleSH(n), _SkyAmbient) * _AmbientBoost;
+                float3 lit = albedo * (lightColor * ndl * shadow + ambient);
 
                 float3 viewDir = normalize(_WorldSpaceCameraPos - i.positionWS);
-                float3 h = normalize(mainLight.direction + viewDir);
+                float3 h = normalize(lightDir + viewDir);
                 float spec = pow(saturate(dot(n, h)), 180.0) * water * _WaterSpecular;
                 float fres = pow(1.0 - saturate(dot(n, viewDir)), 5.0) * water * 0.25;
-                lit += mainLight.color * spec * mainLight.shadowAttenuation + fres * ambient;
+                lit += lightColor * spec * shadow + fres * ambient;
 
+                lit = lit * _Transmittance + _HazeColor.rgb;
                 lit = MixFog(lit, i.fogFactor);
                 return half4(lit, 1.0);
             }

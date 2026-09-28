@@ -11,6 +11,7 @@ Shader "TAP/Sky"
         _StarTex ("Stars (equirect)", 2D) = "black" {}
         _StarBrightness ("Star Brightness", Float) = 1
         _SunSize ("Sun Angular Radius (rad)", Float) = 0.012
+        _SunDiscIntensity ("Sun Disc (0 when the star is drawn as an object)", Float) = 1
         _HorizonDip ("Horizon Dip (rad)", Float) = 0
         [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest ("Depth Test", Float) = 4
     }
@@ -44,6 +45,7 @@ Shader "TAP/Sky"
                 float4 _StarTex_ST;
                 float _StarBrightness;
                 float _SunSize;
+                float _SunDiscIntensity;
                 float _HorizonDip;
             CBUFFER_END
 
@@ -86,10 +88,10 @@ Shader "TAP/Sky"
                 float starVis = saturate(1.0 - atm * (0.3 + day * 1.5));
                 col += stars * _StarBrightness * starVis;
 
-                // Sun disc
+                // Sun disc (the flight and map views draw the star as an object instead)
                 float sunDisc = smoothstep(cos(_SunSize * 1.3), cos(_SunSize), sunDot);
-                col += float3(1.0, 0.96, 0.88) * sunDisc * 6.0;
-                col += float3(1.0, 0.9, 0.75) * pow(saturate(sunDot), 800.0) * 1.5 * (1.0 - atm * 0.5);
+                col += float3(1.0, 0.96, 0.88) * sunDisc * 6.0 * _SunDiscIntensity;
+                col += float3(1.0, 0.9, 0.75) * pow(saturate(sunDot), 800.0) * 1.5 * (1.0 - atm * 0.5) * _SunDiscIntensity;
                 return half4(col, 1.0);
             }
             ENDHLSL
