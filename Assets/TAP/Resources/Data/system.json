@@ -9,11 +9,7 @@
   "launchSite": {
     "body": "tellus",
     "name": "Astraea Launch Complex",
-    "latitude": 0.0,
-    "longitude": 0.0,
-    "padAltitude": 70,
-    "flatRadius": 700,
-    "blendRadius": 2600,
+    "flatArea": "launchComplex",
     "padDeckHeight": 1.2
   },
   "bodies": [
@@ -42,7 +38,7 @@
       "gm": 3.5316e12,
       "rotationPeriod": 21551.0063,
       "tidallyLocked": false,
-      "initialRotationDeg": 0,
+      "initialRotationDeg": 84.6,
       "hasOcean": true,
       "atmosphere": {
         "height": 70000,
@@ -54,13 +50,7 @@
         "skyColor": [0.32, 0.56, 0.95],
         "horizonColor": [0.72, 0.84, 1.0]
       },
-      "terrain": {
-        "generator": "tellus",
-        "seed": 4242,
-        "maxHeight": 6500,
-        "minHeight": -3600,
-        "mountainHeight": 3200
-      },
+      "terrain": { "preset": "tellus" },
       "warpAltitudeLimits": [0, 70000, 70000, 70000, 120000, 240000, 480000, 960000],
       "mapColor": [0.25, 0.5, 0.85]
     },
@@ -85,13 +75,7 @@
         "meanAnomalyAtEpochDeg": 60.0,
         "epoch": 0
       },
-      "terrain": {
-        "generator": "luma",
-        "seed": 777,
-        "maxHeight": 4500,
-        "minHeight": -4500,
-        "craterDepthScale": 1.0
-      },
+      "terrain": { "preset": "luma" },
       "warpAltitudeLimits": [0, 6000, 6000, 8000, 12000, 30000, 60000, 120000],
       "mapColor": [0.62, 0.62, 0.6]
     }

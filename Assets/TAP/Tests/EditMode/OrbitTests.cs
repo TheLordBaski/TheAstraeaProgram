@@ -169,7 +169,7 @@ namespace TAP.Tests
             Assert.AreEqual(luma.Orbit.Period, luma.RotationPeriod, 1e-6, "Luma is tidally locked");
             // The launch site must be dry land close to pad altitude.
             var site = sys.Def.launchSite;
-            double h = tellus.Terrain.Height(TerrainGenerator.DirectionFromLatLon(site.latitude, site.longitude));
+            double h = tellus.Terrain.Height(site.UpBF);
             Assert.AreEqual(site.padAltitude, h, 0.5);
         }
     }

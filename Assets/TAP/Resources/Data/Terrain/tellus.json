@@ -1,0 +1,68 @@
+{
+  "description": "Tellus: continents and oceans, ridged mountain ranges with snow, beaches, wet woodlands and dry steppe, and polar ice. The launch complex stands on a coastal plain on the equator, with open sea 40 km east, so ascents fly out over water.",
+  "seed": 4242,
+  "minHeight": -3600,
+  "maxHeight": 6500,
+  "fields": [
+    {
+      "id": "continent", "note": "land where positive, sea where negative",
+      "noise": { "type": "fbm", "frequency": 1.35, "offset": [3.1, 7.7, 1.3], "octaves": 7, "gain": 0.52 },
+      "scale": 1.7, "add": 0.03
+    },
+    { "id": "mountains", "note": "1 in the ranges, fading out towards the lowlands", "from": "continent", "smooth": [0.08, 0.34] },
+    { "id": "dryness", "note": "the climate over large regions: negative wet (woods), positive dry (steppe)", "noise": { "type": "fbm", "seed": 505, "frequency": 3.5, "octaves": 3 }, "scale": 2.2 },
+    { "id": "patches", "note": "local variety within a region", "noise": { "type": "fbm", "seed": 202, "frequency": 90, "offset": [5, 5, 5], "octaves": 2 } },
+    { "id": "vegetation", "note": "0 = woods, 1 = dry grass", "sum": [ { "of": "dryness", "weight": 0.3 }, { "of": "patches", "weight": 0.3 } ], "add": 0.5 },
+    {
+      "id": "polar", "note": "the polar ice caps, with ragged edges",
+      "term": { "of": "absLatitude", "smooth": [68, 72], "jitter": { "type": "fbm", "seed": 404, "frequency": 12, "octaves": 3, "amount": 4 } }
+    }
+  ],
+  "layers": [
+    { "note": "ocean floor", "from": "continent", "smooth": [0, -0.35], "amplitude": -3400, "mask": { "of": "continent", "below": 0 } },
+    { "note": "the step off the beaches", "from": "continent", "smooth": [0, -0.02], "amplitude": -30, "mask": { "of": "continent", "below": 0 } },
+    { "note": "lowlands rising inland", "from": "continent", "amplitude": 1600, "add": 12, "mask": { "of": "continent", "atLeast": 0 } },
+    {
+      "note": "mountain ranges",
+      "noise": { "type": "ridged", "seed": 101, "frequency": 5.2, "offset": [11.1, 2.2, 5.3], "octaves": 6 },
+      "power": 1.6, "amplitude": 3200, "mask": { "of": "mountains" }
+    },
+    {
+      "note": "rolling hills, calm around the launch complex",
+      "noise": { "type": "fbm", "seed": 202, "frequency": 32, "octaves": 4 }, "amplitude": 160,
+      "mask": [ { "of": "continent", "smooth": [0, 0.06] }, { "near": "launchComplex", "smooth": [4000, 30000] } ]
+    },
+    { "note": "ice shelves over the polar seas", "constant": 30, "blend": "max", "mask": { "of": "polar" } },
+    { "note": "ground detail", "noise": { "type": "fbm", "seed": 303, "frequency": 2600, "octaves": 3 }, "amplitude": 7, "detail": true },
+    { "noise": { "type": "perlin", "seed": 303, "frequency": 21000 }, "amplitude": 0.9, "detail": true }
+  ],
+  "flatAreas": [
+    { "id": "launchComplex", "name": "Astraea Launch Complex", "lat": 0, "lon": -84.6, "height": 70, "radius": 700, "blend": 2600 }
+  ],
+  "shore": { "field": "continent" },
+  "colors": [
+    { "note": "grass", "color": "#56803A" },
+    { "note": "dry grass", "color": "#808A48", "mask": { "of": "vegetation", "smooth": [0.5, 0.8] } },
+    { "note": "woods, thinning out with height", "color": "#2C5428", "mask": [ { "of": "vegetation", "smooth": [0.45, 0.22] }, { "of": "height", "smooth": [1200, 2000], "invert": true } ] },
+    { "note": "highland scrub", "color": "#766C4E", "mask": { "of": "height", "smooth": [900, 2200] } },
+    { "note": "beaches", "color": "#CEBE8E", "mask": { "of": "height", "linear": [30, 18] } },
+    { "note": "rock on slopes and peaks", "color": "#70665C", "mask": { "sum": [ { "of": "slope", "smooth": [25, 34] }, { "of": "height", "smooth": [2600, 3400], "scale": 0.6 } ] } },
+    { "note": "snow, except on cliffs", "color": "#ECF0F6", "mask": [ { "of": "height", "smooth": [3300, 3900] }, { "of": "slope", "smooth": [28, 35], "invert": true } ] },
+    { "note": "polar ice", "color": "#E4ECF2", "mask": { "of": "polar" } },
+    { "note": "shallow water", "color": "#1E6894", "mask": { "of": "height", "below": 0 } },
+    { "note": "deep water", "color": "#0E2A5C", "mask": [ { "of": "height", "below": 0 }, { "of": "height", "smooth": [0, -400] } ] }
+  ],
+  "biomes": [
+    { "id": "launchComplex", "name": "Astraea Launch Complex", "color": "#FF3EA5", "material": 8, "when": { "near": "launchComplex", "below": 3300 } },
+    { "id": "polarIce", "name": "Polar Ice", "color": "#BFE6FF", "material": 6, "when": { "of": "polar", "atLeast": 0.5 } },
+    { "id": "shallows", "name": "Shallows", "color": "#3FA7D6", "material": 7, "when": [ { "of": "height", "below": 0 }, { "of": "shore", "atLeast": -15000 } ] },
+    { "id": "deepSea", "name": "Deep Sea", "color": "#1B3F8B", "material": 7, "when": { "of": "height", "below": 0 } },
+    { "id": "snowcaps", "name": "Snowcaps", "color": "#F4F4FA", "material": 5, "when": { "of": "height", "atLeast": 3300 } },
+    { "id": "coast", "name": "Coast", "color": "#F2D16B", "material": 3, "when": { "of": "shore", "below": 2500 } },
+    { "id": "mountains", "name": "Mountains", "color": "#7A5C3E", "material": 4, "when": { "of": "continent", "atLeast": 0.27 } },
+    { "id": "uplands", "name": "Uplands", "color": "#B08850", "material": 2, "when": { "of": "continent", "atLeast": 0.14 } },
+    { "id": "woodlands", "name": "Woodlands", "color": "#2E7D32", "material": 1, "when": { "of": "dryness", "below": -0.15 } },
+    { "id": "steppe", "name": "Steppe", "color": "#E0913C", "material": 2, "when": { "of": "dryness", "atLeast": 0.2 } },
+    { "id": "grasslands", "name": "Grasslands", "color": "#7CC05A", "material": 0 }
+  ]
+}

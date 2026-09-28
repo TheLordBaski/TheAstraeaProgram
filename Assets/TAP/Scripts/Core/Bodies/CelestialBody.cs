@@ -69,7 +69,7 @@ namespace TAP.Core
             Luminosity = IsStar ? def.luminosity : 0;
         }
 
-        internal void Link(CelestialBody parent, LaunchSiteDefinition site)
+        internal void Link(CelestialBody parent)
         {
             Parent = parent;
             if (parent != null)
@@ -83,7 +83,7 @@ namespace TAP.Core
                 SOIRadius = o.semiMajorAxis * Math.Pow(GM / parent.GM, 0.4);
                 if (Def.tidallyLocked) RotationPeriod = Orbit.Period;
             }
-            Terrain = IsStar ? null : TerrainGenerator.Create(Def, site);
+            Terrain = IsStar ? null : TerrainGenerator.Create(Def);
         }
 
         // ------------------------------------------------------------------ position
@@ -141,11 +141,11 @@ namespace TAP.Core
             return h;
         }
 
-        public Vector3d SurfacePositionBodyFixed(double latDeg, double lonDeg, double altitude)
-        {
-            Vector3d dir = TerrainGenerator.DirectionFromLatLon(latDeg, lonDeg);
-            return dir * (Radius + altitude);
-        }
+        /// <summary>The biome at a geographic latitude (north positive) and longitude (degrees).</summary>
+        public Biome BiomeAt(double latDeg, double lonDeg) => Terrain?.BiomeAt(Geo.FromLatLon(latDeg, lonDeg));
+
+        /// <summary>The biome under a body-relative inertial position at UT.</summary>
+        public Biome BiomeAt(Vector3d relPosInertial, double ut) => Terrain?.BiomeAt(InertialToBodyFixed(relPosInertial, ut).normalized);
 
         public double GravityAtRadius(double r) => GM / (r * r);
 

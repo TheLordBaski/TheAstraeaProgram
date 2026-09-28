@@ -14,7 +14,7 @@ namespace TAP.Core
         {
             var perm = new int[256];
             for (int i = 0; i < 256; i++) perm[i] = i;
-            var rng = new Random(seed);
+            var rng = new SeededRandom(seed);
             for (int i = 255; i > 0; i--)
             {
                 int j = rng.Next(i + 1);
@@ -25,20 +25,27 @@ namespace TAP.Core
 
         private static double Fade(double t) => t * t * t * (t * (t * 6 - 15) + 10);
 
+        // Perlin's 16 gradients (12 cube edges, four repeated) as a table: the same sums as his bit tests, without branches.
+        private static readonly double[] GX = { 1, -1, 1, -1, 1, -1, 1, -1, 0, 0, 0, 0, 1, 0, -1, 0 };
+        private static readonly double[] GY = { 1, 1, -1, -1, 0, 0, 0, 0, 1, -1, 1, -1, 1, -1, 1, -1 };
+        private static readonly double[] GZ = { 0, 0, 0, 0, 1, 1, -1, -1, 1, 1, -1, -1, 0, 1, 0, -1 };
+
         private static double Grad(int hash, double x, double y, double z)
         {
             int h = hash & 15;
-            double u = h < 8 ? x : y;
-            double v = h < 4 ? y : (h == 12 || h == 14 ? x : z);
-            return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
+            return GX[h] * x + GY[h] * y + GZ[h] * z;
         }
 
         /// <summary>Gradient noise in roughly [-1, 1].</summary>
         public double Sample(double x, double y, double z)
         {
-            double fx = Math.Floor(x), fy = Math.Floor(y), fz = Math.Floor(z);
-            int X = (int)((long)fx & 255), Y = (int)((long)fy & 255), Z = (int)((long)fz & 255);
-            x -= fx; y -= fy; z -= fz;
+            // Floor without a call (exact for the coordinates noise sees).
+            long ix = (long)x, iy = (long)y, iz = (long)z;
+            if (x < ix) ix--;
+            if (y < iy) iy--;
+            if (z < iz) iz--;
+            int X = (int)(ix & 255), Y = (int)(iy & 255), Z = (int)(iz & 255);
+            x -= ix; y -= iy; z -= iz;
             double u = Fade(x), v = Fade(y), w = Fade(z);
             int A = _p[X] + Y, AA = _p[A] + Z, AB = _p[A + 1] + Z;
             int B = _p[X + 1] + Y, BA = _p[B] + Z, BB = _p[B + 1] + Z;
@@ -92,6 +99,22 @@ namespace TAP.Core
             return sum / norm;
         }
 
+        /// <summary>Billow noise in roughly [-1, 1]: folded octaves, rounded crests and sharp creases (clouds, dunes, lumps).</summary>
+        public double Billow(Vector3d p, int octaves, double lacunarity = 2.0, double gain = 0.5)
+        {
+            double sum = 0, amp = 1, norm = 0;
+            double x = p.x, y = p.y, z = p.z;
+            for (int i = 0; i < octaves; i++)
+            {
+                sum += amp * (2.0 * Math.Abs(Sample(x, y, z)) - 1.0);
+                norm += amp;
+                amp *= gain;
+                x *= lacunarity; y *= lacunarity; z *= lacunarity;
+                x += 13.37; y += 5.29; z += 19.61;
+            }
+            return sum / norm;
+        }
+
         /// <summary>Cheap integer hash to [0,1).</summary>
         public static double Hash01(long x, long y, long z, int seed)
         {
@@ -106,5 +129,61 @@ namespace TAP.Core
                 return (h >> 11) * (1.0 / 9007199254740992.0);
             }
         }
+    }
+
+    /// <summary>
+    /// The seeded generator of System.Random (Knuth's subtractive method, as in .NET Framework, Mono and .NET's
+    /// seeded compatibility mode), kept here so the noise permutations can never change with the runtime.
+    /// </summary>
+    public sealed class SeededRandom
+    {
+        private const int MBig = int.MaxValue;
+        private const int MSeed = 161803398;
+        private readonly int[] _seedArray = new int[56];
+        private int _inext, _inextp;
+
+        public SeededRandom(int seed)
+        {
+            int subtraction = seed == int.MinValue ? int.MaxValue : Math.Abs(seed);
+            int mj = MSeed - subtraction;
+            _seedArray[55] = mj;
+            int mk = 1;
+            for (int i = 1; i < 55; i++)
+            {
+                int ii = 21 * i % 55;
+                _seedArray[ii] = mk;
+                mk = mj - mk;
+                if (mk < 0) mk += MBig;
+                mj = _seedArray[ii];
+            }
+            for (int k = 1; k < 5; k++)
+                for (int i = 1; i < 56; i++)
+                {
+                    _seedArray[i] -= _seedArray[1 + (i + 30) % 55];
+                    if (_seedArray[i] < 0) _seedArray[i] += MBig;
+                }
+            _inext = 0;
+            _inextp = 21;
+        }
+
+        private int InternalSample()
+        {
+            int locINext = _inext, locINextp = _inextp;
+            if (++locINext >= 56) locINext = 1;
+            if (++locINextp >= 56) locINextp = 1;
+            int retVal = _seedArray[locINext] - _seedArray[locINextp];
+            if (retVal == MBig) retVal--;
+            if (retVal < 0) retVal += MBig;
+            _seedArray[locINext] = retVal;
+            _inext = locINext;
+            _inextp = locINextp;
+            return retVal;
+        }
+
+        /// <summary>A number in [0, 1).</summary>
+        public double NextDouble() => InternalSample() * (1.0 / MBig);
+
+        /// <summary>An integer in [0, maxValue).</summary>
+        public int Next(int maxValue) => (int)(NextDouble() * maxValue);
     }
 }

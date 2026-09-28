@@ -213,7 +213,7 @@ SYS-09.
 **Milestone** EA2 · **Claude** 1.5 d · **You** 0.5 d · **Needs** FND-02
 
 - Lapis: a captured rock on an inclined, eccentric orbit.
-- Granum: small, far out and elongated. It needs an ellipsoid base shape in FND-02, not only a sphere.
+- Granum: small, far out and elongated. It needs an ellipsoid base shape, not only a sphere: FND-02's `ellipsoid` layer.
 - At least 3 biomes each.
 
 **Done when**

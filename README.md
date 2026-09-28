@@ -75,7 +75,7 @@ and saves from the folder it used while it was called Starwright).
   starter-rocket soundness, lossless craft and save JSON, the assembly building's floor and height limits.
 * **Automated missions** flown by a scripted pilot that uses only the player's controls
   (`TAP.exe -autotest <mission> -report <file>`; in the editor set `PlayerPrefs "TAP.AutoTest"`):
-  `orbit` (launch, orbit, drift checks, rails warp, orbital EVA and boarding, reentry, splashdown), `lunar`
+  `orbit` (launch, orbit, drift checks, rails warp, orbital EVA and boarding, reentry, landing), `lunar`
   (the complete Luma mission), `suborbital`, `failures` (structural overload, overheating, unsafe parachute, impact),
   `persistence` (quicksave → warp → quickload → compare → continue), `docking` (RCS approach, capture, undock),
   `lunar-landing` / `lunar-surface` (resume from

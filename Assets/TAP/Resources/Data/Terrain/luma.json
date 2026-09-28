@@ -1,0 +1,53 @@
+{
+  "description": "Luma: an airless moon. Pale cratered highlands, dark flooded maria, big old craters and young ones with bright rays.",
+  "seed": 777,
+  "minHeight": -4500,
+  "maxHeight": 4500,
+  "fields": [
+    {
+      "id": "maria", "note": "1 on the dark, flooded plains",
+      "noise": { "type": "fbm", "seed": 17, "frequency": 0.95, "offset": [2.5, 8.1, 3.3], "octaves": 4 },
+      "smooth": [0.06, 0.2]
+    },
+    { "id": "relief", "note": "the broad rise and fall of the highlands (their first two octaves)", "noise": { "type": "fbm", "frequency": 1.9, "octaves": 2 } },
+    { "id": "shade", "note": "above 0 bright ray, below 0 dark mare (worked out after the craters)", "sum": [ { "of": "rays" }, { "of": "maria", "weight": -1 } ] }
+  ],
+  "layers": [
+    { "note": "rolling highlands, flattened on the maria", "noise": { "type": "fbm", "frequency": 1.9, "octaves": 6 }, "amplitude": 1600, "mask": { "of": "maria", "remap": [1, 0.2] } },
+    { "note": "hills", "noise": { "type": "fbm", "frequency": 14, "offset": [9, 1, 4], "octaves": 4 }, "amplitude": 260, "mask": { "of": "maria", "remap": [1, 0.2] } },
+    { "note": "the maria lie low", "constant": -1100, "mask": { "of": "maria" } },
+    {
+      "note": "impact craters, from 18 km basins down to 20 m pits",
+      "craters": {
+        "sizes": [
+          { "cell": 42000, "chance": 0.22, "depth": 0.07 },
+          { "cell": 14000, "chance": 0.32, "depth": 0.07 },
+          { "cell": 4600, "chance": 0.42, "depth": 0.18 },
+          { "cell": 1500, "chance": 0.5, "depth": 0.18 },
+          { "cell": 480, "chance": 0.5, "depth": 0.18 },
+          { "cell": 150, "chance": 0.45, "depth": 0.18 }
+        ],
+        "radius": [0.14, 0.44], "rim": 0.28, "rimInside": 0.2, "rimOutside": 0.28, "floor": 0.85, "reach": 2.0,
+        "fresh": 0.28, "rays": 0.8, "raysFrom": 0.6,
+        "raysField": "rays", "floorField": "craterFloor", "floorMinRadius": 10000, "freshField": "freshCrater", "freshMinRadius": 6000
+      }
+    },
+    { "note": "ground detail", "noise": { "type": "fbm", "seed": 29, "frequency": 3000, "octaves": 3 }, "amplitude": 5, "detail": true },
+    { "noise": { "type": "perlin", "seed": 29, "frequency": 26000 }, "amplitude": 0.6, "detail": true }
+  ],
+  "colors": [
+    { "note": "highland regolith", "color": "#969490" },
+    { "note": "mare basalt", "color": "#525254", "mask": { "of": "shade", "linear": [0, -1] } },
+    { "note": "fresh ejecta", "color": "#C8C6C2", "mask": { "of": "shade", "linear": [0, 1] } }
+  ],
+  "shading": { "noise": { "type": "fbm", "seed": 29, "frequency": 40, "octaves": 2 }, "amount": 0.12, "slopeDarkening": 0.75 },
+  "biomes": [
+    { "id": "northPole", "name": "North Pole", "color": "#CFE3FF", "material": 2, "when": { "of": "latitude", "atLeast": 75 } },
+    { "id": "southPole", "name": "South Pole", "color": "#8FB6F0", "material": 2, "when": { "of": "latitude", "below": -75 } },
+    { "id": "greatCraters", "name": "Great Craters", "color": "#E0703A", "material": 3, "when": { "of": "craterFloor", "atLeast": 0.5 } },
+    { "id": "brightCraters", "name": "Bright Craters", "color": "#FFF27A", "material": 4, "when": { "of": "freshCrater", "atLeast": 0.5 } },
+    { "id": "maria", "name": "Maria", "color": "#3D4F7A", "material": 1, "when": { "of": "maria", "atLeast": 0.5 } },
+    { "id": "highlands", "name": "Highlands", "color": "#C9C1B2", "material": 0, "when": { "of": "relief", "atLeast": 0.08 } },
+    { "id": "foothills", "name": "Foothills", "color": "#7F8C6E", "material": 0 }
+  ]
+}

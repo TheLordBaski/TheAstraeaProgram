@@ -101,6 +101,15 @@ namespace TAP.UI
             Action(p.transform, "Land there (legs down, at rest)", PutDown,
                    "Stands the vessel upright on the ground at that latitude/longitude with its landing legs deployed.");
 
+            Section(p.transform, "Terrain");
+            var terr = Row(p.transform);
+            Toggle(terr, "Biome map", () => MapView.ShowBiomes, on => MapView.ShowBiomes = on,
+                   "Paints the map view's planets with their biomes (open the map with M).");
+            Flex(UIKit.Button(terr, "Where am I?", () => Report(DevTools.WhereAmI(Sim)), 14).Button);
+            var flat = Row(p.transform);
+            Flex(UIKit.Button(flat, "Flatten ground for a base", () => Report(DevTools.FlattenForBase(Sim)), 14).Button);
+            Flex(UIKit.Button(flat, "Remove it", () => Report(DevTools.RemoveBaseFlats(Sim)), 14).Button);
+
             Section(p.transform, "Camera");
             var zoom = Row(p.transform);
             var zl = UIKit.Label(zoom, "Mouse-wheel zoom speed", 14, UIKit.TextDim);
@@ -189,7 +198,7 @@ namespace TAP.UI
             else
             {
                 var site = Sim.System.Def.launchSite;
-                _lat.text = (0.0 - site.latitude + 0.0).ToString("0.###", CultureInfo.InvariantCulture); // the site data counts latitude towards +Y (south)
+                _lat.text = (site.latitude + 0.0).ToString("0.###", CultureInfo.InvariantCulture);
                 _lon.text = (site.longitude + 0.02).ToString("0.###", CultureInfo.InvariantCulture); // ~200 m east of the pad
             }
         }

@@ -51,6 +51,22 @@ namespace TAP.Game
         private float _targetDistance = 4000f;
 
         private readonly Dictionary<CelestialBody, GameObject> _bodyObjects = new Dictionary<CelestialBody, GameObject>();
+        private readonly Dictionary<CelestialBody, BodyMaps> _maps = new Dictionary<CelestialBody, BodyMaps>();
+
+        /// <summary>Paints every body with its biomes instead of its surface (a developer view, FND-02).</summary>
+        public static bool ShowBiomes;
+        private bool _showingBiomes;
+
+        /// <summary>A body's map textures: its surface (baked, or made here for a body with none) and its biome map.</summary>
+        private sealed class BodyMaps
+        {
+            public Material Material;
+            public Texture Surface;
+            public Texture2D Biomes;
+            public System.Threading.Tasks.Task<Color32[]> SurfaceTask, BiomeTask;
+        }
+
+        private const int RuntimeMapWidth = 1024, RuntimeMapHeight = 512;
         private readonly Dictionary<CelestialBody, Material> _haloMats = new Dictionary<CelestialBody, Material>();
         private readonly List<OrbitLine> _currentLines = new List<OrbitLine>();
         private readonly List<OrbitLine> _plannedLines = new List<OrbitLine>();
@@ -126,8 +142,22 @@ namespace TAP.Game
                 var unlit = Shader.Find("Universal Render Pipeline/Unlit");
                 mat = unlit != null ? new Material(unlit) { color = mapColor } : PartMaterials.CreateLit("map_" + b.Id, mapColor, 0, 0.1f, true);
             }
+            bool baked = mat != null;
             if (mat == null) mat = PartMaterials.CreateLit("map_" + b.Id, mapColor, 0, 0.1f, false);
             mr.sharedMaterial = mat;
+            if (!b.IsStar && b.Terrain != null)
+            {
+                // Bodies without a baked map (new ones, defined in data) get one made from their terrain.
+                if (baked) mat = new Material(mat);
+                mr.sharedMaterial = mat;
+                var maps = new BodyMaps { Material = mat, Surface = baked ? mat.GetTexture("_BaseMap") : null };
+                if (!baked)
+                {
+                    var terrain = b.Terrain;
+                    maps.SurfaceTask = System.Threading.Tasks.Task.Run(() => PlanetMaps.Surface(terrain, RuntimeMapWidth, RuntimeMapHeight));
+                }
+                _maps[b] = maps;
+            }
             mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             _bodyObjects[b] = go;
             if (b.Atmosphere != null)
@@ -263,6 +293,7 @@ namespace TAP.Game
             double ut = Sim.UT;
             Vector3d focus = FocusAbsolute(ut);
             HandleCamera();
+            UpdateMapTextures();
 
             foreach (var kv in _bodyObjects)
             {
@@ -285,6 +316,48 @@ namespace TAP.Game
             PositionTrajectoryLines(focus, ut);
             UpdateVesselLines(focus, ut);
             BuildMarkers(focus, ut);
+        }
+
+        /// <summary>Puts finished map textures in place and switches between surface and biome maps.</summary>
+        private void UpdateMapTextures()
+        {
+            foreach (var kv in _maps)
+            {
+                var m = kv.Value;
+                if (m.SurfaceTask != null && m.SurfaceTask.IsCompleted)
+                {
+                    if (m.SurfaceTask.Status == System.Threading.Tasks.TaskStatus.RanToCompletion)
+                        m.Surface = PlanetMaps.ToTexture(m.SurfaceTask.Result, RuntimeMapWidth, RuntimeMapHeight);
+                    m.SurfaceTask = null;
+                    if (!_showingBiomes) Paint(m, m.Surface);
+                }
+                if (ShowBiomes && m.Biomes == null && m.BiomeTask == null)
+                {
+                    var terrain = kv.Key.Terrain;
+                    m.BiomeTask = System.Threading.Tasks.Task.Run(() =>
+                    {
+                        var idx = PlanetMaps.BiomeIndices(terrain, RuntimeMapWidth, RuntimeMapHeight);
+                        return PlanetMaps.Biomes(terrain, idx, RuntimeMapWidth, RuntimeMapHeight, PlanetMaps.Surface(terrain, RuntimeMapWidth, RuntimeMapHeight));
+                    });
+                }
+                if (m.BiomeTask != null && m.BiomeTask.IsCompleted)
+                {
+                    if (m.BiomeTask.Status == System.Threading.Tasks.TaskStatus.RanToCompletion)
+                        m.Biomes = PlanetMaps.ToTexture(m.BiomeTask.Result, RuntimeMapWidth, RuntimeMapHeight);
+                    m.BiomeTask = null;
+                    if (_showingBiomes) Paint(m, m.Biomes);
+                }
+            }
+            if (ShowBiomes == _showingBiomes) return;
+            _showingBiomes = ShowBiomes;
+            foreach (var m in _maps.Values) Paint(m, _showingBiomes ? m.Biomes : m.Surface);
+        }
+
+        private static void Paint(BodyMaps m, Texture tex)
+        {
+            if (tex == null) return;
+            m.Material.SetTexture("_BaseMap", tex);
+            m.Material.SetColor("_BaseColor", Color.white);
         }
 
         private void HandleCamera()

@@ -34,16 +34,22 @@ namespace TAP.Core
     {
         public string body = "tellus";
         public string name = "Astraea Launch Complex";
+        /// <summary>
+        /// The flat area of the body's terrain the site stands on. When set, the site's position and pad altitude are
+        /// the flat area's.
+        /// </summary>
+        public string flatArea;
+        /// <summary>Geographic latitude (north positive) and longitude (east positive), degrees.</summary>
         public double latitude;
         public double longitude;
         /// <summary>Terrain height of the flattened pad area above sea level (m).</summary>
         public double padAltitude = 70;
-        /// <summary>Radius of the perfectly flat area (m).</summary>
-        public double flatRadius = 700;
-        /// <summary>Distance over which the flat area blends into natural terrain (m).</summary>
-        public double blendRadius = 2500;
         /// <summary>Height of the launch pad deck above padAltitude (m).</summary>
         public double padDeckHeight = 1.0;
+
+        /// <summary>Body-fixed unit direction of the pad.</summary>
+        [Newtonsoft.Json.JsonIgnore]
+        public Vector3d UpBF => Geo.FromLatLon(latitude, longitude);
     }
 
     [Serializable]
@@ -100,19 +106,5 @@ namespace TAP.Core
         public double[][] temperatureCurve;
         public float[] skyColor = { 0.35f, 0.6f, 1f };
         public float[] horizonColor = { 0.75f, 0.85f, 1f };
-    }
-
-    [Serializable]
-    public class TerrainDefinition
-    {
-        /// <summary>Generator id: "tellus" (continents/oceans), "luma" (cratered) or "flat". Stars have none.</summary>
-        public string generator = "flat";
-        public int seed = 1;
-        /// <summary>Approximate maximum terrain height (m) — used for warp/rails safety and LOD bounds.</summary>
-        public double maxHeight = 5000;
-        public double minHeight = -3000;
-        public double continentScale = 1.0;
-        public double mountainHeight = 3000;
-        public double craterDepthScale = 1.0;
     }
 }

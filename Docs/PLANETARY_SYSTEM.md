@@ -4,7 +4,8 @@ All values come from `Assets/TAP/Resources/Data/system.json` (data-driven: edit 
 world). Derived values below are computed from those numbers with G = 6.674×10⁻¹¹ m³ kg⁻¹ s⁻².
 
 The system is one entry in `Resources/Data/galaxy.json`, the list of star systems. The home system is the only one
-players see today; a small debug system (a star, "Testworld" and "Testmoon") exists for tests and can be played with
+players see today; a small debug system (a star, "Testworld", "Testmoon" and "Testrock", a world defined in JSON alone)
+exists for tests and can be played with
 `-system debug` on the command line (or `PlayerPrefs "TAP.System" = "debug"` in the editor). More systems are planned
 after 1.0 (`product/plan/20-multi-system-and-trade.md`).
 
@@ -27,11 +28,12 @@ after 1.0 (`product/plan/20-multi-system-and-trade.md`).
 | Gravitational parameter μ | 3.5316×10¹² m³/s² |
 | Mass | 5.29×10²² kg |
 | Surface gravity | 9.81 m/s² (1.00 g) |
-| Sidereal rotation | 21,551 s, prograde: a solar day (noon to noon) of exactly 6 h (21,600 s); equatorial surface speed 174.9 m/s |
+| Sidereal rotation | 21,551 s, prograde: a solar day (noon to noon) of exactly 6 h (21,600 s); equatorial surface speed 174.9 m/s. Turned 84.6° at UT 0, so the launch complex starts the game in the same place and time of day as before it moved |
 | Atmosphere | 70 km thick, 101.325 kPa at sea level, scale height 5.6 km, N₂/O₂ (M = 28.96 g/mol, γ = 1.4) |
 | Temperature profile | 288 K at sea level → 217 K (11–20 km) → 271 K (47–51 km) → 215 K at 70 km |
 | Ocean | Yes (sea level = radius); splashdowns float |
-| Terrain | Procedural (seed 4242), −3.6 km to +6.5 km, flattened launch site |
+| Terrain | Data (`Resources/Data/Terrain/tellus.json`, seed 4242, [format](TERRAIN_FORMAT.md)): continents, ridged mountain ranges with snow, woodland and steppe regions, beaches, polar ice; −3.6 km to +6.5 km; a flattened launch site |
+| Biomes | Astraea Launch Complex, Polar Ice 6%, Shallows 10%, Deep Sea 30%, Snowcaps 0.2%, Coast 2%, Mountains 18%, Uplands 15%, Woodlands 7%, Steppe 5.5%, Grasslands 6% (shares of the surface) |
 | Escape velocity (surface) | 3.43 km/s |
 | Circular orbit at 80 km | 2,279 m/s, period 31.2 min |
 | Orbit around Astraea | Circular, semi-major axis 14.0 Gm, inclination 0° (no seasons), mean anomaly 235° at UT 0 (the sun then shines from the same direction as the fixed sun of the first versions) |
@@ -40,8 +42,10 @@ after 1.0 (`product/plan/20-multi-system-and-trade.md`).
 | Sphere of influence | 85,831 km (beyond it a vessel orbits the star) |
 | Time-warp altitude limits | 5×/10×/50× above 70 km, 100× above 120 km, 1,000× above 240 km, 10,000× above 480 km, 100,000× above 960 km |
 
-**Launch site**: Astraea Launch Complex at 0° N, 0° E, pad deck 71.2 m above sea level, 700 m flattened radius.
-Launching east gains the 174.9 m/s rotation speed. The assembly building stands 420 m west of the pad.
+**Launch site**: Astraea Launch Complex at 0° N, 84.6° W on a coastal plain, the open sea 38 km to the east; pad deck
+71.2 m above sea level, 700 m flattened radius blending into the land over 2.6 km, hills calm within 30 km. Launching
+east gains the 174.9 m/s rotation speed and flies out over water. The assembly building stands 420 m west of the pad.
+(Until FND-02 the site was at 0° E, on a bump raised in a mountainous region.)
 
 **Clock and calendar** (`Calendar`): the HUD clock starts at Y1 D001 00:00:00 at UT 0. A day is Tellus's solar day,
 6 h from noon to noon, so the time of day always follows the sun at the launch site. A year is Tellus's orbit, 439.87
@@ -58,7 +62,8 @@ Durations shown in the game (mission time, time to apoapsis, burn times) count t
 | Surface gravity | 1.60 m/s² (0.163 g) |
 | Rotation | Tidally locked (one turn per orbit) |
 | Atmosphere | None |
-| Terrain | Procedural cratered highlands and maria (seed 777), ±4.5 km |
+| Terrain | Data (`Resources/Data/Terrain/luma.json`, seed 777): cratered highlands, dark flooded maria, craters from 18 km basins down to 20 m pits, young craters with bright rays; ±4.5 km |
+| Biomes | North Pole 1.7%, South Pole 1.7%, Great Craters 1.8% (the floors of about 40 basins of 10 km radius or more), Bright Craters 2.2% (about 30 young rayed craters), Maria 15%, Highlands 30%, Foothills 48% |
 | Orbit around Tellus | Circular, semi-major axis 13,000 km, inclination 0°, mean anomaly 60° at UT 0 |
 | Orbital period | 156,700 s ≈ 43.5 h (7.3 Tellus days) |
 | Orbital speed | 521 m/s |

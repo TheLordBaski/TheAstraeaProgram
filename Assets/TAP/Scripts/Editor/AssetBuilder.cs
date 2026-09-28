@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using TAP.Core;
+using TAP.Simulation;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -275,50 +276,7 @@ namespace TAP.EditorTools
             return p.ToTexture(true);
         }
 
-        private static Texture2D PlanetMap(CelestialBody b, int w, int h)
-        {
-            var t = new Texture2D(w, h, TextureFormat.RGBA32, true);
-            var gen = b.Terrain;
-            var heights = new float[w * h];
-            var cols = new Color32[w * h];
-            System.Threading.Tasks.Parallel.For(0, h, y =>
-            {
-                double lat = ((y + 0.5) / h - 0.5) * 180.0;
-                for (int x = 0; x < w; x++)
-                {
-                    double lon = (x + 0.5) / w * 360.0 - 180.0;
-                    var dir = TerrainGenerator.DirectionFromLatLon(lat, lon);
-                    gen.Sample(dir, out double hh, out float shade);
-                    heights[y * w + x] = (float)hh;
-                    cols[y * w + x] = gen.Colorize(dir, hh, shade, 0);
-                }
-            });
-            // hillshade
-            double metersPerPx = Math.PI * 2 * b.Radius / w;
-            for (int y = 0; y < h; y++)
-                for (int x = 0; x < w; x++)
-                {
-                    int i = y * w + x;
-                    float hC = heights[i];
-                    float hE = heights[y * w + (x + 1) % w];
-                    float hN = heights[Mathf.Min(h - 1, y + 1) * w + x];
-                    bool water = b.HasOcean && hC < 0;
-                    float shade = 1f;
-                    if (!water)
-                    {
-                        float dx = (hE - hC) / (float)metersPerPx, dy = (hN - hC) / (float)metersPerPx;
-                        shade = Mathf.Clamp(1f - (dx * 0.6f - dy * 0.8f) * 8f, 0.55f, 1.35f);
-                    }
-                    Color c = cols[i];
-                    c *= shade;
-                    c.a = 1;
-                    t.SetPixel(x, y, c);
-                }
-            t.Apply();
-            return t;
-        }
-
-        // ------------------------------------------------------------------ icons
+        private static Texture2D PlanetMap(CelestialBody b, int w, int h) => PlanetMaps.ToTexture(PlanetMaps.Surface(b.Terrain, w, h), w, h);
 
         [MenuItem("TAP/Build Icons")]
         public static void BuildIcons()

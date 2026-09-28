@@ -17,11 +17,7 @@
   "launchSite": {
     "body": "testworld",
     "name": "Test Range",
-    "latitude": 0.0,
-    "longitude": 0.0,
-    "padAltitude": 70,
-    "flatRadius": 700,
-    "blendRadius": 2600,
+    "flatArea": "launchComplex",
     "padDeckHeight": 1.2
   },
   "bodies": [
@@ -71,7 +67,7 @@
       "gm": 3531600000000.0,
       "rotationPeriod": 21600,
       "tidallyLocked": false,
-      "initialRotationDeg": 0,
+      "initialRotationDeg": 72.6,
       "hasOcean": true,
       "atmosphere": {
         "height": 70000,
@@ -121,11 +117,19 @@
         ]
       },
       "terrain": {
-        "generator": "tellus",
+        "preset": "tellus",
         "seed": 777,
-        "maxHeight": 6500,
-        "minHeight": -3600,
-        "mountainHeight": 3200
+        "flatAreas": [
+          {
+            "id": "launchComplex",
+            "name": "Test Range",
+            "lat": 0,
+            "lon": -72.6,
+            "height": 70,
+            "radius": 700,
+            "blend": 2600
+          }
+        ]
       },
       "warpAltitudeLimits": [
         0,
@@ -192,11 +196,8 @@
         "epoch": 0
       },
       "terrain": {
-        "generator": "luma",
-        "seed": 99,
-        "maxHeight": 4500,
-        "minHeight": -4500,
-        "craterDepthScale": 1.0
+        "preset": "luma",
+        "seed": 99
       },
       "warpAltitudeLimits": [
         0,
@@ -212,6 +213,385 @@
         0.7,
         0.66,
         0.6
+      ]
+    },
+    {
+      "id": "testrock",
+      "displayName": "Testrock",
+      "description": "A debug dwarf world defined in JSON alone (FND-02): a rift valley, a canyon network, terraced mesas, a dune sea, worn craters and frost caps.",
+      "type": "dwarf",
+      "parent": "debugstar",
+      "orbit": {
+        "semiMajorAxis": 16000000000,
+        "eccentricity": 0.05,
+        "inclinationDeg": 3.0,
+        "lanDeg": 40.0,
+        "argPeDeg": 0.0,
+        "meanAnomalyAtEpochDeg": 60.0,
+        "epoch": 0
+      },
+      "radius": 90000,
+      "gm": 12000000000.0,
+      "rotationPeriod": 40000,
+      "tidallyLocked": false,
+      "initialRotationDeg": 0,
+      "hasOcean": false,
+      "terrain": {
+        "description": "Made from JSON alone: every kind of layer on one small world.",
+        "seed": 31,
+        "minHeight": -6500,
+        "maxHeight": 5500,
+        "fields": [
+          {
+            "id": "plateau",
+            "note": "high mesas where positive",
+            "noise": {
+              "type": "fbm",
+              "frequency": 1.6,
+              "octaves": 5
+            }
+          },
+          {
+            "id": "duneField",
+            "note": "1 in the dune sea",
+            "noise": {
+              "type": "fbm",
+              "seed": 7,
+              "frequency": 1.2,
+              "octaves": 3
+            },
+            "smooth": [
+              0.05,
+              0.2
+            ]
+          },
+          {
+            "id": "frost",
+            "note": "frost caps with ragged edges",
+            "term": {
+              "of": "absLatitude",
+              "smooth": [
+                62,
+                70
+              ],
+              "jitter": {
+                "type": "fbm",
+                "seed": 9,
+                "frequency": 10,
+                "octaves": 3,
+                "amount": 5
+              }
+            }
+          }
+        ],
+        "layers": [
+          {
+            "note": "rolling ground",
+            "noise": {
+              "type": "fbm",
+              "seed": 1,
+              "frequency": 3,
+              "octaves": 6
+            },
+            "amplitude": 900
+          },
+          {
+            "note": "mesas",
+            "from": "plateau",
+            "smooth": [
+              0.0,
+              0.12
+            ],
+            "amplitude": 1400
+          },
+          {
+            "note": "terraced mesa sides",
+            "terraces": {
+              "step": 240,
+              "sharpness": 0.75
+            },
+            "mask": {
+              "of": "plateau",
+              "smooth": [
+                -0.05,
+                0.05
+              ]
+            }
+          },
+          {
+            "note": "a canyon network cut into the mesas",
+            "canyons": {
+              "noise": {
+                "type": "fbm",
+                "seed": 5,
+                "frequency": 6,
+                "octaves": 4
+              },
+              "width": 0.025,
+              "depth": 900,
+              "sharpness": 1.5
+            },
+            "mask": {
+              "of": "plateau",
+              "smooth": [
+                -0.02,
+                0.06
+              ]
+            }
+          },
+          {
+            "note": "the great rift",
+            "rift": {
+              "path": [
+                [
+                  -20,
+                  -60
+                ],
+                [
+                  5,
+                  -20
+                ],
+                [
+                  25,
+                  30
+                ]
+              ],
+              "width": 40000,
+              "depth": 3500,
+              "floor": 0.35,
+              "shoulders": 0.12,
+              "wobble": {
+                "type": "fbm",
+                "seed": 3,
+                "frequency": 20,
+                "octaves": 3,
+                "amount": 4000
+              },
+              "field": "rift"
+            }
+          },
+          {
+            "note": "the dune sea",
+            "dunes": {
+              "wavelength": 700,
+              "height": 40,
+              "axisLat": 0,
+              "axisLon": 90,
+              "crest": 0.7,
+              "warp": {
+                "type": "fbm",
+                "seed": 8,
+                "frequency": 30,
+                "octaves": 2,
+                "amount": 1.5
+              }
+            },
+            "mask": {
+              "of": "duneField"
+            }
+          },
+          {
+            "note": "old, worn craters",
+            "craters": {
+              "seed": 11,
+              "sizes": [
+                {
+                  "cell": 30000,
+                  "chance": 0.3,
+                  "depth": 0.08
+                },
+                {
+                  "cell": 9000,
+                  "chance": 0.4,
+                  "depth": 0.15
+                },
+                {
+                  "cell": 2500,
+                  "chance": 0.45,
+                  "depth": 0.18
+                },
+                {
+                  "cell": 700,
+                  "chance": 0.45,
+                  "depth": 0.18
+                }
+              ],
+              "erosion": 0.8,
+              "fresh": 0.1,
+              "floorField": "craterFloor",
+              "floorMinRadius": 3000
+            }
+          },
+          {
+            "note": "frost caps",
+            "constant": 60,
+            "mask": {
+              "of": "frost"
+            }
+          },
+          {
+            "note": "ground detail",
+            "noise": {
+              "type": "fbm",
+              "seed": 13,
+              "frequency": 2400,
+              "octaves": 3
+            },
+            "amplitude": 4,
+            "detail": true
+          }
+        ],
+        "flatAreas": [
+          {
+            "id": "testPad",
+            "name": "Test Pad",
+            "note": "fitted to the slope of the land",
+            "lat": 10,
+            "lon": 40,
+            "radius": 300,
+            "blend": 800,
+            "fit": true
+          }
+        ],
+        "colors": [
+          {
+            "note": "rusty dust",
+            "color": "#8E5A44"
+          },
+          {
+            "note": "pale mesa tops",
+            "color": "#B98A66",
+            "mask": {
+              "of": "plateau",
+              "smooth": [
+                0.02,
+                0.12
+              ]
+            }
+          },
+          {
+            "note": "dark rift floor",
+            "color": "#5A3A30",
+            "mask": {
+              "of": "rift",
+              "smooth": [
+                0.2,
+                0.8
+              ]
+            }
+          },
+          {
+            "note": "dune sand",
+            "color": "#D2A56C",
+            "mask": {
+              "of": "duneField"
+            }
+          },
+          {
+            "note": "cliffs",
+            "color": "#6E4B3C",
+            "mask": {
+              "of": "slope",
+              "smooth": [
+                22,
+                35
+              ]
+            }
+          },
+          {
+            "note": "frost",
+            "color": "#EEF2F5",
+            "mask": {
+              "of": "frost"
+            }
+          }
+        ],
+        "shading": {
+          "noise": {
+            "type": "billow",
+            "seed": 21,
+            "frequency": 60,
+            "octaves": 3
+          },
+          "amount": 0.08,
+          "slopeDarkening": 0.5
+        },
+        "biomes": [
+          {
+            "id": "testPad",
+            "name": "Test Pad",
+            "color": "#FF3EA5",
+            "when": {
+              "near": "testPad",
+              "below": 1100
+            }
+          },
+          {
+            "id": "frostCaps",
+            "name": "Frost Caps",
+            "color": "#DDEEFF",
+            "when": {
+              "of": "frost",
+              "atLeast": 0.5
+            }
+          },
+          {
+            "id": "riftValley",
+            "name": "Rift Valley",
+            "color": "#6B3FA0",
+            "when": {
+              "of": "rift",
+              "atLeast": 0.5
+            }
+          },
+          {
+            "id": "duneSea",
+            "name": "Dune Sea",
+            "color": "#E8C170",
+            "when": {
+              "of": "duneField",
+              "atLeast": 0.5
+            }
+          },
+          {
+            "id": "mesas",
+            "name": "Terraced Mesas",
+            "color": "#C0703A",
+            "when": {
+              "of": "plateau",
+              "atLeast": 0.02
+            }
+          },
+          {
+            "id": "craterFloors",
+            "name": "Crater Floors",
+            "color": "#8FA3B0",
+            "when": {
+              "of": "craterFloor",
+              "atLeast": 0.5
+            }
+          },
+          {
+            "id": "badlands",
+            "name": "Badlands",
+            "color": "#9A6B55"
+          }
+        ]
+      },
+      "warpAltitudeLimits": [
+        0,
+        12000,
+        12000,
+        16000,
+        24000,
+        50000,
+        100000,
+        200000
+      ],
+      "mapColor": [
+        0.66,
+        0.44,
+        0.34
       ]
     }
   ]

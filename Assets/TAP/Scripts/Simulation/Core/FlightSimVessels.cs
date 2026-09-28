@@ -87,6 +87,18 @@ namespace TAP.Simulation
             v.Rb.position = v.transform.position;
             v.Rb.rotation = v.transform.rotation;
             Physics.SyncTransforms();
+            if (h.Landed && !v.IsFlag && h.Body == Frame.Body)
+            {
+                double shift = GroundShift(v, h, pos);
+                if (shift != 0)
+                {
+                    pos += pos.normalized * shift;
+                    h.LandedPosBF = h.Body.InertialToBodyFixed(pos, UT);
+                    v.transform.position = Frame.ToUnity(pos) - comOffset;
+                    v.Rb.position = v.transform.position;
+                    Physics.SyncTransforms();
+                }
+            }
             // A vessel resting on the ground needs its ground now, not after the background terrain worker has
             // caught up; and it must not coast along a free-fall arc while its legs find the surface.
             double agl = pos.magnitude - h.Body.Radius - h.Body.TerrainHeightAt(pos, UT);
@@ -115,6 +127,53 @@ namespace TAP.Simulation
             LoadedVessels.Add(v);
             if (Warp.OnRails && !v.IsFlag) v.Rb.isKinematic = true;
             return v;
+        }
+
+        /// <summary>
+        /// How far (m, along the local vertical) to move a landed vessel whose ground moved while it was away (a terrain
+        /// update, ground flattened for a base): out if it would start buried, down if it would start more than a few
+        /// metres up. Each corner of each collider is measured against the ground right under it, so resting on a slope or
+        /// on the pad deck is within the tolerances and gives 0; so does the sea.
+        /// </summary>
+        private double GroundShift(Vessel v, VesselHandle h, Vector3d pos)
+        {
+            var body = h.Body;
+            if (body.Terrain == null) return 0;
+            if (body.HasOcean && body.TerrainHeightAt(pos, UT) < 0) return 0;
+            Vector3 com = Frame.ToUnity(pos);
+            double gap = double.MaxValue;
+            foreach (var c in v.GetComponentsInChildren<Collider>())
+            {
+                if (c.isTrigger || !LocalBounds(c, out var b)) continue;
+                for (int i = 0; i < 8; i++)
+                {
+                    Vector3 corner = b.center + Vector3.Scale(b.extents, new Vector3((i & 1) == 0 ? -1 : 1, (i & 2) == 0 ? -1 : 1, (i & 4) == 0 ? -1 : 1));
+                    Vector3d rel = pos + (Vector3d)(c.transform.TransformPoint(corner) - com);
+                    gap = Math.Min(gap, rel.magnitude - body.Radius - body.TerrainHeightAt(rel, UT));
+                }
+            }
+            if (gap == double.MaxValue || (gap > -1.0 && gap < 5.0)) return 0;
+            Log($"{h.Name}: the ground under it moved {-gap:F1} m while it was away; set back on the ground");
+            return 0.3 - gap;
+        }
+
+        /// <summary>A collider's box in its own space (null for kinds without one).</summary>
+        private static bool LocalBounds(Collider c, out Bounds b)
+        {
+            switch (c)
+            {
+                case BoxCollider box: b = new Bounds(box.center, box.size); return true;
+                case SphereCollider sph: b = new Bounds(sph.center, Vector3.one * sph.radius * 2); return true;
+                case CapsuleCollider cap:
+                {
+                    var size = Vector3.one * cap.radius * 2;
+                    size[cap.direction] = Mathf.Max(cap.height, cap.radius * 2);
+                    b = new Bounds(cap.center, size);
+                    return true;
+                }
+                case MeshCollider mc when mc.sharedMesh != null: b = mc.sharedMesh.bounds; return true;
+                default: b = default; return false;
+            }
         }
 
         /// <summary>

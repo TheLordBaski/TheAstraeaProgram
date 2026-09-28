@@ -115,24 +115,28 @@ namespace TAP.Simulation
             return list.ToArray();
         }
 
-        /// <summary>Generates chunk geometry. Thread-safe (pure math on the terrain generator).</summary>
-        public static ChunkData Generate(TerrainGenerator gen, double radius, int face, double u0, double v0, double size, int n, bool ocean, bool skirts)
+        /// <summary>
+        /// Generates chunk geometry. Thread-safe (pure math on the terrain generator). colors: false for collision chunks,
+        /// which need no colours (their Colors stay empty).
+        /// </summary>
+        public static ChunkData Generate(TerrainGenerator gen, double radius, int face, double u0, double v0, double size, int n, bool ocean, bool skirts, bool colors = true)
         {
             int g = n + 3; // grid with 1-sample border for normals
+            int nf = gen.FieldCount;
             var dirs = new Vector3d[g * g];
             var heights = new double[g * g];
-            var shades = new float[g * g];
+            var fields = new double[Math.Max(1, g * g * nf)];
             for (int j = 0; j < g; j++)
                 for (int i = 0; i < g; i++)
                 {
                     double u = u0 + size * (i - 1) / n;
                     double v = v0 + size * (j - 1) / n;
                     var d = CubeSphere.ToSphere(face, u, v);
-                    gen.Sample(d, out double h, out float s);
                     int k = j * g + i;
+                    // The border only shapes normals; colours need the full sample (every field) at the vertices.
+                    bool vertex = colors && i >= 1 && j >= 1 && i <= n + 1 && j <= n + 1;
                     dirs[k] = d;
-                    heights[k] = h;
-                    shades[k] = s;
+                    heights[k] = gen.Sample(d, fields, k * nf, vertex);
                 }
             Vector3d cDir = CubeSphere.ToSphere(face, u0 + size * 0.5, v0 + size * 0.5);
             double ch = gen.Height(cDir);
@@ -147,7 +151,7 @@ namespace TAP.Simulation
             {
                 Positions = new Vector3[vcount],
                 Normals = new Vector3[vcount],
-                Colors = new Color32[vcount],
+                Colors = colors ? new Color32[vcount] : null,
                 UV0 = new Vector2[vcount],
                 UV1 = new Vector2[vcount],
                 CenterBF = center,
@@ -175,14 +179,16 @@ namespace TAP.Simulation
                     Vector3d nrm = Vector3d.Cross(du, dv).normalized;
                     if (Vector3d.Dot(nrm, dir) < 0) nrm = -nrm;
                     if (water) nrm = dir;
-                    float slope = (float)MathD.Clamp01(1 - Vector3d.Dot(nrm, dir));
-                    var col = gen.Colorize(dir, hRaw, shades[k], slope * 3f);
-                    col.a = water ? (byte)255 : (byte)0;
                     int vi = j * row + i;
+                    if (colors)
+                    {
+                        var col = gen.Colorize(dir, hRaw, fields, k * nf, Vector3d.Dot(nrm, dir));
+                        col.a = water ? (byte)255 : (byte)0; // the shader's water flag
+                        data.Colors[vi] = col;
+                    }
                     Vector3 local = (Vector3)(p - center);
                     data.Positions[vi] = local;
                     data.Normals[vi] = (Vector3)nrm;
-                    data.Colors[vi] = col;
                     Vector3d dc = p - origin;
                     data.UV0[vi] = new Vector2((float)dc.x, (float)dc.y);
                     data.UV1[vi] = new Vector2((float)dc.z, (float)(water ? 0 : hRaw));
@@ -205,7 +211,7 @@ namespace TAP.Simulation
                     Vector3 local = (Vector3)(p - center);
                     data.Positions[vi] = local;
                     data.Normals[vi] = data.Normals[src];
-                    data.Colors[vi] = data.Colors[src];
+                    if (colors) data.Colors[vi] = data.Colors[src];
                     data.UV0[vi] = data.UV0[src];
                     data.UV1[vi] = data.UV1[src];
                     bmin = Vector3.Min(bmin, local);

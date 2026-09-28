@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using TAP.Core;
+using Unity.Jobs;
 using UnityEngine;
 
 namespace TAP.Simulation
@@ -21,7 +22,9 @@ namespace TAP.Simulation
         public Mesh Mesh;
         public Vector3d CenterBF;
         public double LastNeededUT;
-        public volatile ChunkData Pending;
+        /// <summary>Bumped when the ground under the chunk changes: results made for an older one are dropped.</summary>
+        public int Generation;
+        /// <summary>It has a collider (possibly for an older generation while the new one is cooked).</summary>
         public bool Ready;
     }
 
@@ -47,7 +50,29 @@ namespace TAP.Simulation
         public readonly List<AtmosphereShell> Atmospheres = new List<AtmosphereShell>();
 
         private readonly Dictionary<(int, int, int), ColliderChunk> _colliders = new Dictionary<(int, int, int), ColliderChunk>();
-        private readonly ConcurrentQueue<ColliderChunk> _colliderDone = new ConcurrentQueue<ColliderChunk>();
+        private readonly ConcurrentQueue<(ColliderChunk chunk, ChunkData data, int gen)> _colliderDone = new ConcurrentQueue<(ColliderChunk, ChunkData, int)>();
+        private readonly List<Baking> _baking = new List<Baking>();
+        private readonly List<(TerrainGenerator terrain, Action<Vector3d, double> handler)> _editHandlers = new List<(TerrainGenerator, Action<Vector3d, double>)>();
+
+        /// <summary>PhysX cooking for the terrain colliders, the same when baked in a job and when assigned.</summary>
+        private const MeshColliderCookingOptions Cooking = MeshColliderCookingOptions.CookForFasterSimulation |
+            MeshColliderCookingOptions.EnableMeshCleaning | MeshColliderCookingOptions.WeldColocatedVertices | MeshColliderCookingOptions.UseFastMidphase;
+
+        /// <summary>A collider mesh being cooked by PhysX on a worker thread.</summary>
+        private struct Baking
+        {
+            public ColliderChunk Chunk;
+            public ChunkData Data;
+            public Mesh Mesh;
+            public int Gen;
+            public JobHandle Handle;
+        }
+
+        private struct BakeJob : IJob
+        {
+            public EntityId MeshId;
+            public void Execute() => Physics.BakeMesh(MeshId, false, Cooking);
+        }
         private CelestialBody _colliderBody;
         private double _nextNeedCheck;
         private GameObject _colliderRoot;
@@ -68,6 +93,11 @@ namespace TAP.Simulation
                 var t = go.AddComponent<PlanetTerrain>();
                 t.Init(b, TerrainMaterial);
                 Terrains[b] = t;
+                // A flat area coming or going (a base, the launch complex) remakes the chunks and colliders under it.
+                var body = b;
+                Action<Vector3d, double> onEdit = (c, angle) => OnTerrainEdited(body, c, angle);
+                b.Terrain.Edited += onEdit;
+                _editHandlers.Add((b.Terrain, onEdit));
                 if (b.Atmosphere != null)
                 {
                     var shell = AtmosphereShell.Create(b, transform);
@@ -90,11 +120,42 @@ namespace TAP.Simulation
                 if (a.Body == body) a.Local = local;
         }
 
+        private void OnDestroy()
+        {
+            // The bodies outlive the scene (the system is loaded once per session).
+            foreach (var (terrain, handler) in _editHandlers) terrain.Edited -= handler;
+            _editHandlers.Clear();
+            foreach (var b in _baking) b.Handle.Complete();
+            _baking.Clear();
+        }
+
+        private void OnTerrainEdited(CelestialBody body, Vector3d centerBF, double angle)
+        {
+            if (Terrains.TryGetValue(body, out var t)) t.Invalidate(centerBF, angle);
+            if (body != _colliderBody || !Terrains.TryGetValue(body, out var terrain)) return;
+            int level = terrain.CollisionLevel;
+            double size = 2.0 / (1 << level);
+            double halfChunk = Math.PI * 0.25 * size; // half a chunk's arc, roughly (rad)
+            foreach (var c in _colliders.Values)
+            {
+                var dir = CubeSphere.ToSphere(c.Key.face, -1 + (c.Key.iu + 0.5) * size, -1 + (c.Key.iv + 0.5) * size);
+                if (Vector3d.AngleRad(dir, centerBF) > angle + halfChunk * 1.5) continue;
+                c.Generation++;
+                Queue(body, c, level);
+            }
+        }
+
         public void OnFrameBodyChanged(CelestialBody body)
         {
             if (_colliderBody == body) return;
-            foreach (var c in _colliders.Values) if (c.Go != null) Destroy(c.Go);
+            foreach (var c in _colliders.Values)
+            {
+                c.Generation++; // results still on their way belong to the old body
+                if (c.Go != null) Destroy(c.Go);
+            }
             _colliders.Clear();
+            foreach (var b in _baking) { b.Handle.Complete(); Destroy(b.Mesh); }
+            _baking.Clear();
             _colliderBody = body;
             // Structures of other bodies leave the scene: they are only moved while their body is the frame body, so
             // their colliders would linger at stale coordinates (after a teleport, right where the vessel appears).
@@ -210,17 +271,30 @@ namespace TAP.Simulation
                     var c = _colliders[k];
                     if (c.Go != null) Destroy(c.Go);
                     if (c.Mesh != null) Destroy(c.Mesh);
+                    c.Generation++;
                     _colliders.Remove(k);
                 }
             }
 
-            // Build finished chunk meshes (collider cooking on main thread).
-            int built = 0;
-            while (built < 4 && _colliderDone.TryDequeue(out var cc))
+            // Finished chunks go to PhysX to be cooked in jobs; cooked ones become colliders.
+            int started = 0;
+            while (started < 8 && _colliderDone.TryDequeue(out var done))
             {
-                if (!_colliders.ContainsKey(cc.Key) || cc.Pending == null) continue;
-                BuildColliderMesh(cc);
-                built++;
+                if (!IsCurrent(done.chunk, done.gen)) continue;
+                var mesh = NewColliderMesh(done.chunk, done.data);
+                var job = new BakeJob { MeshId = mesh.GetEntityId() };
+                _baking.Add(new Baking { Chunk = done.chunk, Data = done.data, Mesh = mesh, Gen = done.gen, Handle = job.Schedule() });
+                started++;
+            }
+            if (started > 0) JobHandle.ScheduleBatchedJobs();
+            for (int i = _baking.Count - 1; i >= 0; i--)
+            {
+                var b = _baking[i];
+                if (!b.Handle.IsCompleted) continue;
+                b.Handle.Complete();
+                _baking.RemoveAt(i);
+                if (IsCurrent(b.Chunk, b.Gen)) ApplyCollider(b.Chunk, b.Data, b.Mesh);
+                else Destroy(b.Mesh);
             }
 
             // Synchronous fallback: a vessel very close to the ground must have its chunk now.
@@ -230,12 +304,7 @@ namespace TAP.Simulation
                 Vector3d pos = frame.ToTrue(v.Rb.worldCenterOfMass);
                 Vector3d dirBF = body.InertialToBodyFixed(pos, Sim.UT).normalized;
                 var key = KeyFor(dirBF, level);
-                if (_colliders.TryGetValue(key, out var c) && !c.Ready)
-                {
-                    if (c.Pending == null)
-                        c.Pending = Generate(body, key, level);
-                    BuildColliderMesh(c);
-                }
+                if (_colliders.TryGetValue(key, out var c) && !c.Ready) BuildNow(body, c, level);
             }
 
             // Move all colliders to the end-of-step pose. A pose that doesn't continue from the previous step's target
@@ -297,10 +366,16 @@ namespace TAP.Simulation
             if (_colliders.TryGetValue(key, out var c)) { c.LastNeededUT = Sim.UT; return; }
             c = new ColliderChunk { Key = key, LastNeededUT = Sim.UT };
             _colliders[key] = c;
+            Queue(body, c, level);
+        }
+
+        private void Queue(CelestialBody body, ColliderChunk c, int level)
+        {
+            int gen = c.Generation;
             TerrainWorkers.Enqueue(() =>
             {
-                c.Pending = Generate(body, key, level);
-                _colliderDone.Enqueue(c);
+                if (gen != c.Generation) return;
+                _colliderDone.Enqueue((c, Generate(body, c.Key, level), gen));
             });
         }
 
@@ -309,7 +384,19 @@ namespace TAP.Simulation
             int n = 1 << level;
             double size = 2.0 / n;
             double u0 = -1 + key.iu * size, v0 = -1 + key.iv * size;
-            return TerrainChunkGenerator.Generate(body.Terrain, body.Radius, key.face, u0, v0, size, 32, false, false);
+            return TerrainChunkGenerator.Generate(body.Terrain, body.Radius, key.face, u0, v0, size, 32, false, false, colors: false);
+        }
+
+        /// <summary>A result is used only for the chunk object still in the table and the ground it was made for.</summary>
+        private bool IsCurrent(ColliderChunk c, int gen) =>
+            gen == c.Generation && _colliders.TryGetValue(c.Key, out var cur) && cur == c;
+
+        /// <summary>Makes a chunk's collider right away on the main thread, generation and cooking included.</summary>
+        private void BuildNow(CelestialBody body, ColliderChunk c, int level)
+        {
+            c.Generation++; // a background result for it would only repeat this
+            var data = Generate(body, c.Key, level);
+            ApplyCollider(c, data, NewColliderMesh(c, data));
         }
 
         /// <summary>
@@ -340,38 +427,48 @@ namespace TAP.Simulation
                     }
                     c.LastNeededUT = Sim.UT;
                     if (c.Ready) continue;
-                    if (c.Pending == null) c.Pending = Generate(body, key, level);
-                    BuildColliderMesh(c);
+                    BuildNow(body, c, level);
                 }
         }
 
-        private void BuildColliderMesh(ColliderChunk c)
+        private static Mesh NewColliderMesh(ColliderChunk c, ChunkData d)
         {
-            var d = c.Pending;
-            if (d == null) return;
-            c.Pending = null;
-            // Already built synchronously: a late result from the background worker is discarded (a second collider
-            // object for the same chunk would never be moved again).
-            if (c.Ready) return;
-            c.Mesh = new Mesh { name = "col" + c.Key };
-            c.Mesh.SetVertices(d.Positions);
-            c.Mesh.SetTriangles(d.Triangles, 0, true);
-            c.CenterBF = d.CenterBF;
-            c.Go = new GameObject("TerrainCollider " + c.Key);
-            c.Go.layer = Layers.Terrain;
-            c.Go.transform.SetParent(_colliderRoot.transform, false);
+            var mesh = new Mesh { name = "col" + c.Key };
+            mesh.SetVertices(d.Positions);
+            mesh.SetTriangles(d.Triangles, 0, true);
+            return mesh;
+        }
+
+        /// <summary>
+        /// Gives a chunk its (new) collider. A mesh cooked in a job goes in at no cost; otherwise PhysX cooks it here. A
+        /// chunk remade after a terrain edit swaps its mesh and jumps to its new pose (no sweep).
+        /// </summary>
+        private void ApplyCollider(ColliderChunk c, ChunkData d, Mesh mesh)
+        {
             var frame = Sim.Frame;
             var body = frame.Body;
             QuaternionD rot = body.RotationAtUT(Sim.UT);
-            c.Go.transform.SetPositionAndRotation((Vector3)(rot * c.CenterBF - frame.Origin), rot.ToQuaternion());
-            c.Rb = c.Go.AddComponent<Rigidbody>();
-            c.Rb.isKinematic = true;
-            c.Rb.interpolation = RigidbodyInterpolation.None;
-            // The ground moves through Unity space at the vessel's speed (Krakensbane), so its motion must be swept.
-            c.Rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
-            c.Collider = c.Go.AddComponent<MeshCollider>();
-            c.Collider.sharedMesh = c.Mesh;
-            c.Collider.sharedMaterial = _groundMat;
+            c.CenterBF = d.CenterBF;
+            if (c.Go == null)
+            {
+                c.Go = new GameObject("TerrainCollider " + c.Key);
+                c.Go.layer = Layers.Terrain;
+                c.Go.transform.SetParent(_colliderRoot.transform, false);
+                c.Go.transform.SetPositionAndRotation((Vector3)(rot * c.CenterBF - frame.Origin), rot.ToQuaternion());
+                c.Rb = c.Go.AddComponent<Rigidbody>();
+                c.Rb.isKinematic = true;
+                c.Rb.interpolation = RigidbodyInterpolation.None;
+                // The ground moves through Unity space at the vessel's speed (Krakensbane), so its motion must be swept.
+                c.Rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+                c.Collider = c.Go.AddComponent<MeshCollider>();
+                c.Collider.cookingOptions = Cooking;
+                c.Collider.sharedMaterial = _groundMat;
+            }
+            else c.LastMoveUT = double.NaN; // jump to the new centre on the next step
+            var old = c.Mesh;
+            c.Mesh = mesh;
+            c.Collider.sharedMesh = mesh;
+            if (old != null && old != mesh) Destroy(old);
             c.Ready = true;
         }
 

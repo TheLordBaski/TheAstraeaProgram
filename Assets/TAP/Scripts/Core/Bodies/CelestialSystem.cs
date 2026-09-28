@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace TAP.Core
@@ -46,10 +47,39 @@ namespace TAP.Core
             return FromJson(ta.text, id ?? "home");
         }
 
-        public static CelestialSystem FromJson(string json, string id = "home")
+        /// <summary>Reads a terrain preset by name: Resources/Data/Terrain/&lt;name&gt;.json.</summary>
+        public static Func<string, string> PresetLoader = name => Resources.Load<TextAsset>("Data/Terrain/" + name)?.text;
+
+        public static CelestialSystem FromJson(string json, string id = "home", Func<string, string> presets = null)
         {
-            var def = JsonConvert.DeserializeObject<SystemDefinition>(json);
-            return new CelestialSystem(def, id);
+            var root = JObject.Parse(json);
+            ResolveTerrainPresets(root, presets ?? PresetLoader);
+            return new CelestialSystem(root.ToObject<SystemDefinition>(), id);
+        }
+
+        /// <summary>
+        /// Replaces each body's terrain that names a preset with the preset, the body's own entries laid over it (nested
+        /// objects merge, lists are replaced whole).
+        /// </summary>
+        public static void ResolveTerrainPresets(JObject system, Func<string, string> load)
+        {
+            if (!(system["bodies"] is JArray bodies)) return;
+            foreach (var b in bodies)
+                if (b is JObject body && body["terrain"] is JObject t)
+                    body["terrain"] = WithPreset(t, load, (string)body["id"], 0);
+        }
+
+        private static JObject WithPreset(JObject terrain, Func<string, string> load, string bodyId, int depth)
+        {
+            string name = (string)terrain["preset"];
+            if (string.IsNullOrEmpty(name)) return terrain;
+            if (depth > 4) throw new FormatException($"Terrain of {bodyId}: presets nest too deep");
+            string text = load(name);
+            if (text == null) throw new FormatException($"Terrain of {bodyId}: no preset \"{name}\" (Resources/Data/Terrain/{name}.json)");
+            var basis = WithPreset(JObject.Parse(text), load, bodyId, depth + 1);
+            basis.Merge(terrain, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Replace });
+            basis.Remove("preset");
+            return basis;
         }
 
         public CelestialSystem(SystemDefinition def, string id = "home")
@@ -72,16 +102,28 @@ namespace TAP.Core
                     if (linked.Contains(b.Id)) continue;
                     if (string.IsNullOrEmpty(b.Def.parent))
                     {
-                        b.Link(null, def.launchSite);
+                        b.Link(null);
                         Root = b;
                         linked.Add(b.Id);
                     }
                     else if (linked.Contains(b.Def.parent))
                     {
-                        b.Link(_byId[b.Def.parent], def.launchSite);
+                        b.Link(_byId[b.Def.parent]);
                         linked.Add(b.Id);
                     }
                 }
+            }
+            // The launch site stands on a flat area of its body's terrain: take its position and height from there.
+            var site = def.launchSite;
+            if (site != null && !string.IsNullOrEmpty(site.flatArea))
+            {
+                FlatArea area = null;
+                if (Get(site.body)?.Terrain is LayeredTerrain lt)
+                    foreach (var a in lt.FlatAreas)
+                        if (a.Id == site.flatArea) area = a;
+                if (area == null) throw new FormatException($"Launch site {site.name}: {site.body} has no flat area \"{site.flatArea}\"");
+                Geo.ToLatLon(area.Center, out site.latitude, out site.longitude);
+                site.padAltitude = area.Height;
             }
             var sd = def.sun?.direction ?? new double[] { 1, 0.2, -0.3 };
             _fixedSunDirection = new Vector3d(sd[0], sd[1], sd[2]).normalized;

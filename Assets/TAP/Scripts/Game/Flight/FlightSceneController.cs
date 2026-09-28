@@ -86,6 +86,8 @@ namespace TAP.Game
         {
             var save = GameSession.Save;
             string activeId = save.activeVesselId;
+            int moved = LaunchService.MoveWaitingRocketsToPad(save.vessels, Sim.System);
+            if (moved > 0) GameSession.Log($"{moved} rocket{(moved == 1 ? "" : "s")} waiting on the old launch pad moved to the new one");
             if (GameSession.Entry == FlightEntry.Launch && GameSession.PendingLaunch != null)
             {
                 // Remove any vessel still sitting on the pad (KSP-style: the new launch replaces it).

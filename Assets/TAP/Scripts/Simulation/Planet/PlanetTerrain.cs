@@ -51,15 +51,14 @@ namespace TAP.Simulation
         public double AngularRadius;
         public double ArcSize;
 
-        public volatile ChunkData Pending;
-        public int State; // 0 none, 1 requested, 2 ready
+        public int State; // 0 none, 1 requested, 2 ready (a refresh after a terrain edit keeps it at 2)
         public Mesh Mesh;
         public GameObject Go;
         public Vector3d MeshCenterBF;
         public double MinH, MaxH;
         public bool Shown;
         public int LastUsedFrame;
-        public int Generation; // invalidation counter
+        public int Generation; // bumped when the node is released or its ground changes: older results are dropped
     }
 
     /// <summary>
@@ -82,7 +81,7 @@ namespace TAP.Simulation
         public int MeshBuildBudget = 12;
 
         private TerrainNode[] _roots;
-        private readonly ConcurrentQueue<TerrainNode> _completed = new ConcurrentQueue<TerrainNode>();
+        private readonly ConcurrentQueue<(TerrainNode node, ChunkData data, int gen)> _completed = new ConcurrentQueue<(TerrainNode, ChunkData, int)>();
         private readonly List<TerrainNode> _shownLastFrame = new List<TerrainNode>();
         private readonly List<TerrainNode> _shownThisFrame = new List<TerrainNode>();
         private readonly Stack<GameObject> _pool = new Stack<GameObject>();
@@ -210,7 +209,7 @@ namespace TAP.Simulation
 
         private void Request(TerrainNode n)
         {
-            n.State = 1;
+            if (n.State == 0) n.State = 1;
             int gen = n.Generation;
             var body = Body;
             int res = ChunkResolution;
@@ -218,20 +217,40 @@ namespace TAP.Simulation
             TerrainWorkers.Enqueue(() =>
             {
                 if (gen != n.Generation) return;
-                n.Pending = TerrainChunkGenerator.Generate(body.Terrain, body.Radius, n.Face, n.U0, n.V0, n.Size, res, ocean, true);
-                _completed.Enqueue(n);
+                _completed.Enqueue((n, TerrainChunkGenerator.Generate(body.Terrain, body.Radius, n.Face, n.U0, n.V0, n.Size, res, ocean, true), gen));
             });
+        }
+
+        /// <summary>
+        /// The ground changed within <paramref name="angle"/> (rad) of a body-fixed direction (a flat area came or went):
+        /// every chunk there is made again. Chunks keep showing their old mesh until the new one is ready.
+        /// </summary>
+        public void Invalidate(Vector3d centerBF, double angle)
+        {
+            if (_roots == null) return;
+            centerBF = centerBF.normalized;
+            foreach (var r in _roots) Invalidate(r, centerBF, angle);
+        }
+
+        private void Invalidate(TerrainNode n, Vector3d c, double angle)
+        {
+            if (Vector3d.AngleRad(n.CenterDir, c) > n.AngularRadius + angle) return;
+            if (n.State != 0)
+            {
+                n.Generation++;
+                Request(n);
+            }
+            if (n.Children != null) foreach (var ch in n.Children) Invalidate(ch, c, angle);
         }
 
         private void BuildCompleted()
         {
             int built = 0;
             float start = Time.realtimeSinceStartup;
-            while (built < MeshBuildBudget && _completed.TryDequeue(out var n))
+            while (built < MeshBuildBudget && _completed.TryDequeue(out var item))
             {
-                var d = n.Pending;
-                n.Pending = null;
-                if (d == null || n.State != 1) continue;
+                var (n, d, gen) = item;
+                if (d == null || gen != n.Generation || n.State == 0) continue;
                 if (n.Mesh == null) n.Mesh = new Mesh { name = $"terrain_{Body.Id}_{n.Face}_{n.Level}" };
                 n.Mesh.Clear();
                 n.Mesh.SetVertices(d.Positions);
@@ -250,8 +269,8 @@ namespace TAP.Simulation
                     n.Go.name = n.Mesh.name;
                     n.Go.GetComponent<MeshFilter>().sharedMesh = n.Mesh;
                     n.Go.SetActive(false);
+                    n.Shown = false;
                 }
-                n.Shown = false;
                 n.State = 2;
                 built++;
                 if (Time.realtimeSinceStartup - start > 0.006f) break;

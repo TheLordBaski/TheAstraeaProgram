@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TAP.Core;
 using TAP.Parts;
@@ -13,26 +14,81 @@ namespace TAP.Game
         /// Vessel orientation on the pad, as in KSP: nose up, right side (+X) east, belly (+Z) north. D (yaw right)
         /// tips the rocket east for the gravity turn, W/S pitch it north/south.
         /// </summary>
-        public static QuaternionD PadRotationBF(CelestialBody body, LaunchSiteDefinition site)
+        public static QuaternionD PadRotationBF(CelestialBody body, LaunchSiteDefinition site) => PadRotationAt(site.UpBF);
+
+        /// <summary>
+        /// The pad's frame at a body-fixed up direction: +Y up, +Z north, +X = up × north = east. Built in doubles: turned
+        /// about the body's centre, a float frame would be centimetres off at the surface.
+        /// </summary>
+        public static QuaternionD PadRotationAt(Vector3d up)
         {
-            Vector3d up = TerrainGenerator.DirectionFromLatLon(site.latitude, site.longitude);
-            Vector3d north = Geo.North(up);
-            // Rotation whose +Y = up, +Z = north, +X = up x north = east
-            Quaternion q = Quaternion.LookRotation((Vector3)north, (Vector3)up);
-            return QuaternionD.FromQuaternion(q);
+            Vector3d y = up.normalized, z = Geo.North(y), x = Vector3d.Cross(y, z).normalized;
+            // The rotation whose matrix has the columns x, y, z.
+            double m00 = x.x, m10 = x.y, m20 = x.z, m01 = y.x, m11 = y.y, m21 = y.z, m02 = z.x, m12 = z.y, m22 = z.z;
+            double tr = m00 + m11 + m22, s;
+            if (tr > 0)
+            {
+                s = Math.Sqrt(tr + 1) * 2;
+                return new QuaternionD((m21 - m12) / s, (m02 - m20) / s, (m10 - m01) / s, 0.25 * s);
+            }
+            if (m00 > m11 && m00 > m22)
+            {
+                s = Math.Sqrt(1 + m00 - m11 - m22) * 2;
+                return new QuaternionD(0.25 * s, (m01 + m10) / s, (m02 + m20) / s, (m21 - m12) / s);
+            }
+            if (m11 > m22)
+            {
+                s = Math.Sqrt(1 + m11 - m00 - m22) * 2;
+                return new QuaternionD((m01 + m10) / s, 0.25 * s, (m12 + m21) / s, (m02 - m20) / s);
+            }
+            s = Math.Sqrt(1 + m22 - m00 - m11) * 2;
+            return new QuaternionD((m02 + m20) / s, (m12 + m21) / s, 0.25 * s, (m10 - m01) / s);
+        }
+
+        /// <summary>
+        /// Rockets still waiting on the pad (rolled out, never launched) stand on today's pad. When the pad has moved since
+        /// the save (FND-02 moved it 84.6° west), they move with it: turned about the body's centre from the old pad's frame
+        /// to the new one, so they keep their height and their attitude to the pad. Returns how many moved.
+        /// </summary>
+        public static int MoveWaitingRocketsToPad(List<VesselRecord> vessels, CelestialSystem sys)
+        {
+            var site = sys.Def.launchSite;
+            var body = sys.Get(site.body);
+            if (body == null) return 0;
+            Vector3d pad = PadPositionBF(body, site);
+            QuaternionD frame = PadRotationBF(body, site);
+            int moved = 0;
+            foreach (var v in vessels)
+            {
+                if (!v.landed || v.landedPos == null || v.landedRot == null || v.launchUT >= 0 || v.situation != Situation.Prelaunch) continue;
+                if (v.systemId != sys.Id || v.bodyId != body.Id) continue;
+                var p = new Vector3d(v.landedPos[0], v.landedPos[1], v.landedPos[2]);
+                if ((p - pad).magnitude < 200) continue;
+                var rot = new QuaternionD(v.landedRot[0], v.landedRot[1], v.landedRot[2], v.landedRot[3]);
+                var com = v.comOffset != null && v.comOffset.Length == 3 ? new Vector3d(v.comOffset[0], v.comOffset[1], v.comOffset[2]) : Vector3d.zero;
+                // The root stands above the old pad's centre.
+                Vector3d root = p - rot * com;
+                QuaternionD turn = frame * PadRotationAt(root.normalized).Inverse();
+                Vector3d np = turn * p;
+                QuaternionD nr = turn * rot;
+                v.landedPos = new[] { np.x, np.y, np.z };
+                v.landedRot = new[] { (float)nr.x, (float)nr.y, (float)nr.z, (float)nr.w };
+                moved++;
+            }
+            return moved;
         }
 
         /// <summary>Orientation of the launch complex buildings: +Y up, +Z east (the layout the site was designed in).</summary>
         public static QuaternionD SiteRotationBF(CelestialBody body, LaunchSiteDefinition site)
         {
-            Vector3d up = TerrainGenerator.DirectionFromLatLon(site.latitude, site.longitude);
+            Vector3d up = site.UpBF;
             Quaternion q = Quaternion.LookRotation((Vector3)Geo.East(up), (Vector3)up);
             return QuaternionD.FromQuaternion(q);
         }
 
         public static Vector3d PadPositionBF(CelestialBody body, LaunchSiteDefinition site)
         {
-            Vector3d up = TerrainGenerator.DirectionFromLatLon(site.latitude, site.longitude);
+            Vector3d up = site.UpBF;
             return up * (body.Radius + site.padAltitude + site.padDeckHeight);
         }
 

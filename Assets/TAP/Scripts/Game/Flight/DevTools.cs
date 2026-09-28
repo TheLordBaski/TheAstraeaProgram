@@ -300,5 +300,51 @@ namespace TAP.Game
             b = default;
             return false;
         }
+
+        /// <summary>Where the active vessel is: body, biome, geographic position and the ground's height there.</summary>
+        public static string WhereAmI(FlightSim sim)
+        {
+            var h = sim.ActiveHandle;
+            if (h == null) return "No active vessel";
+            var body = sim.Frame.Body;
+            Vector3d rel = h.AbsolutePosition(sim.UT) - body.GetPositionAtUT(sim.UT);
+            Vector3d bf = body.InertialToBodyFixed(rel, sim.UT).normalized;
+            Geo.ToLatLon(bf, out double lat, out double lon);
+            if (body.Terrain == null) return $"{body.Name}, {lat:F3}°, {lon:F3}°";
+            return $"{body.Name} · {body.Terrain.BiomeAt(bf).Name} · {lat:F3}°, {lon:F3}° · ground {body.Terrain.Height(bf):F0} m";
+        }
+
+        /// <summary>
+        /// Flattens ground for a base a little east of the active vessel: a plane fitted to the land (tilting with it up to
+        /// 20°), 60 m across with a 40 m blend. A test of FND-02's flat areas; bases will use the same call.
+        /// </summary>
+        public static string FlattenForBase(FlightSim sim, double eastMetres = 150, double radius = 60, double blend = 40)
+        {
+            var h = sim.ActiveHandle;
+            if (h == null) return "No active vessel";
+            var body = sim.Frame.Body;
+            if (!(body.Terrain is LayeredTerrain t)) return $"{body.Name} has no ground to flatten";
+            Vector3d rel = h.AbsolutePosition(sim.UT) - body.GetPositionAtUT(sim.UT);
+            Vector3d up = body.InertialToBodyFixed(rel, sim.UT).normalized;
+            Vector3d centre = (up + Geo.East(up) * (eastMetres / body.Radius)).normalized;
+            int n = 1;
+            foreach (var a in t.FlatAreas) if (a.Id != null && a.Id.StartsWith("devBase")) n++;
+            var area = t.Flatten("devBase" + n, centre, radius, blend);
+            return $"Flattened ground {eastMetres:F0} m east on {body.Name} ({t.BiomeAt(centre).Name}): {radius * 2:F0} m across, tilted {area.SlopeDeg:F1}°, {area.Height:F0} m high";
+        }
+
+        /// <summary>Removes the flat areas made by <see cref="FlattenForBase"/> on every body.</summary>
+        public static string RemoveBaseFlats(FlightSim sim)
+        {
+            int removed = 0;
+            foreach (var b in sim.System.Bodies)
+                if (b.Terrain is LayeredTerrain t)
+                {
+                    var ids = new System.Collections.Generic.List<string>();
+                    foreach (var a in t.FlatAreas) if (a.Id != null && a.Id.StartsWith("devBase")) ids.Add(a.Id);
+                    foreach (var id in ids) if (t.RemoveFlatArea(id)) removed++;
+                }
+            return removed == 0 ? "No flattened ground to remove" : $"Removed {removed} flattened area{(removed == 1 ? "" : "s")}";
+        }
     }
 }

@@ -12,7 +12,7 @@ namespace TAP.Game
         {
             var site = sim.System.Def.launchSite;
             var body = sim.System.Get(site.body) ?? sim.System.HomeBody;
-            Vector3d up = TerrainGenerator.DirectionFromLatLon(site.latitude, site.longitude);
+            Vector3d up = site.UpBF;
             QuaternionD rot = LaunchService.SiteRotationBF(body, site); // +Y up, +Z east
             Vector3d deckTop = up * (body.Radius + site.padAltitude + site.padDeckHeight);
 

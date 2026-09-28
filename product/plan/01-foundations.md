@@ -60,17 +60,54 @@ Fifteen new worlds can't each be a hard-coded generator, and science needs biome
   - Rifts/canyons, terraces, dunes, polar caps, ocean level.
 - **Biomes**: ordered rules. Each rule can test height band, latitude, slope, distance to shore, noise regions and
   named special areas. A biome has an id, a display name, a map-overlay colour and a material index for rendering.
-- Flattened areas (the launch complex today) become a generic `flatAreas` list.
+- Flattened areas (the launch complex today) become a generic `flatAreas` list. Bases (your decision, 2026-09-28)
+  flatten ground on any body and biome while the game runs: a plane that may tilt with the land, since buildings get
+  foundations that make up the difference.
 - Chunk and collider generation runs in jobs (Burst if it helps). Heights are deterministic, identical on Windows
   and Linux.
 - Tellus and Luma are re-expressed in the new format. Either heights stay within 1 m of today's at 10,000 sample
-  points, or a deliberate visual change is documented with before/after screenshots.
+  points, or a deliberate visual change is documented with before/after screenshots. (Your decision, 2026-09-28: they
+  may look different.)
+
+Built: the format is in [Docs/TERRAIN_FORMAT.md](../../Docs/TERRAIN_FORMAT.md), and Tellus and Luma are presets in
+`Resources/Data/Terrain`.
+- **Layers:** noise (fBm, ridged, billow), crater fields with size classes, age and erosion, rifts along paths, canyon
+  networks, terraces, dunes, ellipsoid shapes (for Granum), and masks by field, height, slope, latitude, distance to
+  the shore or to a site, with ragged edges.
+- **Polar caps** are masks. **Ocean level** is `seaLevel`.
+- **Flat areas:**
+  - They take a fitted or level plane.
+  - They are added and removed at runtime, which remakes the chunks and colliders under them.
+  - A landed vessel whose ground moved while it was away is set back on the ground when it loads.
+- **Jobs:**
+  - Chunks were already made on worker threads.
+  - Collider cooking moved into Unity jobs (`Physics.BakeMesh`).
+  - Burst was left out: the data-driven layers are plain C#, and a Burst copy would need the same bits as the managed
+    code that answers height queries. A chunk takes about 9 ms on Tellus and 13 ms on Luma, which keeps up.
+- **Determinism:** heights and biomes use plain arithmetic and the terrain's own maths (`DetMath`), and are checked
+  against a recorded fingerprint.
+- **Launch complex:** it moved to a natural coastal plain at 84.6° W, with the sea 38 km east. Tellus is turned 84.6°
+  at UT 0, so the pad starts the game where it did before.
 
 **Done when**
-- [ ] Tellus and Luma look as before (screenshots) and the `lunar` mission passes.
-- [ ] `BiomeAt(body, lat, lon)` gives at least 8 biomes on Tellus and 6 on Luma, and a debug map overlay shows them.
+- [x] Tellus and Luma look as before (screenshots) and the `lunar` mission passes. (They changed on purpose, as you
+      allowed: [map before](../../Screenshots/fnd02_tellus_map_before.png) and
+      [after](../../Screenshots/Terrain/home_tellus_surface.png), launch site
+      [before](../../Screenshots/fnd02_launch_site_before.png) and [after](../../Screenshots/fnd02_launch_site_after.png),
+      Luma [before](../../Screenshots/fnd02_luma_before.png) and [after](../../Screenshots/fnd02_luma_after.png); `lunar`
+      19/19 in the build, and every other mission passes.)
+- [x] `BiomeAt(body, lat, lon)` gives at least 8 biomes on Tellus and 6 on Luma, and a debug map overlay shows them.
+      (Tellus 11, Luma 7; developer window → Biome map: [Tellus](../../Screenshots/fnd02_map_biomes_tellus.png),
+      [Luma](../../Screenshots/fnd02_map_biomes_luma.png); flat maps with shares in `Screenshots/Terrain`.)
 - [ ] Unit tests cover determinism (the same heights twice, and the same values on Linux) and biome rule order.
-- [ ] A new body can be added with JSON alone. SYS-03 (Pruina) proves it.
+      (Covered, except the Linux run:
+      - the tests: the same heights, colours and biomes twice, and the first matching rule wins;
+      - a fingerprint of 1,500 heights and biomes matches bit for bit in Unity and in the same source built with
+        .NET 9 on Windows;
+      - Linux waits for .NET in WSL or for CI (QA-01).)
+- [x] A new body can be added with JSON alone. SYS-03 (Pruina) proves it. (Proved first by the debug system's
+      Testrock, which uses every kind of layer: [view](../../Screenshots/fnd02_testrock.png),
+      [biomes](../../Screenshots/Terrain/debug_testrock_biomes.png). SYS-03 repeats it for the home system.)
 
 ### FND-03 · Scaled-space rendering: planets, star and sky from anywhere
 **Milestone** M1 · **Claude** 4 d · **You** 1 d · **Needs** FND-01

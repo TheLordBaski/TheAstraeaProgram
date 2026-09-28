@@ -4,7 +4,7 @@ Legend — **Verified**: exercised by an automated test or an observed run with 
 **Implemented**: in the game and playable, but not covered by an automated check. **Untested**: implemented but never
 exercised end to end. **Limitation**: simplified or missing compared with the specification or with KSP.
 
-Evidence sources: EditMode unit tests (`Assets/TAP/Tests/EditMode`, 41 tests), automated missions flown by the
+Evidence sources: EditMode unit tests (`Assets/TAP/Tests/EditMode`, 55 tests), automated missions flown by the
 scripted pilot through player controls (reports in [TestReports](TestReports)), every one of them re-run in the final
 **standalone Windows build** (`build_<mission>.md`, including the complete lunar mission in
 [TestReports/build_lunar.md](TestReports/build_lunar.md)), and screenshots taken during development and play-testing
@@ -35,13 +35,13 @@ check: the scripted pilot now hovers over to the flattest spot within 60 m, as a
 | Mission | What it flies | Editor | Final standalone build |
 |---|---|---|---|
 | `lunar` | the complete mission above | 19/19 | 19/19 |
-| `orbit` | Meridian to orbit, drift checks, 2 orbits of warp, orbital EVA and boarding, deorbit, splashdown | 9/9 | 9/9 |
+| `orbit` | Meridian to orbit, drift checks, 2 orbits of warp, orbital EVA and boarding, deorbit and a landing (on land since FND-02 moved Tellus's coasts; a splashdown before) | 9/9 | 9/9 |
 | `persistence` | quicksave in orbit → warp → quickload → compare → one more orbit | 10/10 | 10/10 |
 | `suborbital` | Skylark to 170 km and back under the parachute | 3/3 | 3/3 |
 | `failures` | joint overload, unshielded burn-up, torn parachute, 111 m/s impact and crew loss | 6/6 | 6/6 |
 | `docking` | RCS approach from 9.8 m, capture, docked stack, undock, re-arm | 5/5 | 5/5 |
 | `escape` | a probe leaves Tellus on a hyperbola whose solar orbit has Tellus's period, circles Astraea for a year at maximum warp and meets Tellus again where the patched-conic prediction said | 6/6 | 6/6 |
-| EditMode unit tests | orbits, patched conics, attachment, staging, Δv, JSON, wheel notches, geographic latitude, assembly building height limits, star systems, sunlight from the star, SOI transitions to and from the star, calendar, old saves, the far view (positions, star coverage, points of light), map lines at every zoom | 41/41 | — |
+| EditMode unit tests | orbits, patched conics, attachment, staging, Δv, JSON, wheel notches, geographic latitude, assembly building height limits, star systems, sunlight from the star, SOI transitions to and from the star, calendar, old saves, the far view (positions, star coverage, points of light), map lines at every zoom, terrain (the same bits every time and on every platform, deterministic maths, biome rule order, height bounds, a world from JSON alone, presets, flat areas level and tilted, ellipsoids, clear errors for bad data) | 55/55 | — |
 
 Reports: `Docs/TestReports/<mission>.md` (editor) and `build_<mission>.md` (standalone build). The editor runs were
 made during development; the standalone column is the release check of the shipped build, run after the last change.
@@ -54,6 +54,11 @@ made during development; the standalone column is the release check of the shipp
 | Tellus (atmosphere, ocean, rotation) and airless tidally locked Luma, data-driven | Verified | `system.json`; reference values in `PLANETARY_SYSTEM.md`; orbit and lunar autotests |
 | The star Astraea at the root of the home system: Tellus orbits it (a year of 439.87 Tellus days); sunlight, eclipses and solar flux come from its position | Verified | `escape` autotest; unit tests (sunlight direction, a solar orbit returning after one period, SOI transitions to and from the star within 0.1 m and 10⁻⁴ m/s); map screenshots half a year apart (`Screenshots/sun_direction_day1.png`, `sun_direction_halfyear.png`) |
 | Star systems: `galaxy.json` lists them; body ids belong to a system (`home/tellus`); vessels carry their system id; a debug system (a star, Testworld and Testmoon) can replace the home system (`-system debug`) | Verified | Unit tests (galaxy, qualified ids, old saves load into the home system, no literal body ids in gameplay code); the debug system played from the menu through assembly, launch, map and quicksave/quickload (`Screenshots/debug_system_*.png`); in the standalone build with `-system debug`: orbit 9/9 and persistence 10/10, the saves holding the vessel as `debug/testworld` ([build_debug_orbit.md](TestReports/build_debug_orbit.md), [build_debug_persistence.md](TestReports/build_debug_persistence.md)) |
+| Terrain as data ([TERRAIN_FORMAT.md](TERRAIN_FORMAT.md)): every surface is a JSON definition of fields and layers (noise, craters with age and erosion, rifts, canyon networks, terraces, dunes, ellipsoid shapes, masks by height, slope, latitude, distance to the shore or to a site, sea level), shared as presets (`Resources/Data/Terrain`). Tellus and Luma are data now, and changed on purpose: polar ice and woodland and steppe regions on Tellus, the launch complex on a real coastal plain at 84.6° W | Verified | Unit tests; the debug system's Testrock is defined in its JSON alone and uses every kind of layer (`Screenshots/fnd02_testrock.png`); before/after: `Screenshots/fnd02_tellus_map_before.png`, `Screenshots/Terrain/home_tellus_surface.png`, `fnd02_launch_site_before.png`, `fnd02_launch_site_after.png`, `fnd02_luma_before.png`, `fnd02_luma_after.png` |
+| Biomes: ordered rules on every body (Tellus 11, Luma 7, Testrock 7), `CelestialBody.BiomeAt(lat, lon)`; a biome map in the map view (developer window → *Biome map*) and flat maps with each biome's share (*TAP → Terrain → Export Maps*) | Verified | Unit tests (at least 8 on Tellus and 6 on Luma found by sampling, the pad in the launch complex's biome, first match wins); `Screenshots/Terrain/*_biomes.png`, `fnd02_map_biomes_tellus.png`, `fnd02_map_biomes_luma.png` |
+| Flat areas: the launch complex, and ground flattened for bases while the game runs, anywhere: a plane fitted to the land (tilted with it up to 20°, buildings stand on foundations) or level, blending back into the land; the chunks and colliders under it are made again, the old ones showing until then | Verified | Unit tests (inside the radius the ground is the plane, beyond it untouched, removing it restores the land bit for bit, the fitted tilt follows a 10% slope, saved and loaded it is the same plane); developer window → *Flatten ground for a base* on Luma: a 120 m pad tilted 7.9° beside a landed rocket, which stayed put (`fnd02_base_flatten.png`) |
+| A landed vessel whose ground moved while it was away (a terrain update, a base) is set back on the ground when it loads | Verified (editor) | Luma: ground raised 15 m under a landed rocket, then quickloaded: it stood 15 m higher, 11.7 m above the ground as before; ground lowered 15 m: 15 m lower, same height above the ground |
+| The same terrain on every platform: heights and biomes use only plain arithmetic and the terrain's own exp, log, sin, cos, atan (`DetMath`); noise tables from a copy of .NET's seeded random generator | Verified (Windows) | 1,500 heights and biomes (300 fixed points on each of 5 bodies) match the recorded fingerprint bit for bit in Unity (Mono) and in the same source built with .NET 9 outside Unity |
 | Clock and calendar: 6-hour solar days (noon to noon), years of 439 or 440 days following Tellus's orbit; durations in Tellus days | Verified | Unit tests (the sun stands in the same place after one day; each new year within half a day of the orbital anniversary) |
 | Rockets only (no aircraft, wings, jets, runways, multiplayer, career, tech tree) | By design | Fins exist only as rocket stabilisers |
 
@@ -74,7 +79,7 @@ made during development; the standalone column is the release check of the shipp
 | Readouts: mass, dry mass, TWR, Δv per stage and total (sea level / vacuum / Luma), burn time, EC, monoprop, crew seats, size | Verified | Unit tests; the in-flight Δv readout matches the assembly figures (6,926 m/s = 1,126 + 1,425 + 2,013 + 2,362 for the old Pathfinder) |
 | CoM / CoT / CoP markers and stability verdict; design warnings | Verified | Unit tests `DeltaV_DecouplerBlocksFuelFlow`, `DesignAnalysis_StarterRocketsAreSound` |
 | Save / load craft files, starter craft library | Verified | Lossless JSON round trip unit test; the `ascent` test flies craft files |
-| Tested starter rockets (suborbital, orbital, lunar) | Verified | Skylark: `suborbital` 3/3 (apex 170.6 km, chute armed at 6.2 km / 204 m/s, touchdown 0.0 m/s); Meridian: `orbit` 9/9 (orbit, 2 orbits of warp, orbital EVA, splashdown 0.9 m/s), `persistence` 10/10; Pathfinder: `lunar` (editor and build). The Skylark was redesigned after its first version peaked at only 35 km; the Pathfinder was sized by ascent comparison flights (see the checklist log) |
+| Tested starter rockets (suborbital, orbital, lunar) | Verified | Skylark: `suborbital` 3/3 (apex 170.6 km, chute armed at 6.2 km / 204 m/s, touchdown 0.0 m/s); Meridian: `orbit` 9/9 (orbit, 2 orbits of warp, orbital EVA, landing 0.0 m/s on land), `persistence` 10/10; Pathfinder: `lunar` (editor and build). The Skylark was redesigned after its first version peaked at only 35 km; the Pathfinder was sized by ascent comparison flights (see the checklist log) |
 | Every part has a gameplay purpose | Implemented | 36 parts: 3 command, 7 tanks, 4 engines, 2 solid boosters, 3 decouplers, docking port, 2 legs, 3 parachutes, 2 heat shields, 2 batteries, 2 reaction wheels, RCS, 2 monoprop tanks, nose cone, fin |
 
 ## Flight physics
@@ -173,8 +178,11 @@ made during development; the standalone column is the release check of the shipp
 * Reentry heating is forgiving at lunar-return speeds: an unshielded capsule flown blunt end first peaked at 1,053 K
   (pod limit 1,600 K) in a lunar-return entry, so the heat shield is essential only for faster or nose-first
   entries (the `failures` test uses 4.5 km/s nose first). The starter rockets carry shields anyway.
-* The terrain is procedural noise with craters on Luma; there are no biomes or science. Luma's slopes can topple tall
-  landers; the starter lander is built wide for that reason.
+* Biomes exist on every body but nothing uses them yet: science comes with SCI-01/SCI-02, and the terrain shader
+  doesn't texture them yet (ART-07a; each biome already names its material set). Ground flattened with the developer
+  tool lasts until the game is closed (bases, which will save their flat areas, don't exist yet). Terrain chunks are
+  made on worker threads in plain C# (no Burst): about 9 ms per chunk on Tellus and 13 ms on Luma, which keeps up
+  with a landing. Luma's slopes can topple tall landers; the starter lander is built wide for that reason.
 * Spent boosters tumble quickly after separation (debris only; they fall away cleanly).
 * The scripted pilot is a test tool, not a player autopilot (players have SAS). Its transfer planner prefers a fast
   transfer (~940 m/s instead of the ~860 m/s Hohmann burn).
