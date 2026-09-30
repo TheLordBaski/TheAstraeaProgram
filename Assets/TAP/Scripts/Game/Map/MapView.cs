@@ -502,7 +502,7 @@ namespace TAP.Game
                     var p = FindPatch(Trajectory.HasNodes ? Trajectory.Planned : Trajectory.Current, n.ut, true);
                     if (p == null) continue;
                     double dv = Math.Sqrt(n.prograde * n.prograde + n.normal * n.normal + n.radial * n.radial);
-                    Add(MarkerType.Node, PatchedConics.AbsolutePosition(p, n.ut), focus, $"Node {i + 1}", $"Maneuver {i + 1}\nΔv {dv:F1} m/s\nin {MathD.FormatDuration(n.ut - ut)}", new Color(0.3f, 0.6f, 1f), i, n.ut);
+                    Add(MarkerType.Node, PatchMapPosition(p, n.ut, ut ), focus, $"Node {i + 1}", $"Maneuver {i + 1}\nΔv {dv:F1} m/s\nin {MathD.FormatDuration(n.ut - ut)}", new Color(0.3f, 0.6f, 1f), i, n.ut);
                 }
                 if (Trajectory.HasClosest && !string.IsNullOrEmpty(v.TargetId))
                 {
@@ -526,6 +526,10 @@ namespace TAP.Game
             foreach (var p in list) if (t >= p.StartUT - 1e-6 && t <= p.EndUT + 1e-6) return p;
             return null;
         }
+        
+        private static Vector3d PatchMapPosition(OrbitPatch patch, double eventUT, double mapUT)
+            => patch.Body.GetPositionAtUT(mapUT)
+               + patch.Orbit.GetPositionAtUT(eventUT);
 
         private void AddPatchMarkers(List<OrbitPatch> patches, Vector3d focus, double ut, bool planned)
         {
@@ -540,29 +544,29 @@ namespace TAP.Game
                 if (!double.IsNaN(p.ApoapsisUT))
                 {
                     double ap = o.ApoapsisRadius - b.Radius;
-                    Add(MarkerType.Apoapsis, PatchedConics.AbsolutePosition(p, p.ApoapsisUT), focus, $"Ap {MathD.FormatDistance(ap)}",
+                    Add(MarkerType.Apoapsis, PatchMapPosition(p, p.ApoapsisUT, ut), focus, $"Ap {MathD.FormatDistance(ap)}",
                         $"{pre}Apoapsis ({b.Name})\n{MathD.FormatDistance(ap)}\nin {MathD.FormatDuration(p.ApoapsisUT - ut)}", planned ? PlannedColor : CurrentColor, null, p.ApoapsisUT);
                 }
                 if (!double.IsNaN(p.PeriapsisUT))
                 {
                     double pe = o.PeriapsisRadius - b.Radius;
-                    Add(MarkerType.Periapsis, PatchedConics.AbsolutePosition(p, p.PeriapsisUT), focus, $"Pe {MathD.FormatDistance(pe)}",
+                    Add(MarkerType.Periapsis, PatchMapPosition(p, p.PeriapsisUT, ut), focus, $"Pe {MathD.FormatDistance(pe)}",
                         $"{pre}Periapsis ({b.Name})\n{MathD.FormatDistance(pe)}\nin {MathD.FormatDuration(p.PeriapsisUT - ut)}", planned ? PlannedColor : (i == 0 ? CurrentColor : MoonPatchColor), null, p.PeriapsisUT);
                 }
                 if (p.EndType == PatchEnd.SoiEnter && i + 1 < patches.Count)
                 {
                     var next = patches[i + 1];
                     double pe = next.Orbit.PeriapsisRadius - next.Body.Radius;
-                    Add(MarkerType.Encounter, PatchedConics.AbsolutePosition(p, p.EndUT), focus, $"{next.Body.Name} encounter",
+                    Add(MarkerType.Encounter, PatchMapPosition(p, p.EndUT, ut), focus, $"{next.Body.Name} encounter",
                         $"{pre}Enter {next.Body.Name} SOI in {MathD.FormatDuration(p.EndUT - ut)}\nPeriapsis {MathD.FormatDistance(pe)}", MoonPatchColor, null, p.EndUT);
                 }
                 if (p.EndType == PatchEnd.SoiExit)
-                    Add(MarkerType.SoiExit, PatchedConics.AbsolutePosition(p, p.EndUT), focus, $"{b.Name} escape",
+                    Add(MarkerType.SoiExit, PatchMapPosition(p, p.EndUT, ut), focus, $"{b.Name} escape",
                         $"{pre}Leave {b.Name} SOI in {MathD.FormatDuration(p.EndUT - ut)}", MoonPatchColor, null, p.EndUT);
                 if (p.EndType == PatchEnd.Impact)
-                    Add(MarkerType.Impact, PatchedConics.AbsolutePosition(p, p.EndUT), focus, "Impact", $"{pre}Surface impact on {b.Name} in {MathD.FormatDuration(p.EndUT - ut)}", new Color(1f, 0.3f, 0.2f), null, p.EndUT);
+                    Add(MarkerType.Impact, PatchMapPosition(p, p.EndUT, ut), focus, "Impact", $"{pre}Surface impact on {b.Name} in {MathD.FormatDuration(p.EndUT - ut)}", new Color(1f, 0.3f, 0.2f), null, p.EndUT);
                 if (!double.IsNaN(p.AtmosphereEntryUT))
-                    Add(MarkerType.AtmosphereEntry, PatchedConics.AbsolutePosition(p, p.AtmosphereEntryUT), focus, "Atmo",
+                    Add(MarkerType.AtmosphereEntry, PatchMapPosition(p, p.AtmosphereEntryUT, ut), focus, "Atmo",
                         $"{pre}Atmosphere entry in {MathD.FormatDuration(p.AtmosphereEntryUT - ut)}", new Color(0.5f, 0.8f, 1f), null, p.AtmosphereEntryUT);
             }
         }
@@ -621,7 +625,7 @@ namespace TAP.Game
             Vector3d focus = FocusAbsolute(Sim.UT);
             p.Orbit.GetStateAtUT(n.ut, out var r, out var v);
             PatchedConics.OrbitalFrame(r, v, out var P, out var N, out var R);
-            Vector3d abs = p.Body.GetPositionAtUT(n.ut) + r;
+            Vector3d abs = PatchMapPosition(p, n.ut, Sim.UT);
             Vector3 w = ToMap(abs, focus);
             screen = MapCamera.WorldToScreenPoint(w);
             if (screen.z <= 0) return false;
