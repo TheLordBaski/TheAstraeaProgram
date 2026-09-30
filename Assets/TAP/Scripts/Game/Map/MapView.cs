@@ -510,7 +510,7 @@ namespace TAP.Game
                     if (p != null)
                     {
                         string tip = $"Closest approach\n{MathD.FormatDistance(Trajectory.ClosestDistance)}\nin {MathD.FormatDuration(Trajectory.ClosestUT - ut)}\nrel. speed {Trajectory.ClosestRelSpeed:F1} m/s";
-                        Add(MarkerType.ClosestSelf, PatchedConics.AbsolutePosition(p, Trajectory.ClosestUT), focus, "", tip, TargetColor, null, Trajectory.ClosestUT);
+                        Add(MarkerType.ClosestSelf, PatchMapPosition(p, Trajectory.ClosestUT, ut), focus, "", tip, TargetColor, null, Trajectory.ClosestUT);
                         var tid = v.TargetId;
                         Vector3d tpos = Vector3d.zero;
                         if (tid.StartsWith("body:")) tpos = Sim.System.Get(tid.Substring(5)).GetPositionAtUT(Trajectory.ClosestUT);

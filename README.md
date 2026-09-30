@@ -26,6 +26,9 @@ Repository: <https://github.com/TheLordBaski/TheAstraeaProgram>. Images and othe
   `Assets/TAP/Resources/PartModels/<part id>.fbx` replaces that part's model ([Docs/PART_MODELS.md](Docs/PART_MODELS.md)).
 * **Assembly building limits**: *TAP → Assembly Building Settings* selects `Assets/TAP/Resources/Settings/AssemblyBuilding.asset`,
   where the building's height limit is set (how high a craft can be raised; future building upgrades will change it).
+* **Celestial body authoring**: *TAP → Terrain → Celestial Body Lab* opens an editor-only development scene with live
+  terrain/biome and system-orbit previews, seeded random worlds, biome themes, property hover help, in-memory Undo/Redo
+  and explicit JSON saves ([Docs/CELESTIAL_BODY_LAB.md](Docs/CELESTIAL_BODY_LAB.md)).
 
 ## Documentation
 
@@ -35,6 +38,7 @@ Repository: <https://github.com/TheLordBaski/TheAstraeaProgram>. Images and othe
 | [Docs/LUNAR_WALKTHROUGH.md](Docs/LUNAR_WALKTHROUGH.md) | Step-by-step guide to the complete Luma mission with the starter rocket |
 | [Docs/PART_MODELS.md](Docs/PART_MODELS.md) | Exporting part models, editing them in Blender and using them in the game |
 | [Docs/PLANETARY_SYSTEM.md](Docs/PLANETARY_SYSTEM.md) | Radii, masses, gravity, atmosphere, rotation, orbits, SOI, warp limits, Δv budget |
+| [Docs/CELESTIAL_BODY_LAB.md](Docs/CELESTIAL_BODY_LAB.md) | Editor-only body/biome authoring, live previews, Undo/Redo and JSON save/export workflow |
 | [Docs/FEATURES_AND_LIMITATIONS.md](Docs/FEATURES_AND_LIMITATIONS.md) | What is implemented, what was verified and how, known limitations |
 | [Docs/IMPLEMENTATION_CHECKLIST.md](Docs/IMPLEMENTATION_CHECKLIST.md) | Milestone checklist and verification log |
 

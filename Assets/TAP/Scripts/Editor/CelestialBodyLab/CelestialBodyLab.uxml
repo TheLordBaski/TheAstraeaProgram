@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:VisualElement name="toolbar" class="body-lab-toolbar" />
+    <ui:VisualElement name="actions" class="body-lab-toolbar" />
+    <ui:VisualElement name="generation" class="body-lab-toolbar" />
+    <ui:Label name="status" class="body-lab-status" />
+    <ui:VisualElement name="content" class="body-lab-content" />
+</ui:UXML>

@@ -36,7 +36,7 @@ namespace TAP.Game
         private void Update()
         {
             if (Sim == null) return;
-            var v = Sim.ActiveVessel;
+            Vessel v = Sim.ActiveVessel;
             _timer += Time.unscaledDeltaTime;
             bool nodesChanged = v != null && v.ManeuverVersion != _lastNodeVersion;
             if (_timer < Interval && !nodesChanged && v == _lastVessel) return;
@@ -54,10 +54,10 @@ namespace TAP.Game
             HasClosest = false;
             Version++;
             if (v == null) return;
-            var h = v.Handle;
+            VesselHandle h = v.Handle;
             if (h == null) return;
             Orbit orbit = h.CurrentOrbit;
-            var body = h.Body;
+            CelestialBody body = h.Body;
             if (orbit == null || body == null) return;
             if (v.Situation == Situation.Landed || v.Situation == Situation.Prelaunch || v.Situation == Situation.Splashed)
             {
@@ -67,12 +67,12 @@ namespace TAP.Game
             try
             {
                 Current.AddRange(PatchedConics.Predict(orbit, body, ut, null, 5));
-                var nodes = v.ManeuverNodes;
+                List<ManeuverNodeRecord> nodes = v.ManeuverNodes;
                 if (nodes.Count > 0)
                 {
                     HasNodes = true;
-                    var specs = new List<NodeSpec>();
-                    foreach (var n in nodes) specs.Add(new NodeSpec(n.ut, n.prograde, n.normal, n.radial));
+                    List<NodeSpec> specs = new List<NodeSpec>();
+                    foreach (ManeuverNodeRecord n in nodes) specs.Add(new NodeSpec(n.ut, n.prograde, n.normal, n.radial));
                     specs.Sort((a, b) => a.UT.CompareTo(b.UT));
                     Planned.AddRange(PatchedConics.Predict(orbit, body, ut, specs, 4 + specs.Count * 2));
                 }
@@ -86,22 +86,22 @@ namespace TAP.Game
 
         private void ComputeClosest(Vessel v)
         {
-            var id = v.TargetId;
+            string id = v.TargetId;
             if (string.IsNullOrEmpty(id)) return;
             Func<double, Vector3d> pos = null, vel = null;
             if (id.StartsWith("body:"))
             {
-                var b = Sim.System.Get(id.Substring(5));
+                CelestialBody b = Sim.System.Get(id.Substring(5));
                 if (b == null) return;
                 pos = t => b.GetPositionAtUT(t);
                 vel = t => b.GetVelocityAtUT(t);
             }
             else if (id.StartsWith("vessel:"))
             {
-                var th = Sim.FindHandle(id.Substring(7));
+                VesselHandle th = Sim.FindHandle(id.Substring(7));
                 if (th == null) return;
-                var o = th.CurrentOrbit;
-                var tb = th.Body;
+                Orbit o = th.CurrentOrbit;
+                CelestialBody tb = th.Body;
                 if (o == null)
                 {
                     pos = t => th.AbsolutePosition(t);
@@ -113,17 +113,17 @@ namespace TAP.Game
                     vel = t => tb.GetVelocityAtUT(t) + o.GetVelocityAtUT(t);
                 }
             }
-            var patches = Planned.Count > 0 ? Planned : Current;
+            List<OrbitPatch> patches = Planned.Count > 0 ? Planned : Current;
             HasClosest = PatchedConics.ClosestApproach(patches, pos, vel, out ClosestDistance, out ClosestUT, out ClosestRelSpeed);
         }
 
         /// <summary>First patch of the displayed trajectory that orbits a different body than the first.</summary>
         public OrbitPatch FirstEncounter(bool planned)
         {
-            var list = planned && Planned.Count > 0 ? Planned : Current;
+            List<OrbitPatch> list = planned && Planned.Count > 0 ? Planned : Current;
             if (list.Count == 0) return null;
-            var b0 = list[0].Body;
-            foreach (var p in list) if (p.Body != b0) return p;
+            CelestialBody b0 = list[0].Body;
+            foreach (OrbitPatch p in list) if (p.Body != b0) return p;
             return null;
         }
     }

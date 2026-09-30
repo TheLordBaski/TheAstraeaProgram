@@ -1,0 +1,26 @@
+.body-lab-toolbar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 4px;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(128, 128, 128, 0.3);
+}
+.body-lab-toolbar > Button { margin-right: 4px; }
+.body-lab-toolbar > .unity-base-field { margin-right: 8px; }
+.body-lab-content { flex-grow: 1; }
+.body-lab-status { white-space: normal; padding: 6px; }
+.body-lab-pane { padding: 6px; min-width: 300px; }
+.body-lab-row { flex-direction: row; margin-top: 2px; margin-bottom: 2px; }
+.body-lab-row > Button { flex-shrink: 0; min-width: 24px; }
+.body-lab-entry {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 4px;
+    border-left-width: 2px;
+    border-left-color: rgba(128, 128, 128, 0.5);
+}
+.body-lab-preview { height: 300px; flex-shrink: 0; background-color: rgb(6, 9, 15); }
+.body-lab-map { height: 180px; flex-shrink: 0; margin-top: 8px; }
+.body-lab-readout { white-space: normal; margin-top: 6px; }
+.body-lab-title { -unity-font-style: bold; margin-top: 10px; margin-bottom: 4px; }
+.body-lab-orbits { height: 300px; flex-shrink: 0; overflow: hidden; background-color: rgb(6, 9, 15); margin-top: 6px; }
