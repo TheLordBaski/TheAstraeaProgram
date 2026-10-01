@@ -194,8 +194,8 @@ Heights and biomes are the same bits on every platform:
 - the noise tables come from a copy of .NET's seeded random generator.
 
 `Assets/TAP/Tests/EditMode/TerrainFingerprint.txt` holds heights and biomes at 300 fixed points per body. A unit test
-compares them bit for bit, and a program built from the same source with .NET 9 gives the same bits (see the FND-02
-issue).
+compares them bit for bit, and a program built from the same source with .NET 9 gives the same bits on Windows and on
+Linux (see the FND-02 issue).
 
 **After changing terrain data on purpose, record it again: *TAP → Terrain → Record Fingerprint*.** The test says so
 when the data changed.

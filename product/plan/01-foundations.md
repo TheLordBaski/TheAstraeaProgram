@@ -99,12 +99,12 @@ Built: the format is in [Docs/TERRAIN_FORMAT.md](../../Docs/TERRAIN_FORMAT.md), 
 - [x] `BiomeAt(body, lat, lon)` gives at least 8 biomes on Tellus and 6 on Luma, and a debug map overlay shows them.
       (Tellus 11, Luma 7; developer window → Biome map: [Tellus](../../Screenshots/fnd02_map_biomes_tellus.png),
       [Luma](../../Screenshots/fnd02_map_biomes_luma.png); flat maps with shares in `Screenshots/Terrain`.)
-- [ ] Unit tests cover determinism (the same heights twice, and the same values on Linux) and biome rule order.
-      (Covered, except the Linux run:
+- [x] Unit tests cover determinism (the same heights twice, and the same values on Linux) and biome rule order.
+      (Covered:
       - the tests: the same heights, colours and biomes twice, and the first matching rule wins;
       - a fingerprint of 1,500 heights and biomes matches bit for bit in Unity and in the same source built with
-        .NET 9 on Windows;
-      - Linux waits for .NET in WSL or for CI (QA-01).)
+        .NET 9, on Windows and on Linux (WSL Ubuntu 24.04, 2026-10-01);
+      - the check catches one height changed in its last bit.)
 - [x] A new body can be added with JSON alone. SYS-03 (Pruina) proves it. (Proved first by the debug system's
       Testrock, which uses every kind of layer: [view](../../Screenshots/fnd02_testrock.png),
       [biomes](../../Screenshots/Terrain/debug_testrock_biomes.png). SYS-03 repeats it for the home system.)
