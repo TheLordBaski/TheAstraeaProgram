@@ -35,6 +35,13 @@ namespace TAP.Parts
         public const int Seg = 32;
         public const int ColSeg = 12;
 
+        /// <summary>The generated model types (model.type in parts.json); any other is drawn as a tank.</summary>
+        public static readonly string[] Types =
+        {
+            "tank", "adapter", "capsule", "probe", "engine", "srb", "decoupler", "radialdecoupler", "leg", "chute", "radialchute",
+            "heatshield", "battery", "disc", "rcs", "radialtank", "dockingport", "nosecone", "fin", "eva", "flag",
+        };
+
         /// <summary>Resources folder of hand-made part models, one per part id.</summary>
         public const string CustomFolder = "PartModels";
 

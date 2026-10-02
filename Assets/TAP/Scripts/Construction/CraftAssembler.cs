@@ -61,7 +61,7 @@ namespace TAP.Construction
 
         public int AttachStack(int parent, string parentNode, string partId, string childNode, int stage = -1)
         {
-            var def = Db.Get(partId) ?? throw new ArgumentException("Unknown part " + partId);
+            var def = Db.Get(partId) ?? throw new ArgumentException("Part " + partId + " can't be used: " + Db.WhyMissing(partId));
             if (!StackPose(parent, parentNode, def, childNode, out var pos, out var rot))
                 throw new ArgumentException($"Cannot attach {partId}.{childNode} to {Design.parts[parent].partId}.{parentNode}");
             Design.parts.Add(new PartNodeRecord
@@ -95,7 +95,7 @@ namespace TAP.Construction
         /// </summary>
         public List<int> AttachRadial(int parent, string partId, float y, float angleDeg, int symmetry = 1, float radiusOverride = -1, int stage = -1)
         {
-            var def = Db.Get(partId) ?? throw new ArgumentException("Unknown part " + partId);
+            var def = Db.Get(partId) ?? throw new ArgumentException("Part " + partId + " can't be used: " + Db.WhyMissing(partId));
             var pdef = Def(parent);
             var pp = Design.parts[parent];
             float r = radiusOverride > 0 ? radiusOverride : pdef.diameter * 0.5f;

@@ -6,7 +6,7 @@ Checks: 9/9 passed
 - [x] max dynamic pressure survivable: 39.3 kPa
 - [x] stable orbit reached: Pe 81.1 km, Ap 81.5 km, e 0.0003
 - [x] physics coast: no drift in semi-major axis: da = 0.000 m after 60 s
-- [x] rails warp: orbit preserved: da = 0.000 m, de = -8.76E-016 after 2 orbits
+- [x] rails warp: orbit preserved: da = 0.000 m, de = -1.42E-016 after 2 orbits
 - [x] EVA in orbit: rocketeer inherits the vessel's orbit: Ada Kestrel outside, relative speed 0.56 m/s, Δa 53 m, Pe 81.2 km
 - [x] jetpack manoeuvre in orbit: moved 7.1 m from the hatch
 - [x] crew boarded the vessel in orbit: Ada Kestrel back aboard Meridian Orbiter
@@ -25,18 +25,18 @@ Checks: 9/9 passed
     [AutoTest      178.8] PHASE coast to space
     [AutoTest      216.4] PHASE circularize
     [AutoTest      216.4] circularization: dv 407.2 m/s, burn 15.7 s, in 94 s
-    [AutoTest      302.7] circularization: 407 m/s to go, 0.0° off, throttle 1.00, spin 0.000 rad/s, SAS Maneuver
+    [AutoTest      302.7] circularization: 407 m/s to go, 0.1° off, throttle 1.00, spin 0.000 rad/s, SAS Maneuver
     [AutoTest      306.7] circularization: 312 m/s to go, 0.0° off, throttle 1.00, spin 0.000 rad/s, SAS Maneuver
-    [AutoTest      310.7] circularization: 210 m/s to go, 0.0° off, throttle 1.00, spin 0.001 rad/s, SAS Maneuver
-    [AutoTest      314.7] circularization: 104 m/s to go, 0.1° off, throttle 1.00, spin 0.001 rad/s, SAS Maneuver
-    [AutoTest      318.8] circularization: 10 m/s to go, 0.1° off, throttle 0.32, spin 0.001 rad/s, SAS Maneuver
-    [AutoTest      321.3] circularization: burn complete, residual 0.30 m/s after 18.6 s
+    [AutoTest      310.7] circularization: 210 m/s to go, 0.1° off, throttle 1.00, spin 0.000 rad/s, SAS Maneuver
+    [AutoTest      314.7] circularization: 104 m/s to go, 0.0° off, throttle 1.00, spin 0.001 rad/s, SAS Maneuver
+    [AutoTest      318.8] circularization: 10 m/s to go, 0.0° off, throttle 0.32, spin 0.001 rad/s, SAS Maneuver
+    [AutoTest      321.3] circularization: burn complete, residual 0.29 m/s after 18.6 s
     [AutoTest      321.3] CHECK PASS: stable orbit reached — Pe 81.1 km, Ap 81.5 km, e 0.0003
     [AutoTest      321.3] in orbit 320 s after launch with 356 m/s vac (356) left
     [AutoTest      321.3] screenshot: orbit_020_orbit.png
     [AutoTest      321.3] PHASE orbit stability
     [AutoTest      381.3] CHECK PASS: physics coast: no drift in semi-major axis — da = 0.000 m after 60 s
-    [AutoTest     4141.7] CHECK PASS: rails warp: orbit preserved — da = 0.000 m, de = -8.76E-016 after 2 orbits
+    [AutoTest     4141.7] CHECK PASS: rails warp: orbit preserved — da = 0.000 m, de = -1.42E-016 after 2 orbits
     [AutoTest     4141.7] PHASE orbital EVA
     [AutoTest     4141.7] screenshot: orbit_025_orbital_eva.png
     [AutoTest     4141.7] CHECK PASS: EVA in orbit: rocketeer inherits the vessel's orbit — Ada Kestrel outside, relative speed 0.56 m/s, Δa 53 m, Pe 81.2 km

@@ -18,7 +18,8 @@ namespace TAP.App
             }
             Time.timeScale = 1f;
             PostFx.Create();
-            TAP.UI.MainMenuUI.Create();
+            // Load the game data now, so a problem in it shows on the menu instead of when a game starts.
+            TAP.UI.MainMenuUI.Create(ContentCheck.LoadGameData());
         }
     }
 }

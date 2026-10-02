@@ -122,14 +122,14 @@ namespace TAP.EditorTools
             Add<TerraceDef>("step|Vertical spacing between terrace levels in metres.", "sharpness|Zero keeps the original relief; one creates flat treads and steep risers.");
             Add<DuneDef>("wavelength|Distance between successive crests in metres.", "height|Dune height in metres.", "axisLat|Wind-axis latitude in degrees; dune crests form circles around this axis.",
                 "axisLon|Wind-axis longitude in degrees.", "crest|Crest's fraction of a wave, controlling the gentle face and steep slip face.", "warp|Noise distorting the dune crests.");
-            Add<FlatAreaDef>("id|Unique flat-area ID, which launch sites and near terms can reference.", "name|Displayed site name.",
+            Add<FlatAreaDef>("id|Unique flat-area ID, which launch sites and near terms can reference.", "name|Displayed site name.", "note|Author note with no effect on generation.",
                 "lat|Centre latitude in degrees north.", "lon|Centre longitude in degrees east.", "height|Plane height at its centre in metres above datum.",
                 "radius|Radius in metres of ground pulled fully onto the plane.", "blend|Distance in metres beyond radius where the plane fades into the surrounding land.",
                 "outerRadius|Optional wider smoothing radius in metres.", "outerRelief|Remaining relief fraction near the inner blend edge; rises to full relief at outerRadius.",
                 "slope|Plane tilt in degrees when normal and automatic fitting are absent.", "slopeAzimuth|Direction of downhill slope in degrees; east is 90.",
                 "normal|Three components of the body-fixed plane normal; overrides slope/azimuth.", "fit|Fit the plane's height and tilt to the underlying terrain.",
                 "level|When fitting, estimate height while keeping the plane level.", "maxSlope|Maximum allowed fitted tilt in degrees.");
-            Add<PlaceDef>("id|Unique landmark ID referenced by near terms.", "name|Displayed landmark name.", "lat|Latitude in degrees north.", "lon|Longitude in degrees east.");
+            Add<PlaceDef>("id|Unique landmark ID referenced by near terms.", "name|Displayed landmark name.", "note|Author note with no effect on generation.", "lat|Latitude in degrees north.", "lon|Longitude in degrees east.");
             Add<ShoreDef>("field|ID of a field whose zero line is the coast and whose positive values are land.");
             Add<ColorRuleDef>("note|Author note with no effect on generation.", "color|Surface paint colour in #RRGGBB; later rules paint over earlier ones.", "mask|Terms multiply into this paint rule's influence. No terms paints everywhere.");
             Add<ShadingDef>("noise|Noise pattern varying brightness over the painted colour.", "amount|Brightness-noise strength in the formula 1 + noise × amount.", "slopeDarkening|Darkening strength multiplied by 1 − cos(slope); steep faces become darker.");

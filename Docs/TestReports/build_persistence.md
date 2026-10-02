@@ -9,7 +9,7 @@ Checks: 10/10 passed
 - [x] quickload restores the universe time: UT 323.82: 2.54 s after the saved 321.28, 2.52 s after the reload
 - [x] quickload restores position and velocity: Δr 0.000 m, Δv 0.0000 m/s
 - [x] quickload restores the vessel: Meridian Orbiter: 6 parts, crew 1
-- [x] quickload restores resources: largest difference 0.0006 (Electric)
+- [x] quickload restores resources: largest difference 0.0008 (Electric)
 - [x] quickload restores all vessels and milestones: 1 vessels, 3 milestones
 - [x] orbit continues seamlessly after quickload + warp: Δr 0.00 m after one more orbit
 
@@ -27,10 +27,10 @@ Checks: 10/10 passed
     [AutoTest      216.4] PHASE circularize
     [AutoTest      216.4] circularization: dv 407.2 m/s, burn 15.7 s, in 94 s
     [AutoTest      302.7] circularization: 407 m/s to go, 0.1° off, throttle 1.00, spin 0.000 rad/s, SAS Maneuver
-    [AutoTest      306.7] circularization: 312 m/s to go, 0.0° off, throttle 1.00, spin 0.000 rad/s, SAS Maneuver
-    [AutoTest      310.7] circularization: 210 m/s to go, 0.0° off, throttle 1.00, spin 0.000 rad/s, SAS Maneuver
-    [AutoTest      314.7] circularization: 104 m/s to go, 0.1° off, throttle 1.00, spin 0.001 rad/s, SAS Maneuver
-    [AutoTest      318.8] circularization: 10 m/s to go, 0.1° off, throttle 0.32, spin 0.002 rad/s, SAS Maneuver
+    [AutoTest      306.7] circularization: 312 m/s to go, 0.1° off, throttle 1.00, spin 0.000 rad/s, SAS Maneuver
+    [AutoTest      310.7] circularization: 210 m/s to go, 0.1° off, throttle 1.00, spin 0.000 rad/s, SAS Maneuver
+    [AutoTest      314.7] circularization: 104 m/s to go, 0.0° off, throttle 1.00, spin 0.000 rad/s, SAS Maneuver
+    [AutoTest      318.8] circularization: 10 m/s to go, 0.1° off, throttle 0.32, spin 0.001 rad/s, SAS Maneuver
     [AutoTest      321.3] circularization: burn complete, residual 0.30 m/s after 18.6 s
     [AutoTest      321.3] CHECK PASS: stable orbit reached — Pe 81.1 km, Ap 81.5 km, e 0.0003
     [AutoTest      321.3] in orbit 320 s after launch with 356 m/s vac (356) left
@@ -42,6 +42,6 @@ Checks: 10/10 passed
     [AutoTest      323.8] CHECK PASS: quickload restores the universe time — UT 323.82: 2.54 s after the saved 321.28, 2.52 s after the reload
     [AutoTest      323.8] CHECK PASS: quickload restores position and velocity — Δr 0.000 m, Δv 0.0000 m/s
     [AutoTest      323.8] CHECK PASS: quickload restores the vessel — Meridian Orbiter: 6 parts, crew 1
-    [AutoTest      323.8] CHECK PASS: quickload restores resources — largest difference 0.0006 (Electric)
+    [AutoTest      323.8] CHECK PASS: quickload restores resources — largest difference 0.0008 (Electric)
     [AutoTest      323.8] CHECK PASS: quickload restores all vessels and milestones — 1 vessels, 3 milestones
     [AutoTest     2206.0] CHECK PASS: orbit continues seamlessly after quickload + warp — Δr 0.00 m after one more orbit

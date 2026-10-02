@@ -1203,7 +1203,7 @@ body debug/testmoon 6a229d6a84e07ac5
 297 405277657c06a837 northPole
 298 c06d677308ba32ca northPole
 299 c065f876e183c018 northPole
-body debug/testrock f003b622d8437f26
+body debug/testrock 763267966f821628
 0 403c8c1d38cafa4e frostCaps
 1 405379f43e8176a3 frostCaps
 2 407385b2a75e7dfe frostCaps

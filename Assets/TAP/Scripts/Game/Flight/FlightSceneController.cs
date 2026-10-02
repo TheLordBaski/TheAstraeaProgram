@@ -30,10 +30,23 @@ namespace TAP.Game
         public bool UiHidden;
         public event Action<bool> UiVisibilityChanged;
 
+        /// <summary>Vessels of the save left out of this flight because a part they use is missing or broken.</summary>
+        private readonly List<VesselRecord> _heldBack = new List<VesselRecord>();
+        private readonly List<string> _startNotices = new List<string>();
+
         private void Awake()
         {
             Instance = this;
+            ContentReload.Reloaded += OnContentReloaded;
         }
+
+        private void OnDestroy()
+        {
+            ContentReload.Reloaded -= OnContentReloaded;
+            if (Instance == this) Instance = null;
+        }
+
+        private void OnContentReloaded(string summary) => Notify(summary, true);
 
         public void Build()
         {
@@ -91,6 +104,16 @@ namespace TAP.Game
             if (moved > 0) GameSession.Log($"{moved} rocket{(moved == 1 ? "" : "s")} waiting on the old launch pad moved to the new one");
             if (GameSession.Entry == FlightEntry.Launch && GameSession.PendingLaunch != null)
             {
+                // A craft using a part that is missing or has errors in its data isn't rolled out.
+                string missing = GameSession.PendingLaunch.parts.Find(p => PartDatabase.Instance.Get(p.partId) == null)?.partId;
+                if (missing != null)
+                {
+                    GameSession.PendingMessage = $"Can't launch {GameSession.PendingLaunch.name}: {PartDatabase.Instance.WhyMissing(missing)}";
+                    Debug.LogError(GameSession.PendingMessage);
+                    GameSession.PendingLaunch = null;
+                    GameSession.GoToEditor();
+                    return;
+                }
                 // Remove any vessel still sitting on the pad (KSP-style: the new launch replaces it).
                 ClearLaunchPad(save);
                 var rec = LaunchService.CreateLaunchRecord(GameSession.PendingLaunch, PartDatabase.Instance, save.ut);
@@ -100,7 +123,15 @@ namespace TAP.Game
                 GameSession.PendingLaunch = null;
             }
             // Only this system's vessels are simulated; the others stay in the save untouched (FND-15).
-            Sim.Initialize(save.ut, save.vessels.FindAll(v => v.systemId == Sim.System.Id), activeId);
+            var vessels = save.vessels.FindAll(v => v.systemId == Sim.System.Id);
+            HoldBackUnbuildable(vessels);
+            if (_heldBack.Exists(v => v.id == activeId))
+            {
+                GameSession.PendingMessage = _startNotices[_heldBack.FindIndex(v => v.id == activeId)] + " Returning to the assembly building.";
+                GameSession.GoToEditor();
+                return;
+            }
+            Sim.Initialize(save.ut, vessels, activeId);
             Planets.SyncSurfaceObjects(Sim.UT);
             if (Sim.ActiveVessel == null)
             {
@@ -115,7 +146,34 @@ namespace TAP.Game
                 GameSession.LaunchSnapshot = CaptureSave();
             }
             save.scene = "flight";
-            if (!string.IsNullOrEmpty(GameSession.PendingMessage)) { Notify(GameSession.PendingMessage, true); GameSession.PendingMessage = null; }
+            if (!string.IsNullOrEmpty(GameSession.PendingMessage)) { _startNotices.Add(GameSession.PendingMessage); GameSession.PendingMessage = null; }
+        }
+
+        /// <summary>
+        /// Leaves out the vessels that use a part that doesn't exist or has errors in its data: they aren't flown, and stay
+        /// in the save as they are, so they come back once the part is there again.
+        /// </summary>
+        private void HoldBackUnbuildable(List<VesselRecord> vessels)
+        {
+            _heldBack.Clear();
+            _startNotices.Clear();
+            for (int i = vessels.Count - 1; i >= 0; i--)
+            {
+                var r = vessels[i];
+                string why = Vessel.CantBuild(r, PartDatabase.Instance);
+                if (why == null) continue;
+                vessels.RemoveAt(i);
+                _heldBack.Insert(0, r);
+                string notice = $"{r.name} isn't loaded: {why}";
+                _startNotices.Insert(0, notice);
+                Debug.LogError(notice + " It stays in the save as it is.");
+            }
+        }
+
+        /// <summary>Notices from starting the flight, shown once the HUD exists.</summary>
+        private void Start()
+        {
+            foreach (var n in _startNotices) Notify(n, true);
         }
 
         private void ClearLaunchPad(GameSave save)
@@ -188,7 +246,7 @@ namespace TAP.Game
         {
             var save = GameSession.Save;
             save.ut = Sim.UT;
-            var elsewhere = save.vessels.FindAll(v => v.systemId != Sim.System.Id);
+            var elsewhere = save.vessels.FindAll(v => v.systemId != Sim.System.Id || _heldBack.Contains(v));
             save.vessels = Sim.CaptureAllRecords();
             save.vessels.AddRange(elsewhere);
             save.activeVesselId = Sim.ActiveVessel != null ? Sim.ActiveVessel.Id : save.activeVesselId;

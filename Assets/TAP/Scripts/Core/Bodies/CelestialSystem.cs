@@ -37,6 +37,10 @@ namespace TAP.Core
         /// <summary>Forgets the loaded session system (the next <see cref="Default"/> loads it again).</summary>
         public static void ResetDefault() => _default = null;
 
+        /// <summary>The session system if it has been loaded, else null (without loading it).</summary>
+        public static CelestialSystem Loaded => _default;
+
+        /// <summary>Loads a system file from Resources, checked as <see cref="Load"/> does.</summary>
         public static CelestialSystem LoadFromResources(string path = "Data/system", string id = null)
         {
             var ta = Resources.Load<TextAsset>(path);
@@ -44,12 +48,27 @@ namespace TAP.Core
             if (id == null)
                 foreach (var s in Galaxy.Instance.Systems)
                     if (s.file == path) { id = s.id; break; }
-            return FromJson(ta.text, id ?? "home");
+            return Load(path + ".json", ta.text, id ?? "home");
+        }
+
+        /// <summary>
+        /// Loads a system file after checking it (<see cref="SystemValidation"/>). Its problems are logged once; any error
+        /// stops the load with a <see cref="ContentException"/> that lists them all.
+        /// </summary>
+        /// <param name="file">The file as problems name it ("Data/system.json").</param>
+        public static CelestialSystem Load(string file, string json, string id = "home", Func<string, string> presets = null)
+        {
+            var report = new ContentReport();
+            var def = SystemValidation.Check(file, json, presets ?? PresetLoader, report);
+            ContentLog.Add(report, "the system can't be loaded until they are fixed");
+            if (def == null || report.HasErrors) throw new ContentException(file + " can't be loaded", report);
+            return new CelestialSystem(def, id);
         }
 
         /// <summary>Reads a terrain preset by name: Resources/Data/Terrain/&lt;name&gt;.json.</summary>
         public static Func<string, string> PresetLoader = name => Resources.Load<TextAsset>("Data/Terrain/" + name)?.text;
 
+        /// <summary>Builds a system from JSON without checking it (tests, and the Body Lab after its own checks).</summary>
         public static CelestialSystem FromJson(string json, string id = "home", Func<string, string> presets = null)
         {
             var root = JObject.Parse(json);
@@ -76,7 +95,12 @@ namespace TAP.Core
             if (depth > 4) throw new FormatException($"Terrain of {bodyId}: presets nest too deep");
             string text = load(name);
             if (text == null) throw new FormatException($"Terrain of {bodyId}: no preset \"{name}\" (Resources/Data/Terrain/{name}.json)");
-            var basis = WithPreset(JObject.Parse(text), load, bodyId, depth + 1);
+            return MergePreset(WithPreset(JObject.Parse(text), load, bodyId, depth + 1), terrain);
+        }
+
+        /// <summary>A terrain laid over its (resolved) preset: nested objects merge, lists and values replace.</summary>
+        public static JObject MergePreset(JObject basis, JObject terrain)
+        {
             basis.Merge(terrain, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Replace });
             basis.Remove("preset");
             return basis;

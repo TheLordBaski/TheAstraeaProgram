@@ -88,16 +88,24 @@ namespace TAP.Game
         private void OnDestroy()
         {
             if (Instance == this) Instance = null;
+            ContentReload.Reloaded -= OnContentReloaded;
+        }
+
+        /// <summary>F8 changed the data: say what changed and work out the craft's numbers (Δv, TWR) again.</summary>
+        private void OnContentReloaded(string summary)
+        {
+            Message?.Invoke(summary);
+            DesignChanged?.Invoke();
         }
 
         public void Init(Camera cam, EditorCamera rig)
         {
             Cam = cam;
             CameraRig = rig;
+            ContentReload.Reloaded += OnContentReloaded;
             CraftRoot = new GameObject("Craft").transform;
-            if (GameSession.EditorCraft != null && GameSession.EditorCraft.parts.Count > 0)
-                LoadDesign(SaveStorage.DeepClone(GameSession.EditorCraft), false, false);
-            else
+            if (GameSession.EditorCraft == null || GameSession.EditorCraft.parts.Count == 0
+                || !LoadDesign(SaveStorage.DeepClone(GameSession.EditorCraft), false, false))
                 NewCraft(false);
             FrameCraft(true);
         }
@@ -114,8 +122,23 @@ namespace TAP.Game
             Rebuild();
         }
 
-        public void LoadDesign(CraftDesign d, bool undoable = true, bool announce = true)
+        /// <summary>
+        /// Opens a design. A craft using a part left out because of errors in its data isn't opened (it would lose the
+        /// part): the message says what to fix. Returns whether it was opened.
+        /// </summary>
+        public bool LoadDesign(CraftDesign d, bool undoable = true, bool announce = true)
         {
+            string broken = d.parts.Find(p => Db.IsBroken(p.partId))?.partId;
+            if (broken == null && d.detached != null)
+                foreach (var g in d.detached) broken ??= g.parts.Find(p => Db.IsBroken(p.partId))?.partId;
+            if (broken != null)
+            {
+                string msg = $"Can't load {d.name}: {Db.WhyMissing(broken)}";
+                Debug.LogError(msg);
+                if (announce) Message?.Invoke(msg);
+                else GameSession.PendingMessage = string.IsNullOrEmpty(GameSession.PendingMessage) ? msg : GameSession.PendingMessage + "\n" + msg;
+                return false;
+            }
             if (undoable) PushUndo();
             CancelHold();
             // Drop parts this build does not know (e.g. a craft file from a newer version).
@@ -133,6 +156,7 @@ namespace TAP.Game
                 if (copy.parts[i].stage != d.parts[i].stage) { AutoStaging = false; break; }
             Rebuild();
             if (announce) Message?.Invoke(unknown > 0 ? $"Loaded {d.name} ({unknown} unknown parts removed)" : $"Loaded {d.name}");
+            return true;
         }
 
         public void Rename(string name)

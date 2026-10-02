@@ -14,19 +14,23 @@ namespace TAP.UI
     public sealed class MainMenuUI : MonoBehaviour
     {
         private RectTransform _root;
-        private GameObject _loadDialog, _newDialog, _controls;
+        private GameObject _loadDialog, _newDialog, _controls, _dataProblems;
+        /// <summary>Continue, New sandbox and Load game: off when the game data keeps a game from starting.</summary>
+        private readonly List<UIKit.ButtonRef> _gameButtons = new List<UIKit.ButtonRef>();
         private RectTransform _loadContent;
         private TMP_InputField _newName;
         private Transform _planet, _moon;
         private string _latestSave;
 
-        public static MainMenuUI Create()
+        /// <param name="dataError">Why the game data keeps a game from starting (null when it doesn't).</param>
+        public static MainMenuUI Create(string dataError = null)
         {
             var canvas = UIKit.CreateCanvas("MainMenu", 10);
             var ui = canvas.gameObject.AddComponent<MainMenuUI>();
             ui._root = (RectTransform)canvas.transform;
             ui.BuildBackdrop();
             ui.Build();
+            ui.BuildDataProblems(dataError);
             return ui;
         }
 
@@ -94,6 +98,7 @@ namespace TAP.UI
                 _loadDialog.SetActive(false);
                 _newDialog.SetActive(false);
                 _controls.SetActive(false);
+                if (_dataProblems != null) _dataProblems.SetActive(false);
             }
         }
 
@@ -120,9 +125,10 @@ namespace TAP.UI
             {
                 var cont = MenuButton(col, $"Continue  <size=15><color=#{UIKit.Hex(UIKit.TextDim)}>{_latestSave} · {savedAt}</color></size>", () => Continue(_latestSave));
                 cont.Background.color = new Color(0.12f, 0.42f, 0.26f, 1f);
+                _gameButtons.Add(cont);
             }
-            MenuButton(col, "New sandbox", OpenNew);
-            MenuButton(col, "Load game", OpenLoad);
+            _gameButtons.Add(MenuButton(col, "New sandbox", OpenNew));
+            _gameButtons.Add(MenuButton(col, "Load game", OpenLoad));
             MenuButton(col, "Controls", () => _controls.SetActive(true));
             MenuButton(col, "Quit", () =>
             {
@@ -185,6 +191,43 @@ namespace TAP.UI
             bool hasActive = s.scene == "flight" && s.vessels.Exists(v => v.id == s.activeVesselId);
             if (hasActive) GameSession.ResumeFlight();
             else GameSession.GoToEditor();
+        }
+
+        // ------------------------------------------------------------------ game data problems
+
+        /// <summary>
+        /// Problems found in the game data while loading it (FND-04): a notice under the menu opens the list. When they keep
+        /// a game from starting, the game buttons are off and the list opens at once; it also opens for errors.
+        /// </summary>
+        private void BuildDataProblems(string dataError)
+        {
+            var report = ContentLog.Session;
+            if (dataError == null && report.IsClean) return;
+            _dataProblems = Dialog("DataProblems", new Vector2(1100, 640), "GAME DATA PROBLEMS", out var body);
+            var scroll = UIKit.ScrollList(body, out var content, 4);
+            UIKit.Stretch((RectTransform)scroll.transform);
+            string bad = UIKit.Hex(UIKit.Bad), warn = UIKit.Hex(UIKit.Warn), dim = UIKit.Hex(UIKit.TextDim);
+            var sb = new System.Text.StringBuilder();
+            if (dataError != null) sb.Append($"<color=#{bad}><b>A game can't start until these errors are fixed.</b></color>\n\n");
+            else if (report.HasErrors) sb.Append("Parts and resources with errors are left out: craft that use them can't be loaded or flown until they are fixed.\n\n");
+            if (dataError != null && !report.HasErrors) sb.Append($"<color=#{bad}>Error</color>  <noparse>{dataError}</noparse>\n\n");
+            foreach (var p in report.Errors) sb.Append($"<color=#{bad}>Error</color>  <noparse>{p}</noparse>\n\n");
+            foreach (var p in report.Warnings) sb.Append($"<color=#{warn}>Warning</color>  <noparse>{p}</noparse>\n\n");
+            sb.Append($"<color=#{dim}>The files are in Assets/TAP/Resources. In the editor, TAP → Validate Content checks them all, and F8 reloads them while you play.</color>");
+            var text = UIKit.Label(content, sb.ToString(), 16);
+            text.textWrappingMode = TextWrappingModes.Normal;
+            text.alignment = TextAlignmentOptions.TopLeft;
+            text.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            bool blocking = dataError != null || report.HasErrors;
+            string label = dataError != null ? "The game data has errors: a game can't start"
+                : "Game data: " + report.Counts;
+            var notice = UIKit.Button(_root, label + "  ·  details", () => _dataProblems.SetActive(true), 17);
+            UIKit.Place(notice.Rect, new Vector2(0, 1), new Vector2(0, 1), new Vector2(110, -732), new Vector2(560, 40));
+            notice.Text.color = blocking ? UIKit.Bad : UIKit.Warn;
+            if (dataError != null)
+                foreach (var b in _gameButtons) b.Button.interactable = false;
+            if (blocking) _dataProblems.SetActive(true);
         }
 
         // ------------------------------------------------------------------ dialogs

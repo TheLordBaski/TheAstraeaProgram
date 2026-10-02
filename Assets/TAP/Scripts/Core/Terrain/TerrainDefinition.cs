@@ -267,6 +267,7 @@ namespace TAP.Core
     {
         public string id;
         public string name;
+        public string note;
         public double lat, lon;
         /// <summary>Height of the plane at the centre (m).</summary>
         public double height;
@@ -294,6 +295,7 @@ namespace TAP.Core
     {
         public string id;
         public string name;
+        public string note;
         public double lat, lon;
     }
 

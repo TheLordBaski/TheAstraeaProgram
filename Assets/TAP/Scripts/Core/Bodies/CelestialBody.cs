@@ -11,7 +11,7 @@ namespace TAP.Core
     {
         public readonly BodyDefinition Def;
         public readonly string Id;
-        public readonly string Name;
+        public string Name { get; private set; }
         public readonly double Radius;
         public readonly double GM;
         public CelestialBody Parent { get; private set; }
@@ -20,14 +20,21 @@ namespace TAP.Core
         public double SOIRadius { get; private set; } = double.PositiveInfinity;
         public double RotationPeriod { get; private set; }
         public readonly double InitialRotation; // rad
-        public readonly Atmosphere Atmosphere;
+        public Atmosphere Atmosphere { get; private set; }
         public TerrainGenerator Terrain { get; private set; }
         public readonly bool HasOcean;
-        public readonly double[] WarpAltitudeLimits;
+        public double[] WarpAltitudeLimits { get; private set; }
         /// <summary>A star: no terrain or surface, lights the system (<see cref="Luminosity"/>).</summary>
         public readonly bool IsStar;
         /// <summary>Radiated power of a star (W); 0 for other bodies.</summary>
-        public readonly double Luminosity;
+        public double Luminosity { get; private set; }
+
+        /// <summary>
+        /// The parameters a body takes while the game runs (F8 hot reload, <see cref="ApplyLive"/>). The others (size,
+        /// mass, orbit, spin, terrain) shape everything already flying and take effect when the game starts again.
+        /// </summary>
+        public static readonly string[] LiveFields =
+            { "displayName", "description", "mapColor", "warpAltitudeLimits", "atmosphere", "luminosity", "surfaceTemperature" };
 
         public bool HasAtmosphere => Atmosphere != null;
         public double Mass => GM / MathD.G;
@@ -57,16 +64,38 @@ namespace TAP.Core
         {
             Def = def;
             Id = def.id;
-            Name = string.IsNullOrEmpty(def.displayName) ? def.id : def.displayName;
             Radius = def.radius;
             GM = def.gm;
             RotationPeriod = def.rotationPeriod > 0 ? def.rotationPeriod : 86400;
             InitialRotation = def.initialRotationDeg * MathD.Deg2Rad;
-            if (def.atmosphere != null && def.atmosphere.height > 0) Atmosphere = new Atmosphere(def.atmosphere);
             HasOcean = def.hasOcean;
-            WarpAltitudeLimits = def.warpAltitudeLimits;
             IsStar = def.type == "star";
-            Luminosity = IsStar ? def.luminosity : 0;
+            ReadLiveFields();
+        }
+
+        private void ReadLiveFields()
+        {
+            Name = string.IsNullOrEmpty(Def.displayName) ? Def.id : Def.displayName;
+            Atmosphere = Def.atmosphere != null && Def.atmosphere.height > 0 ? new Atmosphere(Def.atmosphere) : null;
+            WarpAltitudeLimits = Def.warpAltitudeLimits;
+            Luminosity = IsStar ? Def.luminosity : 0;
+        }
+
+        /// <summary>
+        /// Takes the new values of the <see cref="LiveFields"/> (F8 hot reload): the definition is updated in place and the
+        /// atmosphere rebuilt, so drag, heating and engines use it from their next step.
+        /// </summary>
+        public void ApplyLive(BodyDefinition next)
+        {
+            Def.displayName = next.displayName;
+            Def.description = next.description;
+            Def.mapColor = next.mapColor;
+            Def.warpAltitudeLimits = next.warpAltitudeLimits;
+            Def.luminosity = next.luminosity;
+            Def.surfaceTemperature = next.surfaceTemperature;
+            if (Def.atmosphere != null && next.atmosphere != null) ContentUpdate.CopyInto(Def.atmosphere, next.atmosphere);
+            else Def.atmosphere = next.atmosphere;
+            ReadLiveFields();
         }
 
         internal void Link(CelestialBody parent)

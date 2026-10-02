@@ -137,10 +137,36 @@ Built: the format is in [Docs/TERRAIN_FORMAT.md](../../Docs/TERRAIN_FORMAT.md), 
 - Development hot reload of data in play mode (part stats, body parameters; meshes are excluded), so balancing
   doesn't need a restart.
 
+Built: [Docs/CONTENT_VALIDATION.md](../../Docs/CONTENT_VALIDATION.md).
+- **Schema:** the data classes are the schema. Every field must be one they have and of the right kind; rules per
+  kind of content cover parts, resources, systems with their terrain presets, the galaxy and the starter craft.
+- **Readable errors:** each names the file, line, entry, field, what was expected and what was found (for example
+  `Data/parts.json line 175: part eng_hornet, engine.ispVac: expected a number above 0 (seconds), found nothing.`).
+  A value a body takes from a terrain preset is reported in the preset's file.
+- **At load:**
+  - A part or resource with errors is left out and the rest load.
+  - A craft using it isn't opened, a saved vessel using it isn't flown (it stays in the save), and a launch with it
+    is refused, each saying why.
+  - A system file with errors isn't loaded.
+  - Problems are logged once and listed on the main menu.
+- **Tools:** *TAP → Validate Content* and `ContentTests` (9 tests: all shipped content clean, the broken Isp, kinds
+  and unknown fields, syntax errors, system and preset lines, the family tree, the galaxy, hot reload of parts and
+  of an atmosphere). The Celestial Body Lab checks its drafts with the same rules.
+- **F8:**
+  - Part definitions are updated in place, so parts already flying use the new values from their next step.
+  - A body's atmosphere, names, map colour, warp limits and a star's light change at once.
+  - Models, nodes and what a part carries reach vessels built afterwards; a body's size, mass, orbit, spin and
+    terrain need a restart.
+  - Data with errors keeps the previous values.
+
 **Done when**
-- [ ] A broken entry (for example a missing engine Isp) gives one clear error, not a NullReferenceException in
-      flight.
-- [ ] Changing a thrust value in the JSON and pressing F8 in the editor is visible in the next ignition.
+- [x] A broken entry (for example a missing engine Isp) gives one clear error, not a NullReferenceException in
+      flight. (In the editor with the Hornet's `ispVac` removed: one console error and the main menu list; the
+      Meridian refused in the assembly building; a saved Pathfinder held back instead of flown; a direct launch
+      refused, with no exception. Screenshots `Screenshots/fnd04_*.png`.)
+- [x] Changing a thrust value in the JSON and pressing F8 in the editor is visible in the next ignition. (Goliath
+      thrust raised in `parts.json` with the Pathfinder on the pad, F8: the next ignition gave 1,140.9 kN, twice the
+      old engine's at that pressure; `Screenshots/fnd04_hot_reload_ignition.png`.)
 
 ### FND-05 · Save format v2: versioning, migration, backups
 **Milestone** M1 · **Claude** 3 d · **You** 0.5 d · **Needs** FND-06

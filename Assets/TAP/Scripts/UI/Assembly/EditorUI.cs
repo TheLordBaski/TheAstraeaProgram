@@ -54,7 +54,8 @@ namespace TAP.UI
             ui.OnDesignChanged();
             if (!string.IsNullOrEmpty(GameSession.PendingMessage))
             {
-                ui.Toast(GameSession.PendingMessage);
+                // What happened on the way here (a recovery, a rocket that couldn't be loaded): long enough to read.
+                ui.Toast(GameSession.PendingMessage, 8f);
                 GameSession.PendingMessage = null;
             }
             else if (scene.Editor.Design.parts.Count == 0)
@@ -285,7 +286,9 @@ namespace TAP.UI
             _pointerOverUi = es != null && es.IsPointerOverGameObject();
             if (_toastTime > 0)
             {
-                _toastTime -= Time.unscaledDeltaTime;
+                // At most a tenth of a second a frame: the first frame after loading the scene lasts seconds, and a message
+                // shown on arrival would be gone before it was drawn.
+                _toastTime -= Mathf.Min(Time.unscaledDeltaTime, 0.1f);
                 _toast.alpha = Mathf.Clamp01(_toastTime / 0.6f);
             }
             _hint.text = Ed.IsHolding ? (Ed.PlacementHint ?? "") + HoldHint : IdleHint;

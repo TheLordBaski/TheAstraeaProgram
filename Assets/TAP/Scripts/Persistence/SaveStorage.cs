@@ -21,11 +21,22 @@ namespace TAP.Persistence
         /// <summary>Root folder for user data. Overridable for tests.</summary>
         public static string RootOverride;
 
+        /// <summary>
+        /// Editor setting (PlayerPrefs) for test play: user data goes to this folder instead. Unlike
+        /// <see cref="RootOverride"/> it lasts through entering play mode, so a test never writes over a real save.
+        /// </summary>
+        public const string EditorRootPref = "TAP.SaveRoot";
+
         public static string Root
         {
             get
             {
                 if (RootOverride != null) return RootOverride;
+                if (Application.isEditor)
+                {
+                    string test = PlayerPrefs.GetString(EditorRootPref, "");
+                    if (test.Length > 0) return test;
+                }
                 string root = Path.Combine(Application.persistentDataPath, "TAP");
                 if (!_legacyChecked) { _legacyChecked = true; CopyLegacyData(root); }
                 return root;

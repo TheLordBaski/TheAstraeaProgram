@@ -22,6 +22,9 @@ Repository: <https://github.com/TheLordBaski/TheAstraeaProgram>. Images and othe
 * **Rebuild**: menu *TAP → Build Windows Player* (or `TAP.EditorTools.BuildScript.BuildWindows`).
   *TAP → Build All Assets* regenerates textures, icons, materials, starter craft and scenes.
 * **Developer tools** in flight: **Alt+F12** or **`** (cheats, teleports to orbit or to the surface, zoom speed).
+* **Game data**: the game checks its JSON files when it loads them and lists any problem on the main menu;
+  *TAP → Validate Content* checks them all, and **F8** while playing in the editor reloads part stats and body
+  parameters ([Docs/CONTENT_VALIDATION.md](Docs/CONTENT_VALIDATION.md)).
 * **Part models**: *TAP → Part Models → Export All* writes every part as FBX/OBJ for editing; an FBX saved as
   `Assets/TAP/Resources/PartModels/<part id>.fbx` replaces that part's model ([Docs/PART_MODELS.md](Docs/PART_MODELS.md)).
 * **Assembly building limits**: *TAP → Assembly Building Settings* selects `Assets/TAP/Resources/Settings/AssemblyBuilding.asset`,
@@ -39,6 +42,7 @@ Repository: <https://github.com/TheLordBaski/TheAstraeaProgram>. Images and othe
 | [Docs/PART_MODELS.md](Docs/PART_MODELS.md) | Exporting part models, editing them in Blender and using them in the game |
 | [Docs/PLANETARY_SYSTEM.md](Docs/PLANETARY_SYSTEM.md) | Radii, masses, gravity, atmosphere, rotation, orbits, SOI, warp limits, Δv budget |
 | [Docs/CELESTIAL_BODY_LAB.md](Docs/CELESTIAL_BODY_LAB.md) | Editor-only body/biome authoring, live previews, Undo/Redo and JSON save/export workflow |
+| [Docs/CONTENT_VALIDATION.md](Docs/CONTENT_VALIDATION.md) | How the game checks its data files, how problems read, *TAP → Validate Content*, F8 hot reload |
 | [Docs/FEATURES_AND_LIMITATIONS.md](Docs/FEATURES_AND_LIMITATIONS.md) | What is implemented, what was verified and how, known limitations |
 | [Docs/IMPLEMENTATION_CHECKLIST.md](Docs/IMPLEMENTATION_CHECKLIST.md) | Milestone checklist and verification log |
 

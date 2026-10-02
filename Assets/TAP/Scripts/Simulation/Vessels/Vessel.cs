@@ -50,8 +50,23 @@ namespace TAP.Simulation
 
         // ------------------------------------------------------------------ construction
 
+        /// <summary>
+        /// Why a saved vessel can't be built with this catalog: a part that doesn't exist, or was left out because of errors
+        /// in its data. Null when it can be built.
+        /// </summary>
+        public static string CantBuild(VesselRecord rec, PartDatabase db)
+        {
+            if (rec.parts == null || rec.parts.Count == 0) return "it has no parts";
+            foreach (var pr in rec.parts)
+                if (db.Get(pr.partId) == null) return db.WhyMissing(pr.partId);
+            return null;
+        }
+
+        /// <summary>Builds a vessel from its record. Every part must exist (see <see cref="CantBuild"/>).</summary>
         public static Vessel Create(VesselRecord rec, PartDatabase db, Vector3 rootWorldPos, Quaternion rootWorldRot)
         {
+            string why = CantBuild(rec, db);
+            if (why != null) throw new InvalidOperationException($"{rec.name} can't be built: {why}");
             var go = new GameObject("Vessel: " + rec.name);
             go.transform.SetPositionAndRotation(rootWorldPos, rootWorldRot);
             var v = go.AddComponent<Vessel>();
@@ -65,11 +80,6 @@ namespace TAP.Simulation
             {
                 var pr = rec.parts[i];
                 var def = db.Get(pr.partId);
-                if (def == null)
-                {
-                    Debug.LogError($"Unknown part '{pr.partId}' in vessel {rec.name}");
-                    continue;
-                }
                 int layer = rec.kind == VesselKind.EVA ? Layers.EVA : Layers.Parts;
                 var pgo = PartModelFactory.Build(def, layer);
                 pgo.name = def.id;

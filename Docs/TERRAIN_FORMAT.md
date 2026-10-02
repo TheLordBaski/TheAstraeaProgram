@@ -210,5 +210,8 @@ when the data changed.
    - rules that never match;
    - bad data, which gives a clear message such as *Terrain of luma: layer 3 reads the field "nowhere", which is not
      defined*.
-3. **Look at it in the game:** in the editor, JSON edits need a reimport (right-click the file → *Reimport*) before
+3. **Check the data:** *TAP → Validate Content* checks every system file and preset with the game's rules
+   (also run when the game loads a system), naming the file, line, body and field of each problem
+   ([CONTENT_VALIDATION.md](CONTENT_VALIDATION.md)).
+4. **Look at it in the game:** in the editor, JSON edits need a reimport (right-click the file → *Reimport*) before
    the game sees them.
