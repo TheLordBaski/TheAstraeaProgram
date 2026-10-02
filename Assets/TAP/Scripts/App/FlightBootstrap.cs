@@ -85,15 +85,19 @@ namespace TAP.App
             vol.priority = 1;
             var profile = ScriptableObject.CreateInstance<VolumeProfile>();
             var bloom = profile.Add<Bloom>(true);
-            bloom.intensity.Override(0.8f);
+            bloom.intensity.Override(0.6f);
             bloom.threshold.Override(1.1f);
             bloom.scatter.Override(0.65f);
             var tone = profile.Add<Tonemapping>(true);
             tone.mode.Override(TonemappingMode.ACES);
             var ca = profile.Add<ColorAdjustments>(true);
-            ca.postExposure.Override(0.15f);
-            ca.contrast.Override(8f);
-            ca.saturation.Override(6f);
+            ca.postExposure.Override(0.25f);
+            ca.contrast.Override(6f);
+            ca.saturation.Override(-3f);
+            // The star's warm light plus ACES turned sunlit clouds cream; a camera white balance keeps them white.
+            var wb = profile.Add<WhiteBalance>(true);
+            wb.temperature.Override(-9f);
+            wb.tint.Override(3f);
             var vig = profile.Add<Vignette>(true);
             vig.intensity.Override(0.18f);
             vol.sharedProfile = profile;

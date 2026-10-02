@@ -1,0 +1,57 @@
+{
+  "repeat": 0.0,
+  "distantModeDifference": 0.0,
+  "volumeBoundaryMeanDifference": 8.9691359687734532E-05,
+  "presets": [
+    {
+      "quality": "Low",
+      "mean": 0.0054682028542324488
+    },
+    {
+      "quality": "Medium",
+      "mean": 0.0052498404634702539
+    },
+    {
+      "quality": "High",
+      "mean": 0.0052674657361086079
+    },
+    {
+      "quality": "Ultra",
+      "mean": 0.0052637438769120278
+    }
+  ],
+  "moonCenterLuminance": {
+    "crescent": 0.0,
+    "full": 0.60116194033208814
+  },
+  "offscreenAtmosphereEnqueued": false,
+  "shaderMessages": [
+    {
+      "name": "Hidden/TAP/PlanetAtmosphereCloud",
+      "items": []
+    },
+    {
+      "name": "TAP/Terrain",
+      "items": []
+    },
+    {
+      "name": "TAP/Plume",
+      "items": []
+    }
+  ],
+  "weather": {
+    "width": 4096,
+    "height": 2048,
+    "format": "BC7",
+    "bytes": 22392432
+  },
+  "normal": {
+    "width": 4096,
+    "height": 2048,
+    "format": "BC7",
+    "bytes": 22392432
+  },
+  "currentKey": true,
+  "passed": true,
+  "performanceBenchmark": false
+}

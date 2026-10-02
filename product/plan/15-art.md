@@ -127,6 +127,8 @@ rest.
 ### ART-07a · Planet surfaces v2 (EA1 worlds)
 **Milestone** EA1 · **Claude** 3 d · **You** 3.5 d · **Needs** FND-02
 
+2026-09-30: Tellus/Luma visual upgrade approved and underway; see `Docs/PLANET_VISUALS_IMPLEMENTATION.md`. Visual rocks in this scope do not add colliders. Other EA1 worlds and measured scatter cost remain pending.
+
 - Terrain shader v2:
   - triplanar detail textures per biome;
   - rock on slopes, snow and ice by height and latitude;
@@ -149,6 +151,8 @@ rest.
 
 ### ART-08a · Atmospheric scattering (Tellus, Rubra)
 **Milestone** EA1 · **Claude** 2.5 d · **You** 1 d · **Needs** FND-03
+
+2026-09-30: Tellus LUT scattering and switchable cloud layers/volumes advanced into current work by user approval. Rubra tuning remains future work. Performance benchmarking is deferred at the user's request.
 
 - An atmospheric scattering shader with correct colours from orbit and from the ground: Tellus blue, Rubra salmon
   with blue sunsets and dust haze. Clouds are an option (D-16).

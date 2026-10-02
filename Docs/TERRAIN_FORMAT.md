@@ -156,7 +156,8 @@ the first usually has no mask and is the base.
 - **Matching:** the first biome whose conditions all hold names the place. The last one should have no `when`, so it
   takes everything left.
 - **`color`:** shown on the biome map (developer window → *Biome map*, and *TAP → Terrain → Export Maps*).
-- **`material`:** the surface material set the terrain shader will use (ART-07a).
+- **`material`:** the surface material family used by the Tellus/Luma visual bake and slope-blended ground shader.
+  Visual assets are separate from terrain/collision data; re-bake after authoring changes using *TAP → Planet visuals → Bake all*.
 - **Natural ground only:** biomes read the ground without its flat areas, so a base never changes one.
 
 In code: `CelestialBody.BiomeAt(lat, lon)`, or `Terrain.BiomeAt(direction)`.

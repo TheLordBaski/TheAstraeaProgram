@@ -51,7 +51,19 @@ namespace TAP.Game
         private float _targetDistance = 4000f;
 
         private readonly Dictionary<CelestialBody, GameObject> _bodyObjects = new Dictionary<CelestialBody, GameObject>();
+        public GameObject BodyObject(CelestialBody body) => _bodyObjects.TryGetValue(body, out var go) ? go : null;
+        public void SetVisualMaterial(CelestialBody body, Material material, Texture surface)
+        {
+            if (!_maps.TryGetValue(body, out var maps)) return;
+            var old = maps.Material;
+            maps.Material = material;
+            maps.Surface = surface;
+            _bodyObjects[body].GetComponent<MeshRenderer>().sharedMaterial = material;
+            if (old != null) Destroy(old);
+            if (surface != null) Paint(maps, surface);
+        }
         private readonly Dictionary<CelestialBody, BodyMaps> _maps = new Dictionary<CelestialBody, BodyMaps>();
+        private readonly List<Mesh> _ownedBodyMeshes = new List<Mesh>();
 
         /// <summary>Paints every body with its biomes instead of its surface (a developer view, FND-02).</summary>
         public static bool ShowBiomes;
@@ -132,7 +144,9 @@ namespace TAP.Game
             var go = new GameObject("Map " + b.Name);
             go.layer = Layers.Map;
             go.transform.SetParent(_root, false);
-            go.AddComponent<MeshFilter>().sharedMesh = PlanetSphereMesh();
+            var bodyMesh = PlanetSphereMesh(b);
+            go.AddComponent<MeshFilter>().sharedMesh = bodyMesh;
+            if (!b.IsStar) _ownedBodyMeshes.Add(bodyMesh);
             var mr = go.AddComponent<MeshRenderer>();
             var mat = Resources.Load<Material>("Materials/Map_" + b.Id);
             var mapColor = new Color(b.Def.mapColor[0], b.Def.mapColor[1], b.Def.mapColor[2]);
@@ -142,13 +156,17 @@ namespace TAP.Game
                 var unlit = Shader.Find("Universal Render Pipeline/Unlit");
                 mat = unlit != null ? new Material(unlit) { color = mapColor } : PartMaterials.CreateLit("map_" + b.Id, mapColor, 0, 0.1f, true);
             }
-            bool baked = mat != null;
+            bool sharedMap = mat != null;
+            bool baked = sharedMap;
+            var visualProfile = Resources.Load<PlanetVisualProfile>("PlanetVisuals/" + b.Id);
+            if (visualProfile != null && (visualProfile.TerrainHash != TerrainFingerprint.Hash(b.Def.terrain)
+                || (!string.IsNullOrEmpty(visualProfile.SurfaceBakeKey) && visualProfile.SurfaceBakeKey != visualProfile.ExpectedSurfaceKey(b)))) baked = false;
             if (mat == null) mat = PartMaterials.CreateLit("map_" + b.Id, mapColor, 0, 0.1f, false);
             mr.sharedMaterial = mat;
             if (!b.IsStar && b.Terrain != null)
             {
                 // Bodies without a baked map (new ones, defined in data) get one made from their terrain.
-                if (baked) mat = new Material(mat);
+                if (sharedMap) mat = new Material(mat);
                 mr.sharedMaterial = mat;
                 var maps = new BodyMaps { Material = mat, Surface = baked ? mat.GetTexture("_BaseMap") : null };
                 if (!baked)
@@ -185,10 +203,11 @@ namespace TAP.Game
 
         private static Mesh _sphere;
         /// <summary>UV sphere whose texture mapping matches the equirectangular planet maps (lon 0 at +X, east towards -Z).</summary>
-        private static Mesh PlanetSphereMesh()
+        private static Mesh PlanetSphereMesh(CelestialBody body)
         {
-            if (_sphere != null) return _sphere;
-            int seg = 96, rings = 48;
+            bool relief = !body.IsStar && body.Terrain != null;
+            if (!relief && _sphere != null) return _sphere;
+            int seg = relief ? 256 : 96, rings = seg / 2;
             var verts = new List<Vector3>();
             var norms = new List<Vector3>();
             var uvs = new List<Vector2>();
@@ -200,7 +219,9 @@ namespace TAP.Game
                 {
                     double lon = -180.0 + 360.0 * i / seg;
                     var d = (Vector3)TerrainGenerator.DirectionFromLatLon(lat, lon);
-                    verts.Add(d);
+                    double height = relief ? body.Terrain.Height((Vector3d)d) : 0;
+                    if (body.HasOcean) height = Math.Max(0, height);
+                    verts.Add(d * (float)(1 + height / body.Radius));
                     norms.Add(d);
                     uvs.Add(new Vector2((float)i / seg, (float)j / rings));
                 }
@@ -220,13 +241,14 @@ namespace TAP.Game
             // In Unity a front-facing (clockwise) triangle's cross(v1-v0, v2-v0) points towards the viewer (outwards).
             if (Vector3.Dot(fn, v0) < 0)
                 for (int k = 0; k < tris.Count; k += 3) { int t = tris[k + 1]; tris[k + 1] = tris[k + 2]; tris[k + 2] = t; }
-            _sphere = new Mesh { name = "planet_sphere" };
-            _sphere.SetVertices(verts);
-            _sphere.SetNormals(norms);
-            _sphere.SetUVs(0, uvs);
-            _sphere.SetTriangles(tris, 0);
-            _sphere.RecalculateBounds();
-            return _sphere;
+            var mesh = new Mesh { name = relief ? "Map terrain " + body.Id : "planet_sphere" };
+            mesh.SetVertices(verts);
+            mesh.SetNormals(norms);
+            mesh.SetUVs(0, uvs);
+            mesh.SetTriangles(tris, 0);
+            mesh.RecalculateBounds();
+            if (relief) mesh.RecalculateNormals(); else _sphere = mesh;
+            return mesh;
         }
 
         // ------------------------------------------------------------------ activation
@@ -351,6 +373,7 @@ namespace TAP.Game
             if (ShowBiomes == _showingBiomes) return;
             _showingBiomes = ShowBiomes;
             foreach (var m in _maps.Values) Paint(m, _showingBiomes ? m.Biomes : m.Surface);
+            foreach (var m in _maps.Values) if (m.Material.HasProperty("_BiomeMode")) m.Material.SetFloat("_BiomeMode", _showingBiomes ? 1 : 0);
         }
 
         private static void Paint(BodyMaps m, Texture tex)
@@ -640,6 +663,14 @@ namespace TAP.Game
         private void OnDestroy()
         {
             if (_flightSky != null && RenderSettings.skybox == _mapSky) RenderSettings.skybox = _flightSky;
+            foreach (var mesh in _ownedBodyMeshes) if (mesh != null && mesh != _sphere) Destroy(mesh);
+            foreach (var maps in _maps.Values) {
+                if (maps.Material != null) Destroy(maps.Material);
+                if (maps.Biomes != null) Destroy(maps.Biomes);
+                if (maps.Surface is Texture2D texture && texture.name == "") Destroy(texture);
+            }
+            foreach (var material in _haloMats.Values) Destroy(material);
+            if (_mapSky != null) Destroy(_mapSky);
         }
     }
 }

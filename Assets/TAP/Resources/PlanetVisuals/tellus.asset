@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24e0b8370927e9748bbaf6b22685874a, type: 3}
+  m_Name: tellus
+  m_EditorClassIdentifier: TAP.Simulation::TAP.Simulation.PlanetVisualProfile
+  BodyId: tellus
+  Version: 1
+  Lunar: 0
+  Surface: {fileID: 2800000, guid: e3fef299e8ba3e444a1586b72b3a2ecc, type: 3}
+  SurfaceNormal: {fileID: 2800000, guid: edcdf64a4324ee34cb1c991c5f2f12d6, type: 3}
+  SurfaceMask: {fileID: 2800000, guid: 7bceada7353eb9a4c83d315f46e7c2bf, type: 3}
+  Weather: {fileID: 2800000, guid: 39a1828d6ef037546a27da1a8e8be1f9, type: 3}
+  WeatherNormal: {fileID: 2800000, guid: eb855b885078f7d4da1236ce8f14db46, type: 3}
+  Transmittance: {fileID: 2800000, guid: 7ec3b36c11e6c274c89fd29399f485ad, type: 3}
+  MultiScattering: {fileID: 2800000, guid: 9e964a6dbdaa4154d98ebb950d0eee73, type: 3}
+  Rayleigh: {r: 0.0000058, g: 0.0000135, b: 0.0000331, a: 1}
+  RayleighHeight: 8000
+  Mie: 0.000006
+  MieHeight: 1200
+  MieAnisotropy: 0.8
+  Ozone: {r: 0.00000065, g: 0.00000188, b: 0.000000085, a: 1}
+  SkyBrightness: 1
+  CloudBase: 2800
+  CloudTop: 6500
+  CloudCoverage: 0.5
+  CloudDensity: 0.006
+  WindSpeed: 18
+  CloudShadow: 0.55
+  WeatherSeed: 424242
+  WeatherMode: 1
+  LargeCloudBanks: 15
+  SmallCloudPatches: 10
+  ThinCloudFronts: 8
+  WeatherSourceFile: Art/PlanetVisuals/Clouds/cloud-shapes.png
+  WeatherSourceHash: 92A2A01D47E8EF4C7AD2D05F1A1899FED2044EAD35A7D0EE5BBD46A7170F44A5
+  CloudRelief: 1400
+  CloudLayerDetail: 0.85
+  CloudOpticalDepth: 20
+  CloudBillowScale: 14000
+  SurfaceSaturation: 1
+  SurfaceTint: {r: 1, g: 1, b: 1, a: 1}
+  SurfaceNormalStrength: 1.6
+  OceanColourBlend: 1
+  OceanColour: {r: 0.07, g: 0.19, b: 0.33, a: 1}
+  OceanShallowColour: {r: 0.17, g: 0.52, b: 0.55, a: 1}
+  GroundDetail: 0.72
+  OceanRoughness: 0.24
+  RegionalDetail: 0
+  RegionalDetailScale: 18000
+  SatelliteAlbedo: 1
+  SatelliteDetail: 0.7
+  TerrainHash: cd3795b5de6d5872
+  SurfaceBakeKey: 5ac1661ef791a6b9d40fda9404dc5460
+  WeatherBakeKey: f60cc039645f5562b39d753db990f525
+  AtmosphereBakeKey: 7a1cbc66a35cec9e9193619c5e1e8526

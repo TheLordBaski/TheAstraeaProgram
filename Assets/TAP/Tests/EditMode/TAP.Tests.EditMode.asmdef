@@ -1,7 +1,7 @@
 {
     "name": "TAP.Tests.EditMode",
     "rootNamespace": "TAP.Tests",
-    "references": ["TAP.Core", "TAP.Parts", "TAP.Persistence", "TAP.Trajectory", "TAP.Simulation", "TAP.Construction", "TAP.Game", "UnityEngine.TestRunner", "UnityEditor.TestRunner"],
+    "references": ["TAP.Core", "TAP.Parts", "TAP.Persistence", "TAP.Trajectory", "TAP.Simulation", "TAP.Construction", "TAP.Game", "Unity.RenderPipelines.Universal.Runtime", "UnityEngine.TestRunner", "UnityEditor.TestRunner"],
     "includePlatforms": ["Editor"],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

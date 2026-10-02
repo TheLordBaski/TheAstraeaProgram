@@ -14,6 +14,14 @@ namespace TAP.Simulation
     {
         public FlightSim Sim;
 
+        /// <summary>Presentation adapter hook; physics and effect controls remain independent of planet rendering.</summary>
+        public void VisitPlumeRenderers(System.Action<MeshRenderer> visit)
+        {
+            foreach(var fx in _plumes.Values) { visit(fx.Outer);visit(fx.Core); }
+            foreach(var fx in _rcs.Values) foreach(var renderer in fx.Renderers) if(renderer!=null) visit(renderer);
+            foreach(var fx in _plasma.Values) if(fx.SheathRenderer!=null) visit(fx.SheathRenderer);
+        }
+
         private class PlumeFx
         {
             public EngineModule Engine;

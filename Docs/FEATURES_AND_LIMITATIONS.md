@@ -168,8 +168,12 @@ made during development; the standalone column is the release check of the shipp
   ~88% as wide covers it (use a tapered adapter under a narrower stack).
 * The home system has only the star, one planet and one moon so far. Bodies cast no shadows on each other (an
   eclipse doesn't darken Luma or Tellus) and there is no planetshine; eclipses of nearby objects are decided for the
-  camera position (one shadow test for all of them). Distant bodies show their six coarsest terrain chunks; there are
-  no clouds or atmospheric scattering yet (ART-08). The map has no marker declutter yet (NAV-01).
+  camera position (one shadow test for all of them). Distant bodies show their six coarsest terrain chunks.
+  Every atmospheric body has physically based scattering with multiple scattering on all presets (custom bodies get
+  their sky tables generated at load). Tellus has switchable volumetric/layer clouds from a whole-planet cloud map and
+  an 8K orbital map painted with real landscape textures, with satellite detail octaves down to metres. Performance
+  validation on the target laptop is deferred by request. See [planet implementation](PLANET_VISUALS_IMPLEMENTATION.md).
+  The map has no marker declutter yet (NAV-01).
 * Docking was verified with two craft placed 12 m apart on the same orbit (`docking` test). A full rendezvous between
   separately launched craft has not been flown by the scripted pilot (the target readouts it would use exist).
 * Crew have no g-force limits or experience; crew are assigned automatically. Tank fill levels cannot be edited.
@@ -178,8 +182,8 @@ made during development; the standalone column is the release check of the shipp
 * Reentry heating is forgiving at lunar-return speeds: an unshielded capsule flown blunt end first peaked at 1,053 K
   (pod limit 1,600 K) in a lunar-return entry, so the heat shield is essential only for faster or nose-first
   entries (the `failures` test uses 4.5 km/s nose first). The starter rockets carry shields anyway.
-* Biomes exist on every body but nothing uses them yet: science comes with SCI-01/SCI-02, and the terrain shader
-  doesn't texture them yet (ART-07a; each biome already names its material set). Ground flattened with the developer
+* Biomes exist on every body; science comes with SCI-01/SCI-02. Tellus/Luma have biome/slope ground textures and
+  visual stones; stones have no collision or gameplay role. Ground flattened with the developer
   tool lasts until the game is closed (bases, which will save their flat areas, don't exist yet). Terrain chunks are
   made on worker threads in plain C# (no Burst): about 9 ms per chunk on Tellus and 13 ms on Luma, which keeps up
   with a landing. Luma's slopes can topple tall landers; the starter lander is built wide for that reason.

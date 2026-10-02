@@ -1,0 +1,15 @@
+{
+  "repeatTextureMeanDifference": 0.0,
+  "distantModeMeanDifference": 0.0,
+  "volumeBoundaryMeanDifference": 0.00014210694091150935,
+  "moonCenterLuminance": {
+    "crescent": 0.0,
+    "full": 0.599091172385124
+  },
+  "offscreenAtmosphereEnqueued": false,
+  "mapTerrainSuspended": true,
+  "mapTemporalTextures": 0,
+  "weatherCurrent": true,
+  "passed": true,
+  "performanceBenchmark": false
+}

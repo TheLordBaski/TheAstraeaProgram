@@ -1,0 +1,14 @@
+{
+  "status": "passed",
+  "presets": [
+    "Quality: Ultra",
+    "Quality: Low",
+    "Quality: Medium",
+    "Quality: High"
+  ],
+  "clouds": "Off, Layers, Volumetric",
+  "scatter": "off/on",
+  "savedQuality": 2,
+  "savedClouds": 2,
+  "savedScatter": 1
+}

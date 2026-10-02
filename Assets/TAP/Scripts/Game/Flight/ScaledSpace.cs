@@ -99,6 +99,8 @@ namespace TAP.Game
             data.antialiasing = AntialiasingMode.SubpixelMorphologicalAntiAliasing;
             var flightData = flight.Cam.GetUniversalAdditionalCameraData();
             flightData.renderType = CameraRenderType.Overlay;
+            // Newly created overlay data clears depth by default (read-only in URP 17.5).
+            // Local metres must never reuse the scaled camera's hardware depth.
             flightData.renderPostProcessing = true;
             data.cameraStack.Add(flight.Cam);
             flight.Cam.cullingMask &= ~(1 << Layers.Scaled);

@@ -17,6 +17,7 @@ namespace TAP.UI
         private TextMeshProUGUI _confirmText;
         private System.Action _confirmAction;
         private UIKit.ButtonRef _recoverBtn;
+        private PlanetGraphicsPanel _graphics;
         private float _prevTimeScale = 1f;
 
         public static PauseMenu Create(FlightSceneController scene)
@@ -42,7 +43,7 @@ namespace TAP.UI
             dimImg.color = new Color(0, 0, 0, 0.5f);
             _pausePanel = dim.gameObject;
             var p = UIKit.Panel(dim, "Pause");
-            UIKit.Place(p.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(420, 666));
+            UIKit.Place(p.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(420, 714));
             UIKit.VLayout(p, 8, 20);
             var title = UIKit.Label(p.transform, "PAUSED", 30, UIKit.Accent, TextAlignmentOptions.Center, FontStyles.Bold);
             UIKit.Size(title, 44);
@@ -54,10 +55,12 @@ namespace TAP.UI
             AddButton(p.transform, "Leave flight (keep vessels in play)", () => { Unpause(); Scene.LeaveToEditor(); });
             _recoverBtn = AddButton(p.transform, "Recover vessel", () => { Unpause(); Scene.RecoverActive(); });
             AddButton(p.transform, "Control guide  [F1]", () => { ToggleHelp(); });
+            AddButton(p.transform, "Planet graphics", () => _graphics.gameObject.SetActive(true));
             AddButton(p.transform, "Developer tools  [Alt+F12]", () => { TogglePause(); DevWindow.Instance?.Toggle(); });
             AddButton(p.transform, "Main menu", () => Confirm("Save and return to the main menu?", () => { Unpause(); Scene.LeaveToMenu(); }));
             AddButton(p.transform, "Quit to desktop", () => Confirm("Save and quit?", () => { Scene.CaptureSave(); GameSession.WritePersistent(); Application.Quit(); }));
             _pausePanel.SetActive(false);
+            _graphics = PlanetGraphicsPanel.Create(root);
 
             // Confirm dialog
             var cd = UIKit.Rect(root, "ConfirmDim");
@@ -131,6 +134,7 @@ namespace TAP.UI
 
         public void TogglePause()
         {
+            if (_graphics.gameObject.activeSelf) { _graphics.gameObject.SetActive(false); return; }
             if (_helpPanel.activeSelf) { _helpPanel.SetActive(false); if (!_pausePanel.activeSelf) return; }
             if (_pausePanel.activeSelf) Unpause();
             else
@@ -148,6 +152,7 @@ namespace TAP.UI
         {
             _pausePanel.SetActive(false);
             _confirmPanel.SetActive(false);
+            _graphics.gameObject.SetActive(false);
             UiState.Paused = false;
             Scene.Sim.Paused = false;
             Time.timeScale = _prevTimeScale <= 0 ? 1 : _prevTimeScale;

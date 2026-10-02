@@ -1,0 +1,76 @@
+{
+  "status": "completed",
+  "duration": 0.58,
+  "summary": {
+    "total": 9,
+    "passed": 9,
+    "failed": 0,
+    "skipped": 0,
+    "inconclusive": 0
+  },
+  "results": [
+    {
+      "FullName": "TAP.Tests.PlanetVisualTests.AirlessBodyFallbackHasNoClouds",
+      "Status": "Passed",
+      "Duration": 0.1334431,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TAP.Tests.PlanetVisualTests.BakeKeysInvalidateOnlyAffectedAssetsAndIgnoreLocale",
+      "Status": "Passed",
+      "Duration": 0.1344111,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TAP.Tests.PlanetVisualTests.CameraRayIncludesUnityViewReflectionAndIgnoresFloatingOrigin",
+      "Status": "Passed",
+      "Duration": 0.0091353,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TAP.Tests.PlanetVisualTests.CloudHandoverUsesAltitudeAndIsAlreadyTextureOnlyAtCameraSwitch",
+      "Status": "Passed",
+      "Duration": 0.0022338,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TAP.Tests.PlanetVisualTests.EffectCullingKeepsTheAtmosphericLimbButRejectsBodiesOutsideTheView",
+      "Status": "Passed",
+      "Duration": 0.0011769,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TAP.Tests.PlanetVisualTests.NewOverlaySeparatesLocalAndScaledDepth",
+      "Status": "Passed",
+      "Duration": 0.0005616,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TAP.Tests.PlanetVisualTests.ShellIntersectionHandlesSurfaceOrbitAndMiss",
+      "Status": "Passed",
+      "Duration": 0.0009562,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TAP.Tests.PlanetVisualTests.SurfaceUVMatchesMapAtEveryLatitudeAndDateline",
+      "Status": "Passed",
+      "Duration": 0.0032601,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "TAP.Tests.PlanetVisualTests.WindRemainsPeriodicAtLargeUTAndAcrossNegativeTime",
+      "Status": "Passed",
+      "Duration": 0.000284,
+      "Message": null,
+      "StackTrace": null
+    }
+  ]
+}

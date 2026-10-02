@@ -1,0 +1,86 @@
+{
+  "fields": [
+    {
+      "name": "LargeCloudBanks",
+      "displayName": "Large Cloud Banks",
+      "value": 7,
+      "tooltip": "Number of large cloud banks across the whole planet. Change outside Play mode, then run TAP > Planet visuals > Bake weather only."
+    },
+    {
+      "name": "SmallCloudPatches",
+      "displayName": "Small Cloud Patches",
+      "value": 8,
+      "tooltip": "Number of smaller broken cloud patches across the whole planet. Requires Bake weather only."
+    },
+    {
+      "name": "ThinCloudFronts",
+      "displayName": "Thin Cloud Fronts",
+      "value": 6,
+      "tooltip": "Number of faint, wispy cloud fronts across the whole planet. Requires Bake weather only."
+    }
+  ],
+  "cases": [
+    {
+      "requested": [
+        7,
+        8,
+        6
+      ],
+      "actual": [
+        7,
+        8,
+        6
+      ]
+    },
+    {
+      "requested": [
+        1,
+        2,
+        3
+      ],
+      "actual": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "requested": [
+        0,
+        0,
+        0
+      ],
+      "actual": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "requested": [
+        0,
+        0,
+        4
+      ],
+      "actual": [
+        0,
+        0,
+        4
+      ]
+    },
+    {
+      "requested": [
+        2,
+        0,
+        0
+      ],
+      "actual": [
+        2,
+        0,
+        0
+      ]
+    }
+  ],
+  "zeroCountsCoveredPixels": 0,
+  "passed": true
+}

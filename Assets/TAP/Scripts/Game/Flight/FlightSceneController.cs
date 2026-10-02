@@ -57,6 +57,7 @@ namespace TAP.Game
             Trajectory.Sim = Sim;
             Map = new GameObject("MapView").AddComponent<MapView>();
             Map.Init(Sim, Trajectory);
+            PlanetVisualController.Create(this);
 
             Tracker = gameObject.AddComponent<MissionTracker>();
             Tracker.Scene = this;

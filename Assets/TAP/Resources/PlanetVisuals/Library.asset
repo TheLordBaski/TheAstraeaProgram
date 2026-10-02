@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f728f0758d988b349b9d8a5e3cbc966e, type: 3}
+  m_Name: Library
+  m_EditorClassIdentifier: TAP.Simulation::TAP.Simulation.PlanetVisualLibrary
+  Albedo: {fileID: 4738237435396139916, guid: c3ca58a576fb4d043b491d320c82ed0b, type: 3}
+  Normal: {fileID: 4738237435396139916, guid: 5bef7462cd869424c9994390d7ce2871, type: 3}
+  Material: {fileID: 4738237435396139916, guid: d1c416b306aa18d44998366bb4bf37f7, type: 3}
+  CloudNoise: {fileID: 5410345102054088449, guid: 729d4b32db590264a8c1e838559ef9f3, type: 3}
+  CloudDetail: {fileID: 5410345102054088449, guid: 095f5d79fa27de242baf77171f01384b, type: 3}
+  SatelliteDetail: {fileID: 4738237435396139916, guid: 852bb412b01512147b0ff06f977c6d49, type: 3}
+  TellusStone: {fileID: 2800000, guid: 5a16bc2ad4aec5143ad80facec9942bf, type: 3}
+  LumaStone: {fileID: 2800000, guid: 3fa5e22117fbeac47b84ddda209864a1, type: 3}

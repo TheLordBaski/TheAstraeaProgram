@@ -1,0 +1,12 @@
+{
+  "result": "Succeeded",
+  "errors": 0,
+  "warnings": 6,
+  "bytes": 353117635,
+  "path": "D:/Dev/KSP/Build/PlanetVisualsFinal/TAP.exe",
+  "scenes": [
+    "Assets/TAP/Scenes/MainMenu.unity",
+    "Assets/TAP/Scenes/Assembly.unity",
+    "Assets/TAP/Scenes/Flight.unity"
+  ]
+}

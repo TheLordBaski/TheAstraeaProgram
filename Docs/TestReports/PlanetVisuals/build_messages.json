@@ -1,0 +1,32 @@
+[
+  {
+    "step": "Preprocess Player",
+    "type": "Warning",
+    "content": "Pipeline: No RuntimePipelineConfig asset found (Project Settings > Pipeline > Runtime). Pipeline will be disabled in Player builds."
+  },
+  {
+    "step": "Compile scripts",
+    "type": "Warning",
+    "content": "Assets\\TAP\\Scripts\\Game\\Map\\MapView.cs(47,30): warning UAC1001: Field 'FocusBody' type 'TAP.Core.CelestialBody' is skipped by serialization (missing the [Serializable] attribute). Refer to the Serialization rules analyzer reference. (https://docs.unity3d.com/6000.5/Documentation/Manual/script-serialization-analyzer.html#uac1001)"
+  },
+  {
+    "step": "Compile scripts",
+    "type": "Warning",
+    "content": "Assets\\TAP\\Scripts\\Game\\Map\\MapView.cs(48,29): warning UAC1001: Field 'FocusVessel' type 'TAP.Simulation.VesselHandle' is skipped by serialization (missing the [Serializable] attribute). Refer to the Serialization rules analyzer reference. (https://docs.unity3d.com/6000.5/Documentation/Manual/script-serialization-analyzer.html#uac1001)"
+  },
+  {
+    "step": "Compile scripts",
+    "type": "Warning",
+    "content": "Assets\\TAP\\Scripts\\Game\\Assembly\\AssemblyEditor.cs(28,29): warning UAC1001: Field 'Db' type 'TAP.Parts.PartDatabase' is skipped by serialization (missing the [Serializable] attribute). Refer to the Serialization rules analyzer reference. (https://docs.unity3d.com/6000.5/Documentation/Manual/script-serialization-analyzer.html#uac1001)"
+  },
+  {
+    "step": "Compile scripts",
+    "type": "Warning",
+    "content": "Assets\\TAP\\Scripts\\Game\\Assembly\\AssemblyEditor.cs(30,31): warning UAC1001: Field 'Asm' type 'TAP.Construction.CraftAssembler' is skipped by serialization (missing the [Serializable] attribute). Refer to the Serialization rules analyzer reference. (https://docs.unity3d.com/6000.5/Documentation/Manual/script-serialization-analyzer.html#uac1001)"
+  },
+  {
+    "step": "Compile scripts",
+    "type": "Warning",
+    "content": "Assets\\TAP\\Scripts\\Game\\Assembly\\AssemblyEditorInput.cs(38,26): warning UAC1001: Field 'Current' type 'TAP.Game.AssemblyEditor.Placement' is skipped by serialization (missing the [Serializable] attribute). Refer to the Serialization rules analyzer reference. (https://docs.unity3d.com/6000.5/Documentation/Manual/script-serialization-analyzer.html#uac1001)"
+  }
+]

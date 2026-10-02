@@ -1,0 +1,16 @@
+{
+  "phase": "after",
+  "utc": 0,
+  "quality": "Ultra",
+  "clouds": "Layers",
+  "dimensions": [
+    1600,
+    900
+  ],
+  "messages": {
+    "Hidden/TAP/PlanetAtmosphereCloud": [],
+    "TAP/Terrain": [],
+    "TAP/Plume": []
+  },
+  "performanceBenchmark": false
+}

@@ -1,0 +1,24 @@
+{
+  "gpu": "NVIDIA GeForce RTX 3070 Laptop GPU",
+  "fineCoverageMean": 0.16728466081205795,
+  "filteredCoverageMean": 0.16732067007646378,
+  "windWrapMeanDifference": 0.00014586734954491476,
+  "windWrapMaxDifference": 0.002868712,
+  "distantSphereMisses": 0,
+  "shaderMessages": [
+    {
+      "name": "Hidden/TAP/PlanetAtmosphereCloud",
+      "messages": []
+    },
+    {
+      "name": "TAP/Plume",
+      "messages": []
+    },
+    {
+      "name": "TAP/Terrain",
+      "messages": []
+    }
+  ],
+  "passed": true,
+  "performanceBenchmark": false
+}

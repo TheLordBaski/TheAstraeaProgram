@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24e0b8370927e9748bbaf6b22685874a, type: 3}
+  m_Name: luma
+  m_EditorClassIdentifier: TAP.Simulation::TAP.Simulation.PlanetVisualProfile
+  BodyId: luma
+  Version: 1
+  Lunar: 1
+  Surface: {fileID: 2800000, guid: 8c9ce9cd767ea5e46ad3a31506e5aedf, type: 3}
+  SurfaceNormal: {fileID: 2800000, guid: d894e822a2ceb7845b9b49895c5c1f9d, type: 3}
+  SurfaceMask: {fileID: 2800000, guid: 97a9def66022a2a42ad60d3fc86f790e, type: 3}
+  Weather: {fileID: 0}
+  WeatherNormal: {fileID: 0}
+  Transmittance: {fileID: 0}
+  MultiScattering: {fileID: 0}
+  Rayleigh: {r: 0.0000058, g: 0.0000135, b: 0.0000331, a: 1}
+  RayleighHeight: 5600
+  Mie: 0.000012
+  MieHeight: 1400
+  MieAnisotropy: 0.76
+  Ozone: {r: 0.00000065, g: 0.00000188, b: 0.000000085, a: 1}
+  SkyBrightness: 1
+  CloudBase: 2800
+  CloudTop: 6500
+  CloudCoverage: 0
+  CloudDensity: 0.0011
+  WindSpeed: 18
+  CloudShadow: 0.55
+  WeatherSeed: 424242
+  WeatherMode: 0
+  LargeCloudBanks: 7
+  SmallCloudPatches: 8
+  ThinCloudFronts: 6
+  WeatherSourceFile: 
+  WeatherSourceHash: 
+  CloudRelief: 1400
+  CloudLayerDetail: 0.5
+  CloudOpticalDepth: 20
+  CloudBillowScale: 14000
+  SurfaceSaturation: 1
+  SurfaceTint: {r: 1, g: 1, b: 1, a: 1}
+  SurfaceNormalStrength: 1
+  OceanColourBlend: 0
+  OceanColour: {r: 0.15, g: 0.31, b: 0.47, a: 1}
+  OceanShallowColour: {r: 0.18, g: 0.55, b: 0.58, a: 1}
+  GroundDetail: 0.72
+  OceanRoughness: 0.12
+  RegionalDetail: 0
+  RegionalDetailScale: 18000
+  SatelliteAlbedo: 0
+  SatelliteDetail: 0.7
+  TerrainHash: 0d87e0b68fa80d8c
+  SurfaceBakeKey: 25dfd7f3e49fafb8d62b3397e3f23831
+  WeatherBakeKey: 548bc7e32665b427bc4b66c2528a4c74
+  AtmosphereBakeKey: 93f78f5d661d3a406f4218add858a2af

@@ -1,0 +1,13 @@
+{
+    "linear": true,
+    "size": 2048,
+    "aniso": 4,
+    "layers": [
+        "Assets/TAP/Art/PlanetMaterials/sparse_grass_arm.jpg",
+        "Assets/TAP/Art/PlanetMaterials/forest_ground_04_arm.jpg",
+        "Assets/TAP/Art/PlanetMaterials/coast_sand_01_arm.jpg",
+        "Assets/TAP/Art/PlanetMaterials/rocky_terrain_02_arm.jpg",
+        "Assets/TAP/Art/PlanetMaterials/snow_02_arm.jpg",
+        "Assets/TAP/Art/PlanetMaterials/moon_01_arm.jpg"
+    ]
+}

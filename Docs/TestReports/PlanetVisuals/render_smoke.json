@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "shaderErrors": 0,
+  "checkedMaterialSlices": 18,
+  "graphicsDevice": "NVIDIA GeForce RTX 3070 Laptop GPU",
+  "api": "Direct3D12",
+  "handover": "near/full volume, blend range, far/layers rendered",
+  "benchmarked": false
+}

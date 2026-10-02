@@ -244,6 +244,33 @@ namespace TAP.Core
 
         private static byte ToByte(double v) => (byte)(v <= 0 ? 0 : v >= 255 ? 255 : v + 0.5);
 
+        public int ColorRuleCount => _colors.Length;
+        public Color32 ColorRuleColor(int i) => _colors[i].Color;
+        public string ColorRuleNote(int i) => Def.colors[i].note ?? "";
+
+        /// <summary>
+        /// How much each colour rule shows in <see cref="Colorize"/>'s result once the later rules have painted over it
+        /// (weights[ColorRuleCount] is the neutral base). For presentation bakes that texture each rule separately.
+        /// </summary>
+        public void ColorWeights(Vector3d dir, double height, double[] fields, int offset, double cosSlope, double[] weights)
+        {
+            cosSlope = MathD.Clamp(cosSlope, -1, 1);
+            var c = new Ctx
+            {
+                Dir = dir, F = fields, O = offset, Height = height, Lat = double.NaN, Shore = double.NaN,
+                Slope = DetMath.Acos(cosSlope) * MathD.Rad2Deg,
+            };
+            double rest = 1;
+            for (int i = _colors.Length - 1; i >= 0; i--)
+            {
+                var rule = _colors[i];
+                double m = rule.Mask != null ? MathD.Clamp01(Product(rule.Mask, ref c)) : 1;
+                weights[i] = m * rest;
+                rest *= 1 - m;
+            }
+            weights[_colors.Length] = rest;
+        }
+
         // ================================================================== biomes
 
         [ThreadStatic] private static double[] _biomeScratch, _auxScratch;

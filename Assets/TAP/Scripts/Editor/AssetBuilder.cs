@@ -456,7 +456,10 @@ namespace TAP.EditorTools
             {
                 if (b.IsStar) continue; // the map draws stars unlit (MapView)
                 var pm = LoadOrCreate($"{dir}/Map_{b.Id}.mat", lit);
-                pm.SetTexture("_BaseMap", AssetDatabase.LoadAssetAtPath<Texture2D>($"{Res}/Textures/Map_{b.Id}.png"));
+                var profile = Resources.Load<TAP.Simulation.PlanetVisualProfile>("PlanetVisuals/" + b.Id);
+                bool valid=profile!=null && profile.Surface!=null && profile.TerrainHash==TerrainFingerprint.Hash(b.Def.terrain)
+                    && (string.IsNullOrEmpty(profile.SurfaceBakeKey) || profile.SurfaceBakeKey==profile.ExpectedSurfaceKey(b));
+                pm.SetTexture("_BaseMap", valid ? profile.Surface : AssetDatabase.LoadAssetAtPath<Texture2D>($"{Res}/Textures/Map_{b.Id}.png"));
                 pm.SetColor("_BaseColor", Color.white);
                 pm.SetFloat("_Smoothness", 0.1f);
                 EditorUtility.SetDirty(pm);

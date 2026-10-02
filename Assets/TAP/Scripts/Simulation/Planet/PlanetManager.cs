@@ -207,7 +207,9 @@ namespace TAP.Simulation
                 var b = kv.Key;
                 Vector3d bodyPos = frame.BodyPosition(b, rut);
                 Vector3d bodyCenterUnity = bodyPos - renderOrigin;
-                kv.Value.UpdateTerrain(camTrue - bodyPos, bodyCenterUnity, b.RotationAtUT(rut));
+                // The map owns separate meshes. Retain flight LOD while it is hidden; physics
+                // colliders and surface-object poses continue updating independently below.
+                if(Camera.enabled) kv.Value.UpdateTerrain(camTrue - bodyPos, bodyCenterUnity, b.RotationAtUT(rut));
             }
             foreach (var s in SurfaceObjects)
             {

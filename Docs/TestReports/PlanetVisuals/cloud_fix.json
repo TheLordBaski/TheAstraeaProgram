@@ -1,0 +1,28 @@
+{
+  "gpu": "NVIDIA GeForce RTX 3070 Laptop GPU",
+  "graphics": "Direct3D12",
+  "samples": 65536,
+  "old16kmMeanDifference": 0.0,
+  "old16kmMaxDifference": 0.0,
+  "new16kmMeanDifference": 0.1589208522420904,
+  "clearWeatherMaxDensity": 0.0,
+  "passed": true,
+  "shaderMessages": [
+    {
+      "name": "Hidden/TAP/PlanetAtmosphereCloud",
+      "found": true,
+      "messages": []
+    },
+    {
+      "name": "TAP/Plume",
+      "found": true,
+      "messages": []
+    },
+    {
+      "name": "TAP/Terrain",
+      "found": true,
+      "messages": []
+    }
+  ],
+  "performanceBenchmark": false
+}

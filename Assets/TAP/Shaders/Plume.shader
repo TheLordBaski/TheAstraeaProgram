@@ -20,11 +20,12 @@ Shader "TAP/Plume"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #pragma multi_compile_instancing
+            #pragma target 4.5
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "PlanetTransparentTransmission.hlsl"
 
-            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; float2 uv : TEXCOORD0; UNITY_VERTEX_INPUT_INSTANCE_ID };
-            struct Varyings { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; float3 normalWS : TEXCOORD1; float3 viewWS : TEXCOORD2; };
+            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; float2 uv : TEXCOORD0; };
+            struct Varyings { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; float3 normalWS : TEXCOORD1; float3 viewWS : TEXCOORD2; float3 positionWS:TEXCOORD3; };
 
             CBUFFER_START(UnityPerMaterial)
                 float4 _Color;
@@ -37,9 +38,9 @@ Shader "TAP/Plume"
             Varyings vert(Attributes v)
             {
                 Varyings o;
-                UNITY_SETUP_INSTANCE_ID(v);
                 VertexPositionInputs p = GetVertexPositionInputs(v.positionOS.xyz);
                 o.positionCS = p.positionCS;
+                o.positionWS = p.positionWS;
                 o.uv = v.uv;
                 o.normalWS = TransformObjectToWorldNormal(v.normalOS);
                 o.viewWS = GetWorldSpaceViewDir(p.positionWS);
@@ -55,7 +56,7 @@ Shader "TAP/Plume"
                 float flick = 1.0 + _Flicker * sin(_Time.y * 60.0 + along * 20.0);
                 float3 col = lerp(_Color.rgb, _CoreColor.rgb, pow(fres, 6.0) * (1.0 - along));
                 float a = soft * fade * _Intensity * flick;
-                return half4(col * a, 1);
+                return half4(col * a * PlanetTransparentTransmission(i.positionWS), 1);
             }
             ENDHLSL
         }

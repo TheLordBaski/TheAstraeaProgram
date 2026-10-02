@@ -1,0 +1,201 @@
+{
+  "Main Thread": [
+    {
+      "Key": "Main Thread",
+      "Value": 29.530899047851563
+    },
+    {
+      "Key": "EditorLoop",
+      "Value": 16.687899954617023
+    },
+    {
+      "Key": "PlayerLoop",
+      "Value": 12.014100077794865
+    },
+    {
+      "Key": "UpdateScene",
+      "Value": 6.7392001152038574
+    },
+    {
+      "Key": "RenderPlayModeViewCameras",
+      "Value": 5.2657999992370605
+    },
+    {
+      "Key": "UnityEngine.CoreModule.dll!UnityEngine.Rendering::RenderPipelineManager.DoRenderLoop_Internal() [Invoke]",
+      "Value": 5.1775999069213867
+    },
+    {
+      "Key": "Inl_UniversalRenderTotal",
+      "Value": 5.1209001541137695
+    },
+    {
+      "Key": "Inl_RenderCameraStack",
+      "Value": 5.0153999328613281
+    },
+    {
+      "Key": "Inl_UniversalRenderPipeline.RenderSingleCameraInternal: MapCamera",
+      "Value": 3.6960000991821289
+    },
+    {
+      "Key": "PreLateUpdate.ScriptRunBehaviourLateUpdate",
+      "Value": 2.6089999675750732
+    },
+    {
+      "Key": "LateBehaviourUpdate",
+      "Value": 2.6080000400543213
+    },
+    {
+      "Key": "TAP.Simulation.dll!TAP.Simulation::FlightSim.LateUpdate() [Invoke]",
+      "Value": 1.9383000135421753
+    },
+    {
+      "Key": "Update.ScriptRunBehaviourUpdate",
+      "Value": 1.9132000207901
+    },
+    {
+      "Key": "BehaviourUpdate",
+      "Value": 1.9122999906539917
+    },
+    {
+      "Key": "Inl_ExecuteRenderGraph",
+      "Value": 1.6029000282287598
+    },
+    {
+      "Key": "TAP.UI.dll!TAP.UI::MapUI.Update() [Invoke]",
+      "Value": 1.4609999656677246
+    },
+    {
+      "Key": "Inl_RecordRenderGraph",
+      "Value": 1.4571000337600708
+    },
+    {
+      "Key": "Inl_On Record Render Graph",
+      "Value": 1.4417999982833862
+    },
+    {
+      "Key": "Inl_ScriptableRenderContext.Submit",
+      "Value": 1.0631999969482422
+    },
+    {
+      "Key": "UniversalRenderPipeline.RenderSingleCameraInternal: MapCamera",
+      "Value": 1.0010999441146851
+    },
+    {
+      "Key": "ExecuteRenderGraph",
+      "Value": 0.95759999752044678
+    },
+    {
+      "Key": "FixedUpdate.PhysicsFixedUpdate",
+      "Value": 0.88580001890659332
+    },
+    {
+      "Key": "Physics.RunSimulationStage",
+      "Value": 0.72340001165866852
+    },
+    {
+      "Key": "Physics.Simulate",
+      "Value": 0.72280001640319824
+    }
+  ],
+  "Render Thread": [
+    {
+      "Key": "RenderLoop",
+      "Value": 18.930499851550849
+    },
+    {
+      "Key": "Gfx.WaitForGfxCommandsFromMainThread",
+      "Value": 10.60150001940201
+    },
+    {
+      "Key": "Semaphore.WaitForSignal",
+      "Value": 10.594599942247442
+    },
+    {
+      "Key": "UniversalRenderPipeline.RenderSingleCameraInternal: MapCamera",
+      "Value": 2.1968998908996582
+    },
+    {
+      "Key": "ExecuteRenderGraph",
+      "Value": 2.1951999664306641
+    },
+    {
+      "Key": "Blit Bloom Mipmaps",
+      "Value": 0.37369999289512634
+    },
+    {
+      "Key": "RenderLoop.Draw",
+      "Value": 0.34739999286830425
+    },
+    {
+      "Key": "DrawDepthNormalPrepass",
+      "Value": 0.32159999012947083
+    },
+    {
+      "Key": "DrawScreenSpaceUI",
+      "Value": 0.26999999908730388
+    },
+    {
+      "Key": "UI.RenderOverlays",
+      "Value": 0.26449999213218689
+    },
+    {
+      "Key": "RG_BloomUpsample",
+      "Value": 0.24240000545978546
+    },
+    {
+      "Key": "Canvas.RenderOverlays",
+      "Value": 0.24129999682190828
+    },
+    {
+      "Key": "BufferD3D12.InitializeResource",
+      "Value": 0.17129999399185181
+    },
+    {
+      "Key": "BufferD3D12.CreateBufferResource",
+      "Value": 0.15639999881386757
+    },
+    {
+      "Key": "CreateResourceWithTag",
+      "Value": 0.15290000289678574
+    },
+    {
+      "Key": "RG_BloomDownsample",
+      "Value": 0.10890000313520432
+    },
+    {
+      "Key": "SSAO",
+      "Value": 0.078800001181662083
+    },
+    {
+      "Key": "Gfx.SetRenderTarget",
+      "Value": 0.065499998978339136
+    },
+    {
+      "Key": "Blit Color LUT",
+      "Value": 0.06289999932050705
+    },
+    {
+      "Key": "ColorGradingLUT",
+      "Value": 0.062600001692771912
+    },
+    {
+      "Key": "BufferD3D12.UpdateInternal",
+      "Value": 0.061000000685453415
+    },
+    {
+      "Key": "GPUProfiler.BeginQueries",
+      "Value": 0.05000000074505806
+    },
+    {
+      "Key": "GpuRecorder.FrameTick",
+      "Value": 0.046799998730421066
+    },
+    {
+      "Key": "Blit Post Processing",
+      "Value": 0.034600000828504562
+    }
+  ],
+  "#122628": [],
+  "#29300": [],
+  "AssetGarbageCollectorHelper": []
+}

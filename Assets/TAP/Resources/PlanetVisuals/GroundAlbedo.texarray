@@ -1,0 +1,13 @@
+{
+    "linear": false,
+    "size": 2048,
+    "aniso": 4,
+    "layers": [
+        "Assets/TAP/Art/PlanetMaterials/sparse_grass_Diffuse.jpg",
+        "Assets/TAP/Art/PlanetMaterials/forest_ground_04_Diffuse.jpg",
+        "Assets/TAP/Art/PlanetMaterials/coast_sand_01_Diffuse.jpg",
+        "Assets/TAP/Art/PlanetMaterials/rocky_terrain_02_Diffuse.jpg",
+        "Assets/TAP/Art/PlanetMaterials/snow_02_Diffuse.jpg",
+        "Assets/TAP/Art/PlanetMaterials/moon_01_Diffuse.jpg"
+    ]
+}

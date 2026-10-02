@@ -1,0 +1,17 @@
+[
+  {
+    "report": "D:\\Dev\\KSP\\Docs\\TestReports\\PlanetVisuals\\player_lunar.md",
+    "mission": "lunar",
+    "exitCode": 0
+  },
+  {
+    "report": "D:\\Dev\\KSP\\Docs\\TestReports\\PlanetVisuals\\player_orbit.md",
+    "mission": "orbit",
+    "exitCode": 0
+  },
+  {
+    "report": "D:\\Dev\\KSP\\Docs\\TestReports\\PlanetVisuals\\player_persistence.md",
+    "mission": "persistence",
+    "exitCode": 0
+  }
+]

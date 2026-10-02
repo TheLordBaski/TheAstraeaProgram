@@ -1,0 +1,14 @@
+{
+  "repeatMeanDifference": 0.0,
+  "distantLayersVsVolumeMeanDifference": 0.0,
+  "volumeBoundaryMeanDifference": 0.0017743074973526679,
+  "weatherDimensions": [
+    4096,
+    2048
+  ],
+  "filter": "Trilinear",
+  "currentWeatherKey": true,
+  "shaderMessages": [],
+  "passed": true,
+  "performanceBenchmark": false
+}

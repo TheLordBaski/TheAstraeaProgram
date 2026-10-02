@@ -1,0 +1,13 @@
+{
+    "linear": true,
+    "size": 1024,
+    "aniso": 8,
+    "layers": [
+        "Assets/TAP/Art/SatelliteDetail/forest.png",
+        "Assets/TAP/Art/SatelliteDetail/grass.png",
+        "Assets/TAP/Art/SatelliteDetail/steppe.png",
+        "Assets/TAP/Art/SatelliteDetail/scrub.png",
+        "Assets/TAP/Art/SatelliteDetail/sand.png",
+        "Assets/TAP/Art/SatelliteDetail/rock.png"
+    ]
+}

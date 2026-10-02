@@ -1,0 +1,784 @@
+{
+  "success": true,
+  "command": "command run_tests",
+  "data": {
+    "command": "run_tests",
+    "parameters": {
+      "mode": "EditMode"
+    },
+    "result": {
+      "Summary": {
+        "Total": 107,
+        "Passed": 107,
+        "Failed": 0,
+        "Skipped": 0,
+        "Inconclusive": 0
+      },
+      "Results": [
+        {
+          "FullName": "TAP.Tests.BodyLabExpansionTests.AnAddedBiomeRetainsPreviousRulesAndFallbackAndGetsAUniqueId",
+          "Status": "Passed",
+          "Duration": 0.2374714,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabExpansionTests.BiomeThemesPreserveGeometryAndPresetAndAreOneUndoStep(Temperate)",
+          "Status": "Passed",
+          "Duration": 0.0340035,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabExpansionTests.BiomeThemesPreserveGeometryAndPresetAndAreOneUndoStep(Arid)",
+          "Status": "Passed",
+          "Duration": 0.0263428,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabExpansionTests.BiomeThemesPreserveGeometryAndPresetAndAreOneUndoStep(Frozen)",
+          "Status": "Passed",
+          "Duration": 0.0254304,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabExpansionTests.BiomeThemesPreserveGeometryAndPresetAndAreOneUndoStep(Volcanic)",
+          "Status": "Passed",
+          "Duration": 0.0260036,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabExpansionTests.BiomeThemesPreserveGeometryAndPresetAndAreOneUndoStep(Cratered)",
+          "Status": "Passed",
+          "Duration": 1.3182328,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabExpansionTests.BiomeThemesPreserveGeometryAndPresetAndAreOneUndoStep(Random)",
+          "Status": "Passed",
+          "Duration": 0.0311894,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabExpansionTests.EverySchemaPropertyHasContextSpecificHoverHelpAndUnits",
+          "Status": "Passed",
+          "Duration": 0.148011,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabExpansionTests.GeneratedBodiesAreRepeatableAndRoundTripThroughTheGame(False,0)",
+          "Status": "Passed",
+          "Duration": 0.085529,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabExpansionTests.GeneratedBodiesAreRepeatableAndRoundTripThroughTheGame(False,1)",
+          "Status": "Passed",
+          "Duration": 0.0648483,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabExpansionTests.GeneratedBodiesAreRepeatableAndRoundTripThroughTheGame(False,42)",
+          "Status": "Passed",
+          "Duration": 0.0713743,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabExpansionTests.GeneratedBodiesAreRepeatableAndRoundTripThroughTheGame(False,-7)",
+          "Status": "Passed",
+          "Duration": 0.0697872,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabExpansionTests.GeneratedBodiesAreRepeatableAndRoundTripThroughTheGame(False,int.MinValue)",
+          "Status": "Passed",
+          "Duration": 0.063771,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabExpansionTests.GeneratedBodiesAreRepeatableAndRoundTripThroughTheGame(True,0)",
+          "Status": "Passed",
+          "Duration": 0.0625889,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabExpansionTests.GeneratedBodiesAreRepeatableAndRoundTripThroughTheGame(True,1)",
+          "Status": "Passed",
+          "Duration": 0.0624487,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabExpansionTests.GeneratedBodiesAreRepeatableAndRoundTripThroughTheGame(True,42)",
+          "Status": "Passed",
+          "Duration": 0.0650442,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabExpansionTests.GeneratedBodiesAreRepeatableAndRoundTripThroughTheGame(True,-7)",
+          "Status": "Passed",
+          "Duration": 0.0628575,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabExpansionTests.GeneratedBodiesAreRepeatableAndRoundTripThroughTheGame(True,int.MaxValue)",
+          "Status": "Passed",
+          "Duration": 0.0614807,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabExpansionTests.ManySeedsProduceVariedAtmospheresSizesAndBoundedTerrain",
+          "Status": "Passed",
+          "Duration": 0.6258735,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabExpansionTests.OrbitPreviewUsesActualSystemPropagationAndParentRelativeMoonPositions",
+          "Status": "Passed",
+          "Duration": 0.0218352,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabExpansionTests.OrbitVisualDrawsInAnAttachedEditorPanel",
+          "Status": "Passed",
+          "Duration": 0.1688528,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabExpansionTests.SavingSinglePrecisionColorsDoesNotCauseAnExternalChangeConflict",
+          "Status": "Passed",
+          "Duration": 0.0365681,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabTests.AContinuousGestureIsOneUndoStep",
+          "Status": "Passed",
+          "Duration": 0.0109407,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabTests.AnInheritedListCopiesAllEntriesWithoutChangingThePreset",
+          "Status": "Passed",
+          "Duration": 0.0114397,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabTests.AnObsoleteWorkerCannotReplaceThePreviewAndTemporaryObjectsAreReleased",
+          "Status": "Passed",
+          "Duration": 0.2729317,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabTests.ASingletonMaskCanBeEditedAsAListAndUndoRestoresItsJsonShape",
+          "Status": "Passed",
+          "Duration": 0.1672302,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabTests.CancelledPreviewDoesNotFinishProducingAMap",
+          "Status": "Passed",
+          "Duration": 0.0136133,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabTests.FormIncludesBodyAndEveryTerrainSectionAndChangingAControlChangesTheDraft",
+          "Status": "Passed",
+          "Duration": 0.4488588,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabTests.InheritedObjectsUseSparseOverridesAndCanRevertToThePreset",
+          "Status": "Passed",
+          "Duration": 0.0093316,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabTests.InvalidPresetNamesRemainEditable",
+          "Status": "Passed",
+          "Duration": 0.0168876,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabTests.NewBodyCanRoundTripThroughTheExistingLoader",
+          "Status": "Passed",
+          "Duration": 0.0346413,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabTests.PreviewUsesGameHeightsBiomesAndAreaWeightedCoverage(\"home\",\"tellus\")",
+          "Status": "Passed",
+          "Duration": 0.0279011,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabTests.PreviewUsesGameHeightsBiomesAndAreaWeightedCoverage(\"home\",\"luma\")",
+          "Status": "Passed",
+          "Duration": 0.030753,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabTests.PreviewUsesGameHeightsBiomesAndAreaWeightedCoverage(\"debug\",\"testrock\")",
+          "Status": "Passed",
+          "Duration": 0.0647102,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabTests.RenameUpdatesParentsAndLaunchSiteAndStillSupportsUndoAfterSaving",
+          "Status": "Passed",
+          "Duration": 0.0294523,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabTests.SavePreservesOtherBodiesUnknownPropertiesAndConcurrentUnrelatedEdits",
+          "Status": "Passed",
+          "Duration": 0.0184825,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabTests.SaveRefusesToOverwriteExternalChangesToThisBody",
+          "Status": "Passed",
+          "Duration": 0.0060212,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabTests.SessionMemoryRestoresANewBodyAndItsUndoRedoWithoutChangingExports",
+          "Status": "Passed",
+          "Duration": 0.0065176,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabTests.UndoRedo_IsInMemoryAndANewEditClearsRedo",
+          "Status": "Passed",
+          "Duration": 0.0232262,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.BodyLabTests.ValidationRejectsCyclesDuplicateIdsAndInvalidCurves",
+          "Status": "Passed",
+          "Duration": 0.0176396,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.CalendarTests.CalendarYears_FollowTheOrbit",
+          "Status": "Passed",
+          "Duration": 0.008779,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.CalendarTests.Clock_StartsAtYear1Day1",
+          "Status": "Passed",
+          "Duration": 0.0059835,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.CalendarTests.DebugSystem_HasItsOwnCalendar",
+          "Status": "Passed",
+          "Duration": 0.0183946,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.CalendarTests.Durations_CountTellusDays",
+          "Status": "Passed",
+          "Duration": 0.0062312,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.CalendarTests.TellusDay_IsSixHoursFromNoonToNoon",
+          "Status": "Passed",
+          "Duration": 0.0070014,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.ConstructionTests.AssemblyBuilding_KeepsCraftBetweenFloorAndHeightLimit",
+          "Status": "Passed",
+          "Duration": 0.0060612,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.ConstructionTests.AutoStage_EnginesBelowFireFirst_ChuteLast",
+          "Status": "Passed",
+          "Duration": 0.0018602,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.ConstructionTests.CraftDesign_JsonRoundTripIsLossless",
+          "Status": "Passed",
+          "Duration": 0.0202571,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.ConstructionTests.DeltaV_DecouplerBlocksFuelFlow",
+          "Status": "Passed",
+          "Duration": 0.0076082,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.ConstructionTests.DeltaV_SingleStageMatchesRocketEquation",
+          "Status": "Passed",
+          "Duration": 0.0010492,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.ConstructionTests.DesignAnalysis_StarterRocketsAreSound",
+          "Status": "Passed",
+          "Duration": 0.0054617,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.ConstructionTests.GameSave_JsonRoundTripKeepsDoublePrecisionOrbits",
+          "Status": "Passed",
+          "Duration": 0.0011436,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.ConstructionTests.RadialSymmetry_PlacesEvenlySpacedCopiesInOneGroup",
+          "Status": "Passed",
+          "Duration": 0.0014246,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.ConstructionTests.RemoveSubtree_RemapsParents",
+          "Status": "Passed",
+          "Duration": 0.0014507,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.ConstructionTests.StackAttach_MatesNodesExactly",
+          "Status": "Passed",
+          "Duration": 0.0006571,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.ConstructionTests.VerticalExtent_FollowsTheGroupRotation",
+          "Status": "Passed",
+          "Duration": 0.0003606,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.GeoAndInputTests.GeographicLatitude_IsNorthPositive_AndLongitudeGrowsEast",
+          "Status": "Passed",
+          "Duration": 0.0008403,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.GeoAndInputTests.ScrollZoom_OneNotchIsTheSameInTheEditorAndInABuild",
+          "Status": "Passed",
+          "Duration": 0.0004564,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.OrbitTests.CircularOrbit_ReturnsAfterOnePeriod",
+          "Status": "Passed",
+          "Duration": 0.0006394,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.OrbitTests.ElementsRoundTrip",
+          "Status": "Passed",
+          "Duration": 0.0002685,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.OrbitTests.EllipticOrbit_MatchesNumericalIntegration",
+          "Status": "Passed",
+          "Duration": 0.0156626,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.OrbitTests.HyperbolicOrbit_MatchesNumericalIntegration_BothDirections",
+          "Status": "Passed",
+          "Duration": 0.0393156,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.OrbitTests.PlannedTrajectory_AppliesNodeSeveralOrbitsAhead",
+          "Status": "Passed",
+          "Duration": 0.0089925,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.OrbitTests.ProgradeRotationConventionMatchesUnity",
+          "Status": "Passed",
+          "Duration": 0.0004848,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.OrbitTests.RadialTrajectory_DoesNotProduceNaN",
+          "Status": "Passed",
+          "Duration": 0.0050081,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.OrbitTests.SystemDefinitionLoads",
+          "Status": "Passed",
+          "Duration": 0.0070898,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.OrbitTests.TimeToApsides_LandsOnApsides",
+          "Status": "Passed",
+          "Duration": 0.0005136,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.PlanetVisualTests.AirlessBodyFallbackHasNoClouds",
+          "Status": "Passed",
+          "Duration": 0.0081068,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.PlanetVisualTests.BakeKeysInvalidateOnlyAffectedAssetsAndIgnoreLocale",
+          "Status": "Passed",
+          "Duration": 0.0182653,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.PlanetVisualTests.CameraRayIncludesUnityViewReflectionAndIgnoresFloatingOrigin",
+          "Status": "Passed",
+          "Duration": 0.0015993,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.PlanetVisualTests.CloudHandoverUsesAltitudeAndIsAlreadyTextureOnlyAtCameraSwitch",
+          "Status": "Passed",
+          "Duration": 0.001063,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.PlanetVisualTests.EffectCullingKeepsTheAtmosphericLimbButRejectsBodiesOutsideTheView",
+          "Status": "Passed",
+          "Duration": 0.0007696,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.PlanetVisualTests.GeneratedSkyTablesCarryACurrentKey",
+          "Status": "Passed",
+          "Duration": 0.2993725,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.PlanetVisualTests.NewOverlaySeparatesLocalAndScaledDepth",
+          "Status": "Passed",
+          "Duration": 0.0007399,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.PlanetVisualTests.ShellIntersectionHandlesSurfaceOrbitAndMiss",
+          "Status": "Passed",
+          "Duration": 0.0005885,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.PlanetVisualTests.SkyTablesAreFiniteAndReddenTowardsTheHorizon",
+          "Status": "Passed",
+          "Duration": 0.2672981,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.PlanetVisualTests.SurfaceUVMatchesMapAtEveryLatitudeAndDateline",
+          "Status": "Passed",
+          "Duration": 0.0038981,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.PlanetVisualTests.WindRemainsPeriodicAtLargeUTAndAcrossNegativeTime",
+          "Status": "Passed",
+          "Duration": 0.0003701,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.ScaledSpaceTests.FarView_ShowsEveryBodyWhereTheFlightCameraWouldSeeIt",
+          "Status": "Passed",
+          "Duration": 0.0022428,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.ScaledSpaceTests.OrbitLine_RunsThroughTheFocusAtEveryZoom",
+          "Status": "Passed",
+          "Duration": 0.0258296,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.ScaledSpaceTests.PointsOfLight_DimWithDistanceButStayVisible",
+          "Status": "Passed",
+          "Duration": 0.006947,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.ScaledSpaceTests.StarCoverage_IsTheOverlapOfTheDiscs",
+          "Status": "Passed",
+          "Duration": 0.0005719,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.SystemTests.ComingBackIntoTellus_IsContinuousFromTheStarFrame",
+          "Status": "Passed",
+          "Duration": 0.0130653,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.SystemTests.DebugSystem_NamesNoHomeBodies",
+          "Status": "Passed",
+          "Duration": 0.0112461,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.SystemTests.Galaxy_ListsTheHomeAndDebugSystems",
+          "Status": "Passed",
+          "Duration": 0.0006158,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.SystemTests.GameplayCode_LooksUpNoBodyById",
+          "Status": "Passed",
+          "Duration": 0.0737661,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.SystemTests.GameplayCode_NeverTreatsTheRootAsThePlanet",
+          "Status": "Passed",
+          "Duration": 0.1750599,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.SystemTests.HomeSystem_HasTheStarAtItsRoot",
+          "Status": "Passed",
+          "Duration": 0.0071517,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.SystemTests.LeavingTellus_IsContinuousIntoTheStarFrame",
+          "Status": "Passed",
+          "Duration": 0.0071001,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.SystemTests.SliceSaves_LoadIntoTheHomeSystem",
+          "Status": "Passed",
+          "Duration": 0.0068863,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.SystemTests.SolarOrbit_ReturnsAfterOnePeriod",
+          "Status": "Passed",
+          "Duration": 0.0062564,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.SystemTests.Sunlight_ComesFromTheStar",
+          "Status": "Passed",
+          "Duration": 0.0064464,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.TerrainTests.BadData_GivesAClearError",
+          "Status": "Passed",
+          "Duration": 0.0017653,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.TerrainTests.BiomeRules_TheFirstMatchWins",
+          "Status": "Passed",
+          "Duration": 0.0006219,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.TerrainTests.Biomes_CoverTellusAndLuma",
+          "Status": "Passed",
+          "Duration": 0.07615,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.TerrainTests.DetMath_AgreesWithSystemMath",
+          "Status": "Passed",
+          "Duration": 0.4612211,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.TerrainTests.Ellipsoid_ShapesAnElongatedBody",
+          "Status": "Passed",
+          "Duration": 0.0013151,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.TerrainTests.FlatArea_LevelsTheGroundAndBlendsBack",
+          "Status": "Passed",
+          "Duration": 0.020147,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.TerrainTests.FlatArea_TiltsWithTheLand",
+          "Status": "Passed",
+          "Duration": 0.0017138,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.TerrainTests.Heights_StayWithinTheirBounds",
+          "Status": "Passed",
+          "Duration": 0.0736693,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.TerrainTests.LaunchSite_StandsOnItsFlatArea",
+          "Status": "Passed",
+          "Duration": 0.0061313,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.TerrainTests.NewBody_NeedsOnlyJson",
+          "Status": "Passed",
+          "Duration": 0.0346957,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.TerrainTests.Presets_AreOverriddenByTheBody",
+          "Status": "Passed",
+          "Duration": 0.001379,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.TerrainTests.SeededRandom_IsSystemRandom",
+          "Status": "Passed",
+          "Duration": 2.4507288,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.TerrainTests.Terrain_IsTheSameEveryTime",
+          "Status": "Passed",
+          "Duration": 0.1861613,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.TerrainTests.Terrain_MatchesTheRecordedFingerprint",
+          "Status": "Passed",
+          "Duration": 0.0695194,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "TAP.Tests.TerrainTests.WaitingRocket_MovesWithThePad",
+          "Status": "Passed",
+          "Duration": 0.0072629,
+          "Message": null,
+          "StackTrace": null
+        }
+      ],
+      "Duration": 12.58,
+      "StatusPath": null,
+      "Mode": "EditMode",
+      "FilterApplied": null,
+      "success": true,
+      "result": null
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7800,
+      "projectPath": "D:\\Dev\\KSP"
+    },
+    "success": true
+  },
+  "errors": [],
+  "warnings": []
+}

@@ -78,6 +78,11 @@ namespace TAP.Simulation
         public int MaxLevel = 12;
         public float SplitFactor = 2.2f;
         public Material Material;
+        public void SetVisualMaterial(Material material)
+        {
+            Material = material;
+            foreach (var renderer in GetComponentsInChildren<MeshRenderer>(true)) renderer.sharedMaterial = material;
+        }
         public int MeshBuildBudget = 12;
 
         private TerrainNode[] _roots;
