@@ -153,15 +153,23 @@ namespace TAP.Game
                 plumeProperties.SetVector("_PlanetMie",new Vector4(p.Mie,p.MieHeight,0,0));plumeProperties.SetVector("_PlanetOzone",p.Ozone);
                 plumeProperties.SetVector("_PlanetClouds",new Vector4(p.CloudBase,p.CloudTop,1,p.CloudDensity));
                 plumeProperties.SetVector("_PlanetCloudShape",new Vector4(p.CloudBillowScale,p.CloudOpticalDepth,0,0));
-                int mode=PlanetGraphics.Clouds==PlanetCloudMode.Off || p.Weather==null?0:PlanetGraphics.Clouds==PlanetCloudMode.Volumetric?2:1;
-                plumeProperties.SetFloat("_PlanetCloudMode",mode);
+                BindPlumeClouds(plumeProperties,p,Library!=null?Library.CloudNoise:null,PlanetGraphics.Clouds);
                 float wind=(float)PlanetVisualMath.WindOffset(ut,p.WindSpeed,2*Math.PI*body.Radius);
                 float motion=(float)PlanetVisualMath.WindOffset(ut,p.WindSpeed,16000);
                 plumeProperties.SetVector("_PlanetWind",new Vector4(wind,motion,0,motion*.3f));
-                plumeProperties.SetTexture("_PlanetWeather",p.Weather);
-                if(Library!=null) plumeProperties.SetTexture("_PlanetNoise",Library.CloudNoise);
             }
             renderer.SetPropertyBlock(plumeProperties);plumeProperties.Clear();
+        }
+        /// <summary>
+        /// A property block throws on a null texture, unlike a material. A world with air but no weather map (any
+        /// generated profile) therefore gets cloud mode 0 and no texture bindings; the shader samples neither then.
+        /// </summary>
+        public static void BindPlumeClouds(MaterialPropertyBlock block,PlanetVisualProfile p,Texture3D noise,PlanetCloudMode clouds)
+        {
+            int mode=clouds==PlanetCloudMode.Off || p.Weather==null?0:clouds==PlanetCloudMode.Volumetric && noise!=null?2:1;
+            block.SetFloat("_PlanetCloudMode",mode);
+            if(p.Weather!=null) block.SetTexture("_PlanetWeather",p.Weather);
+            if(noise!=null) block.SetTexture("_PlanetNoise",noise);
         }
         public bool View(Camera camera,CelestialBody body,out Vector3d cameraRelative,out float scale,out bool volume)
         {

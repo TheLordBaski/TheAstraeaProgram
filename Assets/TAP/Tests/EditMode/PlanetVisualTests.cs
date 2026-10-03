@@ -152,5 +152,27 @@ namespace TAP.Tests
             var b=CelestialSystem.LoadFromResources().Get("luma");var p=PlanetVisualProfile.Fallback(b);
             try { Assert.That(p.CloudCoverage,Is.Zero);Assert.That(p.Lunar,Is.True); } finally { UnityEngine.Object.DestroyImmediate(p); }
         }
+        [Test] public void PlumeOverAirWithoutWeatherMapBindsNoCloudTextures()
+        {
+            // Testworld: air, but no bake, so its generated profile has no weather map.
+            var b=Galaxy.LoadFromResources().LoadSystem("debug").Get("testworld");var p=PlanetVisualProfile.Fallback(b);
+            var weather=new Texture2D(4,4);var noise=new Texture3D(4,4,4,TextureFormat.R8,false);
+            try {
+                Assert.That(b.HasAtmosphere,Is.True);Assert.That(p.Weather,Is.Null);
+                var block=new MaterialPropertyBlock();
+                foreach(PlanetCloudMode clouds in Enum.GetValues(typeof(PlanetCloudMode))) {
+                    block.Clear();
+                    Assert.DoesNotThrow(()=>PlanetVisualController.BindPlumeClouds(block,p,null,clouds));
+                    Assert.DoesNotThrow(()=>PlanetVisualController.BindPlumeClouds(block,p,noise,clouds));
+                    Assert.That(block.GetFloat("_PlanetCloudMode"),Is.Zero,clouds.ToString());
+                }
+                p.Weather=weather;
+                PlanetVisualController.BindPlumeClouds(block,p,null,PlanetCloudMode.Volumetric);
+                Assert.That(block.GetFloat("_PlanetCloudMode"),Is.EqualTo(1),"volumes need the noise; layers do not");
+                PlanetVisualController.BindPlumeClouds(block,p,noise,PlanetCloudMode.Volumetric);
+                Assert.That(block.GetFloat("_PlanetCloudMode"),Is.EqualTo(2));
+                Assert.That(block.GetTexture("_PlanetWeather"),Is.SameAs(weather));Assert.That(block.GetTexture("_PlanetNoise"),Is.SameAs(noise));
+            } finally { UnityEngine.Object.DestroyImmediate(weather);UnityEngine.Object.DestroyImmediate(noise);UnityEngine.Object.DestroyImmediate(p); }
+        }
     }
 }
