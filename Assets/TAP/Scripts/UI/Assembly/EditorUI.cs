@@ -153,7 +153,7 @@ namespace TAP.UI
             var content = Q<ScrollView>("tiles");
             foreach (var def in Ed.Db.Parts)
             {
-                if (def.category == "Hidden") continue;
+                if (def.category == "Hidden" || !ModeRules.Current.PartAvailable(def.id)) continue;
                 var d = def;
                 var tile = UIKit.Button("", () => Ed.PickFromPalette(d), "tile");
                 tile.Add(UIKit.Image(PartThumbnails.Get(d), Color.white, "tile__thumb"));

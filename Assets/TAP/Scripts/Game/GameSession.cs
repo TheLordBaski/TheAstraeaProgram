@@ -41,13 +41,13 @@ namespace TAP.Game
 
         public static bool HasGame => Save != null;
 
-        public static void NewGame(string name = "Sandbox")
+        public static void NewGame(string name = "Sandbox", GameMode mode = GameMode.Sandbox)
         {
             var sys = CelestialSystem.Default;
-            Save = new GameSave { saveName = name, ut = sys.Def.startUT, scene = "editor" };
+            Save = new GameSave { saveName = name, mode = mode, ut = sys.Def.startUT, scene = "editor" };
             foreach (var c in DefaultCrew) Save.crew.Add(new CrewRecord { name = c });
             EditorCraft = null;
-            Log("New sandbox started");
+            Log($"New {mode.ToString().ToLowerInvariant()} game started");
         }
 
         public static void EnsureGame()

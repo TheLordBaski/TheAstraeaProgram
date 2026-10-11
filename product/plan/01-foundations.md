@@ -213,8 +213,18 @@ Built (`SaveMigration.cs`, `SaveStorage.cs`, `SaveTests.cs`, 13 tests; format 2)
 - A stub new-game dialog (mode, name, difficulty placeholder); the full flow is in UX-02.
 
 **Done when**
-- [ ] One code path queries the gates, and a unit test covers each mode's answers.
-- [ ] Sandbox saves from the slice load as sandbox.
+- [x] One code path queries the gates, and a unit test covers each mode's answers.
+- [x] Sandbox saves from the slice load as sandbox.
+
+Built (`ModeRules.cs`, `GameModeTests.cs`, 4 tests). Only sandbox can be started; Science and Career are prepared:
+- **The mode:** `GameSave.mode` is a `GameMode` (Sandbox, Science, Career), saved by name. `GameSession.NewGame` takes a
+  mode. The slice's saves load as sandbox (the corpus test checks it).
+- **The gates:** `ModeRules.Current` answers for the game being played: `PartAvailable`, `CanAfford`, `FacilityAllows`,
+  `ContractsOn`, `CanHireCrew`. Sandbox allows everything and offers no contracts (the plan said "yes to all", but
+  contracts on in sandbox would be wrong). The assembly building's part list already asks `PartAvailable`.
+- **Fail closed:** Science and Career answer no where they need state that doesn't exist yet. Each gate names the task
+  that will replace its placeholder: tech state (TEC-02), funds (CAR-01), facility levels (CAR-03).
+- **Not built:** the new-game dialog with a mode choice, and any Science or Career behaviour.
 
 ### FND-07 · Scene flow with the space center hub
 **Milestone** M1 · **Claude** 2 d · **You** 0.5 d · **Needs** FND-06

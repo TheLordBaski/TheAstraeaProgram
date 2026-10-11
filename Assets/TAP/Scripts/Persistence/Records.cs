@@ -165,14 +165,17 @@ namespace TAP.Persistence
         public double ut;
     }
 
+    /// <summary>Saved by name, so keep the names; new modes go at the end.</summary>
+    public enum GameMode { Sandbox, Science, Career }
+
     [Serializable]
     public class GameSave
     {
         /// <summary>Format version; <see cref="SaveMigration"/> upgrades older files when they are read.</summary>
         public int version = SaveMigration.Current;
         public string saveName = "Sandbox";
-        /// <summary>Game mode. Only "sandbox" exists until the game modes (FND-06) land.</summary>
-        public string mode = "sandbox";
+        /// <summary>Game mode, fixed when the game is created. What it allows is answered by <c>TAP.Game.ModeRules</c>.</summary>
+        public GameMode mode = GameMode.Sandbox;
         /// <summary>Seconds played in this save, in real time.</summary>
         public double playTime;
         public double ut;

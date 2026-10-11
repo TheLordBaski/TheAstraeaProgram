@@ -77,7 +77,7 @@ namespace TAP.Tests
                 }
                 Assert.AreEqual(((JArray)raw["crew"]).Select(c => (string)c["name"]), save.crew.Select(c => c.name), name + ": crew");
                 Assert.AreEqual(((JArray)raw["crew"]).Select(c => (string)c["status"]), save.crew.Select(c => c.status.ToString()), name + ": crew status");
-                Assert.AreEqual("sandbox", save.mode, name);
+                Assert.AreEqual(GameMode.Sandbox, save.mode, name);
             }
         }
 
@@ -88,7 +88,7 @@ namespace TAP.Tests
         {
             var save = SaveStorage.ParseSave("{\"version\":1,\"saveName\":\"Old\",\"ut\":100}");
             Assert.AreEqual(SaveMigration.Current, save.version);
-            Assert.AreEqual("sandbox", save.mode);
+            Assert.AreEqual(GameMode.Sandbox, save.mode);
             Assert.AreEqual(0, save.playTime);
             Assert.AreEqual(SaveMigration.Current, new GameSave().version);
             // A file with no version at all is the oldest format.
@@ -116,9 +116,10 @@ namespace TAP.Tests
         {
             var save = Make(123456.789012345);
             save.playTime = 3600.5;
-            save.mode = "sandbox";
+            save.mode = GameMode.Career;
             SaveStorage.WriteSave(save, "persistent");
             var back = SaveStorage.ReadSave("Test", "persistent");
+            Assert.AreEqual(GameMode.Career, back.mode);
             Assert.AreEqual(123456.789012345, back.ut);
             Assert.AreEqual(3600.5, back.playTime);
             Assert.AreEqual("V", back.vessels[0].name);
