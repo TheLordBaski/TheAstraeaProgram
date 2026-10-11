@@ -1,0 +1,36 @@
+name: Nightly missions
+
+# Every mission autotest, in batch mode, on the developer's PC (a self-hosted runner with the labels
+# "self-hosted", "windows" and "tap"; see Docs/CI.md). The result of each mission is in the job summary.
+
+on:
+  schedule:
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+    inputs:
+      missions:
+        description: "Missions to run (default: all)"
+        required: false
+        default: ""
+
+jobs:
+  missions:
+    name: Missions
+    runs-on: [self-hosted, windows, tap]
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+      - name: Build the Windows player
+        shell: powershell
+        run: ./tools/ci/build-windows.ps1
+      - name: Run the missions
+        shell: powershell
+        run: ./tools/ci/run-missions.ps1 -Exe Build/Windows/TAP.exe -Out results -Missions "${{ github.event.inputs.missions }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mission-reports
+          path: results

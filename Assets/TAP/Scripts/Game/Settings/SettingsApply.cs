@@ -29,6 +29,8 @@ namespace TAP.Game
             var go = new GameObject("Settings");
             DontDestroyOnLoad(go);
             go.AddComponent<SettingsApply>();
+            // What a bug report needs first: which build, on what.
+            Debug.Log($"[TAP] The Astraea Program {Application.version} · {Application.platform} · Unity {Application.unityVersion} · {SystemInfo.operatingSystem} · {SystemInfo.graphicsDeviceName}");
             var g = GameSettings.Current.graphics;
             Debug.Log($"[Settings] {g.width}x{g.height} {g.windowMode}, preset {g.preset}, vsync {g.vsync}{(GameSettings.SafeMode ? ", safe mode: not saved" : "")}");
         }

@@ -384,9 +384,24 @@ Built (`Loc.cs`, `Localizer.cs`, `LocalizationCatalog.cs`, `LocaleTest.cs`, `Doc
 - The version from `git describe` is stamped into the build and shown in the main menu and the logs.
 
 **Done when**
-- [ ] A push produces both builds and a test report.
-- [ ] The nightly run posts pass/fail per mission.
-- [ ] The Linux build passes `orbit` and `lunar`.
+- [ ] A push produces both builds and a test report. (The workflow is written; it needs the Unity licence secrets in the
+      repository and a push to run. [Docs/CI.md](../../Docs/CI.md) lists the steps.)
+- [ ] The nightly run posts pass/fail per mission. (Workflow and runner scripts are written; it needs the self-hosted runner on
+      your PC. The script itself ran locally: `flow` PASSED 10/10 and a failing mission gives exit code 1.)
+- [ ] The Linux build passes `orbit` and `lunar`. (`BuildScript.BuildLinux` is written, and the editor reports "build target was
+      unsupported": the *Linux Build Support (Mono)* module is not installed; `unity install-modules -e 6000.5.7f1 -m linux-mono`,
+      56 MB, adds it.)
+
+Built (`BuildScript.cs`, `ci.yml`, `nightly.yml`, `tools/ci/*`, [Docs/CI.md](../../Docs/CI.md)):
+- **Players:** `BuildWindows`, `BuildLinux` (Mono), batch entry points and `CiBuild` for GameCI. Each stamps `git describe
+  --tags --always --dirty` into `Application.version` (restored afterwards), shown in the main menu's footer and the first log line
+  with Unity version, OS and GPU.
+- **CI:** `ci.yml` on every push to `main` and on pull requests: EditMode tests with a report (the two window tests are in the
+  category `NeedsGraphics` and left out), then the Windows and Linux players as artifacts. `nightly.yml`: on a self-hosted runner,
+  builds Windows and runs every mission, with a table in the job summary.
+- **Mission runners:** `run-missions.ps1` and `run-missions.sh` run a list of autotests in batch mode, write one table, and exit
+  with 1 when a mission did not pass (`.sh` also tested here with a stand-in player).
+- **Not done:** everything that needs the licence secrets, the runner or the Linux module (the boxes above).
 
 ### FND-12 · Logs, crash handling and in-game bug reports
 **Milestone** M1 · **Claude** 1.5 d · **You** 0.5 d · **Needs** FND-05

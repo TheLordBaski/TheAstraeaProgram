@@ -146,7 +146,7 @@ namespace TAP.UI
 
             _root.Q<Label>("footer").text =
                 "A rocket-only spaceflight sandbox · Tellus (R 600 km, 1 g, 70 km atmosphere) and its airless moon Luma (R 220 km, 0.16 g, 13,000 km away)\n" +
-                "Original work built with Unity " + Loc.Name(Application.unityVersion) + " (URP)";
+                "Original work built with Unity " + Loc.Name(Application.unityVersion) + " (URP) · Version " + Loc.Name(Application.version);
 
             _root.Q<Button>("new-start").clicked += StartNew;
         }

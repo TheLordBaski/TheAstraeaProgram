@@ -6,6 +6,9 @@
 * text=auto eol=crlf
 # Code
 *.cs text diff=csharp eol=crlf encoding=utf-8
+# Scripts that run on Linux
+*.sh text eol=lf
+*.yml text eol=lf
 # Declare unity data files that will always have LF line endings on checkout and use unityyamlmerge
 *.meta unityyaml eol=lf
 *.unity unityyaml eol=lf

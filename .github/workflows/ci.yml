@@ -1,0 +1,77 @@
+name: CI
+
+# On every push to main (and on pull requests): the EditMode tests, then the Windows and Linux players as artifacts.
+# Needs the repository secrets UNITY_LICENSE, UNITY_EMAIL and UNITY_PASSWORD (see Docs/CI.md).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+  UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+  UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+
+jobs:
+  tests:
+    name: EditMode tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+      - uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-tests-${{ hashFiles('Packages/packages-lock.json', 'ProjectSettings/ProjectVersion.txt') }}
+          restore-keys: Library-tests-
+      - uses: game-ci/unity-test-runner@v4
+        id: tests
+        with:
+          testMode: editmode
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          checkName: EditMode test report
+          # The two Celestial Body Lab tests that open an editor window need a display.
+          customParameters: -testCategory "!NeedsGraphics"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: editmode-test-results
+          path: ${{ steps.tests.outputs.artifactsPath }}
+
+  build:
+    name: Player (${{ matrix.targetPlatform }})
+    needs: tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        targetPlatform: [StandaloneWindows64, StandaloneLinux64]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0 # git describe needs the tags
+      - uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-${{ matrix.targetPlatform }}-${{ hashFiles('Packages/packages-lock.json', 'ProjectSettings/ProjectVersion.txt') }}
+          restore-keys: Library-${{ matrix.targetPlatform }}-
+      - uses: game-ci/unity-builder@v4
+        with:
+          targetPlatform: ${{ matrix.targetPlatform }}
+          # Mono, version stamped from git describe, and the player where the action looks for it.
+          buildMethod: TAP.EditorTools.BuildScript.CiBuild
+          buildName: TAP
+          versioning: None
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TAP-${{ matrix.targetPlatform }}
+          path: build/${{ matrix.targetPlatform }}

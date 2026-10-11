@@ -136,7 +136,7 @@ namespace TAP.Tests
             Assert.Greater((later.Position - m.Position).magnitude, moon.Radius);
         }
 
-        [UnityTest]
+        [UnityTest, Category("NeedsGraphics")] // opens an editor window: no display on a CI machine
         public IEnumerator OrbitVisualDrawsInAnAttachedEditorPanel()
         {
             var host = ScriptableObject.CreateInstance<EditorWindow>();

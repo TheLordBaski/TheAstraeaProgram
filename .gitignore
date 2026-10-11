@@ -82,3 +82,7 @@ Desktop.ini
 /Screenshots/PlanetOverhaul/
 /Screenshots/CelestialBodyLab/
 /Art/PlanetVisuals/
+
+# Written by the performance test package on every test run
+/Assets/Resources.meta
+/Assets/Resources/PerformanceTestRun*

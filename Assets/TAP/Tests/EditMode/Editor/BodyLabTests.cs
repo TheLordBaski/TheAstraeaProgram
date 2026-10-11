@@ -175,7 +175,7 @@ namespace TAP.Tests
             d.Set("terrain.preset", new JValue("tellus")); Assert.IsNotNull(d.BuildSystem().Get("tellus"));
         }
 
-        [Test]
+        [Test, Category("NeedsGraphics")] // opens an editor window: no display on a CI machine
         public void FormIncludesBodyAndEveryTerrainSectionAndChangingAControlChangesTheDraft()
         {
             var d = Doc(); var root = new VisualElement();
