@@ -24,7 +24,7 @@ What KSP had at its 1.0 release (April 2015), what TAP's vertical slice has (ver
 
 | KSP 1.0 | TAP now | Status | Tasks |
 |---|---|---|---|
-| Hub scene with clickable facilities | menu → assembly building directly | Missing | FND-07, HUB-01, HUB-02 |
+| Hub scene with clickable facilities | placeholder hub (3 buildings) | Partial | HUB-01, HUB-02 |
 | Vehicle assembly building | have (set aside, re-root, symmetry, staging, readouts) | Have | ASM-01…11 improve it |
 | Spaceplane hangar, runway | — | No (D-15) | — |
 | Launch pad | have | Have | FLT-09 (clamps) |

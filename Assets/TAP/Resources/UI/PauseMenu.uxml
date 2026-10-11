@@ -9,24 +9,13 @@
                 <ui:Button name="quickload" class="btn pause-btn" text="Quickload  [hold F9]" />
                 <ui:Button name="revert-launch" class="btn pause-btn" text="Restart flight (revert to launch)" />
                 <ui:Button name="revert-editor" class="btn pause-btn" text="Revert to assembly building" />
-                <ui:Button name="leave" class="btn pause-btn" text="Leave flight (keep vessels in play)" />
+                <ui:Button name="leave" class="btn pause-btn" text="Space center (keep vessels in play)" />
                 <ui:Button name="recover" class="btn pause-btn" text="Recover vessel" />
                 <ui:Button name="controls-guide" class="btn pause-btn" text="Control guide  [F1]" />
-                <ui:Button name="graphics" class="btn pause-btn" text="Planet graphics" />
+                <ui:Button name="settings" class="btn pause-btn" text="Settings" />
                 <ui:Button name="dev" class="btn pause-btn" text="Developer tools  [Alt+F12]" />
                 <ui:Button name="main-menu" class="btn pause-btn" text="Main menu" />
                 <ui:Button name="quit" class="btn pause-btn" text="Quit to desktop" />
-            </ui:VisualElement>
-        </ui:VisualElement>
-
-        <ui:VisualElement name="planet-graphics" class="screen dialog hidden">
-            <ui:VisualElement class="panel graphics-panel">
-                <ui:Label class="graphics-title" text="PLANET GRAPHICS" />
-                <ui:Button name="quality" class="btn graphics-btn" />
-                <ui:Button name="clouds" class="btn graphics-btn" />
-                <ui:Button name="scatter" class="btn graphics-btn" />
-                <ui:Label class="graphics-note text-dim" text="Changes apply immediately and are saved.&#10;Map view uses cloud layers. Biome view hides clouds." />
-                <ui:Button name="graphics-back" class="btn pause-btn" text="Back" />
             </ui:VisualElement>
         </ui:VisualElement>
 

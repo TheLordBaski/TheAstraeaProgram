@@ -9,7 +9,8 @@ namespace TAP.App
         private void Awake()
         {
             CommandLine.Apply();
-            if (!string.IsNullOrEmpty(GameSession.AutoTest))
+            if (GameSession.AutoTest == "flow") FlowTest.Launch(); // walks the menu screens below
+            else if (!string.IsNullOrEmpty(GameSession.AutoTest))
             {
                 // Automated verification runs go straight to the flight scene.
                 GameSession.NewGame("AutoTest");

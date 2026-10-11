@@ -52,11 +52,16 @@ namespace TAP.UI
             hud.Build();
             scene.Notification += hud.OnMessage;
             scene.UiVisibilityChanged += visible => UIKit.Show(hud._root, visible);
+            hud.ApplyScale();
+            GameSettings.Changed += hud.ApplyScale;
             return hud;
         }
 
+        private void ApplyScale() => UIKit.ScaleAnchored(_root.Q("hud"), GameSettings.Current.ui.hudScale);
+
         private void OnDestroy()
         {
+            GameSettings.Changed -= ApplyScale;
             if (Scene != null) Scene.Notification -= OnMessage;
         }
 

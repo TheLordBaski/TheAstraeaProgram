@@ -3,7 +3,8 @@
 **Have:**
 - The launch complex: pad deck, flame trench, service tower and the assembly building ~420 m west of the pad. These
   are surface objects in flight.
-- The main menu opens the assembly building directly, and flights return there.
+- A placeholder hub scene (FND-07): the launch complex as boxes with a marker over the assembly building, the pad and a
+  basic tracking station list. The main menu opens it and every flight returns to it.
 
 **KSP 1.0 had a hub scene** with clickable facilities:
 - vehicle assembly, spaceplane hangar, launch pad, runway;

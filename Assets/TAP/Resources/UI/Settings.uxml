@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="Settings.uss" />
+    <ui:VisualElement name="settings-dialog" class="screen dialog hidden">
+        <ui:VisualElement class="panel panel--deep dialog__panel settings-panel">
+            <ui:VisualElement class="dialog__head">
+                <ui:Label class="dialog__title" text="SETTINGS" />
+                <ui:Button name="settings-close" class="btn dialog__close" text="Close" />
+            </ui:VisualElement>
+            <ui:VisualElement name="settings-tabs" class="settings-tabs" />
+            <ui:ScrollView name="settings-list" class="list grow" />
+            <ui:Label name="settings-note" class="settings-note text-dim wrap" />
+            <ui:Button name="settings-reset" class="btn settings-reset" text="Reset all to defaults" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -6,34 +6,37 @@ namespace TAP.Game
     public enum PlanetQuality { Low, Medium, High, Ultra }
     public enum PlanetCloudMode { Off, Layers, Volumetric }
 
-    /// <summary>Presentation preferences deliberately independent of game saves and simulation time.</summary>
+    /// <summary>Presentation preferences deliberately independent of game saves and simulation time. They live in <see cref="GameSettings"/>.</summary>
     public static class PlanetGraphics
     {
         public static event Action Changed;
-        public static PlanetQuality Quality { get; private set; } = (PlanetQuality)Mathf.Clamp(PlayerPrefs.GetInt("TAP.PlanetQuality", 2), 0, 3);
-        public static PlanetCloudMode Clouds { get; private set; } = (PlanetCloudMode)Mathf.Clamp(PlayerPrefs.GetInt("TAP.PlanetClouds", 2), 0, 2);
-        public static bool Scatter { get; private set; } = PlayerPrefs.GetInt("TAP.PlanetScatter", 1) != 0;
+        public static PlanetQuality Quality => GameSettings.Current.graphics.planetQuality;
+        public static PlanetCloudMode Clouds => GameSettings.Current.graphics.clouds;
+        public static bool Scatter => GameSettings.Current.graphics.scatterDensity > 0;
+        /// <summary>How far out the surface rocks reach, in grid cells around the camera.</summary>
+        public static int ScatterExtent => new[] { 0, 5, 8, 12 }[GameSettings.Current.graphics.scatterDensity];
         public static int CloudSteps => Quality == PlanetQuality.Ultra ? 72 : Quality == PlanetQuality.High ? 48 : 32;
         // Samples concentrate at the limb, ground or camera, so a few suffice; Low still renders the full sky model.
         public static int AtmosphereSteps => Quality == PlanetQuality.Ultra ? 24 : Quality == PlanetQuality.High ? 16 : Quality == PlanetQuality.Medium ? 12 : 10;
         public static int TextureLimit => Quality == PlanetQuality.Low ? 1 : 0;
 
+        static PlanetGraphics() { GameSettings.Changed += () => Changed?.Invoke(); }
+
         public static void SetQuality(PlanetQuality quality)
         {
-            Quality = quality;
-            Clouds = quality >= PlanetQuality.High ? PlanetCloudMode.Volumetric : PlanetCloudMode.Layers;
-            Save();
+            var g = GameSettings.Current.graphics;
+            g.planetQuality = quality;
+            g.clouds = quality >= PlanetQuality.High ? PlanetCloudMode.Volumetric : PlanetCloudMode.Layers;
+            g.MatchPreset();
+            GameSettings.Commit();
         }
 
-        public static void SetClouds(PlanetCloudMode clouds) { Clouds = clouds; Save(); }
-        public static void SetScatter(bool enabled) { Scatter = enabled; Save(); }
-        private static void Save()
+        public static void SetClouds(PlanetCloudMode clouds)
         {
-            PlayerPrefs.SetInt("TAP.PlanetQuality", (int)Quality);
-            PlayerPrefs.SetInt("TAP.PlanetClouds", (int)Clouds);
-            PlayerPrefs.SetInt("TAP.PlanetScatter", Scatter ? 1 : 0);
-            PlayerPrefs.Save();
-            Changed?.Invoke();
+            var g = GameSettings.Current.graphics;
+            g.clouds = clouds;
+            g.MatchPreset();
+            GameSettings.Commit();
         }
     }
 }

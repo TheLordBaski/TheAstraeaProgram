@@ -633,6 +633,21 @@ namespace TAP.Game
             yield return OrbitalEva();
             if (Failed) yield break;
             yield return Deorbit();
+            if (Failed) yield break;
+            yield return RecoverToHub();
+        }
+
+        /// <summary>Recovers the landed capsule as the pause menu does; the way out of a flight is the space center (FND-07).</summary>
+        private IEnumerator RecoverToHub()
+        {
+            SetPhase("recovery");
+            yield return WaitUntil(() => Sim.CanRecover(V), 120, "capsule at rest");
+            if (Failed) yield break;
+            string name = V.VesselName;
+            ExpectLosses = true; // the flight has no active vessel from here on
+            Scene.RecoverActive();
+            Check("recovery returns to the space center", Sim.ActiveVessel == null && GameSession.RequestedScene == GameSession.HubScene,
+                $"{name} recovered, next scene {GameSession.RequestedScene}");
         }
 
         /// <summary>Coasts for several orbits (rails warp + physics) and verifies there is no artificial drift.</summary>

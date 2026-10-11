@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/TAP/Scenes/MainMenu.unity
     guid: 07bed43ef8b080547b3e9be706e09886
   - enabled: 1
+    path: Assets/TAP/Scenes/SpaceCenter.unity
+    guid: 3d420ea0c2ac0e44b89592e56f0bbcad
+  - enabled: 1
     path: Assets/TAP/Scenes/Assembly.unity
     guid: 49b7a9eb3bd06774cb911e1ad07415a8
   - enabled: 1

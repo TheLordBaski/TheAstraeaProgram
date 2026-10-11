@@ -137,11 +137,13 @@ namespace TAP.Persistence
         /// <summary>How many earlier "persistent" saves are kept in the save's Backups folder.</summary>
         public const int KeptBackups = 5;
 
-        /// <summary>Autosave interval in minutes while flying; 0 turns it off. The settings screen (FND-08) binds to this.</summary>
+        private static int _autosaveMinutes = 5;
+
+        /// <summary>Autosave interval in minutes while flying; 0 turns it off. The settings (FND-08) set it.</summary>
         public static int AutosaveMinutes
         {
-            get => Mathf.Clamp(PlayerPrefs.GetInt("TAP.AutosaveMinutes", 5), 0, 60);
-            set { PlayerPrefs.SetInt("TAP.AutosaveMinutes", Mathf.Clamp(value, 0, 60)); PlayerPrefs.Save(); }
+            get => _autosaveMinutes;
+            set => _autosaveMinutes = Mathf.Clamp(value, 0, 60);
         }
 
         public static string BackupFolder(string saveName) => Path.Combine(SaveFolder(saveName), "Backups");

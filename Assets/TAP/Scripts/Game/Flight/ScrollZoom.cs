@@ -5,23 +5,11 @@ namespace TAP.Game
     /// <summary>Mouse-wheel zoom shared by the flight, map and assembly-building cameras.</summary>
     public static class ScrollZoom
     {
-        private const string PrefKey = "TAP.ZoomSpeed";
-        private static float _speed = -1f;
-
-        /// <summary>User zoom speed multiplier (developer window), 1 = default; saved between sessions.</summary>
+        /// <summary>User zoom speed multiplier (settings, developer window), 1 = default; saved with the settings.</summary>
         public static float Speed
         {
-            get
-            {
-                if (_speed < 0f) _speed = Mathf.Clamp(PlayerPrefs.GetFloat(PrefKey, 1f), 0.25f, 4f);
-                return _speed;
-            }
-            set
-            {
-                _speed = Mathf.Clamp(value, 0.25f, 4f);
-                PlayerPrefs.SetFloat(PrefKey, _speed);
-                PlayerPrefs.Save();
-            }
+            get => GameSettings.Current.gameplay.zoomSpeed;
+            set { GameSettings.Current.gameplay.zoomSpeed = value; GameSettings.Commit(); }
         }
 
         /// <summary>

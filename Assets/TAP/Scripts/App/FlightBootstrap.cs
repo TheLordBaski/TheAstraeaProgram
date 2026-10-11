@@ -33,7 +33,7 @@ namespace TAP.App
             ctrl.Build();
             go.AddComponent<DevOverlay>().Scene = ctrl;
             TAP.UI.FlightUI.Create(ctrl);
-            if (!string.IsNullOrEmpty(GameSession.AutoTest))
+            if (!string.IsNullOrEmpty(GameSession.AutoTest) && GameSession.AutoTest != "flow")
                 MissionAutopilot.Start(ctrl, GameSession.AutoTest, quitWhenDone: !Application.isEditor);
         }
 
@@ -45,7 +45,7 @@ namespace TAP.App
         }
     }
 
-    /// <summary>Command line: -autotest &lt;orbit|lunar|suborbital|failures|persistence|ascent&gt; [-craft &lt;file or starter name&gt;] -report &lt;path&gt;</summary>
+    /// <summary>Command line: -autotest &lt;orbit|lunar|suborbital|failures|persistence|ascent|flow&gt; [-craft &lt;file or starter name&gt;] -report &lt;path&gt;</summary>
     public static class CommandLine
     {
         private static bool _applied;

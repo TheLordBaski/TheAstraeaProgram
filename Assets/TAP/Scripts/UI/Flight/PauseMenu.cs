@@ -11,7 +11,7 @@ namespace TAP.UI
     {
         public static PauseMenu Instance { get; private set; }
         public FlightSceneController Scene;
-        private VisualElement _root, _pausePanel, _helpPanel, _confirmPanel, _graphics;
+        private VisualElement _root, _pausePanel, _helpPanel, _confirmPanel;
         private Label _confirmText;
         private System.Action _confirmAction;
         private Button _recoverBtn;
@@ -35,7 +35,6 @@ namespace TAP.UI
             _pausePanel = _root.Q("pause");
             _confirmPanel = _root.Q("confirm");
             _helpPanel = _root.Q("help");
-            _graphics = _root.Q("planet-graphics");
             _confirmText = _root.Q<Label>("confirm-text");
 
             void On(string name, System.Action a) => _root.Q<Button>(name).clicked += a;
@@ -44,11 +43,11 @@ namespace TAP.UI
             On("quickload", () => { Unpause(); Scene.Quickload(); });
             On("revert-launch", () => Confirm("Revert to the moment of launch? Progress since launch is lost.", () => { Unpause(); Scene.RevertToLaunch(); }));
             On("revert-editor", () => Confirm("Discard this flight and return to the assembly building?", () => { Unpause(); Scene.RevertToEditor(); }));
-            On("leave", () => { Unpause(); Scene.LeaveToEditor(); });
+            On("leave", () => { Unpause(); Scene.LeaveToHub(); });
             _recoverBtn = _root.Q<Button>("recover");
             _recoverBtn.clicked += () => { Unpause(); Scene.RecoverActive(); };
             On("controls-guide", ToggleHelp);
-            On("graphics", () => UIKit.Show(_graphics, true));
+            On("settings", SettingsUI.Open);
             On("dev", () => { TogglePause(); DevWindow.Instance?.Toggle(); });
             On("main-menu", () => Confirm("Save and return to the main menu?", () => { Unpause(); Scene.LeaveToMenu(); }));
             On("quit", () => Confirm("Save and quit?", () => { Scene.CaptureSave(); GameSession.WritePersistent(); Application.Quit(); }));
@@ -59,11 +58,9 @@ namespace TAP.UI
             BuildHelp(_root.Q("help-body"));
             On("help-close", ToggleHelp);
 
-            PlanetGraphicsPanel.Bind(gameObject, _graphics);
             UIKit.Show(_pausePanel, false);
             UIKit.Show(_confirmPanel, false);
             UIKit.Show(_helpPanel, false);
-            UIKit.Show(_graphics, false);
         }
 
         private void Confirm(string text, System.Action a)
@@ -100,7 +97,7 @@ namespace TAP.UI
 
         public void TogglePause()
         {
-            if (UIKit.Shown(_graphics)) { UIKit.Show(_graphics, false); return; }
+            if (SettingsUI.IsOpen) { SettingsUI.Close(); return; }
             if (UIKit.Shown(_helpPanel)) { ToggleHelp(); if (!UIKit.Shown(_pausePanel)) return; }
             if (UIKit.Shown(_pausePanel)) Unpause();
             else
@@ -118,7 +115,6 @@ namespace TAP.UI
         {
             UIKit.Show(_pausePanel, false);
             UIKit.Show(_confirmPanel, false);
-            UIKit.Show(_graphics, false);
             UiState.Paused = false;
             Scene.Sim.Paused = false;
             Time.timeScale = _prevTimeScale <= 0 ? 1 : _prevTimeScale;

@@ -1,0 +1,24 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="SpaceCenter.uss" />
+    <ui:VisualElement name="hub" class="screen" picking-mode="Ignore">
+        <ui:VisualElement name="hub-bar" class="panel hub-bar">
+            <ui:Label class="hub-title" text="SPACE CENTER" />
+            <ui:Label name="hub-info" class="hub-info text-dim" />
+            <ui:VisualElement class="grow" />
+            <ui:Button name="hub-settings" class="btn hub-btn" text="Settings" />
+            <ui:Button name="hub-menu" class="btn hub-btn" text="Main menu" />
+        </ui:VisualElement>
+        <ui:VisualElement name="hub-markers" class="screen" picking-mode="Ignore" />
+        <ui:Label name="hub-note" class="panel hub-note wrap hidden" picking-mode="Ignore" />
+
+        <ui:VisualElement name="tracking-dialog" class="screen dialog hidden">
+            <ui:VisualElement class="panel dialog__panel tracking-panel">
+                <ui:VisualElement class="dialog__head">
+                    <ui:Label class="dialog__title" text="TRACKING STATION" />
+                    <ui:Button class="btn dialog__close" text="Close" />
+                </ui:VisualElement>
+                <ui:ScrollView name="tracking-list" class="list grow" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

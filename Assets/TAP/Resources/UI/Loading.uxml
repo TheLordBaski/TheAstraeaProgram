@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="Loading.uss" />
+    <ui:VisualElement name="loading" class="screen loading hidden">
+        <ui:Label name="loading-title" class="loading-title" />
+        <ui:VisualElement name="loading-bar" class="bar loading-bar">
+            <ui:VisualElement class="bar__fill" />
+        </ui:VisualElement>
+        <ui:Label name="loading-tip" class="loading-tip text-dim wrap" />
+    </ui:VisualElement>
+</ui:UXML>

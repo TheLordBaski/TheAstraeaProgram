@@ -1,4 +1,4 @@
-/* Smaller flight screens: mission guide, pause menu (+ confirm, control guide, planet graphics),
+/* Smaller flight screens: mission guide, pause menu (+ confirm, control guide),
    part action window, developer window and body labels. */
 
 /* mission guide (top left, under the clock and target panels) */
@@ -53,32 +53,6 @@
     height: 42px;
     margin-bottom: 8px;
     font-size: 18px;
-}
-
-.graphics-panel {
-    width: 520px;
-    padding: 24px;
-}
-
-.graphics-title {
-    height: 44px;
-    margin-bottom: 12px;
-    -unity-text-align: middle-center;
-    -unity-font-style: bold;
-    font-size: 26px;
-    color: var(--c-accent);
-}
-
-.graphics-btn {
-    height: 46px;
-    margin-bottom: 12px;
-    font-size: 19px;
-}
-
-.graphics-note {
-    margin-bottom: 12px;
-    -unity-text-align: middle-center;
-    font-size: 16px;
 }
 
 .confirm {

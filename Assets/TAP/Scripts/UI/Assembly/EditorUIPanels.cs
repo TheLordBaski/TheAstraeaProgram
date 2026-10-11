@@ -360,36 +360,16 @@ namespace TAP.UI
             {
                 if (v.kind != VesselKind.Ship && v.kind != VesselKind.EVA) continue;
                 var row = UIKit.Element("panel panel--light list-row list-row--flight");
-                var body = sys.Get(v.bodyId);
-                int crew = 0;
-                foreach (var p in v.parts) crew += p.crew?.Count ?? 0;
-                string kind = v.kind == VesselKind.EVA ? "EVA" : crew > 0 ? $"{crew} crew" : "uncrewed";
-                row.Add(UIKit.Label($"<b>{v.name}</b>\n<size=13><color=#{UIKit.Hex(UIKit.TextDim)}>{SituationText(v.situation)} {body?.Name ?? v.bodyId} · {kind}</color></size>", "list-row__text"));
+                row.Add(UIKit.Label($"<b>{v.name}</b>\n<size=13><color=#{UIKit.Hex(UIKit.TextDim)}>{VesselLabels.Describe(v, sys.Get(v.bodyId)?.Name)}</color></size>", "list-row__text"));
                 string id = v.id;
                 row.Add(UIKit.Button("Fly", () =>
                 {
                     Ed.StoreSessionCraft();
-                    save.activeVesselId = id;
-                    GameSession.ResumeFlight();
+                    GameSession.FlyVessel(id);
                 }, "list-row__btn"));
                 _flightsList.Add(row);
             }
             UIKit.Show(_flightsDialog, true);
-        }
-
-        private static string SituationText(TAP.Persistence.Situation s)
-        {
-            switch (s)
-            {
-                case TAP.Persistence.Situation.Prelaunch: return "On the pad at";
-                case TAP.Persistence.Situation.Landed: return "Landed on";
-                case TAP.Persistence.Situation.Splashed: return "Splashed down on";
-                case TAP.Persistence.Situation.Flying: return "Flying over";
-                case TAP.Persistence.Situation.SubOrbital: return "Sub-orbital around";
-                case TAP.Persistence.Situation.Orbiting: return "Orbiting";
-                case TAP.Persistence.Situation.Escaping: return "Escaping";
-            }
-            return s.ToString();
         }
 
         // ------------------------------------------------------------------ part menu

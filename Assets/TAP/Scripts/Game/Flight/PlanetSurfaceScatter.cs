@@ -15,7 +15,7 @@ namespace TAP.Game
         struct Stone { public Vector3d Position; public Quaternion Rotation; public Vector3 Scale; }
         readonly List<Stone> stones=new List<Stone>();
         readonly Matrix4x4[] matrices=new Matrix4x4[1023];
-        Mesh mesh; Material material; CelestialBody body; (int,int,int) cell; PlanetQuality quality;
+        Mesh mesh; Material material; CelestialBody body; (int,int,int) cell; PlanetQuality quality; int extent;
         void LateUpdate()
         {
             var scene=Visuals.Scene;var sim=scene.Sim;
@@ -27,7 +27,7 @@ namespace TAP.Game
             if(camera.magnitude-b.Radius-b.Terrain.Height(dir)>2500) return;
             CubeSphere.FromSphere(dir,out int face,out double u,out double v);
             double grid=40/b.Radius; var key=(face,(int)Math.Floor(u/grid),(int)Math.Floor(v/grid));
-            if(body!=b || key!=cell || quality!=PlanetGraphics.Quality) { body=b;cell=key;quality=PlanetGraphics.Quality;Build(grid); }
+            if(body!=b || key!=cell || quality!=PlanetGraphics.Quality || extent!=PlanetGraphics.ScatterExtent) { body=b;cell=key;quality=PlanetGraphics.Quality;extent=PlanetGraphics.ScatterExtent;Build(grid); }
             if(mesh==null || material==null) return;
             int count=0;var rotation=b.RotationAtUT(sim.RenderUT);var origin=sim.Frame.RenderOrigin(sim.RenderAlpha);
             foreach(var stone in stones) {
@@ -52,7 +52,6 @@ namespace TAP.Game
             // Source textures remain imported assets, shared by all instances.
             if(Visuals.Library!=null) material.SetTexture("_BaseMap",body.HasAtmosphere?Visuals.Library.TellusStone:Visuals.Library.LumaStone);
             material.SetColor("_BaseColor",body.HasAtmosphere?new Color(.38f,.36f,.30f):new Color(.55f,.55f,.56f));material.SetFloat("_Smoothness",.08f);
-            int extent=quality==PlanetQuality.Low?4:quality==PlanetQuality.Medium?7:quality==PlanetQuality.High?10:12;
             for(int y=-extent;y<=extent;y++) for(int x=-extent;x<=extent;x++) {
                 int a=cell.Item2+x,c=cell.Item3+y;
                 unchecked {

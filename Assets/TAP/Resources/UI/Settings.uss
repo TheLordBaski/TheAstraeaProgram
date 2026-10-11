@@ -1,0 +1,94 @@
+/* Settings dialog: tabs along the top, one row per setting (label left, control right). */
+.settings-panel {
+    width: 880px;
+    height: 720px;
+}
+
+.settings-tabs {
+    flex-direction: row;
+    margin-bottom: 10px;
+}
+
+.settings-tab {
+    width: 150px;
+    height: 38px;
+    margin-right: 6px;
+    font-size: 17px;
+}
+
+.set-row {
+    flex-direction: row;
+    align-items: center;
+    height: 44px;
+    padding: 0 8px;
+}
+
+.set-row:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
+.set-label {
+    width: 330px;
+    font-size: 18px;
+}
+
+.set-control {
+    flex-direction: row;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.set-step {
+    width: 36px;
+    height: 32px;
+    font-size: 15px;
+}
+
+.set-value {
+    width: 190px;
+    -unity-text-align: middle-center;
+    font-size: 18px;
+}
+
+.set-value--narrow {
+    width: 80px;
+}
+
+.set-slider {
+    width: 300px;
+    margin: 0 8px;
+}
+
+.set-slider .unity-base-slider__tracker {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-width: 0;
+    border-radius: 3px;
+    height: 6px;
+}
+
+.set-slider .unity-base-slider__dragger {
+    background-color: var(--c-accent);
+    border-width: 0;
+    border-radius: 9px;
+    width: 18px;
+    height: 18px;
+}
+
+.set-toggle {
+    width: 120px;
+    height: 32px;
+    font-size: 17px;
+}
+
+.settings-note {
+    margin-top: 8px;
+    font-size: 15px;
+}
+
+.settings-reset {
+    align-self: flex-end;
+    width: 220px;
+    height: 38px;
+    margin-top: 8px;
+    font-size: 16px;
+}

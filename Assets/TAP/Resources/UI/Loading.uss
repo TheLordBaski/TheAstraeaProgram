@@ -1,0 +1,26 @@
+/* Loading screen: opaque, over everything, takes every click while a scene loads. */
+.loading {
+    background-color: rgb(6, 8, 12);
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-title {
+    -unity-font-style: bold;
+    font-size: 40px;
+    letter-spacing: 6px;
+    color: var(--c-accent);
+    margin-bottom: 28px;
+}
+
+.loading-bar {
+    width: 520px;
+    height: 12px;
+}
+
+.loading-tip {
+    width: 760px;
+    margin-top: 36px;
+    font-size: 20px;
+    -unity-text-align: upper-center;
+}

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using TAP.Game;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
@@ -49,12 +50,47 @@ namespace TAP.UI
             ps.themeStyleSheet = Resources.Load<ThemeStyleSheet>("UI/GameTheme");
             if (ps.themeStyleSheet == null) Debug.LogError("UI theme Resources/UI/GameTheme.tss is missing");
             ps.scaleMode = PanelScaleMode.ScaleWithScreenSize;
-            ps.referenceResolution = new Vector2Int(1920, 1080);
+            ApplyScale(ps);
+            GameSettings.Changed += () => ApplyScale(ps);
             ps.screenMatchMode = PanelScreenMatchMode.MatchWidthOrHeight;
             ps.match = 0.5f;
             ps.clearColor = false;
             ps.textSettings = CreateTextSettings();
             return ps;
+        }
+
+        /// <summary>The interface scale setting: a larger scale shrinks the reference screen the layouts are drawn on.</summary>
+        private static void ApplyScale(PanelSettings ps)
+        {
+            if (ps == null) return;
+            float s = GameSettings.Current.ui.uiScale;
+            ps.referenceResolution = new Vector2Int(Mathf.RoundToInt(1920 / s), Mathf.RoundToInt(1080 / s));
+        }
+
+        /// <summary>
+        /// Scales every screen-anchored child of a container about the screen edge or corner it hugs, so a larger scale grows
+        /// them inwards instead of off the screen. Used for the flight display scale.
+        /// </summary>
+        public static void ScaleAnchored(VisualElement container, float scale)
+        {
+            foreach (var c in container.Children())
+            {
+                c.style.scale = new Scale(new Vector3(scale, scale, 1));
+                if (c.ClassListContains("scale-anchored")) { Anchor(c, container); continue; }
+                c.AddToClassList("scale-anchored");
+                c.RegisterCallback<GeometryChangedEvent>(_ => Anchor(c, container));
+                Anchor(c, container);
+            }
+        }
+
+        private static void Anchor(VisualElement c, VisualElement container)
+        {
+            var parent = container.layout;
+            var r = c.layout;
+            if (parent.width < 1 || r.width < 1) return;
+            float Pick(float center, float size) { float f = center / size; return f < 0.33f ? 0f : f > 0.67f ? 100f : 50f; }
+            var origin = new TransformOrigin(Length.Percent(Pick(r.center.x, parent.width)), Length.Percent(Pick(r.center.y, parent.height)), 0);
+            if (c.style.transformOrigin != new StyleTransformOrigin(origin)) c.style.transformOrigin = origin;
         }
 
         /// <summary>
@@ -224,9 +260,8 @@ namespace TAP.UI
 
         public static void Show(VisualElement e, bool on)
         {
-            var d = on ? DisplayStyle.Flex : DisplayStyle.None;
-            if (e.style.display.keyword != StyleKeyword.Undefined && e.style.display.value == d) return;
-            e.style.display = d;
+            // Always assign: an element hidden by a USS class has no inline display yet, and reads as Flex.
+            e.style.display = on ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         public static bool Shown(VisualElement e) =>
@@ -346,7 +381,7 @@ namespace TAP.UI
         {
             Vector2 mouse = UIKit.ScreenToPanel(UIKit.MouseScreen);
             // The source must still be on screen under the pointer (hidden or moved elements end their tooltip).
-            bool show = _source != null && _source.panel != null && _func != null && _source.worldBound.Contains(mouse)
+            bool show = GameSettings.Current.gameplay.tooltips && _source != null && _source.panel != null && _func != null && _source.worldBound.Contains(mouse)
                         && Time.unscaledTime - _shownAt > 0.35f;
             string s = show ? _func() : null;
             if (string.IsNullOrEmpty(s)) { UIKit.Show(_box, false); return; }

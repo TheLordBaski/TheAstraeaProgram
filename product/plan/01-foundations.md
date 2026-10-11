@@ -236,8 +236,26 @@ Built (`ModeRules.cs`, `GameModeTests.cs`, 4 tests). Only sandbox can be started
 - Scenes load asynchronously behind a loading screen with tips (UX-12).
 
 **Done when**
-- [ ] This loop works with no dead ends, and the `orbit` mission's recovery lands you back in the hub:
+- [x] This loop works with no dead ends, and the `orbit` mission's recovery lands you back in the hub:
       menu → hub → assembly → launch → recover → hub → tracking station → fly a vessel → hub.
+      (The new `flow` autotest clicks through the real screens: 10/10 in the editor and in the build. The `orbit`
+      mission now ends with a recovery and checks the next scene is the hub.)
+
+Built (`SpaceCenterScene.cs`, `SpaceCenterUI.cs`, `LoadingScreen.cs`, `FlowTest.cs`, `SceneFlowTests.cs`):
+- **The hub:** a `SpaceCenter` scene with the launch complex as placeholder boxes (assembly building, pad with a rocket,
+  tracking station) and a marker over each. Clicking a marker or a building opens it: the assembly building loads the
+  assembly scene; the pad flies the rocket waiting on it (with none, a note says to build one); the tracking station lists
+  every vessel with a Fly button. A top bar shows the save, mode and date, with Main menu.
+- **Flow:** the main menu (Continue, New sandbox, Load) always goes to the hub. Recovering a vessel, *Space center* in the
+  pause menu, and a flight that has no vessel go to the hub. *Revert to launch* and *Revert to assembly building* work as
+  before. The assembly building has a *Space center* button next to *Menu*.
+- **Loading:** `GameSession.LoadScene` is the only way scenes change. It loads asynchronously behind a loading screen with
+  the scene's name, a progress bar and a tip. The tips are in code for now; FND-10 moves them into the string tables.
+- **Tests:** autotest `flow` (menu → hub → assembly → launch → recover → hub → assembly → launch → leave → tracking
+  station → fly → hub → pad); `SceneFlowTests` checks every scene is in the build.
+- **Fixed on the way:** `UIKit.Show(element, true)` did nothing for an element hidden by a USS class that had never been
+  hidden from code.
+- **Not built:** hub camera and facility levels (HUB-02), facilities other than the three, a tracking-station map (NAV-06).
 
 ### FND-08 · Settings system
 **Milestone** M1 · **Claude** 2 d · **You** 0.5 d · **Needs** —
@@ -252,9 +270,31 @@ Built (`ModeRules.cs`, `GameModeTests.cs`, 4 tests). Only sandbox can be started
   overrides (`-screen-width`, `-safe-mode`).
 
 **Done when**
-- [ ] Every setting survives a restart.
-- [ ] Deleting the settings file restores the defaults.
-- [ ] `-safe-mode` starts at 1280×720, windowed, low quality.
+- [x] Every setting survives a restart. (`SettingsTests.EverySetting_SurvivesARestart_...` saves every field, reloads, and
+      compares the JSON.)
+- [x] Deleting the settings file restores the defaults. (The same test; the file is deleted and the defaults come back.)
+- [x] `-safe-mode` starts at 1280×720, windowed, low quality. (In the build the log says `window is 1280x720 Windowed,
+      preset Low`; without the flag, `1920x1080 Windowed, preset High`.)
+
+Built (`GameSettings.cs`, `SettingsApply.cs`, `SettingsUI.cs`, `SettingsTests.cs`, 8 tests):
+- **The file:** `settings.json` in the user folder next to the saves (`SaveStorage.Root`), written atomically a moment after
+  the last change and when the game ends. A damaged file is kept as `settings.json.damaged` and the defaults are used.
+  Values out of range are brought back.
+- **Migration:** the first run without a file takes the old PlayerPrefs (zoom speed, autosave, planet quality, clouds,
+  rocks) into it and removes the keys.
+- **Graphics:** resolution, window mode, V-sync, frame cap, a preset (Low, Medium, High, Ultra, Custom), shadows,
+  anti-aliasing (MSAA), render scale, terrain detail, surface rocks, planet quality and clouds. The pipeline asset is copied
+  at start and the copy is edited, so the editor never writes a setting into the project.
+- **Audio:** master, music, effects, interface, ambience. Master sets `AudioListener.volume`; the game has no sound yet
+  (AUD tasks), so the others are read through `GameSettings.Current.audio.Volume(bus)` when it does.
+- **Gameplay:** autosave interval, tooltips, mouse-wheel zoom speed. `units` is stored; its choice appears with the
+  formatting helpers in FND-10.
+- **Interface:** interface scale (the panel's reference size) and flight display scale (each HUD block grows about the
+  screen edge it hugs).
+- **Screens:** *Settings* in the main menu, the space center and the pause menu, which replaces the old *Planet graphics*
+  panel. Everything applies at once.
+- **Command line:** `-safe-mode` (1280×720, windowed, Low, nothing saved), `-screen-width`, `-screen-height`,
+  `-window-mode windowed|borderless|fullscreen`. The window size from the command line is not written to the file.
 
 ### FND-09 · Input: rebinding, joysticks, precision controls
 **Milestone** M1 · **Claude** 3 d · **You** 1 d · **Needs** FND-08

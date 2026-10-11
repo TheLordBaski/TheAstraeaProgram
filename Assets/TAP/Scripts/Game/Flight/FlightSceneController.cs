@@ -37,7 +37,6 @@ namespace TAP.Game
         private void Awake()
         {
             Instance = this;
-            _autosaveEvery = SaveStorage.AutosaveMinutes * 60f;
             ContentReload.Reloaded += OnContentReloaded;
         }
 
@@ -49,14 +48,15 @@ namespace TAP.Game
 
         private void OnContentReloaded(string summary) => Notify(summary, true);
 
-        private float _autosaveEvery, _sinceAutosave;
+        private float _sinceAutosave;
 
         private void Update()
         {
             GameSession.TickPlayTime(Time.unscaledDeltaTime);
             _sinceAutosave += Time.unscaledDeltaTime;
             // Missions in the build write their own saves and check them: no autosave under test.
-            if (_autosaveEvery <= 0 || _sinceAutosave < _autosaveEvery || GameSession.AutoTest != null) return;
+            float every = SaveStorage.AutosaveMinutes * 60f;
+            if (every <= 0 || _sinceAutosave < every || GameSession.AutoTest != null) return;
             _sinceAutosave = 0;
             if (Sim == null || Sim.ActiveVessel == null) return;
             CaptureSave();
@@ -151,8 +151,8 @@ namespace TAP.Game
             Planets.SyncSurfaceObjects(Sim.UT);
             if (Sim.ActiveVessel == null)
             {
-                Notify("No active vessel. Returning to the assembly building.", true);
-                GameSession.GoToEditor();
+                GameSession.PendingMessage = "No active vessel. Pick one in the tracking station.";
+                GameSession.GoToHub();
                 return;
             }
             if (GameSession.Entry == FlightEntry.Launch)
@@ -308,13 +308,12 @@ namespace TAP.Game
             GameSession.GoToEditor();
         }
 
-        /// <summary>Leave the flight but keep every vessel (they continue on rails).</summary>
-        public void LeaveToEditor()
+        /// <summary>Leave the flight for the space center but keep every vessel (they continue on rails).</summary>
+        public void LeaveToHub()
         {
             if (Sim.Warp.OnRails) Sim.StopWarp();
             CaptureSave();
-            GameSession.WritePersistent();
-            GameSession.GoToEditor();
+            GameSession.GoToHub();
         }
 
         public void LeaveToMenu()
@@ -336,9 +335,8 @@ namespace TAP.Game
             if (Sim.ActiveVessel == null)
             {
                 CaptureSave();
-                GameSession.WritePersistent();
                 GameSession.PendingMessage = $"{name} recovered. Crew returned to the roster.";
-                GameSession.GoToEditor();
+                GameSession.GoToHub();
             }
         }
 

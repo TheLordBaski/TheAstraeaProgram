@@ -189,7 +189,7 @@ namespace TAP.Persistence
         /// <summary>Craft on the assembly floor when the game was saved.</summary>
         public CraftDesign editorCraft;
         public string savedAt;
-        /// <summary>Scene to return to when loading ("flight" or "editor").</summary>
+        /// <summary>Scene the game was last left in ("flight", "editor" or "hub").</summary>
         public string scene = "flight";
     }
 }

@@ -60,6 +60,10 @@
     width: 90px;
 }
 
+.bar-hub {
+    width: 130px;
+}
+
 .bar-launch {
     width: 120px;
     margin-right: 0;

@@ -546,11 +546,13 @@ namespace TAP.EditorTools
             string dir = $"{Root}/Scenes";
             Directory.CreateDirectory(dir);
             CreateScene($"{dir}/MainMenu.unity", "TAP.App.MainMenuBootstrap, TAP.App");
+            CreateScene($"{dir}/SpaceCenter.unity", "TAP.App.SpaceCenterBootstrap, TAP.App");
             CreateScene($"{dir}/Assembly.unity", "TAP.App.EditorBootstrap, TAP.App");
             CreateScene($"{dir}/Flight.unity", "TAP.App.FlightBootstrap, TAP.App");
             EditorBuildSettings.scenes = new[]
             {
                 new EditorBuildSettingsScene($"{dir}/MainMenu.unity", true),
+                new EditorBuildSettingsScene($"{dir}/SpaceCenter.unity", true),
                 new EditorBuildSettingsScene($"{dir}/Assembly.unity", true),
                 new EditorBuildSettingsScene($"{dir}/Flight.unity", true),
             };

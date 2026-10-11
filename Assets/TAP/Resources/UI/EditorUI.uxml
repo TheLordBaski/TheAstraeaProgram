@@ -18,6 +18,7 @@
             <ui:VisualElement class="grow" picking-mode="Ignore" />
             <ui:Button name="flights" class="btn bar-btn bar-flights" text="Flights" />
             <ui:Button name="help" class="btn bar-btn" text="Help" />
+            <ui:Button name="hub" class="btn bar-btn bar-hub" text="Space center" />
             <ui:Button name="menu" class="btn bar-btn" text="Menu" />
             <ui:Button name="launch" class="btn bar-btn bar-launch btn--go" text="LAUNCH" />
         </ui:VisualElement>

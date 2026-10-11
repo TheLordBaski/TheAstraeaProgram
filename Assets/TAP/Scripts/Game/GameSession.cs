@@ -17,6 +17,7 @@ namespace TAP.Game
     public static class GameSession
     {
         public const string MenuScene = "MainMenu";
+        public const string HubScene = "SpaceCenter";
         public const string EditorScene = "Assembly";
         public const string FlightScene = "Flight";
 
@@ -27,6 +28,14 @@ namespace TAP.Game
         public static GameSave LaunchSnapshot;      // right after launch (restart flight)
         public static FlightEntry Entry = FlightEntry.Resume;
         public static string PendingMessage;
+
+        /// <summary>
+        /// Starts a scene load behind the loading screen and returns true; set by TAP.UI when it starts. When null (tests,
+        /// before the UI exists) scenes load at once.
+        /// </summary>
+        public static Func<string, bool> AsyncLoader;
+        /// <summary>The scene most recently asked for (the autotests check where a flow ended).</summary>
+        public static string RequestedScene { get; private set; }
 
         /// <summary>Automated verification run requested from the command line (e.g. -autotest lunar).</summary>
         public static string AutoTest;
@@ -144,18 +153,28 @@ namespace TAP.Game
 
         // ------------------------------------------------------------------ scene flow
 
-        public static void GoToMenu()
+        public static void LoadScene(string scene)
         {
             Time.timeScale = 1;
-            SceneManager.LoadScene(MenuScene);
+            RequestedScene = scene;
+            if (AsyncLoader == null || !AsyncLoader(scene)) SceneManager.LoadScene(scene);
+        }
+
+        public static void GoToMenu() => LoadScene(MenuScene);
+
+        /// <summary>The space center: the root of every game loop. Saves first, so the hub always shows what the last scene left.</summary>
+        public static void GoToHub()
+        {
+            if (Save != null) Save.scene = "hub";
+            WritePersistent();
+            LoadScene(HubScene);
         }
 
         public static void GoToEditor()
         {
-            Time.timeScale = 1;
             if (Save != null) Save.scene = "editor";
             WritePersistent();
-            SceneManager.LoadScene(EditorScene);
+            LoadScene(EditorScene);
         }
 
         public static void Launch(CraftDesign design)
@@ -165,15 +184,20 @@ namespace TAP.Game
             EditorCraft = SaveStorage.DeepClone(design);
             PreLaunchSnapshot = SaveStorage.DeepClone(Save);
             Entry = FlightEntry.Launch;
-            Time.timeScale = 1;
-            SceneManager.LoadScene(FlightScene);
+            LoadScene(FlightScene);
         }
 
         public static void ResumeFlight()
         {
             Entry = FlightEntry.Resume;
-            Time.timeScale = 1;
-            SceneManager.LoadScene(FlightScene);
+            LoadScene(FlightScene);
+        }
+
+        /// <summary>Flies a vessel of the save (tracking station, pad, assembly building's list of flights).</summary>
+        public static void FlyVessel(string vesselId)
+        {
+            Save.activeVesselId = vesselId;
+            ResumeFlight();
         }
 
         public static void LoadFlightState(GameSave s, FlightEntry entry)
@@ -181,8 +205,7 @@ namespace TAP.Game
             Save = s;
             ReconcileCrew();
             Entry = entry;
-            Time.timeScale = 1;
-            SceneManager.LoadScene(FlightScene);
+            LoadScene(FlightScene);
         }
     }
 }

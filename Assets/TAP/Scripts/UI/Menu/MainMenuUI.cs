@@ -94,6 +94,7 @@ namespace TAP.UI
             var kb = Keyboard.current;
             if (kb != null && kb.escapeKey.wasPressedThisFrame)
             {
+                SettingsUI.Close();
                 UIKit.Show(_loadDialog, false);
                 UIKit.Show(_newDialog, false);
                 UIKit.Show(_controls, false);
@@ -134,6 +135,7 @@ namespace TAP.UI
             load.clicked += OpenLoad;
             _gameButtons.Add(load);
             _root.Q<Button>("controls").clicked += () => UIKit.Show(_controls, true);
+            _root.Q<Button>("settings").clicked += SettingsUI.Open;
             _root.Q<Button>("quit").clicked += () =>
             {
 #if UNITY_EDITOR
@@ -183,16 +185,8 @@ namespace TAP.UI
                 OpenLoad();
                 return;
             }
-            if (!loaded)
-            {
-                GameSession.NewGame(saveName);
-                GameSession.GoToEditor();
-                return;
-            }
-            var s = GameSession.Save;
-            bool hasActive = s.scene == "flight" && s.vessels.Exists(v => v.id == s.activeVesselId);
-            if (hasActive) GameSession.ResumeFlight();
-            else GameSession.GoToEditor();
+            if (!loaded) GameSession.NewGame(saveName);
+            GameSession.GoToHub();
         }
 
         // ------------------------------------------------------------------ game data problems
@@ -249,8 +243,7 @@ namespace TAP.UI
                 name = name + " " + i;
             }
             GameSession.NewGame(name);
-            GameSession.WritePersistent();
-            GameSession.GoToEditor();
+            GameSession.GoToHub();
         }
 
         private void OpenLoad()

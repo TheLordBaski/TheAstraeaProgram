@@ -77,6 +77,8 @@ namespace TAP.Simulation
         public int ChunkResolution = 32;
         public int MaxLevel = 12;
         public float SplitFactor = 2.2f;
+        /// <summary>The player's terrain detail setting: scales how near the terrain splits into finer chunks (1 = as designed).</summary>
+        public static float DetailScale = 1f;
         public Material Material;
         public void SetVisualMaterial(Material material)
         {
@@ -183,7 +185,7 @@ namespace TAP.Simulation
         {
             if (!IsVisible(n)) return;
             if (n.State == 0) Request(n);
-            bool wantSplit = n.Level < MaxLevel && DistanceTo(n) < n.ArcSize * SplitFactor;
+            bool wantSplit = n.Level < MaxLevel && DistanceTo(n) < n.ArcSize * SplitFactor * DetailScale;
             if (wantSplit)
             {
                 if (n.Children == null)
