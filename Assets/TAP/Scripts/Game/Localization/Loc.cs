@@ -159,10 +159,10 @@ namespace TAP.Game
         private const char NameOpen = '', NameClose = '';
 
         /// <summary>Data text that has its own translation (a part title): translated now, and not translated again with the line it is in.</summary>
-        public static string Data(string english) => Name(Translate(english));
+        public static string Data(string english) => Active ? Name(Translate(english)) : english;
 
         /// <summary>Wraps text that is the player's or the data's own (a vessel name): it is not translated, and not part of the pattern.</summary>
-        public static string Name(string text) => NameOpen + text + NameClose;
+        public static string Name(string text) => Active ? NameOpen + text + NameClose : text; // the markers are taken out by the translation: with none running, they would show
 
         // A number: not part of a word or a code ("F1", "D001", "LV-215"), with its sign, grouping and decimals.
         private static readonly Regex NumberRx = new Regex(@"(?<![A-Za-z0-9#_.])(?<![A-Za-z]-)-?\d[\d,]*(?:\.\d+)?(?![0-9])", RegexOptions.Compiled);

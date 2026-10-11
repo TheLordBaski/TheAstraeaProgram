@@ -28,6 +28,8 @@ namespace TAP.Game
         public static GameSave LaunchSnapshot;      // right after launch (restart flight)
         public static FlightEntry Entry = FlightEntry.Resume;
         public static string PendingMessage;
+        /// <summary>The flight scene sets this: the whole game as it is this moment, for a problem report (null outside a flight).</summary>
+        public static Func<GameSave> LiveSaveProvider;
 
         /// <summary>
         /// Starts a scene load behind the loading screen and returns true; set by TAP.UI when it starts. When null (tests,

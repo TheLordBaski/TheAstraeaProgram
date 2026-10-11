@@ -65,6 +65,12 @@ namespace TAP.App
                 yield return Visit("settings: " + tab);
             }
             PressClose();
+            Press("report");
+            yield return Visit("report a problem dialog");
+            PressClose();
+            Debug.LogException(new InvalidOperationException("Test exception for the audit"));
+            yield return Visit("exception notice");
+            PressText("Dismiss", "ProblemReport");
             Press("new");
             var field = UiDriver.Find<UnityEngine.UIElements.TextField>("new-name");
             if (field != null) field.value = SaveName;

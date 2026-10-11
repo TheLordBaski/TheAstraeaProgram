@@ -37,13 +37,14 @@ namespace TAP.Game
         private void Awake()
         {
             Instance = this;
+            GameSession.LiveSaveProvider = CaptureSave;
             ContentReload.Reloaded += OnContentReloaded;
         }
 
         private void OnDestroy()
         {
             ContentReload.Reloaded -= OnContentReloaded;
-            if (Instance == this) Instance = null;
+            if (Instance == this) { Instance = null; GameSession.LiveSaveProvider = null; }
         }
 
         private void OnContentReloaded(string summary) => Notify(summary, true);

@@ -13,6 +13,7 @@
                 <ui:Button name="recover" class="btn pause-btn" text="Recover vessel" />
                 <ui:Button name="controls-guide" class="btn pause-btn" text="Control guide  [F1]" />
                 <ui:Button name="settings" class="btn pause-btn" text="Settings" />
+                <ui:Button name="report" class="btn pause-btn" text="Report a problem" />
                 <ui:Button name="dev" class="btn pause-btn" text="Developer tools  [Alt+F12]" />
                 <ui:Button name="main-menu" class="btn pause-btn" text="Main menu" />
                 <ui:Button name="quit" class="btn pause-btn" text="Quit to desktop" />

@@ -94,6 +94,7 @@ namespace TAP.UI
             if (Controls.Down("Common/Cancel"))
             {
                 SettingsUI.Close();
+                ProblemReportUI.Close();
                 UIKit.Show(_loadDialog, false);
                 UIKit.Show(_newDialog, false);
                 UIKit.Show(_controls, false);
@@ -135,6 +136,7 @@ namespace TAP.UI
             _gameButtons.Add(load);
             _root.Q<Button>("controls").clicked += () => { _root.Q<ScrollView>("controls-list").Clear(); BuildControls(); UIKit.Show(_controls, true); };
             _root.Q<Button>("settings").clicked += SettingsUI.Open;
+            _root.Q<Button>("report").clicked += () => ProblemReportUI.Open();
             _root.Q<Button>("quit").clicked += () =>
             {
 #if UNITY_EDITOR

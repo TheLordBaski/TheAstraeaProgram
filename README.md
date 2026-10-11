@@ -38,6 +38,7 @@ Repository: <https://github.com/TheLordBaski/TheAstraeaProgram>. Images and othe
 | Document | Contents |
 |---|---|
 | [Docs/CONTROLS.md](Docs/CONTROLS.md) | Every key and mouse control: flight, EVA, map, assembly building |
+| [Docs/LOGS.md](Docs/LOGS.md) | Where the logs and settings are, unhandled exceptions, and what a problem report holds |
 | [Docs/CI.md](Docs/CI.md) | Windows and Linux builds, the version stamp, mission runners, GitHub Actions and the nightly run |
 | [Docs/LOCALIZATION.md](Docs/LOCALIZATION.md) | String tables, adding a language, the pseudo-locale and the text audit |
 | [Docs/LUNAR_WALKTHROUGH.md](Docs/LUNAR_WALKTHROUGH.md) | Step-by-step guide to the complete Luma mission with the starter rocket |

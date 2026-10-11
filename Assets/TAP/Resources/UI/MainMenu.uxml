@@ -9,6 +9,7 @@
             <ui:Button name="load" class="btn menu-btn" text="Load game" />
             <ui:Button name="controls" class="btn menu-btn" text="Controls" />
             <ui:Button name="settings" class="btn menu-btn" text="Settings" />
+            <ui:Button name="report" class="btn menu-btn" text="Report a problem" />
             <ui:Button name="quit" class="btn menu-btn" text="Quit" />
         </ui:VisualElement>
         <ui:Button name="data-notice" class="btn menu-notice hidden" />

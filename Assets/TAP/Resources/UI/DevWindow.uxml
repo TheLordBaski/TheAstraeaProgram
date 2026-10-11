@@ -57,6 +57,7 @@
                 <ui:Button name="zoom-plus" class="btn dev-step" text="+" />
             </ui:VisualElement>
 
+            <ui:Button name="throw" class="btn dev-action" text="Throw a test exception" />
             <ui:Label name="info" class="dev-info wrap" picking-mode="Ignore" />
             <ui:Button name="close" class="btn dev-action" text="Close" />
         </ui:VisualElement>

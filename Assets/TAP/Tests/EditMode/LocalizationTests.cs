@@ -19,6 +19,7 @@ namespace TAP.Tests
         [Test]
         public void Numbers_AreCutOutOfTheLookup_ButCodesAndNamesAreNot()
         {
+            Loc.Audit = true; // names are marked only while a translation or audit is running
             Assert.AreEqual("Surface {0} m/s   Orbital {1} m/s", Loc.PatternOf("Surface 16.9 m/s   Orbital 175.0 m/s"));
             Assert.AreEqual("Hornet LV-215 Engine", Loc.PatternOf("Hornet LV-215 Engine"), "a part code is part of the name");
             Assert.AreEqual("Stage {0}  Δv {1} m/s", Loc.PatternOf("Stage 3  Δv 1,332 m/s"));
@@ -51,6 +52,13 @@ namespace TAP.Tests
             int letters = "Pitch down".Count(char.IsLetter);
             Assert.GreaterOrEqual(shown.Count(c => c == '~'), (int)(letters * 0.4), "padding for longer languages");
             Assert.AreEqual("Pitch down", Loc.Plain("Pitch down"));
+        }
+
+        [Test]
+        public void NamesAreNotMarked_WhenNothingTranslates()
+        {
+            Assert.AreEqual("Meridian Orbiter", Loc.Name("Meridian Orbiter"), "no markers where no pass would take them out");
+            Assert.AreEqual("Kodiak SR-300", Loc.Data("Kodiak SR-300"));
         }
 
         [Test]

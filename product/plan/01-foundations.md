@@ -412,7 +412,21 @@ Built (`BuildScript.cs`, `ci.yml`, `nightly.yml`, `tools/ci/*`, [Docs/CI.md](../
 - An unhandled exception shows a small non-blocking notice (write a report?) instead of failing silently.
 
 **Done when**
-- [ ] A forced exception in flight produces a notice, and the report zip contains everything needed to reproduce it.
+- [x] A forced exception in flight produces a notice, and the report zip contains everything needed to reproduce it. (In the editor,
+      in flight: an exception raised a notice in the corner, *Write a report* opened the dialog with the exception in it, and the
+      zip held `report.txt`, `logs/` (four runs and Unity's log), `save/current-state.json` and `persistent.json`, `settings.json`,
+      `screenshot.png`, `mods.txt` and `system.txt`. `BugReportTests` checks the zip's contents and the exception line.)
+
+Built (`GameLog.cs`, `BugReport.cs`, `ProblemReportUI.cs`, `BugReportTests.cs`, 6 tests; [Docs/LOGS.md](../../Docs/LOGS.md)):
+- **Logs:** `Logs/tap-<date>.log` in the user folder, one per run, the last five kept. The header has the version, OS, CPU, GPU,
+  screen, command line and settings; then everything Unity logs, with stacks. Errors flush at once, the rest every two seconds.
+- **Notice:** an unhandled exception shows *Something went wrong: …* with *Write a report* and *Dismiss*, once a minute per
+  exception, and the game goes on. *Developer tools → Throw a test exception* tries it.
+- **Report:** *Report a problem* in the main menu, the pause menu and the notice. It takes the screenshot, asks what happened, and
+  writes `Reports/report-<date>.zip` with the logs, the game as it is now, the save files, settings, controls, screenshot, mod list
+  and machine, then offers to open the folder and the feedback page (the issue tracker until REL-05).
+- **Not done:** a native crash (the process dies) is not caught; the log is flushed up to the last write and the next start does not
+  offer a report. The feedback page is a placeholder.
 
 ### FND-13 · Performance baseline and budgets
 **Milestone** M1 · **Claude** 2 d · **You** 0.5 d · **Needs** —

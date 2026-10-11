@@ -1,0 +1,56 @@
+/* The exception notice (a small panel in the corner) and the Report a problem dialog. */
+.problem-notice {
+    position: absolute;
+    right: 24px;
+    bottom: 24px;
+    width: 520px;
+    padding: 12px 16px;
+    border-color: var(--c-bad);
+}
+
+.problem-notice__text {
+    font-size: 17px;
+    margin-bottom: 10px;
+}
+
+.problem-notice__row {
+    flex-direction: row;
+}
+
+.problem-btn {
+    height: 36px;
+    margin-right: 8px;
+    padding: 0 14px;
+    font-size: 16px;
+}
+
+.problem-panel {
+    width: 720px;
+}
+
+.problem-intro {
+    font-size: 16px;
+    margin-bottom: 12px;
+}
+
+.problem-label {
+    font-size: 17px;
+    margin-bottom: 4px;
+}
+
+.problem-note {
+    height: 150px;
+    margin-bottom: 10px;
+}
+
+.problem-note > .unity-base-text-field__input {
+    white-space: normal;
+    -unity-text-align: upper-left;
+    font-size: 16px;
+}
+
+.problem-status {
+    font-size: 16px;
+    margin-bottom: 10px;
+    min-height: 22px;
+}

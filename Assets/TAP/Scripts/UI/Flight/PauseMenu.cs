@@ -48,6 +48,7 @@ namespace TAP.UI
             _recoverBtn.clicked += () => { Unpause(); Scene.RecoverActive(); };
             On("controls-guide", ToggleHelp);
             On("settings", SettingsUI.Open);
+            On("report", () => ProblemReportUI.Open());
             On("dev", () => { TogglePause(); DevWindow.Instance?.Toggle(); });
             On("main-menu", () => Confirm("Save and return to the main menu?", () => { Unpause(); Scene.LeaveToMenu(); }));
             On("quit", () => Confirm("Save and quit?", () => { Scene.CaptureSave(); GameSession.WritePersistent(); Application.Quit(); }));
@@ -98,6 +99,7 @@ namespace TAP.UI
         public void TogglePause()
         {
             if (SettingsUI.IsOpen) { SettingsUI.Close(); return; }
+            if (ProblemReportUI.IsOpen) { ProblemReportUI.Close(); return; }
             if (UIKit.Shown(_helpPanel)) { ToggleHelp(); if (!UIKit.Shown(_pausePanel)) return; }
             if (UIKit.Shown(_pausePanel)) Unpause();
             else

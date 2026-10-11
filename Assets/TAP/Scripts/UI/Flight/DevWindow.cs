@@ -89,6 +89,8 @@ namespace TAP.UI
             Action(root, "zoom-plus", () => ScrollZoom.Speed *= 1.25f, null);
             _zoomText = root.Q<Label>("zoom");
             _info = root.Q<Label>("info");
+            Action(root, "throw", () => throw new InvalidOperationException("Test exception from the developer window"),
+                   "Checks the notice and the report: the game logs the exception and offers to write a report.");
             Action(root, "close", Toggle, null);
         }
 

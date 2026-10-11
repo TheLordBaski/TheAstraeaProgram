@@ -26,6 +26,7 @@ namespace TAP.Game
             _pipeline = null;
             GameSettings.Load();
             Apply(GameSettings.Current);
+            GameLog.Begin();
             var go = new GameObject("Settings");
             DontDestroyOnLoad(go);
             go.AddComponent<SettingsApply>();
@@ -100,13 +101,17 @@ namespace TAP.Game
             }
         }
 
+        private float _nextFlush;
+
         private void Update()
         {
+            if (Time.unscaledTime > _nextFlush) { _nextFlush = Time.unscaledTime + 2f; GameLog.Flush(); }
             if (GameSettings.DirtySince >= 0 && Time.unscaledTime - GameSettings.DirtySince > 0.6f) GameSettings.Save();
         }
 
         private void OnApplicationQuit()
         {
+            GameLog.End();
             if (GameSettings.DirtySince >= 0) GameSettings.Save();
             // The editor keeps what a script sets; leave its project as it was.
             if (Application.isEditor)
