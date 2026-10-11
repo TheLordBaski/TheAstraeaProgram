@@ -76,8 +76,8 @@ namespace TAP.EditorTools
                 PlayerSettings.companyName = "Astraea Works";
                 PlayerSettings.productName = "The Astraea Program";
                 PlayerSettings.fullScreenMode = FullScreenMode.Windowed;
-                PlayerSettings.defaultScreenWidth = 1600;
-                PlayerSettings.defaultScreenHeight = 900;
+                PlayerSettings.defaultScreenWidth = 1920;
+                PlayerSettings.defaultScreenHeight = 1080;
                 PlayerSettings.resizableWindow = true;
                 PlayerSettings.runInBackground = true;
                 // Mono, not IL2CPP: plugin mods are loaded as assemblies (D-11).
