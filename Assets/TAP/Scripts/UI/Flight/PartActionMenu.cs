@@ -91,7 +91,7 @@ namespace TAP.UI
             var info = new List<string>();
             foreach (var m in p.Modules) m.CollectInfo(info);
             foreach (var s in info) sb.AppendLine(s);
-            foreach (var r in p.Resources) sb.AppendLine($"{r.Def.name}: {r.Amount:N1}/{r.Max:N0} {r.Def.unit}");
+            foreach (var r in p.Resources) sb.AppendLine($"{Loc.Data(r.Def.name)}: {r.Amount:N1}/{r.Max:N0} {r.Def.unit}");
             sb.AppendLine($"<color=#{UIKit.Hex(UIKit.TextDim)}>Skin {p.SkinTemp:N0}/{p.Def.skinMaxTemp:N0} K   Internal {p.InternalTemp:N0}/{p.Def.maxTemp:N0} K</color>");
             sb.Append($"<color=#{UIKit.Hex(UIKit.TextDim)}>Mass {p.Mass:N0} kg   Joint load {p.SmoothedJointLoad:P0}</color>");
             _info.text = sb.ToString();

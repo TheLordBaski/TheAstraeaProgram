@@ -349,7 +349,27 @@ Built (`ControlTable.cs`, `Controls.cs`, `InputTests.cs`, 15 tests):
 - English only through 1.0 (D-12). Adding a language later must need no code changes.
 
 **Done when**
-- [ ] With the pseudo-locale, no visible hard-coded English is left in the menus, HUD, assembly building or map.
+- [x] With the pseudo-locale, no visible hard-coded English is left in the menus, HUD, assembly building or map. (The
+      `locale` autotest walks 30 screens and states with the pseudo-locale on and lists every text that is not in
+      `Strings/en.json`: 0 of 455 patterns. Its screenshots show the longer text.)
+
+Built (`Loc.cs`, `Localizer.cs`, `LocalizationCatalog.cs`, `LocaleTest.cs`, `Docs/LOCALIZATION.md`, 9 tests):
+- **Tables:** a language is `Resources/Strings/<code>.json` (`name`, `culture`, `strings`). The English text is the key, with
+  numbers cut out (`Surface {0} m/s`), so a translation can move them. Adding a language needs no code; it appears in
+  Settings → Gameplay → Language. `en.json` (549 texts) is made by *TAP → Localization → Update English Table* and the
+  audit run, and holds the screen layouts' text, part, resource, body and biome names and descriptions, the control guide
+  and the loading tips. The keys are the English texts rather than
+  names: every UI text is translated by one pass over the screens (`Localizer`), so nothing had to change at the hundreds
+  of places that set text.
+- **Pseudo-locale:** accented letters, tags and `{0}` holes kept, 40% padding, in brackets. It showed the assembly bar and
+  some HUD lines overflowing; the bar's buttons now grow with their text.
+- **Helpers:** `Loc.Number`, `Loc.Plural`, `Loc.Date` follow the language's culture; `Loc.Name` and `Loc.Data` keep the
+  player's own text and data titles out of the lookup.
+- **Units:** *Settings → Gameplay → Units → Imperial* converts the number in front of a metric unit as the text is shown
+  (ft, mi, ft/s, lb, short tons, psi), in every screen at once.
+- **Audit:** autotest `locale` (`-locale pseudo|en|<code>`) writes the missing texts per screen and screenshots.
+- **Limits:** see [Docs/LOCALIZATION.md](../../Docs/LOCALIZATION.md): lines that mix data into a sentence must wrap the data
+  in `Loc.Name`; plural forms are English's; non-Latin scripts need a font fallback.
 
 ### FND-11 · Linux build and continuous integration
 **Milestone** M1 · **Claude** 3 d · **You** 1 d · **Needs** —

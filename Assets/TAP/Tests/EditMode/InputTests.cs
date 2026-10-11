@@ -151,13 +151,13 @@ namespace TAP.Tests
         [Test]
         public void TheGuide_ShowsTheReboundKeys()
         {
-            string before = string.Join("|", Controls.GuideRows(ControlTable.Flight).Select(r => r.keys + " " + r.action));
+            string before = string.Join("|", Controls.GuideRows(ControlTable.Flight).Select(r => Loc.Plain(r.keys) + " " + r.action));
             StringAssert.Contains("Space", before.Substring(before.IndexOf("Activate next stage", System.StringComparison.Ordinal) - 40));
             Controls.Rebind("Flight/Stage", 0, "<Keyboard>/u");
             var after = Controls.GuideRows(ControlTable.Flight);
-            Assert.IsTrue(after.Any(r => r.action == "Activate next stage" && r.keys.Contains("U")));
-            Assert.IsFalse(after.Any(r => r.action == "Activate next stage" && r.keys.StartsWith("Space")));
-            StringAssert.Contains("U", Controls.Expand("press {Flight/Stage}"));
+            Assert.IsTrue(after.Any(r => r.action == "Activate next stage" && Loc.Plain(r.keys).Contains("U")));
+            Assert.IsFalse(after.Any(r => r.action == "Activate next stage" && Loc.Plain(r.keys).StartsWith("Space")));
+            StringAssert.Contains("U", Loc.Plain(Controls.Expand("press {Flight/Stage}")));
         }
 
         [Test]

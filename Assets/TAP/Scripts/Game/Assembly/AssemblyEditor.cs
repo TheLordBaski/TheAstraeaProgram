@@ -155,7 +155,7 @@ namespace TAP.Game
             for (int i = 0; i < d.parts.Count; i++)
                 if (copy.parts[i].stage != d.parts[i].stage) { AutoStaging = false; break; }
             Rebuild();
-            if (announce) Message?.Invoke(unknown > 0 ? $"Loaded {d.name} ({unknown} unknown parts removed)" : $"Loaded {d.name}");
+            if (announce) Message?.Invoke(unknown > 0 ? $"Loaded {Loc.Name(d.name)} ({unknown} unknown parts removed)" : $"Loaded {Loc.Name(d.name)}");
             return true;
         }
 
@@ -174,7 +174,7 @@ namespace TAP.Game
             {
                 SaveStorage.SaveCraft(Design);
                 StoreSessionCraft();
-                Message?.Invoke($"Saved \"{Design.name}\"");
+                Message?.Invoke($"Saved \"{Loc.Name(Design.name)}\"");
                 return true;
             }
             catch (Exception e)

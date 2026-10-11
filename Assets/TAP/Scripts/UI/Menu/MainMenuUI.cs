@@ -122,7 +122,7 @@ namespace TAP.UI
             _latestSave = FindLatestSave(out string savedAt);
             if (_latestSave != null)
             {
-                cont.text = $"Continue  <size=15><color=#{UIKit.Hex(UIKit.TextDim)}>{_latestSave} · {savedAt}</color></size>";
+                cont.text = $"Continue  <size=15><color=#{UIKit.Hex(UIKit.TextDim)}>{Loc.Name(_latestSave)} · {Loc.Name(savedAt)}</color></size>";
                 cont.clicked += () => Continue(_latestSave);
                 _gameButtons.Add(cont);
             }
@@ -146,7 +146,7 @@ namespace TAP.UI
 
             _root.Q<Label>("footer").text =
                 "A rocket-only spaceflight sandbox · Tellus (R 600 km, 1 g, 70 km atmosphere) and its airless moon Luma (R 220 km, 0.16 g, 13,000 km away)\n" +
-                "Original work built with Unity " + Application.unityVersion + " (URP)";
+                "Original work built with Unity " + Loc.Name(Application.unityVersion) + " (URP)";
 
             _root.Q<Button>("new-start").clicked += StartNew;
         }
@@ -261,12 +261,12 @@ namespace TAP.UI
                     int ships = 0;
                     foreach (var v in s.vessels) if (v.kind == VesselKind.Ship) ships++;
                     var played = TimeSpan.FromSeconds(s.playTime);
-                    detail = $"{s.savedAt} · {s.mode} · T+{MathD.FormatUT(s.ut)} · {ships} vessel(s) · {s.milestones.Count} milestone(s) · {(int)played.TotalHours}:{played.Minutes:00} played";
+                    detail = $"{Loc.Name(s.savedAt)} · {s.mode} · T+{Loc.Name(MathD.FormatUT(s.ut))} · {Loc.Plural(ships, "vessel", "vessels")} · {Loc.Plural(s.milestones.Count, "milestone", "milestones")} · {(int)played.TotalHours}:{played.Minutes:00} played";
                     if (notice != null) detail += " · restored from a backup";
                 }
                 catch (Exception e) { detail = "unreadable: " + e.Message; }
                 var row = UIKit.Element("panel panel--light load-row");
-                row.Add(UIKit.Label($"<b>{name}</b>\n<size=14><color=#{UIKit.Hex(UIKit.TextDim)}>{detail}</color></size>", "load-row__text"));
+                row.Add(UIKit.Label($"<b>{Loc.Name(name)}</b>\n<size=14><color=#{UIKit.Hex(UIKit.TextDim)}>{detail}</color></size>", "load-row__text"));
                 string n = name;
                 if (hasQuick)
                     row.Add(UIKit.Button("Quicksave", () =>

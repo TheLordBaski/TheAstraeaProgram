@@ -509,7 +509,7 @@ namespace TAP.Game
             {
                 MarkerType t = h.Kind == VesselKind.Debris ? MarkerType.Debris : h.Kind == VesselKind.EVA ? MarkerType.Eva : h.Kind == VesselKind.Flag ? MarkerType.Flag : MarkerType.Vessel;
                 if (h == Sim.ActiveHandle) t = MarkerType.ActiveVessel;
-                Add(t, h.AbsolutePosition(ut), focus, h.Name, $"{h.Name}\n{h.Record.situation} at {h.Body.Name}", Color.white, h);
+                Add(t, h.AbsolutePosition(ut), focus, Loc.Name(h.Name), $"{Loc.Name(h.Name)}\n{h.Record.situation} at {h.Body.Name}", Color.white, h);
             }
             var list = Trajectory.HasNodes ? Trajectory.Planned : Trajectory.Current;
             AddPatchMarkers(Trajectory.Current, focus, ut, false);

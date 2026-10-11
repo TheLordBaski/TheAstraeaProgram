@@ -30,7 +30,8 @@
 }
 
 .bar-btn {
-    width: 62px;
+    min-width: 62px;
+    padding: 0 8px;
     height: 38px;
     margin-right: 6px;
     font-size: 16px;
@@ -41,31 +42,38 @@
 }
 
 .bar-sym {
-    width: 118px;
+    min-width: 118px;
+    padding: 0 8px;
 }
 
 .bar-snap {
-    width: 104px;
+    min-width: 104px;
+    padding: 0 8px;
 }
 
 .bar-markers {
-    width: 112px;
+    min-width: 112px;
+    padding: 0 8px;
 }
 
 .bar-env {
-    width: 140px;
+    min-width: 140px;
+    padding: 0 8px;
 }
 
 .bar-flights {
-    width: 90px;
+    min-width: 90px;
+    padding: 0 8px;
 }
 
 .bar-hub {
-    width: 130px;
+    min-width: 130px;
+    padding: 0 8px;
 }
 
 .bar-launch {
-    width: 120px;
+    min-width: 120px;
+    padding: 0 8px;
     margin-right: 0;
     -unity-font-style: bold;
 }

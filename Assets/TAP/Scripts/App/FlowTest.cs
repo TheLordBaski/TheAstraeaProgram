@@ -131,18 +131,8 @@ namespace TAP.App
             FlightSceneController.Instance != null && FlightSceneController.Instance.Sim != null && FlightSceneController.Instance.Sim.ActiveVessel != null
             && TAP.UI.PauseMenu.Instance != null;
 
-        private static VisualElement FindUi(string name) => FindUi<VisualElement>(name);
-
-        private static T FindUi<T>(string name) where T : VisualElement
-        {
-            foreach (var doc in FindObjectsByType<UIDocument>(FindObjectsSortMode.None))
-            {
-                if (doc.rootVisualElement == null) continue;
-                var e = doc.rootVisualElement.Q<T>(name);
-                if (e != null) return e;
-            }
-            return null;
-        }
+        private static VisualElement FindUi(string name) => UiDriver.Find(name);
+        private static T FindUi<T>(string name) where T : VisualElement => UiDriver.Find<T>(name);
 
         /// <summary>Presses a button as a keyboard or controller would: the same handler a mouse click runs.</summary>
         private void Click(string name)
@@ -150,11 +140,7 @@ namespace TAP.App
             var b = FindUi<Button>(name);
             if (b == null) { Check("button " + name + " exists", false, "not on screen"); return; }
             Note("click " + name);
-            using (var e = NavigationSubmitEvent.GetPooled())
-            {
-                e.target = b;
-                b.SendEvent(e);
-            }
+            UiDriver.Press(b);
         }
 
         private void Check(string name, bool pass, string detail)

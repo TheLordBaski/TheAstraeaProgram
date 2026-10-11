@@ -65,7 +65,7 @@ namespace TAP.UI
         {
             var v = Sim.ActiveVessel;
             string met = v != null && v.Record.launchUT >= 0 ? "T+" + MathD.FormatDuration(Sim.UT - v.Record.launchUT) : "T-0 (on pad)";
-            _clock.text = $"<b>{MathD.FormatUT(Sim.UT)}</b>\n<size=14><color=#{UIKit.Hex(UIKit.TextDim)}>MET</color> {met}</size>";
+            _clock.text = $"<b>{Loc.Name(MathD.FormatUT(Sim.UT))}</b>\n<size=14><color=#{UIKit.Hex(UIKit.TextDim)}>MET</color> {met}</size>";
             string w;
             if (Sim.Warp.OnRails) w = $"{TimeWarp.RailsRates[Sim.Warp.RailsIndex]:0}x";
             else if (Sim.Warp.PhysicsIndex > 0) w = $"{TimeWarp.PhysicsRates[Sim.Warp.PhysicsIndex]:0}x P";
@@ -87,7 +87,7 @@ namespace TAP.UI
             _vspeed.text = $"{arrow} {Math.Abs(vs):N1} m/s   horiz {Math.Sqrt(Math.Max(0, v.SurfaceSpeed * v.SurfaceSpeed - vs * vs)):N1} m/s";
             string sit = v.Situation.ToString();
             if (v.Situation == Situation.SubOrbital) sit = "Sub-orbital";
-            _situation.text = $"{v.VesselName} — {sit} {(v.Situation == Situation.Landed || v.Situation == Situation.Splashed || v.Situation == Situation.Prelaunch ? "on" : "at")} {v.MainBody.Name}";
+            _situation.text = $"{Loc.Name(v.VesselName)} — {sit} {(v.Situation == Situation.Landed || v.Situation == Situation.Splashed || v.Situation == Situation.Prelaunch ? "on" : "at")} {v.MainBody.Name}";
         }
 
         private void UpdateNavballCluster(Vessel v)
@@ -147,7 +147,7 @@ namespace TAP.UI
                 var names = new List<string>();
                 foreach (var cr in v.AllCrew()) names.Add(cr.name);
                 if (v.IsEva) names.Add(v.Record.evaCrew);
-                sb.Append($"Crew {v.CrewCount}/{v.CrewCapacity}: {string.Join(", ", names)}");
+                sb.Append($"Crew {v.CrewCount}/{v.CrewCapacity}: {Loc.Name(string.Join(", ", names))}");
             }
             _resources.text = sb.ToString().TrimEnd('\n', '\r');
         }
@@ -271,7 +271,7 @@ namespace TAP.UI
                 {
                     bool skin = fs >= fi;
                     string c = Math.Max(fs, fi) > 0.9 ? UIKit.Hex(UIKit.Bad) : UIKit.Hex(UIKit.Warn);
-                    sb.AppendLine($"<color=#{c}>⚠ {p.Def.title}: {(skin ? "skin" : "internal")} {(skin ? p.SkinTemp : p.InternalTemp):N0} / {(skin ? p.Def.skinMaxTemp : p.Def.maxTemp):N0} K</color>");
+                    sb.AppendLine($"<color=#{c}>⚠ {Loc.Data(p.Def.title)}: {(skin ? "skin" : "internal")} {(skin ? p.SkinTemp : p.InternalTemp):N0} / {(skin ? p.Def.skinMaxTemp : p.Def.maxTemp):N0} K</color>");
                     if (++n >= 4) break;
                 }
             }
@@ -279,7 +279,7 @@ namespace TAP.UI
             {
                 if (p.SmoothedJointLoad > 0.75 && n < 5)
                 {
-                    sb.AppendLine($"<color=#{UIKit.Hex(UIKit.Warn)}>⚠ {p.Def.title}: joint {p.LastLoadDescription} {p.SmoothedJointLoad:P0} of limit</color>");
+                    sb.AppendLine($"<color=#{UIKit.Hex(UIKit.Warn)}>⚠ {Loc.Data(p.Def.title)}: joint {p.LastLoadDescription} {p.SmoothedJointLoad:P0} of limit</color>");
                     n++;
                 }
             }
@@ -313,8 +313,8 @@ namespace TAP.UI
             if (hatch != null)
             {
                 bool ok = d <= EvaModule.BoardRange && rs <= EvaModule.BoardMaxRelSpeed;
-                sb.AppendLine(ok ? $"<color=#{UIKit.Hex(UIKit.Good)}>[B] Board {hatch.Vessel.VesselName}</color>  ({d:0.0} m)"
-                                 : $"Nearest hatch: {hatch.Vessel.VesselName} {d:0.0} m away, rel. speed {rs:0.0} m/s (need < {EvaModule.BoardRange:0} m, < {EvaModule.BoardMaxRelSpeed:0.0} m/s)");
+                sb.AppendLine(ok ? $"<color=#{UIKit.Hex(UIKit.Good)}>[B] Board {Loc.Name(hatch.Vessel.VesselName)}</color>  ({d:0.0} m)"
+                                 : $"Nearest hatch: {Loc.Name(hatch.Vessel.VesselName)} {d:0.0} m away, rel. speed {rs:0.0} m/s (need < {EvaModule.BoardRange:0} m, < {EvaModule.BoardMaxRelSpeed:0.0} m/s)");
             }
             sb.Append(em.Grounded ? "[G] Plant flag   [Space] Jump   [Shift] Run" : "WASD translate, Shift/Ctrl up/down with jetpack");
             _evaInfo.text = sb.ToString();
@@ -384,7 +384,7 @@ namespace TAP.UI
                 item.Add(UIKit.Image(UIKit.Icon(icon), UIKit.TextColor, "stage-item__icon"));
                 var text = UIKit.Element("stage-item__text");
                 text.pickingMode = PickingMode.Ignore;
-                text.Add(UIKit.Label($"{first.Def.title}{(kv.Value.Count > 1 ? " ×" + kv.Value.Count : "")}", "stage-item__title"));
+                text.Add(UIKit.Label($"{Loc.Data(first.Def.title)}{(kv.Value.Count > 1 ? " ×" + kv.Value.Count : "")}", "stage-item__title"));
                 var bar = UIKit.Bar(false, "stage-item__bar");
                 bar.pickingMode = PickingMode.Ignore;
                 text.Add(bar);
@@ -408,9 +408,9 @@ namespace TAP.UI
                     var s = ch.DeploySafety(out string why);
                     string verdict = s == ParachuteModule.Safety.Safe ? "safe to deploy" : s == ParachuteModule.Safety.Risky ? "RISKY to deploy"
                         : s == ParachuteModule.Safety.Unsafe ? "UNSAFE: would tear or burn" : "waiting for air";
-                    t += $"\n{p.Def.title}: {verdict} ({why})";
+                    t += $"\n{Loc.Data(p.Def.title)}: {verdict} ({why})";
                 }
-                else t += $"\n{p.Def.title}: {ch.State}{(ch.FailReason != null ? " — " + ch.FailReason : "")}";
+                else t += $"\n{Loc.Data(p.Def.title)}: {ch.State}{(ch.FailReason != null ? " — " + ch.FailReason : "")}";
             }
             return t;
         }

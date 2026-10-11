@@ -481,7 +481,7 @@ namespace TAP.UI
                 title = h.Name;
                 actions.Add(("Focus camera", () => Map.FocusOn(h)));
                 if (v != null && h != Sim.ActiveHandle && h.Kind != VesselKind.Flag)
-                    actions.Add(("Set as target", () => { v.TargetId = "vessel:" + h.Id; Scene.Trajectory.ForceUpdate(); Scene.Notify($"Target: {h.Name}"); }));
+                    actions.Add(("Set as target", () => { v.TargetId = "vessel:" + h.Id; Scene.Trajectory.ForceUpdate(); Scene.Notify($"Target: {Loc.Name(h.Name)}"); }));
                 if (h != Sim.ActiveHandle && h.Kind != VesselKind.Flag && h.Kind != VesselKind.Debris)
                     actions.Add(("Switch to vessel", () => { Scene.SetMap(false); Sim.SwitchTo(h); }));
                 if (h.Kind == VesselKind.Debris && h != Sim.ActiveHandle)
@@ -594,11 +594,11 @@ namespace TAP.UI
                               (b.IsStar ? "" : $", day {MathD.FormatDuration(b.SolarDay)}"));
                 if (b.Atmosphere != null) sb.AppendLine($"Atmosphere {b.Atmosphere.Height / 1000:0} km, {b.Atmosphere.SeaLevelPressure / 1000:0.0} kPa at sea level");
                 if (b.Parent != null) sb.AppendLine($"Orbit {b.Orbit.SemiMajorAxis / 1000:N0} km, period {MathD.FormatDuration(b.Orbit.Period)}\nSphere of influence {b.SOIRadius / 1000:N0} km");
-                sb.Append($"<size=12><color=#{UIKit.Hex(UIKit.TextDim)}>{b.Def.description}</color></size>");
+                sb.Append($"<size=12><color=#{UIKit.Hex(UIKit.TextDim)}>{Loc.Data(b.Def.description)}</color></size>");
             }
             else if (h != null)
             {
-                sb.AppendLine($"<b>{h.Name}</b>  <size=12>({h.Record.situation}, {h.Body.Name})</size>");
+                sb.AppendLine($"<b>{Loc.Name(h.Name)}</b>  <size=12>({h.Record.situation}, {h.Body.Name})</size>");
                 var o = h.CurrentOrbit;
                 if (o != null)
                 {

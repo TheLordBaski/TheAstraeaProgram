@@ -36,7 +36,7 @@ namespace TAP.UI
             _trackingDialog = _root.Q("tracking-dialog");
             _note = _root.Q<Label>("hub-note");
             var save = GameSession.Save;
-            _root.Q<Label>("hub-info").text = $"{save.saveName} · {save.mode} · {MathD.FormatUT(save.ut)}";
+            _root.Q<Label>("hub-info").text = $"{Loc.Name(save.saveName)} · {save.mode} · {Loc.Name(MathD.FormatUT(save.ut))}";
             _root.Q<Button>("hub-settings").clicked += SettingsUI.Open;
             _root.Q<Button>("hub-menu").clicked += () => { GameSession.WritePersistent(); GameSession.GoToMenu(); };
             _root.Query<Button>(className: "dialog__close").ForEach(b => b.clicked += () => UIKit.Show(_trackingDialog, false));
@@ -107,7 +107,7 @@ namespace TAP.UI
                 if (v.kind != VesselKind.Ship && v.kind != VesselKind.EVA) continue;
                 shown++;
                 var row = UIKit.Element("panel panel--light tracking-row");
-                row.Add(UIKit.Label($"<b>{v.name}</b>\n<size=14><color=#{UIKit.Hex(UIKit.TextDim)}>{VesselLabels.Describe(v, sys.Get(v.bodyId)?.Name)}</color></size>", "tracking-row__text"));
+                row.Add(UIKit.Label($"<b>{Loc.Name(v.name)}</b>\n<size=14><color=#{UIKit.Hex(UIKit.TextDim)}>{VesselLabels.Describe(v, sys.Get(v.bodyId)?.Name)}</color></size>", "tracking-row__text"));
                 string id = v.id;
                 var fly = UIKit.Button("Fly", () => GameSession.FlyVessel(id), "tracking-row__btn");
                 fly.name = "fly-" + id;

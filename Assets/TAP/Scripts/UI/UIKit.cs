@@ -27,6 +27,9 @@ namespace TAP.UI
         public static readonly Color Warn = new Color(1f, 0.75f, 0.25f, 1f);
         public static readonly Color Bad = new Color(1f, 0.35f, 0.3f, 1f);
 
+        /// <summary>Every screen made with <see cref="CreateDocument"/>; the localizer walks their text.</summary>
+        public static readonly List<UIDocument> Documents = new List<UIDocument>();
+
         private static PanelSettings _panelSettings;
         private static IPanel _panel;
         private static readonly Dictionary<string, Sprite> Icons = new Dictionary<string, Sprite>();
@@ -141,6 +144,7 @@ namespace TAP.UI
                 doc.visualTreeAsset = tree;
             }
             go.SetActive(true);
+            Documents.Add(doc);
             var root = doc.rootVisualElement;
             root.pickingMode = PickingMode.Ignore;
             root.AddToClassList("screen");

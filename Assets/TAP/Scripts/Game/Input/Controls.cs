@@ -132,7 +132,7 @@ namespace TAP.Game
         public static string DisplaySlot(string id, int slot)
         {
             string s = Action(id).GetBindingDisplayString(Slots[id][slot].Display, InputBinding.DisplayStringOptions.DontIncludeInteractions);
-            return string.IsNullOrEmpty(s) ? "—" : s;
+            return Loc.Name(string.IsNullOrEmpty(s) ? "—" : s);
         }
 
         // ------------------------------------------------------------------ guide
@@ -145,7 +145,7 @@ namespace TAP.Game
             foreach (var def in ControlTable.All)
             {
                 if (def.Section != section || def.Defaults.Length == 0) continue;
-                rows.Add((Display(def.Id), def.Label));
+                rows.Add((Loc.Name(Display(def.Id)), def.Label));
             }
             foreach (var m in ControlTable.MouseRows) if (m.section == section) rows.Add((m.keys, m.action));
             return rows;
@@ -153,7 +153,7 @@ namespace TAP.Game
 
         /// <summary>Replaces {Map/Name} in a text with the keys of that control, as bound now.</summary>
         public static string Expand(string template) =>
-            System.Text.RegularExpressions.Regex.Replace(template, @"\{([A-Za-z]+/[A-Za-z0-9]+)\}", m => Display(m.Groups[1].Value));
+            System.Text.RegularExpressions.Regex.Replace(template, @"\{([A-Za-z]+/[A-Za-z0-9]+)\}", m => Loc.Name(Display(m.Groups[1].Value)));
 
         // ------------------------------------------------------------------ rebinding
 

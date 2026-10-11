@@ -325,8 +325,8 @@ namespace TAP.UI
             var row = UIKit.Element("panel panel--light list-row list-row--craft");
             var stats = DesignAnalysis.Analyze(craft, Ed.Db, EditorEnvironment.HomeSeaLevel);
             row.Add(UIKit.Label(
-                $"<b>{craft.name}</b>  <size=13><color=#{UIKit.Hex(UIKit.TextDim)}>{craft.parts.Count} parts · {PartInfoText.Mass(stats.WetMass)} · Δv {stats.TotalDvVac:N0} m/s vac · TWR {stats.LaunchTwr:0.00}</color></size>\n" +
-                $"<size=13>{craft.description}</size>", "list-row__text"));
+                $"<b>{Loc.Name(craft.name)}</b>  <size=13><color=#{UIKit.Hex(UIKit.TextDim)}>{craft.parts.Count} parts · {PartInfoText.Mass(stats.WetMass)} · Δv {stats.TotalDvVac:N0} m/s vac · TWR {stats.LaunchTwr:0.00}</color></size>\n" +
+                $"<size=13>{Loc.Name(craft.description)}</size>", "list-row__text"));
             if (path != null)
             {
                 Button del = null;
@@ -335,7 +335,7 @@ namespace TAP.UI
                     // Two-step confirmation: first click arms, second deletes.
                     if (del.text != "Sure?") { del.text = "Sure?"; del.AddToClassList("list-row__btn--armed"); return; }
                     SaveStorage.DeleteCraft(path);
-                    Toast($"Deleted {craft.name}");
+                    Toast($"Deleted {Loc.Name(craft.name)}");
                     OpenLoadDialog();
                 }, "list-row__btn");
                 row.Add(del);
@@ -359,7 +359,7 @@ namespace TAP.UI
             {
                 if (v.kind != VesselKind.Ship && v.kind != VesselKind.EVA) continue;
                 var row = UIKit.Element("panel panel--light list-row list-row--flight");
-                row.Add(UIKit.Label($"<b>{v.name}</b>\n<size=13><color=#{UIKit.Hex(UIKit.TextDim)}>{VesselLabels.Describe(v, sys.Get(v.bodyId)?.Name)}</color></size>", "list-row__text"));
+                row.Add(UIKit.Label($"<b>{Loc.Name(v.name)}</b>\n<size=13><color=#{UIKit.Hex(UIKit.TextDim)}>{VesselLabels.Describe(v, sys.Get(v.bodyId)?.Name)}</color></size>", "list-row__text"));
                 string id = v.id;
                 row.Add(UIKit.Button("Fly", () =>
                 {

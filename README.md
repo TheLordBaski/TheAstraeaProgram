@@ -38,6 +38,7 @@ Repository: <https://github.com/TheLordBaski/TheAstraeaProgram>. Images and othe
 | Document | Contents |
 |---|---|
 | [Docs/CONTROLS.md](Docs/CONTROLS.md) | Every key and mouse control: flight, EVA, map, assembly building |
+| [Docs/LOCALIZATION.md](Docs/LOCALIZATION.md) | String tables, adding a language, the pseudo-locale and the text audit |
 | [Docs/LUNAR_WALKTHROUGH.md](Docs/LUNAR_WALKTHROUGH.md) | Step-by-step guide to the complete Luma mission with the starter rocket |
 | [Docs/PART_MODELS.md](Docs/PART_MODELS.md) | Exporting part models, editing them in Blender and using them in the game |
 | [Docs/PLANETARY_SYSTEM.md](Docs/PLANETARY_SYSTEM.md) | Radii, masses, gravity, atmosphere, rotation, orbits, SOI, warp limits, Δv budget |

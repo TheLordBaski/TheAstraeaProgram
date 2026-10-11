@@ -155,7 +155,10 @@ namespace TAP.UI
             int[] minutes = { 0, 1, 2, 5, 10, 15, 30 };
             Choice("Autosave in flight", minutes.Select(m => m == 0 ? "Off" : m == 1 ? "Every minute" : $"Every {m} minutes").ToArray(),
                 () => Mathf.Max(0, Array.IndexOf(minutes, p.autosaveMinutes)), i => { p.autosaveMinutes = minutes[i]; GameSettings.Commit(); });
+            Choice("Units", new[] { "Metric (m, km, kg)", "Imperial (ft, mi, lb)" }, () => (int)p.units, i => { p.units = (UnitSystem)i; GameSettings.Commit(); });
             Choice("Tooltips", new[] { "Off", "On" }, () => p.tooltips ? 1 : 0, i => { p.tooltips = i == 1; GameSettings.Commit(); });
+            var langs = Loc.AllLanguages;
+            Choice("Language", langs.Select(l => l.name).ToArray(), () => Mathf.Max(0, langs.ToList().FindIndex(l => l.code == p.language)), i => { p.language = langs[i].code; GameSettings.Commit(); });
             Slide("Mouse wheel zoom speed", 0.25f, 4f, () => p.zoomSpeed, v => { p.zoomSpeed = Mathf.Round(v * 20f) / 20f; GameSettings.Commit(); }, v => $"{v:0.0#}×");
         }
 

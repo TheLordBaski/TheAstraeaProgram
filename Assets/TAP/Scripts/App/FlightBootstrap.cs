@@ -33,7 +33,7 @@ namespace TAP.App
             ctrl.Build();
             go.AddComponent<DevOverlay>().Scene = ctrl;
             TAP.UI.FlightUI.Create(ctrl);
-            if (!string.IsNullOrEmpty(GameSession.AutoTest) && GameSession.AutoTest != "flow")
+            if (!string.IsNullOrEmpty(GameSession.AutoTest) && GameSession.AutoTest != "flow" && GameSession.AutoTest != "locale")
                 MissionAutopilot.Start(ctrl, GameSession.AutoTest, quitWhenDone: !Application.isEditor);
         }
 

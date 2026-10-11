@@ -90,6 +90,8 @@ namespace TAP.Game
         public bool tooltips = true;
         public float zoomSpeed = 1f;
         public UnitSystem units = UnitSystem.Metric;
+        /// <summary>A language file in Resources/Strings ("en"), or "pseudo".</summary>
+        public string language = "en";
     }
 
     [Serializable]
@@ -263,6 +265,7 @@ namespace TAP.Game
             audio.interfaceSounds = Mathf.Clamp01(audio.interfaceSounds); audio.ambience = Mathf.Clamp01(audio.ambience);
             gameplay.autosaveMinutes = Mathf.Clamp(gameplay.autosaveMinutes, 0, 60);
             gameplay.zoomSpeed = Mathf.Clamp(gameplay.zoomSpeed, 0.25f, 4f);
+            if (string.IsNullOrEmpty(gameplay.language)) gameplay.language = "en";
             ui.uiScale = Mathf.Clamp(ui.uiScale, 0.75f, 1.5f);
             ui.hudScale = Mathf.Clamp(ui.hudScale, 0.75f, 1.3f);
         }
