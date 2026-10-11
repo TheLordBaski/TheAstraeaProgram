@@ -3,11 +3,10 @@ using System.Text;
 using TAP.Core;
 using TAP.Game;
 using TAP.Simulation;
-using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 namespace TAP.UI
 {
@@ -15,42 +14,30 @@ namespace TAP.UI
     public sealed class PartActionMenu : MonoBehaviour
     {
         public FlightSceneController Scene;
-        private Canvas _canvas;
-        private RectTransform _panel;
-        private TextMeshProUGUI _title, _info;
-        private RectTransform _buttons;
+        private VisualElement _panel, _buttons;
+        private Label _title, _info;
         private Part _part;
         private int _actionSig;
 
         public static PartActionMenu Create(FlightSceneController scene)
         {
-            var canvas = UIKit.CreateCanvas("PartActions", 40);
-            var m = canvas.gameObject.AddComponent<PartActionMenu>();
+            var doc = UIKit.CreateDocument("PartActions", 40, "PartActions");
+            var root = doc.rootVisualElement;
+            var m = doc.gameObject.AddComponent<PartActionMenu>();
             m.Scene = scene;
-            m._canvas = canvas;
-            var p = UIKit.Panel(canvas.transform, "PartWindow");
-            m._panel = p.rectTransform;
-            m._panel.pivot = new Vector2(0, 1);
-            m._panel.anchorMin = m._panel.anchorMax = Vector2.zero;
-            m._panel.sizeDelta = new Vector2(300, 200);
-            m._title = UIKit.Label(p.transform, "", 16, UIKit.Accent, TextAlignmentOptions.Left, FontStyles.Bold);
-            UIKit.Place(m._title.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(10, -6), new Vector2(250, 22));
-            var close = UIKit.Button(p.transform, "×", () => m.Close(), 18);
-            UIKit.Place(close.Rect, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-4, -4), new Vector2(26, 24));
-            m._info = UIKit.Label(p.transform, "", 13, UIKit.TextColor);
-            m._info.textWrappingMode = TextWrappingModes.Normal;
-            m._info.alignment = TextAlignmentOptions.TopLeft;
-            UIKit.Place(m._info.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(10, -32), new Vector2(280, 100));
-            m._buttons = UIKit.Rect(p.transform, "Buttons");
-            var vl = UIKit.VLayout(m._buttons.GetComponent<RectTransform>(), 4, 0);
-            m._panel.gameObject.SetActive(false);
+            m._panel = root.Q("part-window");
+            m._title = root.Q<Label>("part-title");
+            m._info = root.Q<Label>("part-info");
+            m._buttons = root.Q("part-actions");
+            root.Q<Button>("part-close").clicked += m.Close;
+            UIKit.Show(m._panel, false);
             return m;
         }
 
         public void Close()
         {
             _part = null;
-            _panel.gameObject.SetActive(false);
+            UIKit.Show(_panel, false);
         }
 
         private void Update()
@@ -73,7 +60,7 @@ namespace TAP.UI
         private void TryOpen(Vector2 screen)
         {
             var cam = Scene.Camera.Cam;
-            if (cam == null || EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
+            if (cam == null || UIKit.Pick(screen) != null || EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
             var ray = cam.ScreenPointToRay(screen);
             if (Physics.Raycast(ray, out RaycastHit hit, 5000f, (1 << Layers.Parts) | (1 << Layers.EVA), QueryTriggerInteraction.Ignore))
             {
@@ -90,10 +77,8 @@ namespace TAP.UI
         public void Open(Part p, Vector2 screen)
         {
             _part = p;
-            _panel.gameObject.SetActive(true);
-            float scale = _canvas.scaleFactor;
-            Vector2 pos = screen / scale + new Vector2(18, -10);
-            _panel.anchoredPosition = pos;
+            UIKit.Show(_panel, true);
+            UIKit.Place(_panel, UIKit.ScreenToPanel(screen) + new Vector2(18, 10));
             _actionSig = -1;
             Refresh();
         }
@@ -108,10 +93,8 @@ namespace TAP.UI
             foreach (var s in info) sb.AppendLine(s);
             foreach (var r in p.Resources) sb.AppendLine($"{r.Def.name}: {r.Amount:N1}/{r.Max:N0} {r.Def.unit}");
             sb.AppendLine($"<color=#{UIKit.Hex(UIKit.TextDim)}>Skin {p.SkinTemp:N0}/{p.Def.skinMaxTemp:N0} K   Internal {p.InternalTemp:N0}/{p.Def.maxTemp:N0} K</color>");
-            sb.AppendLine($"<color=#{UIKit.Hex(UIKit.TextDim)}>Mass {p.Mass:N0} kg   Joint load {p.SmoothedJointLoad:P0}</color>");
+            sb.Append($"<color=#{UIKit.Hex(UIKit.TextDim)}>Mass {p.Mass:N0} kg   Joint load {p.SmoothedJointLoad:P0}</color>");
             _info.text = sb.ToString();
-            float infoH = _info.GetPreferredValues(_info.text, 280, 0).y;
-            _info.rectTransform.sizeDelta = new Vector2(280, infoH);
 
             var actions = new List<PartAction>();
             if (p.Vessel == Scene.Sim.ActiveVessel || p.Vessel.IsEva == false)
@@ -121,18 +104,15 @@ namespace TAP.UI
             if (sig != _actionSig)
             {
                 _actionSig = sig;
-                foreach (Transform c in _buttons) Destroy(c.gameObject);
+                _buttons.Clear();
                 foreach (var a in actions)
                 {
                     var act = a;
-                    var b = UIKit.Button(_buttons, act.Label, () => { act.Invoke?.Invoke(); _actionSig = -1; }, 14);
-                    UIKit.Size(b.Button, 28);
-                    b.SetInteractable(act.Enabled && p.Vessel == Scene.Sim.ActiveVessel);
+                    var b = UIKit.Button(act.Label, () => { act.Invoke?.Invoke(); _actionSig = -1; }, "part-action");
+                    b.SetEnabled(act.Enabled && p.Vessel == Scene.Sim.ActiveVessel);
+                    _buttons.Add(b);
                 }
             }
-            float btnH = actions.Count * 32;
-            UIKit.Place(_buttons, new Vector2(0, 1), new Vector2(0, 1), new Vector2(10, -36 - infoH), new Vector2(280, btnH));
-            _panel.sizeDelta = new Vector2(300, 46 + infoH + btnH);
         }
     }
 }

@@ -1,7 +1,7 @@
 using System.Text;
 using TAP.Game;
-using TMPro;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace TAP.UI
 {
@@ -24,46 +24,44 @@ namespace TAP.UI
     public sealed class MissionGuide : MonoBehaviour
     {
         public FlightSceneController Scene;
-        private RectTransform _panel;
+        private VisualElement _panel;
         /// <summary>Distance from the top of the screen to the guide's lower edge (0 while hidden), for panel layout.</summary>
         public static float BottomFromTop;
-        private TextMeshProUGUI _text;
-        private UIKit.ButtonRef _toggle;
+        private Label _text;
+        private Button _toggle;
         private bool _expanded = true;
         private float _timer;
 
         public static MissionGuide Create(FlightSceneController scene)
         {
-            var canvas = UIKit.CreateCanvas("MissionGuide", 12);
-            var g = canvas.gameObject.AddComponent<MissionGuide>();
+            var doc = UIKit.CreateDocument("MissionGuide", 12, "MissionGuide");
+            var root = doc.rootVisualElement;
+            var g = doc.gameObject.AddComponent<MissionGuide>();
             g.Scene = scene;
-            var p = UIKit.Panel(canvas.transform, "Guide");
-            g._panel = p.rectTransform;
-            UIKit.Place(g._panel, new Vector2(0, 1), new Vector2(0, 1), new Vector2(8, -270), new Vector2(330, 300));
-            g._text = UIKit.Label(p.transform, "", 14, UIKit.TextColor);
-            g._text.textWrappingMode = TextWrappingModes.Normal;
-            g._text.alignment = TextAlignmentOptions.TopLeft;
-            UIKit.Stretch(g._text.rectTransform, 12, 12, 30, 8);
+            g._panel = root.Q("guide");
+            g._text = root.Q<Label>("guide-text");
             var sys = TAP.Core.CelestialSystem.Default;
             var moon = sys.HomeMoon ?? sys.HomeBody;
-            var title = UIKit.Label(p.transform, $"MISSION: TO {moon.Name.ToUpperInvariant()} AND BACK", 13, UIKit.Accent, TextAlignmentOptions.Left, FontStyles.Bold);
-            UIKit.Place(title.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(12, -8), new Vector2(260, 18));
-            g._toggle = UIKit.Button(p.transform, "–", () => g._expanded = !g._expanded, 16);
-            UIKit.Place(g._toggle.Rect, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-6, -4), new Vector2(26, 22));
-            UIKit.Tooltip(g._toggle.Button.gameObject, () => "Collapse / expand the mission guide");
-            scene.UiVisibilityChanged += visible => canvas.enabled = visible;
+            root.Q<Label>("guide-title").text = $"MISSION: TO {moon.Name.ToUpperInvariant()} AND BACK";
+            g._toggle = root.Q<Button>("guide-toggle");
+            g._toggle.clicked += () => { g._expanded = !g._expanded; g._timer = 0; };
+            UIKit.Tooltip(g._toggle, () => "Collapse / expand the mission guide");
+            scene.UiVisibilityChanged += visible => UIKit.Show(root, visible);
             return g;
         }
 
         private void Update()
         {
+            // The guide's lower edge, measured every frame (the panel grows with its text).
+            var r = _panel.layout;
+            if (UIKit.Shown(_panel) && !float.IsNaN(r.height)) BottomFromTop = r.yMax;
             _timer -= Time.unscaledDeltaTime;
             if (_timer > 0) return;
             _timer = 0.5f;
             var tr = Scene.Tracker;
             if (tr == null) return;
             bool hide = UiState.MapActive;
-            _panel.gameObject.SetActive(!hide);
+            UIKit.Show(_panel, !hide);
             if (hide) { BottomFromTop = 0; return; }
             var sb = new StringBuilder();
             var cur = tr.Current;
@@ -76,14 +74,12 @@ namespace TAP.UI
                     else if (m == cur) sb.AppendLine($"<color=#{UIKit.Hex(UIKit.Accent)}>▶ <b>{m.Title}</b></color>");
                     else sb.AppendLine($"<color=#{UIKit.Hex(UIKit.TextDim)}>○ {m.Title}</color>");
                 }
+                sb.AppendLine();
             }
-            if (cur != null) sb.AppendLine($"\n<size=13><color=#{UIKit.Hex(UIKit.Warn)}>Hint:</color> {cur.Hint}</size>");
-            else sb.AppendLine($"\n<color=#{UIKit.Hex(UIKit.Good)}><b>Mission complete — welcome home!</b></color>");
+            if (cur != null) sb.Append($"<size=13><color=#{UIKit.Hex(UIKit.Warn)}>Hint:</color> {cur.Hint}</size>");
+            else sb.Append($"<color=#{UIKit.Hex(UIKit.Good)}><b>Mission complete — welcome home!</b></color>");
             _text.text = sb.ToString();
-            _toggle.Text.text = _expanded ? "–" : "+";
-            float h = _text.GetPreferredValues(_text.text, 306, 0).y + 40;
-            _panel.sizeDelta = new Vector2(330, h);
-            BottomFromTop = 270 + h;
+            _toggle.text = _expanded ? "–" : "+";
         }
     }
 }

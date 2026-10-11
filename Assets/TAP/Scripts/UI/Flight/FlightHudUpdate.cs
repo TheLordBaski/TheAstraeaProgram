@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Text;
 using TAP.Core;
 using TAP.Game;
-using TAP.Parts;
 using TAP.Persistence;
+using TAP.Parts;
 using TAP.Simulation;
 using TAP.Trajectory;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 namespace TAP.UI
 {
@@ -27,11 +26,13 @@ namespace TAP.UI
                 return;
             }
             bool eva = v.IsEva;
-            _evaPanel.gameObject.SetActive(eva);
-            _stagePanel.gameObject.SetActive(!eva);
+            UIKit.Show(_evaPanel, eva);
+            UIKit.Show(_stagePanel, !eva);
             // The staging stack fills the space under the mission guide (both hug the left edge); its list scrolls.
-            float stageH = Mathf.Clamp(_root.rect.height - MissionGuide.BottomFromTop - 16, 140, 520);
-            if (Mathf.Abs(_stagePanel.sizeDelta.y - stageH) > 1) _stagePanel.sizeDelta = new Vector2(250, stageH);
+            float screenH = _root.layout.height > 0 ? _root.layout.height : 1080;
+            float stageH = Mathf.Clamp(screenH - MissionGuide.BottomFromTop - 16, 140, 520);
+            if (Mathf.Abs(_stagePanel.resolvedStyle.height - stageH) > 1) _stagePanel.style.height = stageH;
+            _evaPanel.style.maxHeight = Mathf.Max(90, screenH - MissionGuide.BottomFromTop - 16);
             UpdateAltimeter(v);
             UpdateNavballCluster(v);
             _slowTimer -= Time.unscaledDeltaTime;
@@ -54,12 +55,9 @@ namespace TAP.UI
             for (int i = _messageItems.Count - 1; i >= 0; i--)
             {
                 var m = _messageItems[i];
-                if (m.text == null) { _messageItems.RemoveAt(i); continue; }
                 float left = m.until - Time.unscaledTime;
-                if (left <= 0) { Destroy(m.text.gameObject); _messageItems.RemoveAt(i); continue; }
-                var c = m.text.color;
-                c.a = Mathf.Clamp01(left / 1.2f);
-                m.text.color = c;
+                if (left <= 0) { m.text.RemoveFromHierarchy(); _messageItems.RemoveAt(i); continue; }
+                m.text.style.opacity = Mathf.Clamp01(left / 1.2f);
             }
         }
 
@@ -74,7 +72,7 @@ namespace TAP.UI
             else w = "1x";
             if (Sim.Paused || UiState.Paused) w = "PAUSED";
             _warpText.text = w;
-            _warpText.color = Sim.Warp.OnRails || Sim.Warp.PhysicsIndex > 0 ? UIKit.Warn : UIKit.Accent;
+            _warpText.style.color = Sim.Warp.OnRails || Sim.Warp.PhysicsIndex > 0 ? UIKit.Warn : UIKit.Accent;
             int max = Sim.MaxRailsIndex(out string reason);
             _warpLimit.text = max < TimeWarp.RailsRates.Length - 1 && reason != null ? $"Warp limit {TimeWarp.RailsRates[max]:0}x: {reason}" : "";
         }
@@ -98,27 +96,28 @@ namespace TAP.UI
             double spd;
             switch (c.SpeedMode)
             {
-                case SpeedMode.Surface: _speedMode.Text.text = "SURF"; spd = v.SurfaceSpeed; break;
-                case SpeedMode.Orbit: _speedMode.Text.text = "ORBIT"; spd = v.OrbitalSpeed; break;
-                default: _speedMode.Text.text = "TGT"; spd = v.SpeedModeVelocity.magnitude; break;
+                case SpeedMode.Surface: _speedMode.text = "SURF"; spd = v.SurfaceSpeed; break;
+                case SpeedMode.Orbit: _speedMode.text = "ORBIT"; spd = v.OrbitalSpeed; break;
+                default: _speedMode.text = "TGT"; spd = v.SpeedModeVelocity.magnitude; break;
             }
             _speed.text = $"{spd:N1} m/s";
-            _throttle.Set(c.Throttle, Color.Lerp(new Color(0.3f, 0.8f, 0.4f), new Color(1f, 0.6f, 0.2f), c.Throttle));
+            UIKit.SetBar(_throttle, c.Throttle, Color.Lerp(new Color(0.3f, 0.8f, 0.4f), new Color(1f, 0.6f, 0.2f), c.Throttle));
             _throttleText.text = $"{c.Throttle * 100:0}%";
             float g = (float)v.GForce;
-            _gmeter.Set(g / 10f, g > 8 ? UIKit.Bad : g > 5 ? UIKit.Warn : UIKit.Accent);
+            UIKit.SetBar(_gmeter, g / 10f, g > 8 ? UIKit.Bad : g > 5 ? UIKit.Warn : UIKit.Accent);
             _gText.text = $"{g:0.0}g";
-            _sasBtn.SetActive(c.Sas);
-            _rcsBtn.SetActive(c.Rcs);
-            _legsBtn.SetActive(c.LegsDeployed);
+            UIKit.SetOn(_sasBtn, c.Sas);
+            UIKit.SetOn(_rcsBtn, c.Rcs);
+            UIKit.SetOn(_legsBtn, c.LegsDeployed);
             bool hasLegs = false;
             foreach (var p in v.Parts) if (p.Def.landingLeg != null) { hasLegs = true; break; }
-            _legsBtn.Button.gameObject.SetActive(hasLegs);
+            UIKit.Show(_legsBtn, hasLegs);
             foreach (var kv in _sasModes)
             {
                 bool avail = kv.Key == SasMode.StabilityAssist || v.TryGetSasDirection(kv.Key, out _);
-                kv.Value.SetInteractable(v.HasSas && avail);
-                kv.Value.SetActive(c.Sas && c.SasMode == kv.Key);
+                bool enabled = v.HasSas && avail;
+                if (kv.Value.enabledSelf != enabled) kv.Value.SetEnabled(enabled);
+                UIKit.SetOn(kv.Value, c.Sas && c.SasMode == kv.Key);
             }
         }
 
@@ -128,7 +127,6 @@ namespace TAP.UI
             sb.AppendLine($"<color=#{UIKit.Hex(UIKit.TextDim)}><size=13>RESOURCES</size></color>");
             // Stage propellant: tanks reachable by ignited engines
             double sAmt = 0, sMax = 0;
-            var seen = new HashSet<Part>();
             foreach (var p in v.Parts)
             {
                 var e = p.GetModule<EngineModule>();
@@ -149,11 +147,9 @@ namespace TAP.UI
                 var names = new List<string>();
                 foreach (var cr in v.AllCrew()) names.Add(cr.name);
                 if (v.IsEva) names.Add(v.Record.evaCrew);
-                sb.AppendLine($"Crew {v.CrewCount}/{v.CrewCapacity}: {string.Join(", ", names)}");
+                sb.Append($"Crew {v.CrewCount}/{v.CrewCapacity}: {string.Join(", ", names)}");
             }
-            _resources.text = sb.ToString();
-            float h = _resources.GetPreferredValues(_resources.text, 276, 0).y + 18;
-            _resPanel.sizeDelta = new Vector2(300, Mathf.Max(60, h));
+            _resources.text = sb.ToString().TrimEnd('\n', '\r');
         }
 
         private static string ResLine(string name, double a, double m, string unit, Color col)
@@ -206,11 +202,8 @@ namespace TAP.UI
             sb.AppendLine($"Mass {v.TotalMass / 1000:0.00} t   TWR {twr:0.00}");
             var dv = StageDeltaV(v);
             sb.AppendLine($"Δv stage {dv.stage:N0} m/s   total {dv.total:N0} m/s");
-            sb.AppendLine($"Parts {v.Parts.Count}   Stage {Math.Max(0, v.CurrentStage)}");
+            sb.Append($"Parts {v.Parts.Count}   Stage {Math.Max(0, v.CurrentStage)}");
             _data.text = sb.ToString();
-            float h = _data.GetPreferredValues(_data.text, 276, 0).y + 18;
-            _dataPanel.sizeDelta = new Vector2(300, Mathf.Max(80, h));
-            _dataPanel.anchoredPosition = new Vector2(-8, -60 - _resPanel.sizeDelta.y);
         }
 
         private float _dvTimer;
@@ -236,9 +229,9 @@ namespace TAP.UI
 
         private void UpdateBurn(Vessel v)
         {
-            if (v.ManeuverNodes.Count == 0) { _burnPanel.gameObject.SetActive(false); return; }
+            if (v.ManeuverNodes.Count == 0) { UIKit.Show(_burnPanel, false); return; }
             var info = ManeuverPlanner.Info(v, Sim.UT);
-            _burnPanel.gameObject.SetActive(true);
+            UIKit.Show(_burnPanel, true);
             string t = info.TimeToBurnStart > 0 ? $"burn in <b>{MathD.FormatDuration(info.TimeToBurnStart)}</b>" : $"<color=#{UIKit.Hex(UIKit.Warn)}>BURN NOW</color> (node {MathD.FormatDuration(info.TimeToNode, true)})";
             string align = info.AngleToBurn > 5 ? $"<color=#{UIKit.Hex(UIKit.Warn)}>off by {info.AngleToBurn:0}°</color>" : $"aligned ({info.AngleToBurn:0.0}°)";
             _burnInfo.text = $"MANEUVER  Δv <b>{info.RemainingDeltaV:N1}</b> / {info.TotalDeltaV:N1} m/s\n" +
@@ -247,8 +240,8 @@ namespace TAP.UI
 
         private void UpdateTarget(Vessel v)
         {
-            if (!v.TryGetTargetState(Sim.UT, out var tp, out var tv)) { _targetPanel.gameObject.SetActive(false); return; }
-            _targetPanel.gameObject.SetActive(true);
+            if (!v.TryGetTargetState(Sim.UT, out var tp, out var tv)) { UIKit.Show(_targetPanel, false); return; }
+            UIKit.Show(_targetPanel, true);
             double dist = (tp - v.TruePosition).magnitude;
             double rel = (v.TrueVelocity - tv).magnitude;
             var sb = new StringBuilder();
@@ -262,8 +255,6 @@ namespace TAP.UI
                 sb.AppendLine($"<color=#{UIKit.Hex(MapView.MoonPatchColor)}>{enc.Body.Name} periapsis {MathD.FormatDistance(enc.Orbit.PeriapsisRadius - enc.Body.Radius)}{(traj.HasNodes ? " (planned)" : "")}</color>");
             sb.Append("<size=12>Clear target from the map view</size>");
             _targetInfo.text = sb.ToString();
-            float h = _targetInfo.GetPreferredValues(_targetInfo.text, 306, 0).y + 16;
-            _targetPanel.sizeDelta = new Vector2(330, h);
         }
 
         private void UpdateWarnings(Vessel v)
@@ -305,12 +296,8 @@ namespace TAP.UI
             if (!v.HasControl && !v.IsEva) { sb.AppendLine($"<color=#{UIKit.Hex(UIKit.Warn)}>No control: no crew or powered probe core</color>"); n++; }
             v.Resources.Totals("Electric", out double ec, out double ecMax);
             if (ecMax > 0 && ec < ecMax * 0.05) { sb.AppendLine($"<color=#{UIKit.Hex(UIKit.Warn)}>Electric charge depleted — reaction wheels offline</color>"); n++; }
-            _warnPanel.gameObject.SetActive(n > 0);
-            if (n > 0)
-            {
-                _warnings.text = sb.ToString();
-                _warnPanel.sizeDelta = new Vector2(520, _warnings.GetPreferredValues(_warnings.text, 500, 0).y + 14);
-            }
+            UIKit.Show(_warnPanel, n > 0);
+            if (n > 0) _warnings.text = sb.ToString().TrimEnd('\n', '\r');
         }
 
         private void UpdateEva(Vessel v)
@@ -329,13 +316,8 @@ namespace TAP.UI
                 sb.AppendLine(ok ? $"<color=#{UIKit.Hex(UIKit.Good)}>[B] Board {hatch.Vessel.VesselName}</color>  ({d:0.0} m)"
                                  : $"Nearest hatch: {hatch.Vessel.VesselName} {d:0.0} m away, rel. speed {rs:0.0} m/s (need < {EvaModule.BoardRange:0} m, < {EvaModule.BoardMaxRelSpeed:0.0} m/s)");
             }
-            if (em.Grounded) sb.AppendLine("[G] Plant flag   [Space] Jump   [Shift] Run");
-            else sb.AppendLine("WASD translate, Shift/Ctrl up/down with jetpack");
+            sb.Append(em.Grounded ? "[G] Plant flag   [Space] Jump   [Shift] Run" : "WASD translate, Shift/Ctrl up/down with jetpack");
             _evaInfo.text = sb.ToString();
-            // Fit the text, but stay below the mission guide on short screens.
-            float h = _evaInfo.GetPreferredValues(_evaInfo.text, 376, 0).y + 16;
-            float room = Mathf.Max(90, _root.rect.height - MissionGuide.BottomFromTop - 16);
-            _evaPanel.sizeDelta = new Vector2(400, Mathf.Min(h, room));
         }
 
         // ------------------------------------------------------------------ staging stack
@@ -352,75 +334,66 @@ namespace TAP.UI
                 RebuildStages(v);
             }
             // live bars
-            foreach (var row in _stageRows)
-            {
-                var r = row.GetComponent<StageRow>();
-                if (r != null) r.Refresh();
-            }
+            foreach (var row in _stageRows) row.Refresh();
         }
 
         private void RebuildStages(Vessel v)
         {
-            foreach (var r in _stageRows) Destroy(r);
+            _stageList.Clear();
             _stageRows.Clear();
-            int max = v.MaxStage;
-            for (int s = 0; s <= max; s++)
+            // Order: highest stage (fires first) at the top.
+            for (int s = v.MaxStage; s >= 0; s--)
             {
                 var parts = v.Parts.FindAll(p => p.Stage == s);
                 if (parts.Count == 0) continue;
-                var row = StageRow.Create(_stageContent, s, parts, s == v.CurrentStage, s > v.CurrentStage);
-                row.transform.SetSiblingIndex(0);
-                _stageRows.Add(row.gameObject);
+                var row = new StageRow(s, parts, s == v.CurrentStage);
+                _stageList.Add(row.Root);
+                _stageRows.Add(row);
             }
-            // Order: highest stage (fires first) at the top.
-            _stageRows.Sort((a, b) => b.GetComponent<StageRow>().Stage.CompareTo(a.GetComponent<StageRow>().Stage));
-            for (int i = 0; i < _stageRows.Count; i++) _stageRows[i].transform.SetSiblingIndex(i);
         }
     }
 
     /// <summary>One stage group in the staging stack: stage number + part icons with fuel/heat bars.</summary>
-    public sealed class StageRow : MonoBehaviour
+    public sealed class StageRow
     {
-        public int Stage;
-        private readonly List<(Part part, UIKit.BarRef bar)> _items = new List<(Part, UIKit.BarRef)>();
+        public readonly int Stage;
+        public readonly VisualElement Root;
+        private readonly List<(Part part, VisualElement bar)> _items = new List<(Part, VisualElement)>();
 
-        public static StageRow Create(Transform parent, int stage, List<Part> parts, bool current, bool spent)
+        public StageRow(int stage, List<Part> parts, bool current)
         {
-            var panel = UIKit.Panel(parent, "Stage " + stage, current ? new Color(0.12f, 0.3f, 0.4f, 0.9f) : UIKit.PanelLight, false);
-            var row = panel.gameObject.AddComponent<StageRow>();
-            row.Stage = stage;
-            int n = 0;
+            Stage = stage;
+            Root = UIKit.Element("panel panel--light stage-row" + (current ? " stage-row--current" : ""));
+            Root.Add(UIKit.Label($"{stage}", "stage-row__num"));
+            var items = UIKit.Element("stage-row__items");
+            items.pickingMode = PickingMode.Ignore;
+            Root.Add(items);
             var groups = new Dictionary<string, List<Part>>();
             foreach (var p in parts)
             {
                 if (!groups.TryGetValue(p.Def.id, out var l)) groups[p.Def.id] = l = new List<Part>();
                 l.Add(p);
             }
-            float h = 30 + 36 * Mathf.Ceil(groups.Count / 1f);
-            UIKit.Size(panel, h);
-            var label = UIKit.Label(panel.transform, $"{stage}", 20, current ? UIKit.Accent : UIKit.TextDim, TextAlignmentOptions.Center, FontStyles.Bold);
-            UIKit.Place(label.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(4, -4), new Vector2(26, 24));
-            int i = 0;
             foreach (var kv in groups)
             {
                 var first = kv.Value[0];
                 string icon = first.Def.engine != null ? (first.Def.engine.type == "solid" ? "stage_srb" : "stage_engine")
                     : first.Def.decoupler != null ? "stage_decoupler" : first.Def.parachute != null ? "stage_chute" : "dot";
-                var img = UIKit.Image(panel.transform, UIKit.Icon(icon), UIKit.TextColor);
-                UIKit.Place(img.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(34, -6 - i * 36), new Vector2(28, 28));
-                var t = UIKit.Label(panel.transform, $"{first.Def.title}{(kv.Value.Count > 1 ? " ×" + kv.Value.Count : "")}", 13, UIKit.TextColor);
-                UIKit.Place(t.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(68, -4 - i * 36), new Vector2(160, 16));
-                var bar = UIKit.Bar(panel.transform);
-                UIKit.Place(bar.Back.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(68, -24 - i * 36), new Vector2(150, 8));
-                row._items.Add((first, bar));
-                UIKit.Tooltip(panel.gameObject, () => row.TooltipText(current, stage));
-                i++;
-                n++;
+                var item = UIKit.Element("stage-item");
+                item.pickingMode = PickingMode.Ignore;
+                item.Add(UIKit.Image(UIKit.Icon(icon), UIKit.TextColor, "stage-item__icon"));
+                var text = UIKit.Element("stage-item__text");
+                text.pickingMode = PickingMode.Ignore;
+                text.Add(UIKit.Label($"{first.Def.title}{(kv.Value.Count > 1 ? " ×" + kv.Value.Count : "")}", "stage-item__title"));
+                var bar = UIKit.Bar(false, "stage-item__bar");
+                bar.pickingMode = PickingMode.Ignore;
+                text.Add(bar);
+                item.Add(text);
+                items.Add(item);
+                _items.Add((first, bar));
             }
-            ((RectTransform)panel.transform).sizeDelta = new Vector2(0, 12 + 36 * i);
-            UIKit.Size(panel, 12 + 36 * i);
-            row.Refresh();
-            return row;
+            UIKit.Tooltip(Root, () => TooltipText(current, stage));
+            Refresh();
         }
 
         private string TooltipText(bool current, int stage)
@@ -446,13 +419,13 @@ namespace TAP.UI
         {
             foreach (var (p, bar) in _items)
             {
-                if (p == null || p.Destroyed) { bar.Set(0, Color.gray); continue; }
+                if (p == null || p.Destroyed) { UIKit.SetBar(bar, 0, Color.gray); continue; }
                 var e = p.GetModule<EngineModule>();
                 if (e != null && p.Vessel != null)
                 {
                     double a = p.Vessel.Resources.Available(p, e.Def.propellant), m = p.Vessel.Resources.Capacity(p, e.Def.propellant);
                     float f = m > 0 ? (float)(a / m) : 0;
-                    bar.Set(f, e.Flameout ? UIKit.Bad : e.IsRunning ? UIKit.Good : new Color(0.95f, 0.72f, 0.25f));
+                    UIKit.SetBar(bar, f, e.Flameout ? UIKit.Bad : e.IsRunning ? UIKit.Good : new Color(0.95f, 0.72f, 0.25f));
                     continue;
                 }
                 var ch = p.GetModule<ParachuteModule>();
@@ -467,11 +440,11 @@ namespace TAP.UI
                         c = s == ParachuteModule.Safety.Unsafe ? UIKit.Bad : s == ParachuteModule.Safety.Risky ? UIKit.Warn
                           : s == ParachuteModule.Safety.Safe ? UIKit.Good : UIKit.AccentDim;
                     }
-                    bar.Set(f, c);
+                    UIKit.SetBar(bar, f, c);
                     continue;
                 }
                 float heat = (float)(p.SkinTemp / p.Def.skinMaxTemp);
-                bar.Set(Mathf.Clamp01(heat), heat > 0.8f ? UIKit.Bad : UIKit.AccentDim);
+                UIKit.SetBar(bar, Mathf.Clamp01(heat), heat > 0.8f ? UIKit.Bad : UIKit.AccentDim);
             }
         }
     }

@@ -1,0 +1,152 @@
+/* Main menu: title and buttons on the left over the turning planet; dialogs centred over a dimmed screen. */
+.menu-title {
+    position: absolute;
+    left: 110px;
+    top: 98px;
+    height: 110px;
+    -unity-text-align: lower-left;
+    -unity-font-style: bold;
+    font-size: 86px;
+    color: rgb(255, 255, 255);
+    letter-spacing: 10px;
+    white-space: nowrap;
+}
+
+.menu-subtitle {
+    position: absolute;
+    left: 116px;
+    top: 220px;
+    font-size: 24px;
+    color: var(--c-accent);
+}
+
+.menu-buttons {
+    position: absolute;
+    left: 110px;
+    top: 300px;
+    width: 420px;
+}
+
+.menu-btn {
+    height: 58px;
+    margin-bottom: 10px;
+    padding-left: 18px;
+    font-size: 24px;
+    -unity-text-align: middle-left;
+}
+
+.menu-notice {
+    position: absolute;
+    left: 110px;
+    top: 732px;
+    width: 560px;
+    height: 40px;
+}
+
+.menu-notice.blocking {
+    color: var(--c-bad);
+}
+
+.menu-notice.warning {
+    color: var(--c-warn);
+}
+
+.menu-footer {
+    position: absolute;
+    left: 112px;
+    bottom: 24px;
+    font-size: 14px;
+}
+
+.new-panel {
+    width: 620px;
+}
+
+.new-name {
+    height: 40px;
+    margin: 6px 0 12px;
+}
+
+.new-name > .unity-base-text-field__input {
+    font-size: 18px;
+}
+
+.new-info {
+    font-size: 15px;
+    margin-bottom: 16px;
+}
+
+.new-start {
+    align-self: flex-end;
+    width: 160px;
+    height: 46px;
+    font-size: 20px;
+}
+
+.load-panel {
+    width: 760px;
+    height: 560px;
+}
+
+.controls-panel {
+    width: 980px;
+    height: 760px;
+}
+
+.data-panel {
+    width: 1100px;
+    height: 640px;
+}
+
+.data-text,
+.controls-text {
+    font-size: 16px;
+}
+
+.load-row {
+    flex-direction: row;
+    align-items: center;
+    height: 64px;
+    margin-bottom: 6px;
+    padding: 0 8px 0 12px;
+}
+
+.load-row__text {
+    flex-grow: 1;
+    flex-shrink: 1;
+    font-size: 18px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.load-row__btn {
+    width: 110px;
+    height: 38px;
+    margin-left: 6px;
+    font-size: 16px;
+}
+
+.controls-row {
+    flex-direction: row;
+    padding: 1px 0;
+}
+
+.controls-key {
+    width: 230px;
+    -unity-font-style: bold;
+    font-size: 16px;
+}
+
+.controls-action {
+    flex-grow: 1;
+    flex-shrink: 1;
+    font-size: 16px;
+    white-space: normal;
+}
+
+.controls-head {
+    margin: 12px 0 4px;
+    -unity-font-style: bold;
+    color: var(--c-accent);
+    font-size: 16px;
+}

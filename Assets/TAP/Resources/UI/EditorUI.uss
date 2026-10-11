@@ -1,0 +1,410 @@
+/* Assembly building: top bar, parts palette on the left, engineer's report + warnings + staging down the right,
+   hint bar at the bottom, toasts under the top bar. */
+
+/* top bar */
+#top-bar {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    top: 8px;
+    height: 52px;
+    flex-direction: row;
+    align-items: center;
+    padding: 0 7px;
+}
+
+.bar-title {
+    width: 100px;
+    -unity-text-align: middle-center;
+    font-size: 16px;
+}
+
+.bar-name {
+    width: 240px;
+    height: 38px;
+    margin-right: 6px;
+}
+
+.bar-name > .unity-base-text-field__input {
+    font-size: 18px;
+}
+
+.bar-btn {
+    width: 62px;
+    height: 38px;
+    margin-right: 6px;
+    font-size: 16px;
+}
+
+.bar-gap {
+    width: 4px;
+}
+
+.bar-sym {
+    width: 118px;
+}
+
+.bar-snap {
+    width: 104px;
+}
+
+.bar-markers {
+    width: 112px;
+}
+
+.bar-env {
+    width: 140px;
+}
+
+.bar-flights {
+    width: 90px;
+}
+
+.bar-launch {
+    width: 120px;
+    margin-right: 0;
+    -unity-font-style: bold;
+}
+
+/* parts palette */
+#palette {
+    position: absolute;
+    left: 8px;
+    top: 68px;
+    bottom: 8px;
+    width: 348px;
+    padding: 8px 6px 6px;
+}
+
+.palette-title {
+    margin: 0 0 6px 4px;
+}
+
+.categories {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+}
+
+.category {
+    width: 32%;
+    height: 32px;
+    margin: 0 1% 4px 0;
+    font-size: 15px;
+}
+
+.palette-search {
+    height: 32px;
+    margin-bottom: 8px;
+}
+
+.palette-search > .unity-base-text-field__input {
+    font-size: 16px;
+}
+
+.palette-tiles {
+    flex-grow: 1;
+}
+
+.palette-tiles .unity-scroll-view__content-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.tile {
+    width: 32%;
+    height: 124px;
+    margin: 0 1% 4px 0;
+    padding: 4px 3px 3px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tile__thumb {
+    width: 84px;
+    height: 84px;
+}
+
+.tile__name {
+    height: 32px;
+    width: 100px;
+    -unity-text-align: upper-center;
+    font-size: 12px;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* right column: report, warnings, staging (the staging list takes what is left) */
+#right-column {
+    position: absolute;
+    right: 8px;
+    top: 68px;
+    bottom: 16px;
+    width: 392px;
+}
+
+#engineer {
+    height: 212px;
+    margin-bottom: 6px;
+    padding: 6px 10px 8px 12px;
+}
+
+#engineer > .title {
+    height: 20px;
+    margin: 0;
+    padding: 0;
+}
+
+.stats {
+    margin: 4px 0 0 0;
+    padding: 0;
+    font-size: 15px;
+}
+
+#warnings {
+    max-height: 220px;
+    margin-bottom: 6px;
+    padding: 8px 10px 6px 12px;
+    overflow: hidden;
+}
+
+.warnings-text {
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+}
+
+#staging {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 120px;
+    padding: 6px;
+}
+
+.staging-head {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px 2px 6px 6px;
+}
+
+.staging-head > .title {
+    margin: 0;
+    padding: 0;
+}
+
+.staging-reset {
+    width: 76px;
+    height: 26px;
+    font-size: 14px;
+}
+
+.stages {
+    flex-grow: 1;
+}
+
+.staging-hint {
+    height: 34px;
+    margin-top: 2px;
+    -unity-text-align: middle-center;
+    font-size: 13px;
+}
+
+/* 2px border + 4px padding = the original 6px inset; header 20 + 2 + one 48px icon row */
+.stage-block {
+    padding: 4px;
+}
+
+.stage-block.drop-target {
+    border-color: var(--c-accent);
+}
+
+.stage-block__head {
+    height: 20px;
+    margin: 0 0 2px 0;
+    padding: 0;
+    -unity-text-align: middle-left;
+    font-size: 14px;
+}
+
+.stage-icons {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.stage-icon {
+    width: 44px;
+    height: 44px;
+    margin: 0 4px 4px 0;
+    border-radius: 6px;
+    background-color: rgb(41, 51, 69);
+}
+
+.stage-icon__glyph {
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    right: 5px;
+    bottom: 5px;
+}
+
+.stage-icon__badge {
+    position: absolute;
+    right: 3px;
+    bottom: 1px;
+    -unity-font-style: bold;
+    font-size: 12px;
+}
+
+.stage-insert {
+    height: 8px;
+    margin: 2px 0;
+    border-radius: 3px;
+}
+
+.stage-insert.drop-target {
+    background-color: rgba(82, 199, 255, 0.6);
+}
+
+.stage-ghost {
+    position: absolute;
+    opacity: 0.8;
+    translate: -50% -50%;
+}
+
+/* hint bar and toast */
+#hint-bar {
+    position: absolute;
+    left: 50%;
+    bottom: 8px;
+    width: 1100px;
+    height: 34px;
+    margin-left: -16px;
+    translate: -50% 0;
+    justify-content: center;
+    background-color: rgba(8, 10, 15, 0.75);
+}
+
+.hint {
+    -unity-text-align: middle-center;
+    font-size: 15px;
+}
+
+.toast {
+    position: absolute;
+    left: 50%;
+    top: 80px;
+    width: 1000px;
+    margin-left: -16px;
+    translate: -50% 0;
+    -unity-text-align: upper-center;
+    font-size: 19px;
+    text-shadow: 1.5px 1.5px 0 rgba(0, 0, 0, 0.8);
+}
+
+/* part menu (at the pointer) */
+.part-menu {
+    position: absolute;
+    width: 360px;
+    padding: 10px 12px 8px;
+    background-color: rgba(10, 14, 20, 0.97);
+}
+
+.part-menu-text {
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.part-menu-row {
+    flex-direction: row;
+    align-items: center;
+    height: 30px;
+    margin-bottom: 4px;
+}
+
+.part-menu-label {
+    width: 150px;
+    font-size: 14px;
+}
+
+.part-menu-step {
+    width: 42px;
+    height: 30px;
+    margin-right: 4px;
+    padding: 0;
+    font-size: 14px;
+}
+
+.part-menu-btn {
+    height: 30px;
+    margin-bottom: 4px;
+    font-size: 14px;
+}
+
+/* dialogs */
+.editor-dialog {
+    background-color: rgba(0, 0, 0, 0.45);
+}
+
+.help-panel {
+    width: 760px;
+    height: 640px;
+}
+
+.help-text {
+    font-size: 15px;
+}
+
+.load-panel {
+    width: 760px;
+    height: 620px;
+}
+
+.flights-panel {
+    width: 700px;
+    height: 520px;
+}
+
+.list-section {
+    height: 26px;
+    margin-bottom: 6px;
+    -unity-font-style: bold;
+    color: var(--c-accent);
+    font-size: 15px;
+    -unity-text-align: middle-left;
+}
+
+.list-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 6px;
+    padding: 4px 8px 4px 10px;
+}
+
+.list-row--craft {
+    height: 74px;
+}
+
+.list-row--flight {
+    height: 56px;
+}
+
+.list-row__text {
+    flex-grow: 1;
+    flex-shrink: 1;
+    font-size: 15px;
+    white-space: normal;
+    overflow: hidden;
+}
+
+.list-row__btn {
+    width: 82px;
+    height: 34px;
+    margin-left: 6px;
+    font-size: 15px;
+}
+
+.list-row__btn--armed {
+    background-color: rgb(128, 38, 31);
+}

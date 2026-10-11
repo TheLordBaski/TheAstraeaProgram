@@ -5,7 +5,7 @@ rockets. You build a rocket from parts in the assembly building, launch it from 
 transfer with manoeuvre nodes, land on the airless moon **Luma**, walk around and plant a flag, fly home, survive reentry
 and land under a parachute. Names, parts, planets, characters, models and interface are original.
 
-Built with **Unity 6.5 (6000.5.7f1), Universal Render Pipeline 17.5**, new Input System, uGUI/TextMeshPro. All part and
+Built with **Unity 6.5 (6000.5.7f1), Universal Render Pipeline 17.5**, new Input System, UI Toolkit. All part and
 planet models are generated procedurally from the data files at runtime (no imported art packs).
 
 ## Getting the code

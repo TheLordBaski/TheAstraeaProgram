@@ -1,0 +1,289 @@
+/* TAP game UI theme: the dark "mission control" look of the old uGUI kit, as tokens and shared classes.
+   Colours match UIKit's constants (they are also used in rich text from code). */
+:root {
+    --c-panel: rgba(14, 18, 24, 0.88);
+    --c-panel-light: rgba(28, 36, 48, 0.92);
+    --c-panel-deep: rgba(10, 13, 18, 0.96);
+    --c-border: rgba(89, 140, 191, 0.35);
+    --c-accent: rgb(82, 199, 255);
+    --c-accent-dim: rgb(51, 115, 158);
+    --c-text: rgb(230, 237, 247);
+    --c-text-dim: rgb(148, 166, 189);
+    --c-good: rgb(102, 230, 128);
+    --c-warn: rgb(255, 191, 64);
+    --c-bad: rgb(255, 89, 77);
+    --c-button: rgba(36, 48, 66, 0.95);
+    --c-button-hover: rgb(51, 77, 107);
+    --c-button-active: rgb(41, 115, 158);
+    --c-field: rgba(5, 8, 13, 0.9);
+    --c-dim-screen: rgba(0, 0, 0, 0.5);
+
+    -unity-font-definition: url("/Assets/TextMesh Pro/Fonts/LiberationSans.ttf");
+    color: var(--c-text);
+    font-size: 18px;
+}
+
+/* full-screen layer that lets clicks through to the world */
+.screen {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.panel {
+    background-color: var(--c-panel);
+    border-width: 2px;
+    border-color: var(--c-border);
+    border-radius: 8px;
+}
+
+.panel--light {
+    background-color: var(--c-panel-light);
+}
+
+.panel--deep {
+    background-color: var(--c-panel-deep);
+}
+
+.panel--plain {
+    border-width: 0;
+}
+
+.abs {
+    position: absolute;
+}
+
+.row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.grow {
+    flex-grow: 1;
+}
+
+.hidden {
+    display: none;
+}
+
+/* text */
+.text-dim {
+    color: var(--c-text-dim);
+}
+
+.text-accent {
+    color: var(--c-accent);
+}
+
+.text-warn {
+    color: var(--c-warn);
+}
+
+.text-good {
+    color: var(--c-good);
+}
+
+.text-bad {
+    color: var(--c-bad);
+}
+
+.bold {
+    -unity-font-style: bold;
+}
+
+.wrap {
+    white-space: normal;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+.title {
+    -unity-font-style: bold;
+    color: var(--c-accent);
+    font-size: 15px;
+}
+
+Label {
+    padding: 0;
+    margin: 0;
+}
+
+/* buttons: Buttons lose Unity's own .unity-button class in UIKit.Prepare, so only these rules style them */
+.btn {
+    background-color: var(--c-button);
+    border-width: 0;
+    border-radius: 6px;
+    margin: 0;
+    padding: 0 6px;
+    color: var(--c-text);
+    font-size: 17px;
+    -unity-text-align: middle-center;
+    white-space: nowrap;
+    transition-property: background-color, color;
+    transition-duration: 0.08s;
+}
+
+.btn:hover {
+    background-color: var(--c-button-hover);
+}
+
+.btn:active {
+    background-color: var(--c-accent-dim);
+}
+
+.btn.on {
+    background-color: var(--c-button-active);
+}
+
+.btn:disabled {
+    color: var(--c-text-dim);
+    background-color: rgba(36, 48, 66, 0.55);
+}
+
+.btn--clear {
+    background-color: rgba(0, 0, 0, 0.01);
+}
+
+.btn--clear:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
+.btn--go {
+    background-color: rgb(31, 107, 66);
+}
+
+.btn--go:hover {
+    background-color: rgb(42, 133, 84);
+}
+
+.btn__icon {
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    right: 4px;
+    bottom: 4px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+/* bars: a dark track with a coloured fill sized from code */
+.bar {
+    background-color: rgba(0, 0, 0, 0.55);
+    border-radius: 4px;
+    padding: 2px;
+}
+
+.bar__fill {
+    background-color: var(--c-accent);
+    border-radius: 2px;
+    height: 100%;
+}
+
+.bar--vertical {
+    flex-direction: column-reverse;
+}
+
+.bar--vertical > .bar__fill {
+    width: 100%;
+    height: auto;
+}
+
+/* text fields */
+.field {
+    margin: 0;
+    padding: 0;
+}
+
+.field > .unity-base-text-field__input {
+    background-color: var(--c-field);
+    border-width: 0;
+    border-radius: 6px;
+    padding: 2px 8px;
+    color: var(--c-text);
+    font-size: 17px;
+    --unity-cursor-color: var(--c-accent);
+    --unity-selection-color: rgba(82, 199, 255, 0.35);
+    -unity-text-align: middle-left;
+}
+
+.field:focus > .unity-base-text-field__input {
+    border-width: 1px;
+    border-color: var(--c-accent-dim);
+}
+
+.field .unity-text-element--placeholder {
+    color: var(--c-text-dim);
+}
+
+/* scroll lists */
+.list .unity-scroll-view__content-container {
+    padding: 2px;
+}
+
+.unity-scroller--vertical {
+    width: 8px;
+    border-width: 0;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.unity-scroller--vertical > .unity-scroller__low-button,
+.unity-scroller--vertical > .unity-scroller__high-button {
+    display: none;
+}
+
+.unity-scroller--vertical .unity-base-slider__tracker {
+    background-color: rgba(0, 0, 0, 0.25);
+    border-width: 0;
+    border-radius: 4px;
+}
+
+.unity-scroller--vertical .unity-base-slider__dragger {
+    background-color: var(--c-accent-dim);
+    border-width: 0;
+    border-radius: 4px;
+    left: 1px;
+    width: 6px;
+}
+
+/* modal dialogs: a dimmed screen with a centred panel */
+.dialog {
+    background-color: var(--c-dim-screen);
+    align-items: center;
+    justify-content: center;
+}
+
+.dialog__panel {
+    padding: 14px 18px 18px;
+}
+
+.dialog__head {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.dialog__title {
+    -unity-font-style: bold;
+    color: var(--c-accent);
+    font-size: 20px;
+}
+
+.dialog__close {
+    width: 84px;
+    height: 32px;
+    font-size: 16px;
+}
+
+/* tooltip */
+.tooltip {
+    position: absolute;
+    max-width: 400px;
+    padding: 8px 10px;
+    background-color: rgba(8, 10, 15, 0.96);
+    font-size: 15px;
+    white-space: normal;
+}

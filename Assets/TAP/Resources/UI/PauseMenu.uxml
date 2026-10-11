@@ -1,0 +1,48 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="FlightPanels.uss" />
+    <ui:VisualElement name="pause-root" class="screen" picking-mode="Ignore">
+        <ui:VisualElement name="pause" class="screen dialog hidden">
+            <ui:VisualElement class="panel pause-panel">
+                <ui:Label class="pause-title" text="PAUSED" />
+                <ui:Button name="resume" class="btn pause-btn" text="Resume  [Esc]" />
+                <ui:Button name="quicksave" class="btn pause-btn" text="Quicksave  [F5]" />
+                <ui:Button name="quickload" class="btn pause-btn" text="Quickload  [hold F9]" />
+                <ui:Button name="revert-launch" class="btn pause-btn" text="Restart flight (revert to launch)" />
+                <ui:Button name="revert-editor" class="btn pause-btn" text="Revert to assembly building" />
+                <ui:Button name="leave" class="btn pause-btn" text="Leave flight (keep vessels in play)" />
+                <ui:Button name="recover" class="btn pause-btn" text="Recover vessel" />
+                <ui:Button name="controls-guide" class="btn pause-btn" text="Control guide  [F1]" />
+                <ui:Button name="graphics" class="btn pause-btn" text="Planet graphics" />
+                <ui:Button name="dev" class="btn pause-btn" text="Developer tools  [Alt+F12]" />
+                <ui:Button name="main-menu" class="btn pause-btn" text="Main menu" />
+                <ui:Button name="quit" class="btn pause-btn" text="Quit to desktop" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="planet-graphics" class="screen dialog hidden">
+            <ui:VisualElement class="panel graphics-panel">
+                <ui:Label class="graphics-title" text="PLANET GRAPHICS" />
+                <ui:Button name="quality" class="btn graphics-btn" />
+                <ui:Button name="clouds" class="btn graphics-btn" />
+                <ui:Button name="scatter" class="btn graphics-btn" />
+                <ui:Label class="graphics-note text-dim" text="Changes apply immediately and are saved.&#10;Map view uses cloud layers. Biome view hides clouds." />
+                <ui:Button name="graphics-back" class="btn pause-btn" text="Back" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="confirm" class="screen dialog confirm hidden">
+            <ui:VisualElement class="panel confirm-panel">
+                <ui:Label name="confirm-text" class="confirm-text wrap" />
+                <ui:VisualElement class="confirm-buttons">
+                    <ui:Button name="confirm-yes" class="btn confirm-btn" text="Yes" />
+                    <ui:Button name="confirm-no" class="btn confirm-btn" text="Cancel" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="help" class="panel help-panel hidden">
+            <ui:ScrollView name="help-body" class="list help-body" />
+            <ui:Button name="help-close" class="btn help-close" text="Close  [F1]" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

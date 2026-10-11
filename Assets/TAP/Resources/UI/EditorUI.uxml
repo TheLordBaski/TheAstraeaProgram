@@ -1,0 +1,92 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="EditorUI.uss" />
+    <ui:VisualElement name="editor" class="screen" picking-mode="Ignore">
+        <ui:VisualElement name="top-bar" class="panel">
+            <ui:Label class="title bar-title" text="ASSEMBLY" />
+            <ui:TextField name="craft-name" class="field bar-name" />
+            <ui:Button name="new" class="btn bar-btn" text="New" />
+            <ui:Button name="load" class="btn bar-btn" text="Load" />
+            <ui:Button name="save" class="btn bar-btn" text="Save" />
+            <ui:VisualElement class="bar-gap" />
+            <ui:Button name="undo" class="btn bar-btn" text="Undo" />
+            <ui:Button name="redo" class="btn bar-btn" text="Redo" />
+            <ui:VisualElement class="bar-gap" />
+            <ui:Button name="symmetry" class="btn bar-btn bar-sym" text="Symmetry ×1" />
+            <ui:Button name="snap" class="btn bar-btn bar-snap" text="Angle snap" />
+            <ui:Button name="markers" class="btn bar-btn bar-markers" text="CoM/CoT/CoP" />
+            <ui:Button name="env" class="btn bar-btn bar-env" />
+            <ui:VisualElement class="grow" picking-mode="Ignore" />
+            <ui:Button name="flights" class="btn bar-btn bar-flights" text="Flights" />
+            <ui:Button name="help" class="btn bar-btn" text="Help" />
+            <ui:Button name="menu" class="btn bar-btn" text="Menu" />
+            <ui:Button name="launch" class="btn bar-btn bar-launch btn--go" text="LAUNCH" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="palette" class="panel">
+            <ui:Label class="title palette-title" text="PARTS" />
+            <ui:VisualElement name="categories" class="categories" />
+            <ui:TextField name="search" class="field palette-search" />
+            <ui:ScrollView name="tiles" class="list palette-tiles" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="right-column" picking-mode="Ignore">
+            <ui:VisualElement name="engineer" class="panel">
+                <ui:Label class="title" text="ENGINEER'S REPORT" />
+                <ui:Label name="stats" class="wrap stats" picking-mode="Ignore" />
+            </ui:VisualElement>
+            <ui:VisualElement name="warnings" class="panel">
+                <ui:Label name="warnings-text" class="wrap warnings-text" picking-mode="Ignore" />
+            </ui:VisualElement>
+            <ui:VisualElement name="staging" class="panel">
+                <ui:VisualElement class="staging-head">
+                    <ui:Label name="staging-title" class="title" text="STAGING" />
+                    <ui:Button name="reset-staging" class="btn staging-reset" text="Reset" />
+                </ui:VisualElement>
+                <ui:ScrollView name="stages" class="list stages" />
+            </ui:VisualElement>
+            <ui:Label class="staging-hint text-dim wrap" picking-mode="Ignore" text="Top stage fires first (Space). Drag icons between stages or onto a gap." />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="hint-bar" class="panel panel--deep" picking-mode="Ignore">
+            <ui:Label name="hint" class="hint" picking-mode="Ignore" />
+        </ui:VisualElement>
+        <ui:Label name="toast" class="toast wrap" picking-mode="Ignore" />
+
+        <ui:VisualElement name="part-menu" class="panel part-menu hidden">
+            <ui:Label name="part-menu-text" class="wrap part-menu-text" picking-mode="Ignore" />
+            <ui:VisualElement name="part-menu-buttons" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="help-dialog" class="screen dialog editor-dialog hidden">
+            <ui:VisualElement class="panel dialog__panel help-panel">
+                <ui:VisualElement class="dialog__head">
+                    <ui:Label class="dialog__title" text="ASSEMBLY BUILDING — CONTROLS" />
+                    <ui:Button class="btn dialog__close" text="Close" />
+                </ui:VisualElement>
+                <ui:ScrollView class="list grow">
+                    <ui:Label name="help-text" class="wrap help-text" picking-mode="Ignore" />
+                </ui:ScrollView>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="load-dialog" class="screen dialog editor-dialog hidden">
+            <ui:VisualElement class="panel dialog__panel load-panel">
+                <ui:VisualElement class="dialog__head">
+                    <ui:Label class="dialog__title" text="LOAD CRAFT" />
+                    <ui:Button class="btn dialog__close" text="Close" />
+                </ui:VisualElement>
+                <ui:ScrollView name="load-list" class="list grow" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="flights-dialog" class="screen dialog editor-dialog hidden">
+            <ui:VisualElement class="panel dialog__panel flights-panel">
+                <ui:VisualElement class="dialog__head">
+                    <ui:Label class="dialog__title" text="VESSELS IN FLIGHT" />
+                    <ui:Button class="btn dialog__close" text="Close" />
+                </ui:VisualElement>
+                <ui:ScrollView name="flights-list" class="list grow" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

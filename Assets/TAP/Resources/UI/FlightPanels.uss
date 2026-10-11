@@ -1,0 +1,317 @@
+/* Smaller flight screens: mission guide, pause menu (+ confirm, control guide, planet graphics),
+   part action window, developer window and body labels. */
+
+/* mission guide (top left, under the clock and target panels) */
+#guide {
+    position: absolute;
+    left: 8px;
+    top: 270px;
+    width: 330px;
+    padding: 8px 12px;
+}
+
+.guide-head {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.guide-title {
+    -unity-font-style: bold;
+    color: var(--c-accent);
+    font-size: 13px;
+}
+
+.guide-toggle {
+    width: 26px;
+    height: 22px;
+    font-size: 16px;
+    padding: 0;
+}
+
+.guide-text {
+    font-size: 14px;
+}
+
+/* pause menu */
+.pause-panel {
+    width: 420px;
+    padding: 20px;
+}
+
+.pause-title {
+    height: 44px;
+    margin-bottom: 8px;
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+    font-size: 30px;
+    color: var(--c-accent);
+}
+
+.pause-btn {
+    height: 42px;
+    margin-bottom: 8px;
+    font-size: 18px;
+}
+
+.graphics-panel {
+    width: 520px;
+    padding: 24px;
+}
+
+.graphics-title {
+    height: 44px;
+    margin-bottom: 12px;
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+    font-size: 26px;
+    color: var(--c-accent);
+}
+
+.graphics-btn {
+    height: 46px;
+    margin-bottom: 12px;
+    font-size: 19px;
+}
+
+.graphics-note {
+    margin-bottom: 12px;
+    -unity-text-align: middle-center;
+    font-size: 16px;
+}
+
+.confirm {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.confirm-panel {
+    width: 520px;
+    height: 200px;
+    padding: 20px;
+    justify-content: space-between;
+}
+
+.confirm-text {
+    -unity-text-align: upper-center;
+    font-size: 19px;
+}
+
+.confirm-buttons {
+    flex-direction: row;
+    justify-content: center;
+}
+
+.confirm-btn {
+    width: 150px;
+    height: 40px;
+    margin: 0 15px;
+    font-size: 18px;
+}
+
+.help-panel {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 1180px;
+    height: 760px;
+    translate: -50% -50%;
+    padding: 20px 26px 12px;
+    background-color: rgba(10, 13, 18, 0.95);
+}
+
+.help-body {
+    flex-grow: 1;
+}
+
+.help-title {
+    margin-bottom: 10px;
+    -unity-font-style: bold;
+    color: var(--c-accent);
+    font-size: 26px;
+}
+
+.help-section {
+    margin: 10px 0 4px;
+    -unity-font-style: bold;
+    font-size: 16px;
+}
+
+.help-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.help-cell {
+    flex-direction: row;
+    width: 100%;
+}
+
+.help-cell--half {
+    width: 50%;
+}
+
+.help-key {
+    width: 170px;
+    color: var(--c-accent);
+    font-size: 15px;
+}
+
+.help-action {
+    flex-shrink: 1;
+    font-size: 15px;
+    white-space: normal;
+}
+
+.help-tips {
+    margin-top: 12px;
+    font-size: 15px;
+}
+
+.help-close {
+    align-self: center;
+    width: 160px;
+    height: 34px;
+}
+
+/* part action window (placed at the pointer) */
+#part-window {
+    position: absolute;
+    width: 300px;
+    padding: 6px 10px 10px;
+}
+
+.part-head {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.part-title {
+    -unity-font-style: bold;
+    color: var(--c-accent);
+    font-size: 16px;
+}
+
+.part-close {
+    width: 26px;
+    height: 24px;
+    padding: 0;
+    font-size: 18px;
+}
+
+.part-info {
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+.part-action {
+    height: 28px;
+    margin-top: 4px;
+    font-size: 14px;
+}
+
+/* developer window */
+#dev-window {
+    position: absolute;
+    width: 430px;
+    padding: 14px;
+    background-color: rgba(13, 15, 20, 0.96);
+}
+
+.dev-title {
+    height: 24px;
+    -unity-font-style: bold;
+    color: var(--c-accent);
+    font-size: 17px;
+}
+
+.dev-hint {
+    height: 16px;
+    margin-bottom: 5px;
+    font-size: 12px;
+}
+
+.dev-section {
+    height: 22px;
+    margin-top: 5px;
+    -unity-font-style: bold;
+    color: var(--c-accent);
+    font-size: 14px;
+}
+
+.dev-row {
+    flex-direction: row;
+    align-items: center;
+    height: 28px;
+    margin-top: 5px;
+}
+
+.dev-btn {
+    flex-grow: 1;
+    flex-basis: 0;
+    height: 28px;
+    margin-right: 6px;
+    font-size: 14px;
+}
+
+.dev-btn--last {
+    margin-right: 0;
+}
+
+.dev-action {
+    height: 30px;
+    margin-top: 5px;
+    font-size: 14px;
+}
+
+.dev-label {
+    width: 104px;
+    font-size: 14px;
+    color: var(--c-text-dim);
+}
+
+.dev-field {
+    width: 88px;
+    height: 28px;
+    margin-right: 6px;
+}
+
+.dev-field > .unity-base-text-field__input {
+    font-size: 15px;
+}
+
+.dev-zoom-label {
+    width: 190px;
+    font-size: 14px;
+    color: var(--c-text-dim);
+}
+
+.dev-step {
+    width: 40px;
+    height: 28px;
+    font-size: 16px;
+}
+
+.dev-zoom {
+    width: 64px;
+    -unity-text-align: middle-center;
+    font-size: 15px;
+}
+
+.dev-info {
+    min-height: 36px;
+    margin-top: 5px;
+    font-size: 13px;
+    color: var(--c-text-dim);
+}
+
+/* names beside distant bodies */
+.body-label {
+    position: absolute;
+    translate: 0 -50%;
+    font-size: 13px;
+    color: var(--c-text-dim);
+    white-space: nowrap;
+}

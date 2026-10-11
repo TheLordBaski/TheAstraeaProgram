@@ -1,0 +1,81 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="FlightHud.uss" />
+    <ui:VisualElement name="hud" class="screen" picking-mode="Ignore">
+        <ui:VisualElement name="altimeter" class="panel">
+            <ui:Button name="alt-mode-btn" class="btn btn--clear fill" />
+            <ui:Label name="alt-mode" class="alt-mode text-dim" picking-mode="Ignore" text="ALT (SEA)" />
+            <ui:Label name="altitude" class="altitude" picking-mode="Ignore" text="0 m" />
+            <ui:Label name="vspeed" class="vspeed" picking-mode="Ignore" />
+            <ui:Label name="situation" class="situation text-dim" picking-mode="Ignore" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="clock" class="panel">
+            <ui:Label name="clock-text" class="clock-text wrap" picking-mode="Ignore" />
+            <ui:VisualElement class="warp-row">
+                <ui:Button name="warp-slower" class="btn warp-btn warp-btn--wide" text="◀◀" />
+                <ui:Button name="warp-stop" class="btn warp-btn" text="■" />
+                <ui:Button name="warp-faster" class="btn warp-btn warp-btn--wide" text="▶▶" />
+                <ui:Button name="warp-phys" class="btn warp-btn" text="P×" />
+                <ui:Label name="warp-text" class="warp-text" picking-mode="Ignore" text="1x" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:Label name="warp-limit" class="warp-limit" picking-mode="Ignore" />
+
+        <ui:VisualElement name="top-buttons" picking-mode="Ignore">
+            <ui:Button name="map-btn" class="btn top-btn" text="Map [M]" />
+            <ui:Button name="help-btn" class="btn top-btn" text="Help [F1]" />
+            <ui:Button name="menu-btn" class="btn top-btn" text="Menu [Esc]" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="right-column" picking-mode="Ignore">
+            <ui:VisualElement name="resources" class="panel side-panel">
+                <ui:Label name="resources-text" class="wrap" picking-mode="Ignore" />
+            </ui:VisualElement>
+            <ui:VisualElement name="flight-data" class="panel side-panel">
+                <ui:Label name="data-text" class="wrap" picking-mode="Ignore" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="target" class="panel info-panel">
+            <ui:Label name="target-text" class="wrap" picking-mode="Ignore" />
+        </ui:VisualElement>
+        <ui:VisualElement name="warnings" class="panel info-panel">
+            <ui:Label name="warnings-text" class="wrap text-warn" picking-mode="Ignore" />
+        </ui:VisualElement>
+        <ui:VisualElement name="burn" class="panel">
+            <ui:Label name="burn-text" class="wrap" picking-mode="Ignore" />
+        </ui:VisualElement>
+        <ui:VisualElement name="messages" picking-mode="Ignore" />
+        <ui:Label name="big-notice" class="big-notice" picking-mode="Ignore" />
+
+        <ui:VisualElement name="staging" class="panel">
+            <ui:Label class="staging-title text-dim" picking-mode="Ignore" text="STAGES  [Space]" />
+            <ui:ScrollView name="stage-list" class="list stage-list" />
+        </ui:VisualElement>
+        <ui:VisualElement name="eva" class="panel info-panel">
+            <ui:Label name="eva-text" class="wrap" picking-mode="Ignore" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="nav-cluster" picking-mode="Ignore">
+            <ui:VisualElement name="nav-bg" class="panel" />
+            <ui:VisualElement name="navball" />
+            <ui:VisualElement name="speed-panel" class="panel panel--light">
+                <ui:Button name="speed-mode" class="btn" text="SURF" />
+                <ui:Label name="speed" class="text-good" picking-mode="Ignore" text="0.0 m/s" />
+            </ui:VisualElement>
+            <ui:VisualElement name="throttle" class="bar bar--vertical cluster-bar">
+                <ui:VisualElement class="bar__fill" />
+            </ui:VisualElement>
+            <ui:Label name="throttle-text" class="cluster-num" picking-mode="Ignore" text="0%" />
+            <ui:Label name="thr-label" class="text-dim" picking-mode="Ignore" text="THR" />
+            <ui:VisualElement name="gmeter" class="bar bar--vertical cluster-bar">
+                <ui:VisualElement class="bar__fill" />
+            </ui:VisualElement>
+            <ui:Label name="g-text" class="cluster-num" picking-mode="Ignore" text="0.0g" />
+            <ui:Button name="sas-btn" class="btn toggle-btn" text="SAS" />
+            <ui:Button name="rcs-btn" class="btn toggle-btn" text="RCS" />
+            <ui:Button name="legs-btn" class="btn toggle-btn" text="LEGS" />
+            <ui:VisualElement name="sas-modes" picking-mode="Ignore" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

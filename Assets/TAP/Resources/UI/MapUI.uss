@@ -1,0 +1,161 @@
+/* Map view overlay: markers and node handles placed from code; the orbit panel bottom left,
+   the maneuver node editor bottom right, a click menu at the pointer. */
+.map-marker {
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    translate: -50% -50%;
+}
+
+.map-marker__icon {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+}
+
+.map-marker__label {
+    position: absolute;
+    left: 24px;
+    top: 4px;
+    width: 140px;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.map-add {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    translate: -50% -50%;
+    -unity-background-image-tint-color: rgba(77, 153, 255, 0.9);
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.map-handle {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    translate: -50% -50%;
+}
+
+.node-delete {
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    translate: -50% -50%;
+    font-size: 20px;
+}
+
+.map-hint {
+    position: absolute;
+    left: 50%;
+    top: 112px;
+    width: 1400px;
+    translate: -50% 0;
+    -unity-text-align: middle-center;
+    font-size: 14px;
+}
+
+#orbit-panel {
+    position: absolute;
+    left: 8px;
+    bottom: 8px;
+    width: 360px;
+    padding: 8px 10px 8px 12px;
+    font-size: 14px;
+}
+
+#node-panel {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    width: 420px;
+    padding: 8px 12px 12px;
+}
+
+.node-title {
+    margin-bottom: 8px;
+}
+
+.node-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.node-label {
+    width: 58px;
+    font-size: 14px;
+}
+
+.node-component {
+    width: 90px;
+    font-size: 15px;
+}
+
+.node-step {
+    width: 36px;
+    height: 30px;
+    padding: 0;
+    font-size: 18px;
+}
+
+.node-field {
+    width: 130px;
+    height: 30px;
+    margin: 0 4px;
+}
+
+.node-unit {
+    margin-left: 6px;
+    font-size: 14px;
+}
+
+.node-stepbtn {
+    width: 50px;
+    height: 26px;
+    margin-right: 4px;
+    font-size: 14px;
+}
+
+.node-step-text {
+    margin-left: 6px;
+    font-size: 14px;
+}
+
+.node-timebtn {
+    width: 40px;
+    height: 26px;
+    margin-right: 3px;
+    padding: 0;
+    font-size: 12px;
+}
+
+.node-action {
+    flex-grow: 1;
+    height: 28px;
+    margin-right: 6px;
+    font-size: 14px;
+}
+
+.node-text {
+    font-size: 14px;
+}
+
+.map-context {
+    position: absolute;
+    width: 220px;
+    padding: 6px 8px 8px;
+}
+
+.context-title {
+    margin: 0 2px 6px;
+}
+
+.context-btn {
+    height: 28px;
+    margin-bottom: 4px;
+    font-size: 14px;
+}

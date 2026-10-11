@@ -1,0 +1,518 @@
+/* Flight HUD. Positions are the old canvas layout at the 1920×1080 reference:
+   altimeter top centre, clock + warp top left, menu buttons top right, resources and flight data down the right,
+   staging (or the EVA panel) bottom left, the navball cluster bottom centre. */
+.fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+/* altimeter */
+#altimeter {
+    position: absolute;
+    left: 50%;
+    top: 8px;
+    width: 360px;
+    height: 92px;
+    translate: -50% 0;
+}
+
+.alt-mode {
+    position: absolute;
+    left: 12px;
+    top: 6px;
+    font-size: 13px;
+}
+
+.altitude {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    top: 2px;
+    height: 40px;
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+    font-size: 34px;
+}
+
+.vspeed {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    bottom: 24px;
+    height: 20px;
+    -unity-text-align: middle-center;
+    font-size: 16px;
+}
+
+.situation {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    bottom: 5px;
+    height: 18px;
+    -unity-text-align: middle-center;
+    font-size: 13px;
+}
+
+/* clock and time warp */
+#clock {
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    width: 330px;
+    height: 92px;
+}
+
+.clock-text {
+    position: absolute;
+    left: 12px;
+    top: 8px;
+    width: 310px;
+    font-size: 16px;
+}
+
+.warp-row {
+    position: absolute;
+    left: 10px;
+    bottom: 8px;
+    height: 30px;
+    flex-direction: row;
+}
+
+.warp-btn {
+    width: 40px;
+    height: 30px;
+    margin-right: 4px;
+    font-size: 15px;
+}
+
+.warp-btn--wide {
+    width: 46px;
+}
+
+.warp-text {
+    width: 90px;
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+    font-size: 18px;
+    color: var(--c-accent);
+}
+
+.warp-limit {
+    position: absolute;
+    left: 20px;
+    top: 102px;
+    font-size: 12px;
+    color: var(--c-warn);
+}
+
+/* menu buttons */
+#top-buttons {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    height: 38px;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.top-btn {
+    height: 36px;
+    margin-left: 6px;
+    font-size: 15px;
+}
+
+#map-btn {
+    width: 90px;
+}
+
+#help-btn {
+    width: 96px;
+}
+
+#menu-btn {
+    width: 104px;
+}
+
+/* resources and flight data: a column down the right edge */
+#right-column {
+    position: absolute;
+    right: 8px;
+    top: 52px;
+    width: 300px;
+}
+
+.side-panel {
+    padding: 8px 10px 8px 12px;
+    margin-bottom: 8px;
+}
+
+#resources {
+    font-size: 15px;
+}
+
+#flight-data {
+    font-size: 14px;
+}
+
+/* target, warnings, maneuver */
+.info-panel {
+    position: absolute;
+    padding: 8px 10px;
+}
+
+#target {
+    left: 8px;
+    top: 108px;
+    width: 330px;
+    font-size: 14px;
+}
+
+#warnings {
+    left: 50%;
+    top: 108px;
+    width: 520px;
+    translate: -50% 0;
+    padding: 6px 10px;
+    background-color: rgba(64, 13, 8, 0.85);
+    font-size: 15px;
+}
+
+#burn {
+    position: absolute;
+    left: 50%;
+    bottom: 342px;
+    width: 360px;
+    height: 84px;
+    translate: -50% 0;
+    justify-content: center;
+    padding: 6px 8px;
+}
+
+#burn-text {
+    -unity-text-align: middle-center;
+    font-size: 16px;
+}
+
+/* messages and the big notice */
+#messages {
+    position: absolute;
+    left: 50%;
+    top: 210px;
+    width: 760px;
+    height: 200px;
+    translate: -50% 0;
+    align-items: center;
+}
+
+.message {
+    height: 20px;
+    -unity-text-align: middle-center;
+    font-size: 15px;
+    margin-bottom: 2px;
+    white-space: nowrap;
+}
+
+.message--important {
+    height: 24px;
+    font-size: 18px;
+    -unity-font-style: bold;
+    color: var(--c-warn);
+}
+
+.big-notice {
+    position: absolute;
+    left: 50%;
+    top: 277px;
+    width: 1200px;
+    height: 50px;
+    translate: -50% 0;
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+    font-size: 30px;
+    white-space: nowrap;
+}
+
+/* staging stack (bottom left; its height follows the mission guide from code) */
+#staging {
+    position: absolute;
+    left: 8px;
+    bottom: 8px;
+    width: 250px;
+    height: 520px;
+}
+
+.staging-title {
+    position: absolute;
+    left: 10px;
+    top: 6px;
+    font-size: 14px;
+}
+
+.stage-list {
+    position: absolute;
+    left: 6px;
+    right: 6px;
+    top: 28px;
+    bottom: 6px;
+}
+
+.stage-row {
+    flex-direction: row;
+    margin-bottom: 4px;
+    padding: 4px 6px 4px 4px;
+    border-width: 0;
+}
+
+.stage-row--current {
+    background-color: rgba(31, 77, 102, 0.9);
+}
+
+.stage-row__num {
+    width: 26px;
+    height: 24px;
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+    font-size: 20px;
+    color: var(--c-text-dim);
+}
+
+.stage-row--current .stage-row__num {
+    color: var(--c-accent);
+}
+
+.stage-row__items {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 0;
+    padding-left: 4px;
+}
+
+.stage-item {
+    flex-direction: row;
+    height: 32px;
+    margin-bottom: 4px;
+}
+
+.stage-item__icon {
+    width: 28px;
+    height: 28px;
+    margin-right: 6px;
+}
+
+.stage-item__text {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.stage-item__title {
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    height: 16px;
+}
+
+.stage-item__bar {
+    width: 150px;
+    height: 8px;
+    margin-top: 4px;
+    padding: 1px;
+}
+
+/* EVA panel replaces the staging stack */
+#eva {
+    left: 8px;
+    bottom: 8px;
+    width: 400px;
+    padding: 8px 12px;
+    font-size: 16px;
+    overflow: hidden;
+}
+
+/* navball cluster */
+#nav-cluster {
+    position: absolute;
+    left: 50%;
+    bottom: 6px;
+    width: 620px;
+    height: 330px;
+    translate: -50% 0;
+}
+
+#nav-bg {
+    position: absolute;
+    left: 30px;
+    bottom: 0;
+    width: 560px;
+    height: 300px;
+}
+
+#navball {
+    position: absolute;
+    left: 192px;
+    top: 70px;
+    width: 236px;
+    height: 236px;
+}
+
+#speed-panel {
+    position: absolute;
+    left: 50%;
+    bottom: 292px;
+    width: 250px;
+    height: 36px;
+    translate: -50% 0;
+}
+
+#speed-mode {
+    position: absolute;
+    left: 1px;
+    top: 1px;
+    width: 64px;
+    height: 30px;
+    font-size: 13px;
+}
+
+#speed {
+    position: absolute;
+    right: 10px;
+    top: 1px;
+    width: 170px;
+    height: 30px;
+    -unity-text-align: middle-right;
+    -unity-font-style: bold;
+    font-size: 21px;
+}
+
+.cluster-bar {
+    position: absolute;
+    bottom: 150px;
+    height: 200px;
+}
+
+#throttle {
+    left: 141px;
+    width: 22px;
+}
+
+#gmeter {
+    left: 113px;
+    width: 14px;
+}
+
+.cluster-num {
+    position: absolute;
+    bottom: 36px;
+    height: 20px;
+    -unity-text-align: middle-center;
+}
+
+#throttle-text {
+    left: 122px;
+    width: 60px;
+    font-size: 14px;
+}
+
+#g-text {
+    left: 89px;
+    width: 50px;
+    font-size: 13px;
+}
+
+#thr-label {
+    position: absolute;
+    left: 122px;
+    width: 60px;
+    bottom: 264px;
+    height: 16px;
+    -unity-text-align: middle-center;
+    font-size: 12px;
+}
+
+.toggle-btn {
+    position: absolute;
+    left: 39px;
+    width: 62px;
+    height: 30px;
+    font-size: 15px;
+}
+
+#sas-btn {
+    bottom: 250px;
+}
+
+#rcs-btn {
+    bottom: 214px;
+}
+
+#legs-btn {
+    bottom: 178px;
+}
+
+#sas-modes {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.sas-mode {
+    position: absolute;
+    width: 36px;
+    height: 34px;
+    font-size: 12px;
+    padding: 0;
+}
+
+/* navball widget */
+.navball__bezel {
+    position: absolute;
+    left: -8px;
+    top: -8px;
+    right: -8px;
+    bottom: -8px;
+    border-radius: 50%;
+    background-color: rgb(20, 23, 28);
+}
+
+.navball__ball {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.navball__marker {
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    translate: -50% -50%;
+}
+
+.navball__level {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 64px;
+    height: 64px;
+    translate: -50% -50%;
+}
+
+.navball__heading {
+    position: absolute;
+    left: 50%;
+    top: -27px;
+    width: 120px;
+    height: 22px;
+    translate: -50% 0;
+    -unity-text-align: middle-center;
+    font-size: 17px;
+}

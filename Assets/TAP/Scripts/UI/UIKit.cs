@@ -1,19 +1,23 @@
 using System;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
-using UnityEngine.UI;
+using UnityEngine.TextCore.Text;
+using UnityEngine.UIElements;
 
 namespace TAP.UI
 {
-    /// <summary>Code-built uGUI toolkit with a consistent dark "mission control" style.</summary>
+    /// <summary>
+    /// UI Toolkit kit for the game screens. Every screen is a UIDocument on one shared panel (1920×1080 reference,
+    /// scaled like the old canvases), styled by Resources/UI/Theme.uss. The colours below match the theme tokens and
+    /// are used where code writes rich text.
+    /// </summary>
     public static class UIKit
     {
         public static readonly Color PanelColor = new Color(0.055f, 0.07f, 0.095f, 0.88f);
         public static readonly Color PanelLight = new Color(0.11f, 0.14f, 0.19f, 0.92f);
-        public static readonly Color Border = new Color(0.35f, 0.55f, 0.75f, 0.35f);
         public static readonly Color Accent = new Color(0.32f, 0.78f, 1f, 1f);
         public static readonly Color AccentDim = new Color(0.2f, 0.45f, 0.62f, 1f);
         public static readonly Color TextColor = new Color(0.9f, 0.93f, 0.97f, 1f);
@@ -21,88 +25,120 @@ namespace TAP.UI
         public static readonly Color Good = new Color(0.4f, 0.9f, 0.5f, 1f);
         public static readonly Color Warn = new Color(1f, 0.75f, 0.25f, 1f);
         public static readonly Color Bad = new Color(1f, 0.35f, 0.3f, 1f);
-        public static readonly Color ButtonColor = new Color(0.14f, 0.19f, 0.26f, 0.95f);
-        public static readonly Color ButtonHover = new Color(0.2f, 0.3f, 0.42f, 1f);
-        public static readonly Color ButtonActive = new Color(0.16f, 0.45f, 0.62f, 1f);
 
-        private static TMP_FontAsset _font;
-        private static Sprite _panel, _outline, _circle;
+        private static PanelSettings _panelSettings;
+        private static IPanel _panel;
         private static readonly Dictionary<string, Sprite> Icons = new Dictionary<string, Sprite>();
 
-        public static TMP_FontAsset Font
+        /// <summary>The panel all game screens share (null until the first document exists).</summary>
+        public static IPanel Panel => _panel;
+
+        public static PanelSettings PanelSettings
         {
             get
             {
-                if (_font == null)
-                {
-                    _font = Resources.Load<TMP_FontAsset>("Fonts & Materials/LiberationSans SDF");
-                    if (_font == null) _font = TMP_Settings.defaultFontAsset;
-                    AddSymbolFallback(_font);
-                }
-                return _font;
+                if (_panelSettings == null) _panelSettings = CreatePanelSettings();
+                return _panelSettings;
             }
         }
 
-        private static bool _symbolFallbackTried;
-        private const string RuntimeSymbolFontName = "TAP Symbols (runtime)";
+        private static PanelSettings CreatePanelSettings()
+        {
+            var ps = ScriptableObject.CreateInstance<PanelSettings>();
+            ps.name = "TAP Game Panel";
+            ps.themeStyleSheet = Resources.Load<ThemeStyleSheet>("UI/GameTheme");
+            if (ps.themeStyleSheet == null) Debug.LogError("UI theme Resources/UI/GameTheme.tss is missing");
+            ps.scaleMode = PanelScaleMode.ScaleWithScreenSize;
+            ps.referenceResolution = new Vector2Int(1920, 1080);
+            ps.screenMatchMode = PanelScreenMatchMode.MatchWidthOrHeight;
+            ps.match = 0.5f;
+            ps.clearColor = false;
+            ps.textSettings = CreateTextSettings();
+            return ps;
+        }
 
         /// <summary>
-        /// The bundled SDF font lacks symbols such as ✔ ▶ ⚠ ≈. A dynamic font asset built from an installed
-        /// system font (Segoe UI Symbol on Windows) is added as a runtime fallback so they render.
+        /// Liberation Sans lacks symbols such as ✔ ▶ ⚠ ≈ █. A dynamic font asset made from an installed system font
+        /// (Segoe UI Symbol on Windows, DejaVu Sans on Linux) is the panel's fallback, so they render.
         /// </summary>
-        private static void AddSymbolFallback(TMP_FontAsset font)
+        private static PanelTextSettings CreateTextSettings()
         {
-            if (_symbolFallbackTried || font == null || !Application.isPlaying) return;
-            _symbolFallbackTried = true;
-            try
+            var ts = ScriptableObject.CreateInstance<PanelTextSettings>();
+            ts.name = "TAP Text Settings";
+            var fallbacks = new List<FontAsset>();
+            foreach (var family in new[] { "Segoe UI Symbol", "DejaVu Sans", "Noto Sans Symbols2", "Segoe UI", "Arial Unicode MS" })
             {
-                // In the editor the font asset outlives play sessions: drop fallbacks created by earlier sessions
-                // (their runtime materials are gone even if the asset object survives).
-                font.fallbackFontAssetTable?.RemoveAll(f => f == null || f.material == null || f.name == RuntimeSymbolFontName);
-                foreach (var family in new[] { "Segoe UI Symbol", "Segoe UI", "Arial Unicode MS", "DejaVu Sans" })
+                try
                 {
-                    var fa = TMP_FontAsset.CreateFontAsset(family, "Regular");
+                    var fa = FontAsset.CreateFontAsset(family, "Regular", 90);
                     if (fa == null) continue;
-                    fa.name = RuntimeSymbolFontName;
+                    fa.name = "TAP Symbols (" + family + ")";
                     fa.hideFlags = HideFlags.DontSave;
-                    if (font.fallbackFontAssetTable == null) font.fallbackFontAssetTable = new List<TMP_FontAsset>();
-                    font.fallbackFontAssetTable.Add(fa);
-                    return;
+                    fallbacks.Add(fa);
+                    break;
+                }
+                catch (Exception e)
+                {
+                    Debug.LogWarning($"Symbol font {family} unavailable: {e.Message}");
                 }
             }
-            catch (Exception e)
-            {
-                Debug.LogWarning("Symbol font fallback unavailable: " + e.Message);
-            }
+            ts.fallbackFontAssets = fallbacks;
+            return ts;
         }
 
-        public static Sprite PanelSprite => _panel != null ? _panel : (_panel = Resources.Load<Sprite>("Textures/UI/panel"));
-        public static Sprite OutlineSprite => _outline != null ? _outline : (_outline = Resources.Load<Sprite>("Textures/UI/panel_outline"));
-        public static Sprite CircleSprite => _circle != null ? _circle : (_circle = Resources.Load<Sprite>("Textures/UI/circle"));
-
-        public static Sprite Icon(string name)
-        {
-            if (Icons.TryGetValue(name, out var s)) return s;
-            s = Resources.Load<Sprite>("Textures/Icons/" + name);
-            Icons[name] = s;
-            return s;
-        }
-
-        // ------------------------------------------------------------------ roots
-
-        public static Canvas CreateCanvas(string name, int sortOrder)
+        /// <summary>
+        /// Creates a screen: a UIDocument on the shared panel with the UXML from Resources/UI/&lt;uxml&gt;.
+        /// Its root lets the pointer through to the world; only panels and controls take clicks.
+        /// </summary>
+        public static UIDocument CreateDocument(string name, int sortingOrder, string uxml = null, string uss = null)
         {
             EnsureEventSystem();
-            var go = new GameObject(name, typeof(RectTransform));
-            var canvas = go.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.sortingOrder = sortOrder;
-            var scaler = go.AddComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920, 1080);
-            scaler.matchWidthOrHeight = 0.5f;
-            go.AddComponent<GraphicRaycaster>();
-            return canvas;
+            var go = new GameObject(name);
+            go.SetActive(false);
+            var doc = go.AddComponent<UIDocument>();
+            doc.panelSettings = PanelSettings;
+            doc.sortingOrder = sortingOrder;
+            if (uxml != null)
+            {
+                var tree = Resources.Load<VisualTreeAsset>("UI/" + uxml);
+                if (tree == null) Debug.LogError($"UI layout Resources/UI/{uxml}.uxml is missing");
+                doc.visualTreeAsset = tree;
+            }
+            go.SetActive(true);
+            var root = doc.rootVisualElement;
+            root.pickingMode = PickingMode.Ignore;
+            root.AddToClassList("screen");
+            if (uss != null)
+            {
+                var sheet = Resources.Load<StyleSheet>("UI/" + uss);
+                if (sheet == null) Debug.LogError($"UI style Resources/UI/{uss}.uss is missing");
+                else root.styleSheets.Add(sheet);
+            }
+            Prepare(root);
+            if (_panel == null || _panel != root.panel) _panel = root.panel;
+            return doc;
+        }
+
+        /// <summary>
+        /// Readies a subtree: our buttons drop Unity's default button style and keyboard focus (Space and Enter must
+        /// never press a button: Space stages the rocket), text fields capture the keyboard while focused, and scroll
+        /// lists stop the camera from zooming while the pointer is over them. Safe to call again on new content.
+        /// </summary>
+        public static void Prepare(VisualElement root)
+        {
+            root.Query<Button>().ForEach(b =>
+            {
+                b.focusable = false;
+                if (b.ClassListContains("btn")) b.RemoveFromClassList(UnityEngine.UIElements.Button.ussClassName);
+            });
+            root.Query<TextField>().ForEach(CaptureKeyboard);
+            root.Query<ScrollView>().ForEach(sv =>
+            {
+                // Lists scroll vertically only; long rows clip instead of scrolling sideways.
+                sv.mode = ScrollViewMode.Vertical;
+                sv.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
+                BlockCameraScroll(sv);
+            });
         }
 
         public static void EnsureEventSystem()
@@ -113,274 +149,153 @@ namespace TAP.UI
             es.AddComponent<InputSystemUIInputModule>();
         }
 
-        // ------------------------------------------------------------------ layout primitives
+        // ------------------------------------------------------------------ elements
 
-        public static RectTransform Rect(Transform parent, string name)
+        public static Label Label(string text, string classes = null)
         {
-            var go = new GameObject(name, typeof(RectTransform));
-            go.transform.SetParent(parent, false);
-            return (RectTransform)go.transform;
+            var l = new Label(text) { enableRichText = true, pickingMode = PickingMode.Ignore };
+            AddClasses(l, classes);
+            return l;
         }
 
-        /// <summary>Anchors a rect at a normalized anchor point with a pivot, offset and size.</summary>
-        public static RectTransform Place(RectTransform rt, Vector2 anchor, Vector2 pivot, Vector2 pos, Vector2 size)
+        public static Button Button(string text, Action onClick, string classes = null)
         {
-            rt.anchorMin = anchor;
-            rt.anchorMax = anchor;
-            rt.pivot = pivot;
-            rt.anchoredPosition = pos;
-            rt.sizeDelta = size;
-            return rt;
+            var b = new Button(onClick) { text = text, focusable = false };
+            b.RemoveFromClassList(UnityEngine.UIElements.Button.ussClassName);
+            b.AddToClassList("btn");
+            AddClasses(b, classes);
+            return b;
         }
 
-        public static RectTransform Stretch(RectTransform rt, float left = 0, float right = 0, float top = 0, float bottom = 0)
+        public static VisualElement Element(string classes = null, string name = null)
         {
-            rt.anchorMin = Vector2.zero;
-            rt.anchorMax = Vector2.one;
-            rt.offsetMin = new Vector2(left, bottom);
-            rt.offsetMax = new Vector2(-right, -top);
-            return rt;
+            var e = new VisualElement();
+            if (name != null) e.name = name;
+            AddClasses(e, classes);
+            return e;
         }
 
-        public static Image Panel(Transform parent, string name, Color? color = null, bool outline = true)
+        public static Image Image(Sprite sprite, Color? tint = null, string classes = null)
         {
-            var rt = Rect(parent, name);
-            var img = rt.gameObject.AddComponent<Image>();
-            img.sprite = PanelSprite;
-            img.type = UnityEngine.UI.Image.Type.Sliced;
-            img.color = color ?? PanelColor;
-            img.raycastTarget = true;
-            if (outline && OutlineSprite != null)
-            {
-                var o = Rect(rt, "Outline");
-                Stretch(o);
-                o.gameObject.AddComponent<LayoutElement>().ignoreLayout = true; // decoration, not a row of a layout group
-                var oi = o.gameObject.AddComponent<Image>();
-                oi.sprite = OutlineSprite;
-                oi.type = UnityEngine.UI.Image.Type.Sliced;
-                oi.color = Border;
-                oi.raycastTarget = false;
-            }
+            var img = new Image { sprite = sprite, tintColor = tint ?? Color.white, scaleMode = ScaleMode.ScaleToFit, pickingMode = PickingMode.Ignore };
+            AddClasses(img, classes);
             return img;
         }
 
-        public static TextMeshProUGUI Label(Transform parent, string text, float size = 18, Color? color = null,
-            TextAlignmentOptions align = TextAlignmentOptions.Left, FontStyles style = FontStyles.Normal)
+        /// <summary>A track with a fill; set it with <see cref="SetBar"/>.</summary>
+        public static VisualElement Bar(bool vertical = false, string classes = null)
         {
-            var rt = Rect(parent, "Label");
-            var t = rt.gameObject.AddComponent<TextMeshProUGUI>();
-            t.font = Font;
-            t.text = text;
-            t.fontSize = size;
-            t.color = color ?? TextColor;
-            t.alignment = align;
-            t.fontStyle = style;
-            t.raycastTarget = false;
-            t.textWrappingMode = TextWrappingModes.NoWrap;
-            t.overflowMode = TextOverflowModes.Overflow;
-            t.richText = true;
-            return t;
+            var bar = Element("bar" + (vertical ? " bar--vertical" : ""));
+            bar.Add(Element("bar__fill"));
+            AddClasses(bar, classes);
+            return bar;
         }
 
-        public static Image Image(Transform parent, Sprite sprite, Color? color = null, string name = "Image")
+        public static void SetBar(VisualElement bar, float fraction, Color color)
         {
-            var rt = Rect(parent, name);
-            var img = rt.gameObject.AddComponent<Image>();
-            img.sprite = sprite;
-            img.color = color ?? Color.white;
-            img.raycastTarget = false;
-            img.preserveAspect = true;
-            return img;
+            var fill = bar.ElementAt(0);
+            float pct = Mathf.Clamp01(fraction) * 100f;
+            if (bar.ClassListContains("bar--vertical")) fill.style.height = Length.Percent(pct);
+            else fill.style.width = Length.Percent(pct);
+            fill.style.backgroundColor = color;
         }
 
-        public sealed class ButtonRef
+        public static TextField Field(string value, string classes = null)
         {
-            public Button Button;
-            public Image Background;
-            public TextMeshProUGUI Text;
-            public Image Icon;
-            public RectTransform Rect => (RectTransform)Button.transform;
-            public bool Active;
-            public void SetActive(bool on)
+            var f = new TextField { value = value ?? "" };
+            f.AddToClassList("field");
+            AddClasses(f, classes);
+            CaptureKeyboard(f);
+            return f;
+        }
+
+        public static void AddClasses(VisualElement e, string classes)
+        {
+            if (string.IsNullOrEmpty(classes)) return;
+            foreach (var c in classes.Split(' ')) if (c.Length > 0) e.AddToClassList(c);
+        }
+
+        /// <summary>The nearest ancestor (or the element itself) carrying a USS class.</summary>
+        public static VisualElement Ancestor(VisualElement e, string className)
+        {
+            for (var p = e; p != null; p = p.parent) if (p.ClassListContains(className)) return p;
+            return null;
+        }
+
+        public static void Show(VisualElement e, bool on)
+        {
+            var d = on ? DisplayStyle.Flex : DisplayStyle.None;
+            if (e.style.display.keyword != StyleKeyword.Undefined && e.style.display.value == d) return;
+            e.style.display = d;
+        }
+
+        public static bool Shown(VisualElement e) =>
+            e.style.display.keyword == StyleKeyword.Undefined ? e.resolvedStyle.display != DisplayStyle.None : e.style.display.value != DisplayStyle.None;
+
+        public static void SetOn(VisualElement e, bool on) => e.EnableInClassList("on", on);
+
+        /// <summary>Places an absolutely positioned element at panel coordinates (its own pivot via USS translate).</summary>
+        public static void Place(VisualElement e, Vector2 panelPos)
+        {
+            e.style.left = panelPos.x;
+            e.style.top = panelPos.y;
+        }
+
+        public static Sprite Icon(string name)
+        {
+            if (Icons.TryGetValue(name, out var s)) return s;
+            s = Resources.Load<Sprite>("Textures/Icons/" + name);
+            Icons[name] = s;
+            return s;
+        }
+
+        // ------------------------------------------------------------------ input
+
+        public static Vector2 MouseScreen => Mouse.current != null ? Mouse.current.position.ReadValue() : Vector2.zero;
+
+        /// <summary>Screen pixels (origin bottom left, as the Input System and cameras use) to panel coordinates.</summary>
+        public static Vector2 ScreenToPanel(Vector2 screen) =>
+            _panel == null ? new Vector2(screen.x, Screen.height - screen.y) : RuntimePanelUtils.ScreenToPanel(_panel, new Vector2(screen.x, Screen.height - screen.y));
+
+        /// <summary>The element under a screen point that takes the pointer, or null over the world.</summary>
+        public static VisualElement Pick(Vector2 screen) => _panel?.Pick(ScreenToPanel(screen));
+
+        public static bool PointerOverUi() => Pick(MouseScreen) != null;
+
+        /// <summary>The panel's size in panel units (the 1920×1080 reference stretched to the screen's aspect).</summary>
+        public static Vector2 PanelSize(VisualElement anyElement)
+        {
+            var r = anyElement.panel?.visualTree?.layout ?? new Rect(0, 0, 1920, 1080);
+            return r.size;
+        }
+
+        /// <summary>While a text field has focus the game ignores the keyboard (flight and editor keys).</summary>
+        public static void CaptureKeyboard(TextField f)
+        {
+            if (f.ClassListContains("kb-capture")) return;
+            f.AddToClassList("kb-capture");
+            f.RegisterCallback<FocusInEvent>(_ => TAP.Game.UiState.KeyboardCaptured = true);
+            f.RegisterCallback<FocusOutEvent>(_ => TAP.Game.UiState.KeyboardCaptured = false);
+            f.RegisterCallback<DetachFromPanelEvent>(_ => { if (f.focusController?.focusedElement == f) TAP.Game.UiState.KeyboardCaptured = false; });
+            f.RegisterCallback<KeyDownEvent>(e =>
             {
-                Active = on;
-                Background.color = on ? ButtonActive : ButtonColor;
-                var cb = Button.colors;
-                cb.normalColor = Color.white;
-                Button.colors = cb;
-            }
-            public void SetInteractable(bool on) { Button.interactable = on; if (Text != null) Text.color = on ? TextColor : TextDim; }
+                if (e.keyCode == KeyCode.Escape || e.keyCode == KeyCode.Return || e.keyCode == KeyCode.KeypadEnter) f.Blur();
+            }, TrickleDown.TrickleDown);
         }
 
-        public static ButtonRef Button(Transform parent, string label, Action onClick, float fontSize = 17, Sprite icon = null)
+        /// <summary>The camera does not zoom while the pointer is over a scroll list.</summary>
+        public static void BlockCameraScroll(VisualElement e)
         {
-            var rt = Rect(parent, "Button " + label);
-            var bg = rt.gameObject.AddComponent<Image>();
-            bg.sprite = PanelSprite;
-            bg.type = UnityEngine.UI.Image.Type.Sliced;
-            bg.color = ButtonColor;
-            var btn = rt.gameObject.AddComponent<Button>();
-            btn.targetGraphic = bg;
-            var colors = btn.colors;
-            colors.normalColor = Color.white;
-            colors.highlightedColor = new Color(1.35f, 1.35f, 1.4f, 1f);
-            colors.pressedColor = new Color(0.8f, 0.9f, 1f, 1f);
-            colors.selectedColor = Color.white;
-            colors.disabledColor = new Color(0.6f, 0.6f, 0.6f, 0.6f);
-            colors.colorMultiplier = 1.4f;
-            btn.colors = colors;
-            if (onClick != null) btn.onClick.AddListener(() => onClick());
-            var r = new ButtonRef { Button = btn, Background = bg };
-            if (icon != null)
-            {
-                r.Icon = Image(rt, icon, TextColor, "Icon");
-                Stretch(r.Icon.rectTransform, 4, 4, 4, 4);
-            }
-            if (!string.IsNullOrEmpty(label))
-            {
-                r.Text = Label(rt, label, fontSize, TextColor, TextAlignmentOptions.Center);
-                Stretch(r.Text.rectTransform, 4, 4, 2, 2);
-            }
-            // Keep keyboard focus out of buttons so Space/Enter never re-trigger them.
-            var nav = btn.navigation;
-            nav.mode = Navigation.Mode.None;
-            btn.navigation = nav;
-            return r;
+            if (e.ClassListContains("scroll-blocks-camera")) return;
+            e.AddToClassList("scroll-blocks-camera");
+            e.RegisterCallback<PointerEnterEvent>(_ => TAP.Game.FlightCamera.UiBlocksScroll = true);
+            e.RegisterCallback<PointerLeaveEvent>(_ => TAP.Game.FlightCamera.UiBlocksScroll = false);
+            e.RegisterCallback<DetachFromPanelEvent>(_ => TAP.Game.FlightCamera.UiBlocksScroll = false);
         }
 
-        public sealed class BarRef
-        {
-            public Image Back, Fill;
-            public TextMeshProUGUI Text;
-            public void Set(float fraction, Color color, string text = null)
-            {
-                Fill.fillAmount = Mathf.Clamp01(fraction);
-                Fill.color = color;
-                if (Text != null && text != null) Text.text = text;
-            }
-        }
+        public static void Tooltip(VisualElement e, Func<string> text) => TooltipView.Register(e, text);
 
-        public static BarRef Bar(Transform parent, bool vertical = false, bool withText = false, float textSize = 13)
-        {
-            var rt = Rect(parent, "Bar");
-            var back = rt.gameObject.AddComponent<Image>();
-            back.sprite = PanelSprite;
-            back.type = UnityEngine.UI.Image.Type.Sliced;
-            back.color = new Color(0, 0, 0, 0.55f);
-            back.raycastTarget = false;
-            var f = Rect(rt, "Fill");
-            Stretch(f, 2, 2, 2, 2);
-            var fill = f.gameObject.AddComponent<Image>();
-            fill.sprite = Texture2DSprite.White;
-            fill.type = UnityEngine.UI.Image.Type.Filled;
-            fill.fillMethod = vertical ? UnityEngine.UI.Image.FillMethod.Vertical : UnityEngine.UI.Image.FillMethod.Horizontal;
-            fill.fillOrigin = 0;
-            fill.raycastTarget = false;
-            var r = new BarRef { Back = back, Fill = fill };
-            if (withText)
-            {
-                r.Text = Label(rt, "", textSize, TextColor, TextAlignmentOptions.Center);
-                Stretch(r.Text.rectTransform, 2, 2, 0, 0);
-            }
-            return r;
-        }
-
-        public static TMP_InputField Input(Transform parent, string initial, Action<string> onEnd, float size = 17)
-        {
-            var rt = Rect(parent, "Input");
-            var bg = rt.gameObject.AddComponent<Image>();
-            bg.sprite = PanelSprite;
-            bg.type = UnityEngine.UI.Image.Type.Sliced;
-            bg.color = new Color(0.02f, 0.03f, 0.05f, 0.9f);
-            var area = Rect(rt, "Text Area");
-            Stretch(area, 8, 8, 2, 2);
-            area.gameObject.AddComponent<RectMask2D>();
-            var text = Label(area, "", size, TextColor, TextAlignmentOptions.Left);
-            Stretch(text.rectTransform);
-            var field = rt.gameObject.AddComponent<TMP_InputField>();
-            field.textViewport = area;
-            field.textComponent = text;
-            field.fontAsset = Font;
-            field.pointSize = size;
-            field.text = initial;
-            field.onSelect.AddListener(_ => TAP.Game.UiState.KeyboardCaptured = true);
-            field.onDeselect.AddListener(_ => TAP.Game.UiState.KeyboardCaptured = false);
-            field.onEndEdit.AddListener(s => { TAP.Game.UiState.KeyboardCaptured = false; onEnd?.Invoke(s); });
-            return field;
-        }
-
-        public static ScrollRect ScrollList(Transform parent, out RectTransform content, float spacing = 4)
-        {
-            var rt = Rect(parent, "Scroll");
-            var sr = rt.gameObject.AddComponent<ScrollRect>();
-            sr.horizontal = false;
-            sr.movementType = ScrollRect.MovementType.Clamped;
-            sr.scrollSensitivity = 28;
-            var vp = Rect(rt, "Viewport");
-            Stretch(vp);
-            vp.gameObject.AddComponent<RectMask2D>();
-            var vpImg = vp.gameObject.AddComponent<Image>();
-            vpImg.color = new Color(0, 0, 0, 0.001f);
-            content = Rect(vp, "Content");
-            content.anchorMin = new Vector2(0, 1);
-            content.anchorMax = new Vector2(1, 1);
-            content.pivot = new Vector2(0.5f, 1);
-            content.sizeDelta = new Vector2(0, 0);
-            var vl = content.gameObject.AddComponent<VerticalLayoutGroup>();
-            vl.spacing = spacing;
-            vl.childControlHeight = true;
-            vl.childControlWidth = true;
-            vl.childForceExpandHeight = false;
-            vl.childForceExpandWidth = true;
-            vl.padding = new RectOffset(2, 2, 2, 2);
-            var fitter = content.gameObject.AddComponent<ContentSizeFitter>();
-            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            sr.viewport = vp;
-            sr.content = content;
-            rt.gameObject.AddComponent<ScrollBlocker>();
-            return sr;
-        }
-
-        public static LayoutElement Size(Component c, float height, float width = -1)
-        {
-            var le = c.gameObject.GetComponent<LayoutElement>();
-            if (le == null) le = c.gameObject.AddComponent<LayoutElement>();
-            le.preferredHeight = height;
-            le.minHeight = height;
-            if (width >= 0) { le.preferredWidth = width; le.minWidth = width; }
-            return le;
-        }
-
-        public static VerticalLayoutGroup VLayout(Component c, float spacing = 4, int pad = 8)
-        {
-            var v = c.gameObject.AddComponent<VerticalLayoutGroup>();
-            v.spacing = spacing;
-            v.padding = new RectOffset(pad, pad, pad, pad);
-            v.childControlHeight = true;
-            v.childControlWidth = true;
-            v.childForceExpandHeight = false;
-            v.childForceExpandWidth = true;
-            return v;
-        }
-
-        public static HorizontalLayoutGroup HLayout(Component c, float spacing = 4, int pad = 4)
-        {
-            var h = c.gameObject.AddComponent<HorizontalLayoutGroup>();
-            h.spacing = spacing;
-            h.padding = new RectOffset(pad, pad, pad, pad);
-            h.childControlHeight = true;
-            h.childControlWidth = true;
-            h.childForceExpandHeight = true;
-            h.childForceExpandWidth = false;
-            return h;
-        }
-
-        public static void Tooltip(GameObject go, Func<string> text)
-        {
-            var t = go.GetComponent<TooltipTrigger>();
-            if (t == null) t = go.AddComponent<TooltipTrigger>();
-            t.Text = text;
-        }
+        // ------------------------------------------------------------------ text
 
         public static string Fmt(double v, string unit, int decimals = 0)
         {
@@ -391,125 +306,117 @@ namespace TAP.UI
         public static string Hex(Color c) => ColorUtility.ToHtmlStringRGB(c);
     }
 
-    /// <summary>Lazily created 4x4 white sprite (for fills).</summary>
-    public static class Texture2DSprite
-    {
-        private static Sprite _white;
-        public static Sprite White
-        {
-            get
-            {
-                if (_white == null)
-                {
-                    var t = new Texture2D(4, 4);
-                    var px = new Color[16];
-                    for (int i = 0; i < 16; i++) px[i] = Color.white;
-                    t.SetPixels(px);
-                    t.Apply();
-                    _white = Sprite.Create(t, new Rect(0, 0, 4, 4), new Vector2(0.5f, 0.5f));
-                }
-                return _white;
-            }
-        }
-    }
-
-    /// <summary>Prevents camera zoom while scrolling a UI list.</summary>
-    public sealed class ScrollBlocker : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
-    {
-        public void OnPointerEnter(PointerEventData e) { TAP.Game.FlightCamera.UiBlocksScroll = true; }
-        public void OnPointerExit(PointerEventData e) { TAP.Game.FlightCamera.UiBlocksScroll = false; }
-        private void OnDisable() { TAP.Game.FlightCamera.UiBlocksScroll = false; }
-    }
-
-    /// <summary>
-    /// Drag handle for a window (put it on the title): dragging moves <see cref="Target"/>, keeping at least part of it
-    /// on screen; <see cref="Moved"/> reports the new anchored position when the drag ends.
-    /// </summary>
-    public sealed class DragWindow : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
-    {
-        public RectTransform Target;
-        public Action<Vector2> Moved;
-        private Canvas _canvas;
-        private readonly Vector3[] _corners = new Vector3[4];
-
-        public void OnBeginDrag(PointerEventData e) { _canvas = GetComponentInParent<Canvas>(); }
-
-        public void OnDrag(PointerEventData e)
-        {
-            if (Target == null) return;
-            float scale = _canvas != null ? _canvas.scaleFactor : 1f;
-            Target.anchoredPosition += e.delta / scale;
-            // Keep the title reachable: 80 px of the window inside the screen horizontally, its top edge on screen.
-            Target.GetWorldCorners(_corners);
-            float keep = 80f * scale;
-            Vector2 shift = Vector2.zero;
-            if (_corners[2].x < keep) shift.x = keep - _corners[2].x;
-            else if (_corners[0].x > Screen.width - keep) shift.x = Screen.width - keep - _corners[0].x;
-            if (_corners[1].y > Screen.height) shift.y = Screen.height - _corners[1].y;
-            else if (_corners[1].y < keep) shift.y = keep - _corners[1].y;
-            Target.anchoredPosition += shift / scale;
-        }
-
-        public void OnEndDrag(PointerEventData e) { if (Target != null) Moved?.Invoke(Target.anchoredPosition); }
-    }
-
-    /// <summary>Hover tooltip source.</summary>
-    public sealed class TooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
-    {
-        public Func<string> Text;
-        public void OnPointerEnter(PointerEventData e) { TooltipView.Show(this); }
-        public void OnPointerExit(PointerEventData e) { TooltipView.Hide(this); }
-        private void OnDisable() { TooltipView.Hide(this); }
-    }
-
-    /// <summary>Single floating tooltip that follows the mouse.</summary>
+    /// <summary>Single floating tooltip that follows the pointer, on its own document above every screen.</summary>
     public sealed class TooltipView : MonoBehaviour
     {
         private static TooltipView _instance;
-        private static TooltipTrigger _current;
-        private RectTransform _rt;
-        private TextMeshProUGUI _text;
-        private Canvas _canvas;
+        private VisualElement _box;
+        private Label _text;
+        private VisualElement _source;
+        private Func<string> _func;
         private float _shownAt;
 
-        public static void Ensure()
+        private static TooltipView Instance
         {
-            if (_instance != null) return;
-            var canvas = UIKit.CreateCanvas("TooltipCanvas", 500);
-            _instance = canvas.gameObject.AddComponent<TooltipView>();
-            _instance._canvas = canvas;
-            var panel = UIKit.Panel(canvas.transform, "Tooltip", new Color(0.03f, 0.04f, 0.06f, 0.96f));
-            panel.raycastTarget = false;
-            _instance._rt = panel.rectTransform;
-            _instance._rt.pivot = new Vector2(0, 1);
-            _instance._text = UIKit.Label(panel.transform, "", 15, UIKit.TextColor);
-            _instance._text.textWrappingMode = TextWrappingModes.Normal;
-            UIKit.Stretch(_instance._text.rectTransform, 10, 10, 8, 8);
-            panel.gameObject.SetActive(false);
+            get
+            {
+                if (_instance == null)
+                {
+                    var doc = UIKit.CreateDocument("Tooltip", 500);
+                    _instance = doc.gameObject.AddComponent<TooltipView>();
+                    _instance._box = UIKit.Element("tooltip panel panel--deep");
+                    _instance._box.pickingMode = PickingMode.Ignore;
+                    _instance._text = UIKit.Label("", "wrap");
+                    _instance._box.Add(_instance._text);
+                    UIKit.Show(_instance._box, false);
+                    doc.rootVisualElement.Add(_instance._box);
+                }
+                return _instance;
+            }
         }
 
-        public static void Show(TooltipTrigger t) { Ensure(); _current = t; _instance._shownAt = Time.unscaledTime; }
-        public static void Hide(TooltipTrigger t) { if (_current == t) _current = null; }
+        public static void Register(VisualElement e, Func<string> text)
+        {
+            e.RegisterCallback<PointerEnterEvent>(_ => { var t = Instance; t._source = e; t._func = text; t._shownAt = Time.unscaledTime; });
+            e.RegisterCallback<PointerLeaveEvent>(_ => { if (_instance != null && _instance._source == e) _instance._source = null; });
+            e.RegisterCallback<DetachFromPanelEvent>(_ => { if (_instance != null && _instance._source == e) _instance._source = null; });
+        }
 
         private void Update()
         {
-            bool show = _current != null && _current.isActiveAndEnabled && _current.Text != null && Time.unscaledTime - _shownAt > 0.35f;
-            if (!show) { if (_rt.gameObject.activeSelf) _rt.gameObject.SetActive(false); return; }
-            string s = _current.Text();
-            if (string.IsNullOrEmpty(s)) { _rt.gameObject.SetActive(false); return; }
-            if (!_rt.gameObject.activeSelf) _rt.gameObject.SetActive(true);
-            _text.text = s;
-            float scale = _canvas.scaleFactor;
-            var pref = _text.GetPreferredValues(s, 380, 0);
-            float w = Mathf.Min(400, pref.x + 22), h = _text.GetPreferredValues(s, w - 20, 0).y + 18;
-            _rt.sizeDelta = new Vector2(w, h);
-            Vector2 mp = UnityEngine.InputSystem.Mouse.current != null ? UnityEngine.InputSystem.Mouse.current.position.ReadValue() : Vector2.zero;
-            Vector2 pos = mp / scale + new Vector2(16, -16);
-            Vector2 screen = new Vector2(Screen.width, Screen.height) / scale;
-            if (pos.x + w > screen.x) pos.x = screen.x - w - 4;
-            if (pos.y - h < 0) pos.y = h + 4;
-            _rt.anchorMin = _rt.anchorMax = Vector2.zero;
-            _rt.anchoredPosition = pos;
+            Vector2 mouse = UIKit.ScreenToPanel(UIKit.MouseScreen);
+            // The source must still be on screen under the pointer (hidden or moved elements end their tooltip).
+            bool show = _source != null && _source.panel != null && _func != null && _source.worldBound.Contains(mouse)
+                        && Time.unscaledTime - _shownAt > 0.35f;
+            string s = show ? _func() : null;
+            if (string.IsNullOrEmpty(s)) { UIKit.Show(_box, false); return; }
+            if (_text.text != s) _text.text = s;
+            UIKit.Show(_box, true);
+            Vector2 size = new Vector2(_box.resolvedStyle.width, _box.resolvedStyle.height);
+            Vector2 screen = UIKit.PanelSize(_box);
+            Vector2 pos = mouse + new Vector2(16, 16);
+            if (pos.x + size.x > screen.x - 4) pos.x = screen.x - size.x - 4;
+            if (pos.y + size.y > screen.y - 4) pos.y = mouse.y - size.y - 8;
+            UIKit.Place(_box, pos);
+        }
+    }
+
+    /// <summary>
+    /// Drag handle for a window (put it on the title): dragging moves the window, keeping its title reachable;
+    /// <see cref="Moved"/> reports the new top-left corner when the drag ends.
+    /// </summary>
+    public sealed class WindowDrag : PointerManipulator
+    {
+        private readonly VisualElement _window;
+        public Action<Vector2> Moved;
+        private bool _dragging;
+        private Vector2 _start, _origin;
+
+        public WindowDrag(VisualElement window) { _window = window; activators.Add(new ManipulatorActivationFilter { button = MouseButton.LeftMouse }); }
+
+        protected override void RegisterCallbacksOnTarget()
+        {
+            target.RegisterCallback<PointerDownEvent>(OnDown);
+            target.RegisterCallback<PointerMoveEvent>(OnMove);
+            target.RegisterCallback<PointerUpEvent>(OnUp);
+        }
+
+        protected override void UnregisterCallbacksFromTarget()
+        {
+            target.UnregisterCallback<PointerDownEvent>(OnDown);
+            target.UnregisterCallback<PointerMoveEvent>(OnMove);
+            target.UnregisterCallback<PointerUpEvent>(OnUp);
+        }
+
+        private void OnDown(PointerDownEvent e)
+        {
+            if (!CanStartManipulation(e)) return;
+            _dragging = true;
+            _start = e.position;
+            _origin = new Vector2(_window.resolvedStyle.left, _window.resolvedStyle.top);
+            target.CapturePointer(e.pointerId);
+            e.StopPropagation();
+        }
+
+        private void OnMove(PointerMoveEvent e)
+        {
+            if (!_dragging || !target.HasPointerCapture(e.pointerId)) return;
+            Vector2 p = _origin + ((Vector2)e.position - _start);
+            Vector2 screen = UIKit.PanelSize(_window);
+            float w = _window.resolvedStyle.width;
+            // Keep 80 px of the window inside the screen horizontally and its title on screen.
+            p.x = Mathf.Clamp(p.x, 80 - w, screen.x - 80);
+            p.y = Mathf.Clamp(p.y, 0, screen.y - 80);
+            UIKit.Place(_window, p);
+        }
+
+        private void OnUp(PointerUpEvent e)
+        {
+            if (!_dragging || !CanStopManipulation(e)) return;
+            _dragging = false;
+            target.ReleasePointer(e.pointerId);
+            Moved?.Invoke(new Vector2(_window.resolvedStyle.left, _window.resolvedStyle.top));
+            e.StopPropagation();
         }
     }
 }

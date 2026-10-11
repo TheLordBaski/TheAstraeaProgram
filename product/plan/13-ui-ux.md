@@ -2,7 +2,7 @@
 
 **Have:**
 - **Interface**:
-  - a code-built uGUI toolkit (`UIKit`);
+  - UI Toolkit screens: a UXML layout and USS styles per screen in `Resources/UI` on a shared theme (`Theme.uss`), driven by code through `UIKit`;
   - main menu, assembly building UI, flight HUD with navball, staging stack, resources, orbit info and the mission
     guide;
   - map UI, part menus, pause menu, tooltips, a control guide (F1);

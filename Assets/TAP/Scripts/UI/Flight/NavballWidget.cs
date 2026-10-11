@@ -1,30 +1,32 @@
 using System.Collections.Generic;
 using TAP.Core;
-using TAP.Game;
-using TAP.Persistence;
 using TAP.Simulation;
 using TAP.Trajectory;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 namespace TAP.UI
 {
     /// <summary>
     /// Attitude indicator. The ball (shader) shows the local horizon frame (sky/ground, heading and
     /// pitch ladder) as seen from behind the vessel; markers are orthographic projections of
-    /// directions onto the front hemisphere, so both are exactly consistent.
+    /// directions onto the front hemisphere, so both are exactly consistent. UI Toolkit can't run the ball's
+    /// shader on an element, so it renders into a RenderTexture each frame that the ball element shows.
     /// </summary>
     public sealed class NavballWidget : MonoBehaviour
     {
         public FlightSim Sim;
-        public RectTransform Root;
+        /// <summary>The widget's box (size × size), positioned by the caller's USS.</summary>
+        public VisualElement Root;
         public float Radius = 118f;
-        private RawImage _ball;
+        private VisualElement _ball;
+        private RenderTexture _rt;
         private Material _mat;
+        private Texture2D _tex;
         private readonly Dictionary<string, Image> _markers = new Dictionary<string, Image>();
-        private TextMeshProUGUI _heading;
+        private Label _heading;
         private Image _level;
+        private Matrix4x4 _rot = Matrix4x4.identity;
 
         public static readonly Color Pro = new Color(0.9f, 0.95f, 0.2f);
         public static readonly Color Nrm = new Color(0.85f, 0.35f, 1f);
@@ -32,25 +34,29 @@ namespace TAP.UI
         public static readonly Color Man = new Color(0.25f, 0.55f, 1f);
         public static readonly Color Tgt = new Color(1f, 0.3f, 0.85f);
 
-        public static NavballWidget Create(Transform parent, FlightSim sim, float size)
+        /// <param name="root">An element sized size × size; the ball, markers and heading go inside it.</param>
+        public static NavballWidget Create(GameObject host, VisualElement root, FlightSim sim, float size)
         {
-            var rt = UIKit.Rect(parent, "Navball");
-            rt.sizeDelta = new Vector2(size, size);
-            var w = rt.gameObject.AddComponent<NavballWidget>();
+            var w = host.AddComponent<NavballWidget>();
             w.Sim = sim;
-            w.Root = rt;
+            w.Root = root;
             w.Radius = size * 0.5f;
-            // bezel
-            var bezel = UIKit.Image(rt, UIKit.CircleSprite, new Color(0.08f, 0.09f, 0.11f, 1f), "Bezel");
-            bezel.rectTransform.sizeDelta = new Vector2(size + 16, size + 16);
-            var ballGo = UIKit.Rect(rt, "Ball");
-            ballGo.sizeDelta = new Vector2(size, size);
-            w._ball = ballGo.gameObject.AddComponent<RawImage>();
-            var tex = Resources.Load<Texture2D>("Textures/Navball");
-            w._ball.texture = tex;
+            root.AddToClassList("navball");
+            root.pickingMode = PickingMode.Ignore;
+            var bezel = UIKit.Element("navball__bezel");
+            bezel.pickingMode = PickingMode.Ignore;
+            root.Add(bezel);
+            w._ball = UIKit.Element("navball__ball");
+            w._ball.pickingMode = PickingMode.Ignore;
+            root.Add(w._ball);
+            w._tex = Resources.Load<Texture2D>("Textures/Navball");
             var baseMat = Resources.Load<Material>("Materials/NavballUI");
-            if (baseMat != null) { w._mat = new Material(baseMat); w._ball.material = w._mat; }
-            w._ball.raycastTarget = false;
+            if (baseMat != null) w._mat = new Material(baseMat);
+            // Rendered at twice the reference size so it stays sharp on large screens.
+            int px = Mathf.RoundToInt(size * 2);
+            w._rt = new RenderTexture(px, px, 0, RenderTextureFormat.ARGB32) { name = "Navball", useMipMap = false, antiAliasing = 1 };
+            w._rt.Create();
+            w._ball.style.backgroundImage = Background.FromRenderTexture(w._rt);
             foreach (var (key, icon, color) in new[]
                      {
                          ("pro", "nav_prograde", Pro), ("retro", "nav_retrograde", Pro), ("nrm", "nav_normal", Nrm), ("anrm", "nav_antinormal", Nrm),
@@ -58,16 +64,21 @@ namespace TAP.UI
                          ("tgt", "nav_target", Tgt), ("atgt", "nav_antitarget", Tgt),
                      })
             {
-                var img = UIKit.Image(rt, UIKit.Icon(icon), color, key);
-                img.rectTransform.sizeDelta = new Vector2(34, 34);
+                var img = UIKit.Image(UIKit.Icon(icon), color, "navball__marker");
+                root.Add(img);
                 w._markers[key] = img;
             }
-            w._level = UIKit.Image(rt, UIKit.Icon("nav_level"), new Color(1f, 0.62f, 0.12f), "Level");
-            w._level.rectTransform.sizeDelta = new Vector2(64, 64);
-            w._heading = UIKit.Label(rt, "090°", 17, UIKit.TextColor, TextAlignmentOptions.Center);
-            w._heading.rectTransform.anchoredPosition = new Vector2(0, size * 0.5f + 16);
-            w._heading.rectTransform.sizeDelta = new Vector2(80, 22);
+            w._level = UIKit.Image(UIKit.Icon("nav_level"), new Color(1f, 0.62f, 0.12f), "navball__level");
+            root.Add(w._level);
+            w._heading = UIKit.Label("090°", "navball__heading");
+            root.Add(w._heading);
             return w;
+        }
+
+        private void OnDestroy()
+        {
+            if (_rt != null) { _rt.Release(); Destroy(_rt); }
+            if (_mat != null) Destroy(_mat);
         }
 
         private void LateUpdate()
@@ -81,11 +92,10 @@ namespace TAP.UI
             Quaternion ctrl = v.ControlRotation;
             Vector3 right = ctrl * Vector3.right, top = ctrl * Vector3.back, nose = ctrl * Vector3.up;
             // Camera frame (x right, y up, z forward=nose) -> horizon frame (x east, y up, z north)
-            var m = Matrix4x4.identity;
-            m.SetRow(0, new Vector4(Vector3.Dot(eastW, right), Vector3.Dot(eastW, top), Vector3.Dot(eastW, nose), 0));
-            m.SetRow(1, new Vector4(Vector3.Dot(upW, right), Vector3.Dot(upW, top), Vector3.Dot(upW, nose), 0));
-            m.SetRow(2, new Vector4(Vector3.Dot(northW, right), Vector3.Dot(northW, top), Vector3.Dot(northW, nose), 0));
-            if (_mat != null) _mat.SetMatrix("_Rot", m);
+            _rot.SetRow(0, new Vector4(Vector3.Dot(eastW, right), Vector3.Dot(eastW, top), Vector3.Dot(eastW, nose), 0));
+            _rot.SetRow(1, new Vector4(Vector3.Dot(upW, right), Vector3.Dot(upW, top), Vector3.Dot(upW, nose), 0));
+            _rot.SetRow(2, new Vector4(Vector3.Dot(northW, right), Vector3.Dot(northW, top), Vector3.Dot(northW, nose), 0));
+            RenderBall();
 
             float heading = Mathf.Atan2(Vector3.Dot(nose, eastW), Vector3.Dot(nose, northW)) * Mathf.Rad2Deg;
             if (heading < 0) heading += 360;
@@ -117,25 +127,35 @@ namespace TAP.UI
             else { Hide("tgt"); Hide("atgt"); }
         }
 
+        private void RenderBall()
+        {
+            if (_mat == null || _rt == null) return;
+            _mat.SetMatrix("_Rot", _rot);
+            var prev = RenderTexture.active;
+            RenderTexture.active = _rt;
+            GL.Clear(false, true, Color.clear);
+            RenderTexture.active = prev;
+            Graphics.Blit(_tex, _rt, _mat);
+            _ball.MarkDirtyRepaint();
+        }
+
         private void Place(string key, Vector3 dirWorld, Vector3 right, Vector3 top, Vector3 nose)
         {
             var img = _markers[key];
-            if (dirWorld.sqrMagnitude < 1e-6f) { img.enabled = false; return; }
+            if (dirWorld.sqrMagnitude < 1e-6f) { Hide(key); return; }
             float x = Vector3.Dot(dirWorld, right), y = Vector3.Dot(dirWorld, top), z = Vector3.Dot(dirWorld, nose);
-            if (z < -0.02f)
-            {
-                img.enabled = false;
-                return;
-            }
-            img.enabled = true;
-            img.rectTransform.anchoredPosition = new Vector2(x, y) * (Radius - 4f);
+            if (z < -0.02f) { Hide(key); return; }
+            img.visible = true;
+            // Marker centres relative to the ball's centre; USS translate -50% centres each icon on its point.
+            img.style.left = Radius + x * (Radius - 4f);
+            img.style.top = Radius - y * (Radius - 4f);
         }
 
-        private void Hide(string key) => _markers[key].enabled = false;
+        private void Hide(string key) => _markers[key].visible = false;
 
         private void SetAll(bool on)
         {
-            foreach (var kv in _markers) kv.Value.enabled = on;
+            foreach (var kv in _markers) kv.Value.visible = on;
         }
     }
 }

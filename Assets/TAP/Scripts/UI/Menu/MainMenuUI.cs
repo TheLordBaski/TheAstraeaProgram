@@ -3,31 +3,30 @@ using System.Collections.Generic;
 using TAP.Core;
 using TAP.Game;
 using TAP.Persistence;
-using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 namespace TAP.UI
 {
     /// <summary>Main menu: continue / new sandbox / load game / controls / quit, over a slowly turning view of Tellus and Luma.</summary>
     public sealed class MainMenuUI : MonoBehaviour
     {
-        private RectTransform _root;
-        private GameObject _loadDialog, _newDialog, _controls, _dataProblems;
+        private VisualElement _root;
+        private VisualElement _loadDialog, _newDialog, _controls, _dataProblems;
+        private ScrollView _loadList;
+        private TextField _newName;
         /// <summary>Continue, New sandbox and Load game: off when the game data keeps a game from starting.</summary>
-        private readonly List<UIKit.ButtonRef> _gameButtons = new List<UIKit.ButtonRef>();
-        private RectTransform _loadContent;
-        private TMP_InputField _newName;
+        private readonly List<Button> _gameButtons = new List<Button>();
         private Transform _planet, _moon;
         private string _latestSave;
 
         /// <param name="dataError">Why the game data keeps a game from starting (null when it doesn't).</param>
         public static MainMenuUI Create(string dataError = null)
         {
-            var canvas = UIKit.CreateCanvas("MainMenu", 10);
-            var ui = canvas.gameObject.AddComponent<MainMenuUI>();
-            ui._root = (RectTransform)canvas.transform;
+            var doc = UIKit.CreateDocument("MainMenu", 10, "MainMenu");
+            var ui = doc.gameObject.AddComponent<MainMenuUI>();
+            ui._root = doc.rootVisualElement;
             ui.BuildBackdrop();
             ui.Build();
             ui.BuildDataProblems(dataError);
@@ -95,10 +94,10 @@ namespace TAP.UI
             var kb = Keyboard.current;
             if (kb != null && kb.escapeKey.wasPressedThisFrame)
             {
-                _loadDialog.SetActive(false);
-                _newDialog.SetActive(false);
-                _controls.SetActive(false);
-                if (_dataProblems != null) _dataProblems.SetActive(false);
+                UIKit.Show(_loadDialog, false);
+                UIKit.Show(_newDialog, false);
+                UIKit.Show(_controls, false);
+                UIKit.Show(_dataProblems, false);
             }
         }
 
@@ -106,56 +105,50 @@ namespace TAP.UI
 
         private void Build()
         {
-            var title = UIKit.Label(_root, "<size=46>THE</size> ASTRAEA <size=46>PROGRAM</size>", 86, Color.white, TextAlignmentOptions.BottomLeft, FontStyles.Bold);
-            UIKit.Place(title.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(110, -98), new Vector2(1200, 110));
-            title.characterSpacing = 10;
-            var sub = UIKit.Label(_root, "Build rockets. Reach orbit. Walk on Luma. Come home.", 24, UIKit.Accent);
-            UIKit.Place(sub.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(116, -220), new Vector2(900, 36));
+            _loadDialog = _root.Q("load-dialog");
+            _newDialog = _root.Q("new-dialog");
+            _controls = _root.Q("controls-dialog");
+            _dataProblems = _root.Q("data-dialog");
+            _loadList = _root.Q<ScrollView>("load-list");
+            _newName = _root.Q<TextField>("new-name");
+            // Every dialog's Close button hides its dialog.
+            _root.Query<Button>(className: "dialog__close").ForEach(b =>
+            {
+                var dialog = UIKit.Ancestor(b, "dialog");
+                b.clicked += () => UIKit.Show(dialog, false);
+            });
 
-            var col = UIKit.Rect(_root, "Buttons");
-            UIKit.Place(col, new Vector2(0, 1), new Vector2(0, 1), new Vector2(110, -300), new Vector2(420, 420));
-            var v = col.gameObject.AddComponent<VerticalLayoutGroup>();
-            v.spacing = 10;
-            v.childControlHeight = true;
-            v.childControlWidth = true;
-            v.childForceExpandHeight = false;
-
+            var cont = _root.Q<Button>("continue");
             _latestSave = FindLatestSave(out string savedAt);
             if (_latestSave != null)
             {
-                var cont = MenuButton(col, $"Continue  <size=15><color=#{UIKit.Hex(UIKit.TextDim)}>{_latestSave} · {savedAt}</color></size>", () => Continue(_latestSave));
-                cont.Background.color = new Color(0.12f, 0.42f, 0.26f, 1f);
+                cont.text = $"Continue  <size=15><color=#{UIKit.Hex(UIKit.TextDim)}>{_latestSave} · {savedAt}</color></size>";
+                cont.clicked += () => Continue(_latestSave);
                 _gameButtons.Add(cont);
             }
-            _gameButtons.Add(MenuButton(col, "New sandbox", OpenNew));
-            _gameButtons.Add(MenuButton(col, "Load game", OpenLoad));
-            MenuButton(col, "Controls", () => _controls.SetActive(true));
-            MenuButton(col, "Quit", () =>
+            else UIKit.Show(cont, false);
+            var newBtn = _root.Q<Button>("new");
+            newBtn.clicked += OpenNew;
+            _gameButtons.Add(newBtn);
+            var load = _root.Q<Button>("load");
+            load.clicked += OpenLoad;
+            _gameButtons.Add(load);
+            _root.Q<Button>("controls").clicked += () => UIKit.Show(_controls, true);
+            _root.Q<Button>("quit").clicked += () =>
             {
 #if UNITY_EDITOR
                 UnityEditor.EditorApplication.isPlaying = false;
 #else
                 Application.Quit();
 #endif
-            });
+            };
 
-            var foot = UIKit.Label(_root,
+            _root.Q<Label>("footer").text =
                 "A rocket-only spaceflight sandbox · Tellus (R 600 km, 1 g, 70 km atmosphere) and its airless moon Luma (R 220 km, 0.16 g, 13,000 km away)\n" +
-                "Original work built with Unity " + Application.unityVersion + " (URP)", 14, UIKit.TextDim);
-            UIKit.Place(foot.rectTransform, new Vector2(0, 0), new Vector2(0, 0), new Vector2(112, 24), new Vector2(1400, 44));
+                "Original work built with Unity " + Application.unityVersion + " (URP)";
 
-            BuildNewDialog();
-            BuildLoadDialog();
+            _root.Q<Button>("new-start").clicked += StartNew;
             BuildControls();
-        }
-
-        private UIKit.ButtonRef MenuButton(Transform parent, string label, Action onClick)
-        {
-            var b = UIKit.Button(parent, label, onClick, 24);
-            UIKit.Size(b.Button, 58);
-            b.Text.alignment = TextAlignmentOptions.Left;
-            b.Text.margin = new Vector4(18, 0, 0, 0);
-            return b;
         }
 
         private static string FindLatestSave(out string savedAt)
@@ -203,9 +196,6 @@ namespace TAP.UI
         {
             var report = ContentLog.Session;
             if (dataError == null && report.IsClean) return;
-            _dataProblems = Dialog("DataProblems", new Vector2(1100, 640), "GAME DATA PROBLEMS", out var body);
-            var scroll = UIKit.ScrollList(body, out var content, 4);
-            UIKit.Stretch((RectTransform)scroll.transform);
             string bad = UIKit.Hex(UIKit.Bad), warn = UIKit.Hex(UIKit.Warn), dim = UIKit.Hex(UIKit.TextDim);
             var sb = new System.Text.StringBuilder();
             if (dataError != null) sb.Append($"<color=#{bad}><b>A game can't start until these errors are fixed.</b></color>\n\n");
@@ -214,100 +204,57 @@ namespace TAP.UI
             foreach (var p in report.Errors) sb.Append($"<color=#{bad}>Error</color>  <noparse>{p}</noparse>\n\n");
             foreach (var p in report.Warnings) sb.Append($"<color=#{warn}>Warning</color>  <noparse>{p}</noparse>\n\n");
             sb.Append($"<color=#{dim}>The files are in Assets/TAP/Resources. In the editor, TAP → Validate Content checks them all, and F8 reloads them while you play.</color>");
-            var text = UIKit.Label(content, sb.ToString(), 16);
-            text.textWrappingMode = TextWrappingModes.Normal;
-            text.alignment = TextAlignmentOptions.TopLeft;
-            text.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            _root.Q<Label>("data-text").text = sb.ToString();
 
             bool blocking = dataError != null || report.HasErrors;
-            string label = dataError != null ? "The game data has errors: a game can't start"
-                : "Game data: " + report.Counts;
-            var notice = UIKit.Button(_root, label + "  ·  details", () => _dataProblems.SetActive(true), 17);
-            UIKit.Place(notice.Rect, new Vector2(0, 1), new Vector2(0, 1), new Vector2(110, -732), new Vector2(560, 40));
-            notice.Text.color = blocking ? UIKit.Bad : UIKit.Warn;
+            string label = dataError != null ? "The game data has errors: a game can't start" : "Game data: " + report.Counts;
+            var notice = _root.Q<Button>("data-notice");
+            notice.text = label + "  ·  details";
+            notice.AddToClassList(blocking ? "blocking" : "warning");
+            notice.clicked += () => UIKit.Show(_dataProblems, true);
+            notice.RemoveFromClassList("hidden");
             if (dataError != null)
-                foreach (var b in _gameButtons) b.Button.interactable = false;
-            if (blocking) _dataProblems.SetActive(true);
+                foreach (var b in _gameButtons) b.SetEnabled(false);
+            if (blocking) UIKit.Show(_dataProblems, true);
         }
 
         // ------------------------------------------------------------------ dialogs
-
-        private GameObject Dialog(string name, Vector2 size, string title, out RectTransform body)
-        {
-            var shade = UIKit.Rect(_root, name);
-            UIKit.Stretch(shade);
-            shade.gameObject.AddComponent<Image>().color = new Color(0, 0, 0, 0.5f);
-            var panel = UIKit.Panel(shade, "Panel");
-            UIKit.Place(panel.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, size);
-            var t = UIKit.Label(panel.transform, title, 20, UIKit.Accent, TextAlignmentOptions.Left, FontStyles.Bold);
-            UIKit.Place(t.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(18, -14), new Vector2(size.x - 120, 28));
-            var go = shade.gameObject;
-            var close = UIKit.Button(panel.transform, "Close", () => go.SetActive(false), 16);
-            UIKit.Place(close.Rect, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-10, -10), new Vector2(84, 32));
-            body = UIKit.Rect(panel.transform, "Body");
-            UIKit.Stretch(body, 18, 18, 56, 18);
-            go.SetActive(false);
-            return go;
-        }
-
-        private void BuildNewDialog()
-        {
-            _newDialog = Dialog("NewDialog", new Vector2(620, 300), "NEW SANDBOX", out var body);
-            var l = UIKit.Label(body, "Save name:", 18);
-            UIKit.Place(l.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, -8), new Vector2(200, 30));
-            _newName = UIKit.Input(body, "Sandbox", null, 18);
-            UIKit.Place((RectTransform)_newName.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, -44), new Vector2(580, 40));
-            var info = UIKit.Label(body, "Starts with an empty universe, 8 rocketeers and three tested starter rockets in the assembly building.", 15, UIKit.TextDim);
-            info.textWrappingMode = TextWrappingModes.Normal;
-            UIKit.Place(info.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, -96), new Vector2(580, 50));
-            var start = UIKit.Button(body, "Start", () =>
-            {
-                string name = SaveStorage.SanitizeFileName(string.IsNullOrWhiteSpace(_newName.text) ? "Sandbox" : _newName.text.Trim());
-                if (SaveStorage.SlotExists(name, "persistent"))
-                {
-                    // Never overwrite silently: pick a free name.
-                    int i = 2;
-                    while (SaveStorage.SlotExists(name + " " + i, "persistent")) i++;
-                    name = name + " " + i;
-                }
-                GameSession.NewGame(name);
-                GameSession.WritePersistent();
-                GameSession.GoToEditor();
-            }, 20);
-            UIKit.Place(start.Rect, new Vector2(1, 0), new Vector2(1, 0), new Vector2(0, 0), new Vector2(160, 46));
-            start.Background.color = new Color(0.12f, 0.42f, 0.26f, 1f);
-        }
 
         private void OpenNew()
         {
             string name = "Sandbox";
             int i = 2;
             while (SaveStorage.SlotExists(name, "persistent")) name = "Sandbox " + i++;
-            _newName.text = name;
-            _newDialog.SetActive(true);
+            _newName.value = name;
+            UIKit.Show(_newDialog, true);
         }
 
-        private void BuildLoadDialog()
+        private void StartNew()
         {
-            _loadDialog = Dialog("LoadDialog", new Vector2(760, 560), "LOAD GAME", out var body);
-            var scroll = UIKit.ScrollList(body, out _loadContent, 6);
-            UIKit.Stretch((RectTransform)scroll.transform);
+            string name = SaveStorage.SanitizeFileName(string.IsNullOrWhiteSpace(_newName.value) ? "Sandbox" : _newName.value.Trim());
+            if (SaveStorage.SlotExists(name, "persistent"))
+            {
+                // Never overwrite silently: pick a free name.
+                int i = 2;
+                while (SaveStorage.SlotExists(name + " " + i, "persistent")) i++;
+                name = name + " " + i;
+            }
+            GameSession.NewGame(name);
+            GameSession.WritePersistent();
+            GameSession.GoToEditor();
         }
 
         private void OpenLoad()
         {
-            foreach (Transform c in _loadContent) Destroy(c.gameObject);
-            var saves = SaveStorage.ListSaves();
+            _loadList.Clear();
             int shown = 0;
-            foreach (var name in saves)
+            foreach (var name in SaveStorage.ListSaves())
             {
                 bool hasPersistent = SaveStorage.SlotExists(name, "persistent");
                 bool hasQuick = SaveStorage.SlotExists(name, "quicksave");
                 if (!hasPersistent && !hasQuick) continue;
                 shown++;
-                var row = UIKit.Panel(_loadContent, "Row", UIKit.PanelLight);
-                UIKit.Size(row, 64);
-                string detail = "";
+                string detail;
                 try
                 {
                     var s = SaveStorage.ReadSave(name, hasPersistent ? "persistent" : "quicksave");
@@ -316,54 +263,43 @@ namespace TAP.UI
                     detail = $"{s.savedAt} · T+{MathD.FormatUT(s.ut)} · {ships} vessel(s) · {s.milestones.Count} milestone(s)";
                 }
                 catch (Exception e) { detail = "unreadable: " + e.Message; }
-                var t = UIKit.Label(row.transform, $"<b>{name}</b>\n<size=14><color=#{UIKit.Hex(UIKit.TextDim)}>{detail}</color></size>", 18);
-                UIKit.Stretch(t.rectTransform, 12, 250, 6, 6);
+                var row = UIKit.Element("panel panel--light load-row");
+                row.Add(UIKit.Label($"<b>{name}</b>\n<size=14><color=#{UIKit.Hex(UIKit.TextDim)}>{detail}</color></size>", "load-row__text"));
                 string n = name;
-                if (hasPersistent)
-                {
-                    var b = UIKit.Button(row.transform, "Resume", () => Continue(n), 16);
-                    UIKit.Place(b.Rect, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-8, 0), new Vector2(110, 38));
-                }
                 if (hasQuick)
-                {
-                    var q = UIKit.Button(row.transform, "Quicksave", () =>
+                    row.Add(UIKit.Button("Quicksave", () =>
                     {
                         var s = SaveStorage.ReadSave(n, "quicksave");
                         if (s == null) return;
                         GameSession.EditorCraft = s.editorCraft;
                         GameSession.PendingMessage = "Quicksave loaded";
                         GameSession.LoadFlightState(s, FlightEntry.Quickload);
-                    }, 16);
-                    UIKit.Place(q.Rect, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-126, 0), new Vector2(110, 38));
-                }
+                    }, "load-row__btn"));
+                if (hasPersistent) row.Add(UIKit.Button("Resume", () => Continue(n), "load-row__btn"));
+                _loadList.Add(row);
             }
-            if (shown == 0)
-            {
-                var none = UIKit.Label(_loadContent, "No saved games yet.", 17, UIKit.TextDim);
-                UIKit.Size(none, 30);
-            }
-            _loadDialog.SetActive(true);
+            if (shown == 0) _loadList.Add(UIKit.Label("No saved games yet.", "text-dim"));
+            UIKit.Show(_loadDialog, true);
         }
 
         private void BuildControls()
         {
-            _controls = Dialog("Controls", new Vector2(980, 760), "CONTROLS", out var body);
-            var scroll = UIKit.ScrollList(body, out var content, 2);
-            UIKit.Stretch((RectTransform)scroll.transform);
-            var sb = new System.Text.StringBuilder();
-            sb.Append("<b><color=#").Append(UIKit.Hex(UIKit.Accent)).Append(">FLIGHT</color></b>\n");
-            foreach (var (k, a) in Bindings.Flight) sb.Append($"<b>{k}</b>\t{a}\n");
-            sb.Append("\n<b><color=#").Append(UIKit.Hex(UIKit.Accent)).Append(">EVA</color></b>\n");
-            foreach (var (k, a) in Bindings.Eva) sb.Append($"<b>{k}</b>\t{a}\n");
-            sb.Append("\n<b><color=#").Append(UIKit.Hex(UIKit.Accent)).Append(">MAP VIEW</color></b>\n");
-            foreach (var (k, a) in Bindings.Map) sb.Append($"<b>{k}</b>\t{a}\n");
-            sb.Append("\n<b><color=#").Append(UIKit.Hex(UIKit.Accent)).Append(">ASSEMBLY BUILDING</color></b>\n");
-            foreach (var (k, a) in Bindings.Editor) sb.Append($"<b>{k}</b>\t{a}\n");
-            var t = UIKit.Label(content, sb.ToString(), 16);
-            t.textWrappingMode = TextWrappingModes.Normal;
-            t.alignment = TextAlignmentOptions.TopLeft;
-            var fitter = t.gameObject.AddComponent<ContentSizeFitter>();
-            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            var list = _root.Q<ScrollView>("controls-list");
+            void Section(string title, (string keys, string action)[] rows)
+            {
+                list.Add(UIKit.Label(title, "controls-head"));
+                foreach (var (k, a) in rows)
+                {
+                    var row = UIKit.Element("controls-row");
+                    row.Add(UIKit.Label(k, "controls-key"));
+                    row.Add(UIKit.Label(a, "controls-action"));
+                    list.Add(row);
+                }
+            }
+            Section("FLIGHT", Bindings.Flight);
+            Section("EVA", Bindings.Eva);
+            Section("MAP VIEW", Bindings.Map);
+            Section("ASSEMBLY BUILDING", Bindings.Editor);
         }
     }
 }

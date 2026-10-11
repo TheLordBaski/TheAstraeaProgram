@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using TAP.Core;
 using TAP.Game;
-using TMPro;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace TAP.UI
 {
@@ -14,20 +14,20 @@ namespace TAP.UI
     public sealed class BodyLabels : MonoBehaviour
     {
         public FlightSceneController Scene;
-        private RectTransform _root;
-        private readonly Dictionary<CelestialBody, TextMeshProUGUI> _labels = new Dictionary<CelestialBody, TextMeshProUGUI>();
+        private VisualElement _root;
+        private readonly Dictionary<CelestialBody, Label> _labels = new Dictionary<CelestialBody, Label>();
 
         public static BodyLabels Create(FlightSceneController scene)
         {
-            var canvas = UIKit.CreateCanvas("BodyLabels", 1); // under the HUD's panels
-            var l = canvas.gameObject.AddComponent<BodyLabels>();
+            var doc = UIKit.CreateDocument("BodyLabels", 1, null, "FlightPanels"); // under the HUD's panels
+            var l = doc.gameObject.AddComponent<BodyLabels>();
             l.Scene = scene;
-            l._root = (RectTransform)canvas.transform;
-            scene.UiVisibilityChanged += visible => canvas.enabled = visible;
+            l._root = doc.rootVisualElement;
+            scene.UiVisibilityChanged += visible => UIKit.Show(l._root, visible);
             return l;
         }
 
-        private readonly List<(Vector2 screen, TextMeshProUGUI label)> _shown = new List<(Vector2, TextMeshProUGUI)>();
+        private readonly List<(Vector2 screen, Label label)> _shown = new List<(Vector2, Label)>();
 
         private void LateUpdate()
         {
@@ -40,10 +40,8 @@ namespace TAP.UI
             {
                 if (!_labels.TryGetValue(fb.Body, out var label))
                 {
-                    label = UIKit.Label(_root, fb.Body.Name, 13, UIKit.TextDim);
-                    label.rectTransform.pivot = new Vector2(0, 0.5f);
-                    label.rectTransform.anchorMin = label.rectTransform.anchorMax = Vector2.zero;
-                    label.rectTransform.sizeDelta = new Vector2(240, 18);
+                    label = UIKit.Label(fb.Body.Name, "body-label");
+                    _root.Add(label);
                     _labels[fb.Body] = label;
                 }
                 Vector3 s = fb.Screen;
@@ -57,13 +55,12 @@ namespace TAP.UI
                             show = false;
                             break;
                         }
-                if (label.gameObject.activeSelf != show) label.gameObject.SetActive(show);
+                UIKit.Show(label, show);
                 if (!show) continue;
                 label.text = fb.Body.Name;
                 _shown.Add((s, label));
-                RectTransformUtility.ScreenPointToLocalPointInRectangle(_root, s, null, out Vector2 local);
-                // Just right of the point, in canvas units from the bottom-left corner.
-                label.rectTransform.anchoredPosition = local + _root.rect.size * 0.5f + new Vector2(9, 0);
+                // Just right of the point.
+                UIKit.Place(label, UIKit.ScreenToPanel(s) + new Vector2(9, 0));
             }
         }
     }

@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="FlightPanels.uss" />
+    <ui:VisualElement class="screen" picking-mode="Ignore">
+        <ui:VisualElement name="guide" class="panel">
+            <ui:VisualElement class="guide-head">
+                <ui:Label name="guide-title" class="guide-title" />
+                <ui:Button name="guide-toggle" class="btn guide-toggle" text="–" />
+            </ui:VisualElement>
+            <ui:Label name="guide-text" class="guide-text wrap" picking-mode="Ignore" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

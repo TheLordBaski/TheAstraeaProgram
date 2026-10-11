@@ -1,16 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using TAP.Core;
 using TAP.Game;
 using TAP.Persistence;
 using TAP.Simulation;
 using TAP.Trajectory;
-using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 namespace TAP.UI
 {
@@ -18,80 +17,68 @@ namespace TAP.UI
     /// Map-view overlay: icons/labels for bodies, vessels, apsides, encounters, nodes and closest approach;
     /// click actions; clicking the orbit offers "add maneuver node" and "warp here"; nodes are dragged along the
     /// orbit by their marker, shaped with drag handles or the numeric editor, and deleted with the x button,
-    /// a right-click on the node or the Delete key.
+    /// a right-click on the node or the Delete key. Layout: Resources/UI/MapUI.uxml.
     /// </summary>
     public sealed class MapUI : MonoBehaviour
     {
         public FlightSceneController Scene;
         private MapView Map => Scene.Map;
         private FlightSim Sim => Scene.Sim;
-        private Canvas _canvas;
-        private RectTransform _root;
+        private VisualElement _root, _markerLayer, _handleLayer;
         private readonly List<MarkerWidget> _pool = new List<MarkerWidget>();
         private int _used;
-        private GameObject _context;
-        private RectTransform _contextButtons;
-        private TextMeshProUGUI _contextTitle;
-        private RectTransform _nodePanel;
-        private TextMeshProUGUI _nodeText;
-        private TMP_InputField _proField, _nrmField, _radField;
-        private TextMeshProUGUI _stepText;
+        private VisualElement _context, _contextButtons;
+        private Label _contextTitle;
+        private VisualElement _nodePanel;
+        private Label _nodeText;
+        private TextField _proField, _nrmField, _radField;
+        private Label _stepText;
         private double _step = 10;
         private int _selectedNode = -1;
         private readonly Dictionary<string, Image> _handles = new Dictionary<string, Image>();
         private string _dragHandle;
-        private Vector2 _dragStart;
-        private Image _addPreview;
-        private TextMeshProUGUI _orbitInfo;
-        private RectTransform _orbitPanel;
-        private TextMeshProUGUI _hint;
-        private UIKit.ButtonRef _nodeDeleteBtn;
+        private VisualElement _addPreview;
+        private Label _orbitInfo;
+        private Button _nodeDeleteBtn;
         private bool _draggingNode, _dragNodeMoved;
         private Vector2 _dragNodeStart;
         private int _rmbNode = -1;
         private Vector2 _rmbStart;
-        private readonly List<RaycastResult> _uiHits = new List<RaycastResult>();
+        private bool _wasActive = true;
 
-        private class MarkerWidget
+        private sealed class MarkerWidget
         {
-            public RectTransform Rt;
+            public VisualElement Root;
             public Image Icon;
-            public TextMeshProUGUI Label;
-            public TooltipTrigger Tip;
+            public Label Label;
+            public string Tip;
             public MapMarker Marker;
         }
 
         public static MapUI Create(FlightSceneController scene)
         {
-            var canvas = UIKit.CreateCanvas("MapUI", 20);
-            var ui = canvas.gameObject.AddComponent<MapUI>();
+            var doc = UIKit.CreateDocument("MapUI", 20, "MapUI");
+            var ui = doc.gameObject.AddComponent<MapUI>();
             ui.Scene = scene;
-            ui._canvas = canvas;
-            ui._root = (RectTransform)canvas.transform;
+            ui._root = doc.rootVisualElement;
             ui.Build();
-            canvas.enabled = false;
+            UIKit.Show(ui._root, false);
             return ui;
         }
 
         private void Build()
         {
-            _addPreview = UIKit.Image(_root, UIKit.Icon("plus"), new Color(0.3f, 0.6f, 1f, 0.9f), "AddPreview");
-            _addPreview.rectTransform.sizeDelta = new Vector2(22, 22);
-            _addPreview.rectTransform.anchorMin = _addPreview.rectTransform.anchorMax = Vector2.zero;
-            _addPreview.enabled = false;
+            _markerLayer = _root.Q("markers");
+            _handleLayer = _root.Q("handles");
+            _addPreview = _root.Q("add-preview");
+            _addPreview.style.backgroundImage = new StyleBackground(UIKit.Icon("plus"));
+            UIKit.Show(_addPreview, false);
 
-            // Context menu
-            var cp = UIKit.Panel(_root, "Context");
-            _context = cp.gameObject;
-            cp.rectTransform.pivot = new Vector2(0, 1);
-            cp.rectTransform.anchorMin = cp.rectTransform.anchorMax = Vector2.zero;
-            cp.rectTransform.sizeDelta = new Vector2(220, 150);
-            _contextTitle = UIKit.Label(cp.transform, "", 15, UIKit.Accent, TextAlignmentOptions.Left, FontStyles.Bold);
-            UIKit.Place(_contextTitle.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(10, -6), new Vector2(200, 20));
-            _contextButtons = UIKit.Rect(cp.transform, "Buttons");
-            UIKit.Place(_contextButtons, new Vector2(0, 1), new Vector2(0, 1), new Vector2(8, -30), new Vector2(204, 110));
-            UIKit.VLayout(_contextButtons.GetComponent<RectTransform>(), 4, 0);
-            _context.SetActive(false);
+            // Click menu
+            _context = _root.Q("context");
+            _contextTitle = _root.Q<Label>("context-title");
+            _contextButtons = _root.Q("context-buttons");
+            UIKit.Show(_context, false);
 
             // Node gizmo handles
             foreach (var (key, icon, color) in new[]
@@ -101,88 +88,49 @@ namespace TAP.UI
                          ("radout", "nav_radialout", NavballWidget.Rad), ("radin", "nav_radialin", NavballWidget.Rad),
                      })
             {
-                var img = UIKit.Image(_root, UIKit.Icon(icon), color, "Handle " + key);
-                img.rectTransform.sizeDelta = new Vector2(30, 30);
-                img.rectTransform.anchorMin = img.rectTransform.anchorMax = Vector2.zero;
-                img.raycastTarget = true;
+                var img = UIKit.Image(UIKit.Icon(icon), color, "map-handle map-gizmo");
+                img.pickingMode = PickingMode.Position;
                 string k = key;
-                var trig = img.gameObject.AddComponent<EventTrigger>();
-                var down = new EventTrigger.Entry { eventID = EventTriggerType.PointerDown };
-                down.callback.AddListener(e => { _dragHandle = k; _dragStart = ((PointerEventData)e).position; });
-                trig.triggers.Add(down);
-                UIKit.Tooltip(img.gameObject, () => $"Drag to add {HandleName(k)} delta-v (further = faster).");
-                img.enabled = false;
+                img.RegisterCallback<PointerDownEvent>(e => { if (e.button == 0) _dragHandle = k; });
+                UIKit.Tooltip(img, () => $"Drag to add {HandleName(k)} delta-v (further = faster).");
+                UIKit.Show(img, false);
+                _handleLayer.Add(img);
                 _handles[key] = img;
             }
 
             // Delete button next to the selected node
-            _nodeDeleteBtn = UIKit.Button(_root, "×", DeleteSelected, 20);
-            _nodeDeleteBtn.Rect.anchorMin = _nodeDeleteBtn.Rect.anchorMax = Vector2.zero;
-            _nodeDeleteBtn.Rect.sizeDelta = new Vector2(26, 26);
-            UIKit.Tooltip(_nodeDeleteBtn.Rect.gameObject, () => "Delete this maneuver node (or right-click the node, or press Delete)");
-            _nodeDeleteBtn.Rect.gameObject.SetActive(false);
+            _nodeDeleteBtn = _root.Q<Button>("node-delete");
+            _nodeDeleteBtn.clicked += DeleteSelected;
+            UIKit.Tooltip(_nodeDeleteBtn, () => "Delete this maneuver node (or right-click the node, or press Delete)");
+            UIKit.Show(_nodeDeleteBtn, false);
 
             // Node editor
-            var np = UIKit.Panel(_root, "NodeEditor");
-            _nodePanel = np.rectTransform;
-            UIKit.Place(_nodePanel, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-8, 8), new Vector2(420, 400));
-            var title = UIKit.Label(np.transform, "MANEUVER NODE", 15, UIKit.Accent, TextAlignmentOptions.Left, FontStyles.Bold);
-            UIKit.Place(title.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(12, -8), new Vector2(300, 20));
-            float y = -36;
-            _proField = AddComponentRow(np.transform, "Prograde", NavballWidget.Pro, y, v => EditNode(n => n.prograde = v), s => EditNode(n => n.prograde += s)); y -= 38;
-            _nrmField = AddComponentRow(np.transform, "Normal", NavballWidget.Nrm, y, v => EditNode(n => n.normal = v), s => EditNode(n => n.normal += s)); y -= 38;
-            _radField = AddComponentRow(np.transform, "Radial", NavballWidget.Rad, y, v => EditNode(n => n.radial = v), s => EditNode(n => n.radial += s)); y -= 40;
-            // step selector
-            var stepLbl = UIKit.Label(np.transform, "Step", 14, UIKit.TextDim);
-            UIKit.Place(stepLbl.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(12, y), new Vector2(60, 26));
-            float sx = 70;
+            _nodePanel = _root.Q("node-panel");
+            var rows = _root.Q("node-rows");
+            _proField = AddComponentRow(rows, "Prograde", NavballWidget.Pro, v => EditNode(n => n.prograde = v), s => EditNode(n => n.prograde += s));
+            _nrmField = AddComponentRow(rows, "Normal", NavballWidget.Nrm, v => EditNode(n => n.normal = v), s => EditNode(n => n.normal += s));
+            _radField = AddComponentRow(rows, "Radial", NavballWidget.Rad, v => EditNode(n => n.radial = v), s => EditNode(n => n.radial += s));
+            var steps = _root.Q("steps");
             foreach (double s in new[] { 0.1, 1.0, 10.0, 100.0 })
             {
                 double sv = s;
-                var b = UIKit.Button(np.transform, s < 1 ? "0.1" : s.ToString("0"), () => _step = sv, 14);
-                UIKit.Place(b.Rect, new Vector2(0, 1), new Vector2(0, 1), new Vector2(sx, y), new Vector2(50, 26));
-                sx += 54;
+                steps.Add(UIKit.Button(s < 1 ? "0.1" : s.ToString("0"), () => _step = sv, "node-stepbtn"));
             }
-            _stepText = UIKit.Label(np.transform, "", 14, UIKit.Accent);
-            UIKit.Place(_stepText.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(sx + 6, y), new Vector2(90, 26));
-            y -= 34;
-            var tl = UIKit.Label(np.transform, "Time", 14, UIKit.TextDim);
-            UIKit.Place(tl.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(12, y), new Vector2(60, 26));
-            sx = 70;
+            _stepText = _root.Q<Label>("step-text");
+            var times = _root.Q("time-steps");
             foreach (var (label, dt) in new[] { ("−orbit", -1.0), ("−10m", -600.0), ("−1m", -60.0), ("−10s", -10.0), ("+10s", 10.0), ("+1m", 60.0), ("+10m", 600.0), ("+orbit", 1.0) })
             {
                 double d = dt;
                 bool orbit = label.Contains("orbit");
-                var b = UIKit.Button(np.transform, label, () => ShiftNodeTime(d, orbit), 12);
-                UIKit.Place(b.Rect, new Vector2(0, 1), new Vector2(0, 1), new Vector2(sx, y), new Vector2(40, 26));
-                sx += 43;
+                times.Add(UIKit.Button(label, () => ShiftNodeTime(d, orbit), "node-timebtn"));
             }
-            y -= 36;
-            var del = UIKit.Button(np.transform, "Delete node", DeleteSelected, 14);
-            UIKit.Place(del.Rect, new Vector2(0, 1), new Vector2(0, 1), new Vector2(12, y), new Vector2(120, 28));
-            var warp = UIKit.Button(np.transform, "Warp to burn", WarpToNode, 14);
-            UIKit.Place(warp.Rect, new Vector2(0, 1), new Vector2(0, 1), new Vector2(138, y), new Vector2(130, 28));
-            var sas = UIKit.Button(np.transform, "SAS → node", () => { var v = Sim.ActiveVessel; if (v != null) FlightInput.SetSasMode(v, SasMode.Maneuver); }, 14);
-            UIKit.Place(sas.Rect, new Vector2(0, 1), new Vector2(0, 1), new Vector2(274, y), new Vector2(130, 28));
-            y -= 34;
-            _nodeText = UIKit.Label(np.transform, "", 14, UIKit.TextColor);
-            _nodeText.textWrappingMode = TextWrappingModes.Normal;
-            _nodeText.alignment = TextAlignmentOptions.TopLeft;
-            UIKit.Place(_nodeText.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(12, y), new Vector2(396, 110));
-            _nodePanel.gameObject.SetActive(false);
+            _root.Q<Button>("node-del").clicked += DeleteSelected;
+            _root.Q<Button>("node-warp").clicked += WarpToNode;
+            _root.Q<Button>("node-sas").clicked += () => { var v = Sim.ActiveVessel; if (v != null) FlightInput.SetSasMode(v, SasMode.Maneuver); };
+            _nodeText = _root.Q<Label>("node-text");
+            UIKit.Show(_nodePanel, false);
 
-            // Orbit info panel
-            var op = UIKit.Panel(_root, "OrbitInfo");
-            _orbitPanel = op.rectTransform;
-            UIKit.Place(_orbitPanel, new Vector2(0, 0), new Vector2(0, 0), new Vector2(8, 8), new Vector2(360, 230));
-            _orbitInfo = UIKit.Label(op.transform, "", 14, UIKit.TextColor);
-            _orbitInfo.textWrappingMode = TextWrappingModes.Normal;
-            _orbitInfo.alignment = TextAlignmentOptions.TopLeft;
-            UIKit.Stretch(_orbitInfo.rectTransform, 12, 10, 8, 8);
-
-            _hint = UIKit.Label(_root, "MAP  —  click your orbit: add node / warp here · drag a node along the orbit · right-click a node or Del: delete · click a body or vessel for actions · right-drag rotate · scroll zoom · Tab focus · M back",
-                14, UIKit.TextDim, TextAlignmentOptions.Center);
-            UIKit.Place(_hint.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -112), new Vector2(1400, 20));
+            _orbitInfo = _root.Q<Label>("orbit-info");
         }
 
         private static string HandleName(string k) => k switch
@@ -190,18 +138,23 @@ namespace TAP.UI
             "pro" => "prograde", "retro" => "retrograde", "nrm" => "normal", "anrm" => "anti-normal", "radout" => "radial-out", _ => "radial-in",
         };
 
-        private TMP_InputField AddComponentRow(Transform parent, string label, Color color, float y, Action<double> set, Action<double> add)
+        private TextField AddComponentRow(VisualElement parent, string label, Color color, Action<double> set, Action<double> add)
         {
-            var l = UIKit.Label(parent, label, 15, color);
-            UIKit.Place(l.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(12, y), new Vector2(90, 30));
-            var minus = UIKit.Button(parent, "−", () => add(-_step), 18);
-            UIKit.Place(minus.Rect, new Vector2(0, 1), new Vector2(0, 1), new Vector2(104, y), new Vector2(36, 30));
-            var field = UIKit.Input(parent, "0.0", s => { if (double.TryParse(s, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double d)) set(d); }, 16);
-            UIKit.Place((RectTransform)field.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(144, y), new Vector2(130, 30));
-            var plus = UIKit.Button(parent, "+", () => add(_step), 18);
-            UIKit.Place(plus.Rect, new Vector2(0, 1), new Vector2(0, 1), new Vector2(278, y), new Vector2(36, 30));
-            var unit = UIKit.Label(parent, "m/s", 14, UIKit.TextDim);
-            UIKit.Place(unit.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(320, y), new Vector2(60, 30));
+            var row = UIKit.Element("node-row");
+            var l = UIKit.Label(label, "node-component");
+            l.style.color = color;
+            row.Add(l);
+            row.Add(UIKit.Button("−", () => add(-_step), "node-step"));
+            var field = UIKit.Field("0.0", "node-field");
+            field.isDelayed = true;
+            field.RegisterValueChangedCallback(e =>
+            {
+                if (double.TryParse(e.newValue, NumberStyles.Float, CultureInfo.InvariantCulture, out double d)) set(d);
+            });
+            row.Add(field);
+            row.Add(UIKit.Button("+", () => add(_step), "node-step"));
+            row.Add(UIKit.Label("m/s", "node-unit text-dim"));
+            parent.Add(row);
             return field;
         }
 
@@ -225,11 +178,17 @@ namespace TAP.UI
             RefreshFields(n);
         }
 
+        private static void SetField(TextField f, double v)
+        {
+            if (f.focusController != null && f.focusController.focusedElement == f) return;
+            f.SetValueWithoutNotify(v.ToString("0.0", CultureInfo.InvariantCulture));
+        }
+
         private void RefreshFields(ManeuverNodeRecord n)
         {
-            if (!_proField.isFocused) _proField.text = n.prograde.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
-            if (!_nrmField.isFocused) _nrmField.text = n.normal.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
-            if (!_radField.isFocused) _radField.text = n.radial.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
+            SetField(_proField, n.prograde);
+            SetField(_nrmField, n.normal);
+            SetField(_radField, n.radial);
         }
 
         private void ShiftNodeTime(double dt, bool orbit)
@@ -280,33 +239,31 @@ namespace TAP.UI
         private void Update()
         {
             bool active = Map != null && Map.Active && !UiState.Paused;
-            if (_canvas.enabled != active) _canvas.enabled = active;
-            if (!active) { _context.SetActive(false); return; }
-            float scale = _canvas.scaleFactor;
+            if (active != _wasActive) { _wasActive = active; UIKit.Show(_root, active); }
+            if (!active) { UIKit.Show(_context, false); return; }
             var v = Sim.ActiveVessel;
             if (v != null && _selectedNode >= v.ManeuverNodes.Count) _selectedNode = v.ManeuverNodes.Count - 1;
             if (v != null && _selectedNode < 0 && v.ManeuverNodes.Count > 0) _selectedNode = 0;
 
             // Markers
             _used = 0;
-            foreach (var m in Map.Markers) ShowMarker(m, scale);
-            for (int i = _used; i < _pool.Count; i++) _pool[i].Rt.gameObject.SetActive(false);
+            foreach (var m in Map.Markers) ShowMarker(m);
+            for (int i = _used; i < _pool.Count; i++) UIKit.Show(_pool[i].Root, false);
 
-            HandleMouse(scale);
-            UpdateNodeGizmo(scale);
+            HandleMouse();
+            UpdateNodeGizmo();
             UpdateNodePanel();
             UpdateOrbitPanel();
         }
 
-        private void ShowMarker(MapMarker m, float scale)
+        private void ShowMarker(MapMarker m)
         {
             if (!m.Visible) return;
-            if (m.Type == MarkerType.ActiveVessel && Selected != null && false) return;
             if (_used >= _pool.Count) _pool.Add(CreateWidget());
             var w = _pool[_used++];
             w.Marker = m;
-            w.Rt.gameObject.SetActive(true);
-            w.Rt.anchoredPosition = (Vector2)m.Screen / scale;
+            UIKit.Show(w.Root, true);
+            UIKit.Place(w.Root, UIKit.ScreenToPanel(m.Screen));
             string icon; float size = 22; Color c = m.Color;
             switch (m.Type)
             {
@@ -326,33 +283,32 @@ namespace TAP.UI
                 default: icon = "map_encounter"; size = 20; break;
             }
             w.Icon.sprite = UIKit.Icon(icon);
-            w.Icon.color = c;
-            w.Icon.rectTransform.sizeDelta = new Vector2(size, size);
+            w.Icon.tintColor = c;
+            w.Icon.style.width = size;
+            w.Icon.style.height = size;
             bool showLabel = m.Type == MarkerType.Body || m.Type == MarkerType.ActiveVessel || m.Type == MarkerType.Apoapsis || m.Type == MarkerType.Periapsis
                              || m.Type == MarkerType.Encounter || m.Type == MarkerType.Node || m.Type == MarkerType.Impact;
             w.Label.text = showLabel ? m.Label : "";
-            w.Label.color = m.Type == MarkerType.Body ? UIKit.TextColor : c;
-            string tip = m.Tooltip;
-            w.Tip.Text = () => tip;
+            w.Label.style.color = m.Type == MarkerType.Body ? UIKit.TextColor : c;
+            w.Tip = m.Tooltip;
         }
 
         private MarkerWidget CreateWidget()
         {
-            var rt = UIKit.Rect(_root, "Marker");
-            rt.anchorMin = rt.anchorMax = Vector2.zero;
-            rt.sizeDelta = new Vector2(26, 26);
-            rt.SetSiblingIndex(0);
-            var icon = UIKit.Image(rt, null, Color.white, "Icon");
-            icon.raycastTarget = true; // for the tooltip; markers never block map clicks or scrolling
-            icon.gameObject.AddComponent<MapMarkerTag>();
-            var label = UIKit.Label(rt, "", 13, UIKit.TextColor, TextAlignmentOptions.Left);
-            label.rectTransform.anchoredPosition = new Vector2(66, 0);
-            label.rectTransform.sizeDelta = new Vector2(110, 18);
-            var tip = icon.gameObject.AddComponent<TooltipTrigger>();
-            return new MarkerWidget { Rt = rt, Icon = icon, Label = label, Tip = tip };
+            var w = new MarkerWidget { Root = UIKit.Element("map-marker") };
+            w.Root.pickingMode = PickingMode.Ignore;
+            // The icon takes the pointer for its tooltip only; markers never block map clicks or scrolling.
+            w.Icon = UIKit.Image(null, Color.white, "map-marker__icon map-marker-hit");
+            w.Icon.pickingMode = PickingMode.Position;
+            w.Root.Add(w.Icon);
+            w.Label = UIKit.Label("", "map-marker__label");
+            w.Root.Add(w.Label);
+            UIKit.Tooltip(w.Icon, () => w.Tip);
+            _markerLayer.Add(w.Root);
+            return w;
         }
 
-        private void HandleMouse(float scale)
+        private void HandleMouse()
         {
             var mouse = Mouse.current;
             if (mouse == null) return;
@@ -370,20 +326,20 @@ namespace TAP.UI
             }
             if (_draggingNode)
             {
-                _addPreview.enabled = false;
+                UIKit.Show(_addPreview, false);
                 if (!mouse.leftButton.isPressed) _draggingNode = false;
                 else DragNodeAlongOrbit(mp);
                 return;
             }
 
             // Hover preview on the trajectory.
-            _addPreview.enabled = false;
+            UIKit.Show(_addPreview, false);
             bool canPick = v != null && !v.IsEva && _dragHandle == null && !blocked;
             double hoverUT = double.NaN;
             if (canPick && NearMarker(mp, 14) == null && Map.PickTrajectory(mp, 10, out hoverUT))
             {
-                _addPreview.enabled = true;
-                _addPreview.rectTransform.anchoredPosition = mp / scale;
+                UIKit.Show(_addPreview, true);
+                UIKit.Place(_addPreview, UIKit.ScreenToPanel(mp));
             }
 
             if (mouse.leftButton.wasPressedThisFrame && !blocked && _dragHandle == null)
@@ -396,15 +352,15 @@ namespace TAP.UI
                     {
                         // Select the node; holding the button and moving drags it along the orbit.
                         _selectedNode = idx;
-                        _context.SetActive(false);
+                        UIKit.Show(_context, false);
                         _draggingNode = true;
                         _dragNodeMoved = false;
                         _dragNodeStart = mp;
                     }
-                    else if (m.Payload != null) OpenContext(m, mp / scale);
+                    else if (m.Payload != null) OpenContext(m, UIKit.ScreenToPanel(mp));
                 }
-                else if (!double.IsNaN(hoverUT)) OpenTrajectoryContext(hoverUT, mp / scale);
-                else _context.SetActive(false);
+                else if (!double.IsNaN(hoverUT)) OpenTrajectoryContext(hoverUT, UIKit.ScreenToPanel(mp));
+                else UIKit.Show(_context, false);
             }
 
             // Right-click (without dragging the camera) on a node deletes it.
@@ -453,28 +409,15 @@ namespace TAP.UI
         /// <summary>
         /// What the pointer is over: a panel (blocks map clicks and scrolling) or a node gizmo (handles and the delete
         /// button take their own clicks). Marker icons only carry tooltips and block nothing, so the map can be zoomed
-        /// with the pointer on the vessel.
+        /// with the pointer on the vessel. Panels of the other flight screens (staging, navball) count too.
         /// </summary>
-        private void ClassifyPointer(Vector2 mp, out bool overPanel, out bool overGizmo)
+        private static void ClassifyPointer(Vector2 mp, out bool overPanel, out bool overGizmo)
         {
             overPanel = overGizmo = false;
-            var es = EventSystem.current;
-            if (es == null) return;
-            _uiHits.Clear();
-            es.RaycastAll(new PointerEventData(es) { position = mp }, _uiHits);
-            foreach (var h in _uiHits)
-            {
-                var go = h.gameObject;
-                if (go == null || go.GetComponent<MapMarkerTag>() != null) continue;
-                if (IsGizmo(go)) overGizmo = true;
-                else overPanel = true;
-            }
-        }
-
-        private bool IsGizmo(GameObject go)
-        {
-            foreach (var h in _handles.Values) if (h.gameObject == go) return true;
-            return _nodeDeleteBtn != null && go.transform.IsChildOf(_nodeDeleteBtn.Rect);
+            var e = UIKit.Pick(mp);
+            if (e == null || UIKit.Ancestor(e, "map-marker-hit") != null) return;
+            if (UIKit.Ancestor(e, "map-gizmo") != null) overGizmo = true;
+            else overPanel = true;
         }
 
         private MarkerWidget NearMarker(Vector2 screen, float px)
@@ -512,17 +455,15 @@ namespace TAP.UI
 
         private void ShowContext(string title, List<(string, Action)> actions, Vector2 pos)
         {
-            _context.SetActive(true);
-            ((RectTransform)_context.transform).anchoredPosition = pos + new Vector2(16, -8);
-            foreach (Transform c in _contextButtons) Destroy(c.gameObject);
+            UIKit.Show(_context, true);
+            UIKit.Place(_context, pos + new Vector2(16, 8));
+            _contextButtons.Clear();
             _contextTitle.text = title;
             foreach (var (label, act) in actions)
             {
                 var a = act;
-                var btn = UIKit.Button(_contextButtons, label, () => { a(); _context.SetActive(false); }, 14);
-                UIKit.Size(btn.Button, 28);
+                _contextButtons.Add(UIKit.Button(label, () => { a(); UIKit.Show(_context, false); }, "context-btn"));
             }
-            ((RectTransform)_context.transform).sizeDelta = new Vector2(220, 40 + actions.Count * 32);
         }
 
         private void OpenContext(MapMarker m, Vector2 pos)
@@ -553,22 +494,25 @@ namespace TAP.UI
 
         // ------------------------------------------------------------------ node gizmo
 
-        private void UpdateNodeGizmo(float scale)
+        private void UpdateNodeGizmo()
         {
             var n = Selected;
-            foreach (var h in _handles.Values) h.enabled = false;
-            bool show = n != null && Map.NodeScreenFrame(n, out _, out _, out _, out _);
-            if (_nodeDeleteBtn.Rect.gameObject.activeSelf != show) _nodeDeleteBtn.Rect.gameObject.SetActive(show);
-            if (!show || !Map.NodeScreenFrame(n, out var s, out var p, out var nr, out var rd)) return;
-            Vector2 c = (Vector2)s / scale;
-            _nodeDeleteBtn.Rect.anchoredPosition = c + new Vector2(28, 28);
-            float len = 62;
+            foreach (var h in _handles.Values) UIKit.Show(h, false);
+            bool show = n != null && Map.NodeScreenFrame(n, out var s, out var p, out var nr, out var rd);
+            UIKit.Show(_nodeDeleteBtn, show);
+            if (!show) return;
+            Map.NodeScreenFrame(n, out s, out p, out nr, out rd);
+            Vector2 c = UIKit.ScreenToPanel(s);
+            UIKit.Place(_nodeDeleteBtn, c + new Vector2(28, -28));
+            const float len = 62;
             void Put(string k, Vector2 dir)
             {
                 var img = _handles[k];
                 if (dir.sqrMagnitude < 1e-4f) dir = Vector2.up;
-                img.enabled = true;
-                img.rectTransform.anchoredPosition = c + dir.normalized * len;
+                UIKit.Show(img, true);
+                // Screen directions have y up; panel coordinates have y down.
+                Vector2 d = dir.normalized;
+                UIKit.Place(img, c + new Vector2(d.x, -d.y) * len);
             }
             Put("pro", p); Put("retro", -p);
             Put("nrm", nr); Put("anrm", -nr);
@@ -585,7 +529,9 @@ namespace TAP.UI
             };
             if (dir.sqrMagnitude < 1e-4f) return;
             dir.Normalize();
-            Vector2 handlePos = (Vector2)screen + dir * 62 * _canvas.scaleFactor;
+            // The handle sits 62 panel units from the node; in screen pixels that is scaled by the panel's scale.
+            float pxPerUnit = Screen.height / Mathf.Max(1f, UIKit.PanelSize(_root).y);
+            Vector2 handlePos = (Vector2)screen + dir * 62 * pxPerUnit;
             float pull = Vector2.Dot(mp - handlePos, dir); // pixels beyond the handle along its axis
             float rate = Mathf.Sign(pull) * Mathf.Pow(Mathf.Abs(pull) / 40f, 2f) * 20f; // m/s per second
             double d = rate * Time.unscaledDeltaTime;
@@ -606,11 +552,10 @@ namespace TAP.UI
         {
             var n = Selected;
             var v = Sim.ActiveVessel;
-            _nodePanel.gameObject.SetActive(n != null);
+            UIKit.Show(_nodePanel, n != null);
             if (n == null) return;
             RefreshFields(n);
             _stepText.text = $"±{_step:0.#} m/s";
-            var info = ManeuverPlanner.Info(v, Sim.UT);
             var sb = new StringBuilder();
             double dv = ManeuverPlanner.Magnitude(n);
             v.GetPropulsion(out double thrust, out double isp);
@@ -633,7 +578,7 @@ namespace TAP.UI
                 else sb.AppendLine($"<color=#{UIKit.Hex(UIKit.TextDim)}>No encounter</color>");
             }
             if (v.ManeuverNodes.Count > 1) sb.AppendLine($"<color=#{UIKit.Hex(UIKit.TextDim)}>Node {_selectedNode + 1} of {v.ManeuverNodes.Count} (click a node marker to select)</color>");
-            _nodeText.text = sb.ToString();
+            _nodeText.text = sb.ToString().TrimEnd('\n', '\r');
         }
 
         private void UpdateOrbitPanel()
@@ -650,7 +595,7 @@ namespace TAP.UI
                               (b.IsStar ? "" : $", day {MathD.FormatDuration(b.SolarDay)}"));
                 if (b.Atmosphere != null) sb.AppendLine($"Atmosphere {b.Atmosphere.Height / 1000:0} km, {b.Atmosphere.SeaLevelPressure / 1000:0.0} kPa at sea level");
                 if (b.Parent != null) sb.AppendLine($"Orbit {b.Orbit.SemiMajorAxis / 1000:N0} km, period {MathD.FormatDuration(b.Orbit.Period)}\nSphere of influence {b.SOIRadius / 1000:N0} km");
-                sb.AppendLine($"<size=12><color=#{UIKit.Hex(UIKit.TextDim)}>{b.Def.description}</color></size>");
+                sb.Append($"<size=12><color=#{UIKit.Hex(UIKit.TextDim)}>{b.Def.description}</color></size>");
             }
             else if (h != null)
             {
@@ -676,14 +621,7 @@ namespace TAP.UI
                 }
                 else sb.AppendLine("Landed");
             }
-            _orbitInfo.text = sb.ToString();
-            _orbitPanel.sizeDelta = new Vector2(360, _orbitInfo.GetPreferredValues(_orbitInfo.text, 336, 0).y + 18);
+            _orbitInfo.text = sb.ToString().TrimEnd('\n', '\r');
         }
     }
-}
-
-namespace TAP.UI
-{
-    /// <summary>Marks map marker icons (tooltip targets that must not block map clicks or zooming).</summary>
-    internal sealed class MapMarkerTag : MonoBehaviour { }
 }
