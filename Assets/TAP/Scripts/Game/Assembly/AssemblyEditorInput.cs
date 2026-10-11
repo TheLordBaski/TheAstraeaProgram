@@ -64,10 +64,9 @@ namespace TAP.Game
             GameSession.TickPlayTime(Time.unscaledDeltaTime);
             if (Cam == null || CraftRoot == null) return;
             var mouse = Mouse.current;
-            var kb = Keyboard.current;
             if (mouse == null) return;
             bool overUi = PointerOverUi != null && PointerOverUi();
-            if (kb != null && !UiState.KeyboardCaptured) HandleKeys(kb);
+            if (!UiState.KeyboardCaptured) HandleKeys();
 
             Vector2 mp = mouse.position.ReadValue();
             Ray ray = Cam.ScreenPointToRay(mp);
@@ -90,7 +89,7 @@ namespace TAP.Game
                 }
                 if (mouse.leftButton.wasPressedThisFrame && !overUi)
                 {
-                    bool copy = kb != null && (kb.leftAltKey.isPressed || kb.rightAltKey.isPressed);
+                    bool copy = Controls.Held("Assembly/CopyModifier");
                     if (HoveredPart >= 0)
                     {
                         if (copy) CopyPart(HoveredPart);
@@ -143,38 +142,34 @@ namespace TAP.Game
 
         // ------------------------------------------------------------------ keys
 
-        private void HandleKeys(Keyboard kb)
+        private void HandleKeys()
         {
-            bool ctrl = kb.leftCtrlKey.isPressed || kb.rightCtrlKey.isPressed;
-            bool shift = kb.leftShiftKey.isPressed || kb.rightShiftKey.isPressed;
-            if (ctrl)
-            {
-                if (kb.zKey.wasPressedThisFrame) { if (shift) Redo(); else Undo(); }
-                else if (kb.yKey.wasPressedThisFrame) Redo();
-                else if (kb.sKey.wasPressedThisFrame) Save();
-                return;
-            }
-            if (kb.xKey.wasPressedThisFrame) CycleSymmetry(shift ? -1 : 1);
-            if (kb.cKey.wasPressedThisFrame) ToggleAngleSnap();
-            if (kb.fKey.wasPressedThisFrame || kb.homeKey.wasPressedThisFrame) FrameCraft();
-            if (kb.vKey.wasPressedThisFrame) ToggleMarkers();
+            // Ctrl+Z, Ctrl+S and Shift+X are bindings of their own; the keys they share with the plain ones stay quiet.
+            if (Controls.Down("Assembly/Undo")) Undo();
+            if (Controls.Down("Assembly/Redo")) Redo();
+            if (Controls.Down("Assembly/SaveCraft")) Save();
+            if (Controls.Down("Assembly/SymmetryUp")) CycleSymmetry(1);
+            if (Controls.Down("Assembly/SymmetryDown")) CycleSymmetry(-1);
+            if (Controls.Down("Assembly/AngleSnap")) ToggleAngleSnap();
+            if (Controls.Down("Assembly/FrameCraft")) FrameCraft();
+            if (Controls.Down("Assembly/Markers")) ToggleMarkers();
 
             if (_held != null)
             {
-                float step = shift ? 5f : (AngleSnap ? 90f : 15f);
+                float step = Controls.Held("Assembly/FineRotation") ? 5f : (AngleSnap ? 90f : 15f);
                 Vector3 camRight = SnapAxis(Cam.transform.right);
                 Vector3 camFwd = SnapAxis(Cam.transform.forward);
-                if (kb.wKey.wasPressedThisFrame) RotateHeld(camRight, step);
-                if (kb.sKey.wasPressedThisFrame) RotateHeld(camRight, -step);
-                if (kb.aKey.wasPressedThisFrame) RotateHeld(Vector3.up, step);
-                if (kb.dKey.wasPressedThisFrame) RotateHeld(Vector3.up, -step);
-                if (kb.qKey.wasPressedThisFrame) RotateHeld(camFwd, step);
-                if (kb.eKey.wasPressedThisFrame) RotateHeld(camFwd, -step);
-                if (kb.spaceKey.wasPressedThisFrame) _heldRotation = Quaternion.identity;
-                if (kb.escapeKey.wasPressedThisFrame) PutBackHeld();
-                else if (kb.deleteKey.wasPressedThisFrame || kb.backspaceKey.wasPressedThisFrame) DiscardHeld();
+                if (Controls.Down("Assembly/RotatePitchUp")) RotateHeld(camRight, step);
+                if (Controls.Down("Assembly/RotatePitchDown")) RotateHeld(camRight, -step);
+                if (Controls.Down("Assembly/RotateLeft")) RotateHeld(Vector3.up, step);
+                if (Controls.Down("Assembly/RotateRight")) RotateHeld(Vector3.up, -step);
+                if (Controls.Down("Assembly/RotateRollLeft")) RotateHeld(camFwd, step);
+                if (Controls.Down("Assembly/RotateRollRight")) RotateHeld(camFwd, -step);
+                if (Controls.Down("Assembly/ResetRotation")) _heldRotation = Quaternion.identity;
+                if (Controls.Down("Common/Cancel")) PutBackHeld();
+                else if (Controls.Down("Assembly/Delete")) DiscardHeld();
             }
-            else if (kb.deleteKey.wasPressedThisFrame || kb.backspaceKey.wasPressedThisFrame)
+            else if (Controls.Down("Assembly/Delete"))
             {
                 if (HoveredPart >= 0) DeletePart(HoveredPart);
                 else if (HoveredDetachedAsm > 0) DeleteDetached(HoveredDetachedAsm - 1, HoveredDetachedPart);

@@ -49,7 +49,6 @@ namespace TAP.Game
         private void LateUpdate()
         {
             var mouse = Mouse.current;
-            var kb = Keyboard.current;
             float dt = Time.unscaledDeltaTime;
             bool overUi = PointerOverUi != null && PointerOverUi();
             bool typing = UiState.KeyboardCaptured;
@@ -66,23 +65,23 @@ namespace TAP.Game
                 if (!overUi && Mathf.Abs(scroll) > 0.01f && !FlightCamera.UiBlocksScroll)
                 {
                     float steps = ScrollZoom.Notches(scroll);
-                    bool shift = kb != null && (kb.leftShiftKey.isPressed || kb.rightShiftKey.isPressed);
+                    bool shift = Controls.Held("EditorCamera/HeightModifier");
                     if (shift) _tHeight += steps * Mathf.Max(0.5f, _dist * 0.08f);
                     else _tDist *= ScrollZoom.Factor(scroll, 0.78f);
                 }
             }
-            if (kb != null && !typing)
+            if (!typing)
             {
                 // Arrow keys / page keys as an alternative to the mouse.
                 float k = 70f * dt;
-                if (kb.leftArrowKey.isPressed) _tYaw += k;
-                if (kb.rightArrowKey.isPressed) _tYaw -= k;
-                if (kb.upArrowKey.isPressed) _tPitch = Mathf.Clamp(_tPitch + k, -20f, 85f);
-                if (kb.downArrowKey.isPressed) _tPitch = Mathf.Clamp(_tPitch - k, -20f, 85f);
-                if (kb.pageUpKey.isPressed) _tHeight += _dist * 0.6f * dt;
-                if (kb.pageDownKey.isPressed) _tHeight -= _dist * 0.6f * dt;
-                if (kb.equalsKey.isPressed || kb.numpadPlusKey.isPressed) _tDist *= 1f - 1.2f * dt;
-                if (kb.minusKey.isPressed || kb.numpadMinusKey.isPressed) _tDist *= 1f + 1.2f * dt;
+                if (Controls.Held("EditorCamera/OrbitLeft")) _tYaw += k;
+                if (Controls.Held("EditorCamera/OrbitRight")) _tYaw -= k;
+                if (Controls.Held("EditorCamera/OrbitUp")) _tPitch = Mathf.Clamp(_tPitch + k, -20f, 85f);
+                if (Controls.Held("EditorCamera/OrbitDown")) _tPitch = Mathf.Clamp(_tPitch - k, -20f, 85f);
+                if (Controls.Held("EditorCamera/Raise")) _tHeight += _dist * 0.6f * dt;
+                if (Controls.Held("EditorCamera/Lower")) _tHeight -= _dist * 0.6f * dt;
+                if (Controls.Held("EditorCamera/ZoomIn")) _tDist *= 1f - 1.2f * dt;
+                if (Controls.Held("EditorCamera/ZoomOut")) _tDist *= 1f + 1.2f * dt;
             }
             _tHeight = Mathf.Clamp(_tHeight, MinHeight, MaxHeight);
             _tDist = Mathf.Clamp(_tDist, MinDistance, MaxDistance);

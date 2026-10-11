@@ -168,12 +168,7 @@ namespace TAP.UI
 
         private void Update()
         {
-            var kb = Keyboard.current;
-            if (kb != null && !UiState.KeyboardCaptured)
-            {
-                bool alt = kb.leftAltKey.isPressed || kb.rightAltKey.isPressed;
-                if ((alt && kb.f12Key.wasPressedThisFrame) || kb.backquoteKey.wasPressedThisFrame) Toggle();
-            }
+            if (!UiState.KeyboardCaptured && Controls.Down("Dev/Window")) Toggle();
             if (!IsOpen) return;
             foreach (var (btn, get) in _toggles) UIKit.SetOn(btn, get());
             UIKit.SetOn(_tellusBtn, _body == Sim.System.HomeBody);

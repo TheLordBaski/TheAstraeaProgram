@@ -310,10 +310,34 @@ Built (`GameSettings.cs`, `SettingsApply.cs`, `SettingsUI.cs`, `SettingsTests.cs
 - Action-group keys (FLT-07).
 
 **Done when**
-- [ ] Every action can be rebound.
-- [ ] A joystick flies the `orbit` mission by hand (you).
-- [ ] Trim holds a pitch without input.
-- [ ] F1 shows the rebound keys.
+- [x] Every action can be rebound. (`InputTests`: every button and every axis is rebound and the new key or stick works;
+      Settings → Controls does it in game, checked with a simulated key press.)
+- [ ] A joystick flies the `orbit` mission by hand (you). The bindings, dead zones and the throttle lever are there; it
+      needs a real stick.
+- [x] Trim holds a pitch without input. (`Trim_HoldsAPitchWithoutInput`; in the editor Alt + W for 2 s gave 0.47 trim,
+      still 0.47 with the keys up, and Alt + X cleared it.)
+- [x] F1 shows the rebound keys. (`TheGuide_ShowsTheReboundKeys`; the guide is made again each time it opens.)
+
+Built (`ControlTable.cs`, `Controls.cs`, `InputTests.cs`, 15 tests):
+- **One table:** every key of flight, EVA, map, assembly building and developer tools is a row in `ControlTable` (about 120
+  controls: id, guide line, keyboard, gamepad and joystick defaults). It is in code rather than a `.inputactions` file, so
+  the guide, the rebinding screen, the conflict rule and the tests all read the same rows. `Controls` builds an Input
+  System action asset from it. Code asks `Controls.Down("Flight/Stage")`; a test checks that every id used in code is in
+  the table. Mouse buttons are not in it; a few appear as text in the guide.
+- **Guides:** the F1 guide, the main menu's Controls list and the assembly building's help are made from the table, with the
+  keys as bound now.
+- **Rebinding:** *Settings → Controls* (click, press a key, Esc cancels; *Default* and *Reset all*). A key another control
+  used is taken from it, with a note. Flight and EVA share keys on purpose and never conflict. Saved per user in
+  `controls.json`. Keys are bound by physical position (`<Keyboard>/w`), so QWERTZ and AZERTY keep the layout; a test
+  checks that no default binds by the letter shown.
+- **Sticks:** gamepad (left stick pitch and yaw, right stick roll, triggers throttle, buttons for stage, SAS, RCS, legs, warp,
+  pause) and joystick (stick pitch and yaw, trigger stage) defaults. Each axis has a dead zone, sensitivity and inversion in
+  Settings → Controls; a throttle lever can set the throttle (HOTAS) instead of changing it. A HOTAS twist or slider is
+  bound by pressing it in the rebinding screen.
+- **Precision and trim:** Caps Lock cuts the attitude input to a quarter. Hold Alt and press W A S D Q E to trim; trim stays
+  with the keys released, is saved with the vessel (`ControlRecord`), and Alt + X clears it.
+- **Action groups:** Alt + 1 to 0 are in the table and raise `FlightInput.ActionGroup`; FLT-07 gives them effects.
+- **Shortcuts:** Input System shortcut consumption is on, so Ctrl + S saves and the S that rotates a held part stays quiet.
 
 ### FND-10 · Localization-ready text
 **Milestone** M1 · **Claude** 2 d · **You** 0.5 d · **Needs** —

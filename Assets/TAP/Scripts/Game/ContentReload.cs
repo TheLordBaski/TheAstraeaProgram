@@ -181,8 +181,7 @@ namespace TAP.Game
 
         private void Update()
         {
-            var kb = Keyboard.current;
-            if (kb != null && kb.f8Key.wasPressedThisFrame) ContentReload.Run();
+            if (Controls.Down("Dev/ReloadContent")) ContentReload.Run();
         }
     }
 }

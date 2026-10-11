@@ -98,6 +98,38 @@ namespace TAP.Game
         public float uiScale = 1f, hudScale = 1f;
     }
 
+    /// <summary>A stick, twist or lever: how much of its travel to ignore, how strongly it acts, and which way it points.</summary>
+    [Serializable]
+    public class AxisOptions
+    {
+        public float deadzone = 0.1f, sensitivity = 1f;
+        public bool invert;
+
+        /// <summary>The reading (-1 to 1) after the dead zone is cut out and the rest stretched back to full range.</summary>
+        public float Apply(float v)
+        {
+            float a = Mathf.Abs(v);
+            if (a <= deadzone) return 0f;
+            float stretched = deadzone >= 1f ? 0f : (a - deadzone) / (1f - deadzone);
+            return Mathf.Clamp(Mathf.Sign(v) * stretched * sensitivity, -1f, 1f) * (invert ? -1f : 1f);
+        }
+    }
+
+    [Serializable]
+    public class InputOptions
+    {
+        /// <summary>Per axis ("PitchAxis", "YawAxis", "RollAxis", "ThrottleAxis"); an axis not listed has the defaults.</summary>
+        public System.Collections.Generic.Dictionary<string, AxisOptions> axes = new System.Collections.Generic.Dictionary<string, AxisOptions>();
+        /// <summary>A throttle lever (HOTAS) sets the throttle where it stands; off, it changes the throttle like the keys do.</summary>
+        public bool throttleLever;
+
+        public AxisOptions Axis(string name)
+        {
+            if (!axes.TryGetValue(name, out var a)) axes[name] = a = new AxisOptions { deadzone = name == "ThrottleAxis" ? 0.02f : 0.1f };
+            return a;
+        }
+    }
+
     /// <summary>
     /// The player's settings (FND-08): one JSON file in the user folder next to the saves, never the registry. <see cref="Current"/>
     /// is what the game reads; <see cref="Commit"/> applies a change and schedules the write. Command-line overrides
@@ -111,6 +143,7 @@ namespace TAP.Game
         public AudioOptions audio = new AudioOptions();
         public GameplayOptions gameplay = new GameplayOptions();
         public InterfaceOptions ui = new InterfaceOptions();
+        public InputOptions input = new InputOptions();
 
         public const string FileName = "settings.json";
         public static string FilePath => System.IO.Path.Combine(SaveStorage.Root, FileName);
@@ -218,7 +251,8 @@ namespace TAP.Game
         public void Sanitize()
         {
             graphics = graphics ?? new GraphicsOptions(); audio = audio ?? new AudioOptions();
-            gameplay = gameplay ?? new GameplayOptions(); ui = ui ?? new InterfaceOptions();
+            gameplay = gameplay ?? new GameplayOptions(); ui = ui ?? new InterfaceOptions(); input = input ?? new InputOptions();
+            foreach (var a in input.axes.Values) { a.deadzone = Mathf.Clamp(a.deadzone, 0f, 0.9f); a.sensitivity = Mathf.Clamp(a.sensitivity, 0.1f, 3f); }
             graphics.width = Mathf.Clamp(graphics.width, MinWidth, 16384);
             graphics.height = Mathf.Clamp(graphics.height, MinHeight, 16384);
             graphics.frameCap = graphics.frameCap <= 0 ? 0 : Mathf.Clamp(graphics.frameCap, 10, 1000);

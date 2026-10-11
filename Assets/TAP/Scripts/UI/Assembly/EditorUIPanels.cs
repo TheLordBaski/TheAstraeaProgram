@@ -272,7 +272,6 @@ namespace TAP.UI
         private void BuildDialogs()
         {
             _help = Q<VisualElement>("help-dialog");
-            Q<Label>("help-text").text = HelpText;
             _loadDialog = Q<VisualElement>("load-dialog");
             _loadList = Q<ScrollView>("load-list");
             _flightsDialog = Q<VisualElement>("flights-dialog");
@@ -450,21 +449,30 @@ namespace TAP.UI
             UIKit.Place(_partMenu, p);
         }
 
+        /// <summary>Shows or hides the assembly help, with the keys as they are bound now.</summary>
+        private void ToggleHelp()
+        {
+            bool open = !UIKit.Shown(_help);
+            if (open) Q<Label>("help-text").text = Controls.Expand(HelpText);
+            UIKit.Show(_help, open);
+        }
+
+        /// <summary>The help text; {Map/Name} stands for the keys of that control.</summary>
         private const string HelpText =
             "<b>Building</b>\n" +
             "• Click a part in the list to pick it up, then click to attach it. Stack parts snap to the free nodes shown as green spheres; " +
             "radial parts (fins, legs, boosters on radial decouplers, RCS, batteries…) attach to the surface of the part under the cursor.\n" +
-            "• <b>X</b> cycles radial symmetry (1, 2, 3, 4, 6, 8). Parts attached to a symmetric part (e.g. a nose cone on a booster) are copied onto every counterpart.\n" +
-            "• <b>C</b> toggles angle snap (15° positions, 90° rotation steps). <b>W A S D Q E</b> rotate the held part, <b>Shift</b> for 5° steps, <b>Space</b> resets.\n" +
-            "• Click a placed part to pick it up together with everything attached below/beside it. <b>Alt+click</b> copies it. " +
+            "• <b>{Assembly/SymmetryUp}</b> cycles radial symmetry (1, 2, 3, 4, 6, 8). Parts attached to a symmetric part (e.g. a nose cone on a booster) are copied onto every counterpart.\n" +
+            "• <b>{Assembly/AngleSnap}</b> toggles angle snap (15° positions, 90° rotation steps). <b>{Assembly/RotatePitchUp} {Assembly/RotatePitchDown} {Assembly/RotateLeft} {Assembly/RotateRight} {Assembly/RotateRollLeft} {Assembly/RotateRollRight}</b> rotate the held part, <b>{Assembly/FineRotation}</b> for 5° steps, <b>{Assembly/ResetRotation}</b> resets.\n" +
+            "• Click a placed part to pick it up together with everything attached below/beside it. <b>{Assembly/CopyModifier}+click</b> copies it. " +
             "Clicking the root part picks up the whole craft to move it up or down (between the floor and the building's height limit); " +
             "right-click a part → <b>Make root part</b> to re-root the craft on it.\n" +
             "• Click empty space to <b>set the held parts aside</b>: they stay there greyed out, are not part of the craft (not launched, not in the readouts) " +
             "and can be built on, picked up and attached again.\n" +
-            "• <b>Del</b> deletes the part under the cursor or the held part (or drop it on the parts list); <b>Esc</b> puts picked-up parts back.\n" +
-            "• Right-click a part for its details and settings (thrust limiter), <b>Ctrl+Z / Ctrl+Y</b> undo / redo, <b>Ctrl+S</b> save.\n\n" +
-            "<b>Camera</b>: right-drag orbit · scroll zoom · Shift+scroll or middle-drag move up/down · arrow keys · <b>F</b> frame the craft.\n\n" +
-            "<b>Staging</b>: the top stage (highest number) fires first when you press Space in flight. Drag the icons between stages, or onto the gap between " +
+            "• <b>{Assembly/Delete}</b> deletes the part under the cursor or the held part (or drop it on the parts list); <b>{Common/Cancel}</b> puts picked-up parts back.\n" +
+            "• Right-click a part for its details and settings (thrust limiter), <b>{Assembly/Undo}</b> / <b>{Assembly/Redo}</b> undo / redo, <b>{Assembly/SaveCraft}</b> save.\n\n" +
+            "<b>Camera</b>: right-drag orbit · scroll zoom · {EditorCamera/HeightModifier}+scroll or middle-drag move up/down · arrow keys · <b>{Assembly/FrameCraft}</b> frame the craft.\n\n" +
+            "<b>Staging</b>: the top stage (highest number) fires first when you press {Flight/Stage} in flight. Drag the icons between stages, or onto the gap between " +
             "two stages to create a new one. <b>Reset</b> restores the automatic order. Δv and TWR are shown per stage for the selected environment.\n\n" +
             "<b>Design checks</b>: the engineer's report lists problems (red blocks launch). Keep launch TWR above ~1.3, the centre of pressure (cyan) below " +
             "the centre of mass (yellow), a heat shield under crew pods that return from orbit, and a parachute. " +

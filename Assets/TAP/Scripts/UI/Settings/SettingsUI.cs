@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TAP.Game;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 namespace TAP.UI
@@ -23,7 +24,7 @@ namespace TAP.UI
         private int _tab;
         private bool _resetArmed;
 
-        private static readonly string[] Tabs = { "Graphics", "Audio", "Gameplay", "Interface" };
+        private static readonly string[] Tabs = { "Graphics", "Audio", "Gameplay", "Interface", "Controls" };
 
         public static bool IsOpen => _instance != null && UIKit.Shown(_instance._dialog);
 
@@ -63,12 +64,15 @@ namespace TAP.UI
                 : "Changes apply at once and are saved.";
             ui.ShowTab(0);
             GameSettings.Changed += ui.Refresh;
+            Controls.Changed += ui.Refresh;
             return ui;
         }
 
         private void OnDestroy()
         {
             GameSettings.Changed -= Refresh;
+            Controls.Changed -= Refresh;
+            _rebind?.Dispose();
             if (_instance == this) _instance = null;
         }
 
@@ -84,7 +88,8 @@ namespace TAP.UI
                 case 0: BuildGraphics(s.graphics); break;
                 case 1: BuildAudio(s.audio); break;
                 case 2: BuildGameplay(s.gameplay); break;
-                default: BuildInterface(s.ui); break;
+                case 3: BuildInterface(s.ui); break;
+                default: BuildControls(s.input); break;
             }
             Refresh();
         }
@@ -101,6 +106,7 @@ namespace TAP.UI
             // Two clicks: the first arms the button, the second resets.
             if (!_resetArmed) { _resetArmed = true; _reset.text = "Sure? Click again"; return; }
             GameSettings.ResetToDefaults();
+            Controls.ResetToDefaults();
         }
 
         // ------------------------------------------------------------------ tabs
@@ -160,6 +166,83 @@ namespace TAP.UI
         }
 
         private static string Percent(float v) => $"{v * 100:0}%";
+
+        // ------------------------------------------------------------------ controls
+
+        private static readonly (string id, string name)[] Axes =
+        {
+            ("Flight/PitchAxis", "Pitch"), ("Flight/YawAxis", "Yaw"), ("Flight/RollAxis", "Roll"), ("Flight/ThrottleAxis", "Throttle"),
+        };
+
+        private void BuildControls(InputOptions input)
+        {
+            AddHeading("STICKS AND LEVERS");
+            foreach (var (id, name) in Axes)
+            {
+                var o = input.Axis(id.Substring(id.IndexOf('/') + 1));
+                Slide(name + ": dead zone", 0f, 0.5f, () => o.deadzone, v => { o.deadzone = Mathf.Round(v * 100f) / 100f; GameSettings.Commit(); }, Percent);
+                Slide(name + ": sensitivity", 0.25f, 2f, () => o.sensitivity, v => { o.sensitivity = Mathf.Round(v * 20f) / 20f; GameSettings.Commit(); }, Percent);
+                Choice(name + ": direction", new[] { "Normal", "Inverted" }, () => o.invert ? 1 : 0, i => { o.invert = i == 1; GameSettings.Commit(); });
+            }
+            Choice("Throttle lever", new[] { "Changes the throttle", "Sets the throttle" }, () => input.throttleLever ? 1 : 0, i => { input.throttleLever = i == 1; GameSettings.Commit(); });
+
+            string section = null;
+            foreach (var def in ControlTable.All)
+            {
+                if (def.Section != section) { section = def.Section; AddHeading(section); }
+                for (int slot = 0; slot < Mathf.Max(1, def.Defaults.Length); slot++) AddBindingRow(def, slot);
+            }
+            AddHeading("");
+            _list.Add(UIKit.Button("Reset all controls to their defaults", () => Controls.ResetToDefaults(), "set-wide"));
+        }
+
+        private void AddHeading(string text)
+        {
+            var l = UIKit.Label(text, "set-heading");
+            _list.Add(l);
+        }
+
+        private void AddBindingRow(ControlDef def, int slot)
+        {
+            if (def.Defaults.Length == 0) return; // nothing to rebind
+            var row = UIKit.Element("set-row");
+            row.Add(UIKit.Label(def.Label + (def.Defaults.Length > 1 ? $"  ({slot + 1})" : ""), "set-label set-label--wide"));
+            var button = UIKit.Button("", null, "set-bind");
+            button.clicked += () => StartRebind(def, slot, button);
+            var reset = UIKit.Button("Default", () => Controls.Rebind(def.Id, slot, Controls.SlotsOf(def.Id)[slot].Default), "set-step set-reset");
+            row.Add(button);
+            row.Add(reset);
+            _list.Add(row);
+            _refresh.Add(() =>
+            {
+                button.text = Controls.DisplaySlot(def.Id, slot);
+                reset.SetEnabled(Controls.IsRebound(def.Id, slot));
+            });
+        }
+
+        private InputActionRebindingExtensions.RebindingOperation _rebind;
+
+        /// <summary>Waits for the next key (or stick) and gives it to the control; Esc cancels. A control that had the key loses it, and the note says so.</summary>
+        private void StartRebind(ControlDef def, int slot, Button button)
+        {
+            _rebind?.Cancel();
+            _rebind?.Dispose();
+            var action = Controls.Action(def.Id);
+            action.Disable();
+            button.text = "Press a key…  (Esc cancels)";
+            _rebind = action.PerformInteractiveRebinding(Controls.SlotsOf(def.Id)[slot].Key)
+                .WithCancelingThrough("<Keyboard>/escape")
+                .WithControlsExcluding("<Mouse>")
+                .OnApplyBinding((op, path) =>
+                {
+                    var lost = Controls.Conflicts(def.Id, slot, path);
+                    Controls.Rebind(def.Id, slot, path);
+                    _note.text = lost.Count == 0 ? "" : "Took that key from: " + string.Join(", ", lost.Select(c => c.def.Label)) + ".";
+                })
+                .OnComplete(op => { action.Enable(); op.Dispose(); Refresh(); })
+                .OnCancel(op => { action.Enable(); op.Dispose(); Refresh(); })
+                .Start();
+        }
 
         // ------------------------------------------------------------------ rows
 

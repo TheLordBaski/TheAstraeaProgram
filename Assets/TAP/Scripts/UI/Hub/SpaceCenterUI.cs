@@ -123,8 +123,7 @@ namespace TAP.UI
 
         private void Update()
         {
-            var kb = Keyboard.current;
-            if (kb != null && kb.escapeKey.wasPressedThisFrame) { SettingsUI.Close(); UIKit.Show(_trackingDialog, false); }
+            if (Controls.Down("Common/Cancel")) { SettingsUI.Close(); UIKit.Show(_trackingDialog, false); }
             if (UIKit.Shown(_note) && Time.unscaledTime > _noteUntil) UIKit.Show(_note, false);
             // Markers follow their buildings.
             foreach (var kv in _buttons)

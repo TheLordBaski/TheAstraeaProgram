@@ -11,6 +11,8 @@ namespace TAP.Simulation
     public sealed class VesselControl
     {
         public float Pitch, Yaw, Roll;
+        /// <summary>Trim: a steady pitch, yaw and roll the pilot has set, added to what the keys or sticks give.</summary>
+        public float TrimPitch, TrimYaw, TrimRoll;
         public float TransX, TransY, TransZ;
         public float Throttle;
         public bool Sas;
@@ -38,6 +40,7 @@ namespace TAP.Simulation
         public ControlRecord ToRecord() => new ControlRecord
         {
             throttle = Throttle, sas = Sas, sasMode = SasMode, rcs = Rcs, legsDeployed = LegsDeployed, speedMode = SpeedMode,
+            trimPitch = TrimPitch, trimYaw = TrimYaw, trimRoll = TrimRoll,
         };
 
         public void FromRecord(ControlRecord r)
@@ -49,6 +52,9 @@ namespace TAP.Simulation
             Rcs = r.rcs;
             LegsDeployed = r.legsDeployed;
             SpeedMode = r.speedMode;
+            TrimPitch = r.trimPitch;
+            TrimYaw = r.trimYaw;
+            TrimRoll = r.trimRoll;
         }
     }
 }

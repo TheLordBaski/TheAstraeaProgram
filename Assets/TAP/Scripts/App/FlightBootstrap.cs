@@ -113,8 +113,7 @@ namespace TAP.App
 
         private void Update()
         {
-            var kb = UnityEngine.InputSystem.Keyboard.current;
-            if (kb != null && kb.f3Key.wasPressedThisFrame) Show = !Show;
+            if (Controls.Down("Dev/Overlay")) Show = !Show;
         }
 
         private void OnGUI()

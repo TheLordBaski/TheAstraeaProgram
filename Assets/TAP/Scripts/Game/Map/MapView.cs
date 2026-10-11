@@ -386,7 +386,6 @@ namespace TAP.Game
         private void HandleCamera()
         {
             var mouse = Mouse.current;
-            var kb = Keyboard.current;
             if (mouse != null && !UiState.PointerOverUi)
             {
                 if (mouse.rightButton.isPressed)
@@ -398,10 +397,10 @@ namespace TAP.Game
                 float s = mouse.scroll.ReadValue().y;
                 if (Mathf.Abs(s) > 0.01f) _targetDistance *= ScrollZoom.Factor(s, 0.7f);
             }
-            if (kb != null && !UiState.KeyboardCaptured)
+            if (!UiState.KeyboardCaptured)
             {
-                if (kb.tabKey.wasPressedThisFrame) CycleFocus();
-                if (kb.backspaceKey.wasPressedThisFrame) FocusOn(Sim.ActiveHandle);
+                if (Controls.Down("Map/CycleFocus")) CycleFocus();
+                if (Controls.Down("Map/FocusActive")) FocusOn(Sim.ActiveHandle);
             }
             // Down to just above the focused body's surface, or to ~10 m from a focused vessel; out to 100 Gm, where
             // the whole home system fits in view (FND-03).

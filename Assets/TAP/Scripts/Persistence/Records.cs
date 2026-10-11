@@ -94,6 +94,7 @@ namespace TAP.Persistence
         public bool rcs;
         public bool legsDeployed;
         public SpeedMode speedMode = SpeedMode.Surface;
+        public float trimPitch, trimYaw, trimRoll;
     }
 
     [Serializable]

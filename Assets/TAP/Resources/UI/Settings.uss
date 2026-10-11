@@ -4,6 +4,15 @@
     height: 720px;
 }
 
+.settings-panel > * {
+    flex-shrink: 0;
+}
+
+.settings-panel > .unity-scroll-view {
+    flex-shrink: 1;
+    flex-basis: 0;
+}
+
 .settings-tabs {
     flex-direction: row;
     margin-bottom: 10px;
@@ -72,6 +81,39 @@
     border-radius: 9px;
     width: 18px;
     height: 18px;
+}
+
+.set-label--wide {
+    width: 450px;
+    font-size: 17px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.set-bind {
+    width: 230px;
+    height: 32px;
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+.set-reset {
+    width: 84px;
+    font-size: 14px;
+}
+
+.set-heading {
+    margin: 14px 0 4px 8px;
+    -unity-font-style: bold;
+    color: var(--c-accent);
+    font-size: 16px;
+}
+
+.set-wide {
+    height: 38px;
+    margin: 6px 8px;
+    font-size: 16px;
 }
 
 .set-toggle {

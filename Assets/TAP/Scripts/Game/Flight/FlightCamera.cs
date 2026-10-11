@@ -121,7 +121,6 @@ namespace TAP.Game
         private void HandleInput()
         {
             var mouse = Mouse.current;
-            var kb = Keyboard.current;
             if (mouse == null) return;
             if (mouse.rightButton.isPressed)
             {
@@ -134,16 +133,15 @@ namespace TAP.Game
             {
                 TargetDistance = Mathf.Clamp(TargetDistance * ScrollZoom.Factor(scroll, 0.75f), 2.5f, 60000f);
             }
-            if (kb != null)
             {
                 float k = Time.unscaledDeltaTime * 60f;
-                if (kb.numpad4Key.isPressed) Yaw -= k;
-                if (kb.numpad6Key.isPressed) Yaw += k;
-                if (kb.numpad8Key.isPressed) Pitch = Mathf.Clamp(Pitch + k, -89, 89);
-                if (kb.numpad2Key.isPressed) Pitch = Mathf.Clamp(Pitch - k, -89, 89);
+                if (Controls.Held("Camera/OrbitLeft")) Yaw -= k;
+                if (Controls.Held("Camera/OrbitRight")) Yaw += k;
+                if (Controls.Held("Camera/OrbitUp")) Pitch = Mathf.Clamp(Pitch + k, -89, 89);
+                if (Controls.Held("Camera/OrbitDown")) Pitch = Mathf.Clamp(Pitch - k, -89, 89);
                 float kz = 2.5f * ScrollZoom.Speed * Time.unscaledDeltaTime;
-                if (kb.pageUpKey.isPressed) TargetDistance = Mathf.Max(2.5f, TargetDistance * Mathf.Exp(-kz));
-                if (kb.pageDownKey.isPressed) TargetDistance = Mathf.Min(60000f, TargetDistance * Mathf.Exp(kz));
+                if (Controls.Held("Camera/ZoomIn")) TargetDistance = Mathf.Max(2.5f, TargetDistance * Mathf.Exp(-kz));
+                if (Controls.Held("Camera/ZoomOut")) TargetDistance = Mathf.Min(60000f, TargetDistance * Mathf.Exp(kz));
             }
         }
 

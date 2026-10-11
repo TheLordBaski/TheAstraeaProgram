@@ -1,7 +1,25 @@
 # Controls
 
 The same list is available in game: **F1** in flight, **Help** in the assembly building, **Controls** in the main menu.
-Most buttons and readouts show a tooltip when hovered.
+Those lists are made from the control table (`ControlTable.cs`) with the keys as they are bound now, so they always match
+what the game does; the tables below are the defaults. Most buttons and readouts show a tooltip when hovered.
+
+## Rebinding, precision and trim
+
+- **Settings → Controls** lists every control with its keys, gamepad buttons and sticks. Click one and press the new key
+  (Esc cancels); a control that had the key loses it, and a note says which. *Default* puts one back, *Reset all controls*
+  all of them. The choices are saved per user in `controls.json` next to the saves. Bindings follow the physical key
+  positions, so QWERTZ and AZERTY keyboards get the same layout as QWERTY.
+- **Sticks and levers** (gamepad, joystick, HOTAS): pitch, yaw, roll and throttle each have a dead zone, a sensitivity and
+  an inversion in the same screen. A throttle lever can set the throttle where it stands instead of changing it.
+- **Precision controls** (**Caps Lock**): the pitch, yaw and roll inputs act at a quarter strength, for fine attitude
+  control.
+- **Trim** (hold **Alt** and press **W A S D Q E**): builds a steady pitch, yaw and roll that stays when the keys are
+  released and is saved with the vessel. **Alt + X** clears it.
+- **Action groups** (**Alt + 1 – 0**): the keys exist; what a group does arrives with FLT-07.
+- **Gamepad**: left stick pitch and yaw, right stick roll, triggers throttle, bumpers full throttle and cut, A stage,
+  X SAS, Y RCS, B landing legs, D-pad warp and camera, Start pause. Joysticks get pitch and yaw on the stick and the
+  trigger as stage; set the rest in Settings.
 
 ## Flight
 
@@ -21,13 +39,13 @@ Most buttons and readouts show a tooltip when hovered.
 | **G** | Deploy / retract landing legs |
 | **M** | Map view |
 | **, / .** | Time warp slower / faster (on rails: 5×…100,000×, limited by altitude) |
-| **Alt + .** | Physics warp (2×, 3×, 4×) — the simulation keeps running |
+| **Alt + .** | Physics warp (2×, 3×, 4×) — the simulation keeps running (Alt is the modifier key) |
 | **/** | Stop time warp |
 | **V** | Camera mode (orbit / chase / locked) |
 | **Right mouse drag, scroll** | Rotate and zoom the camera (Page Up / Page Down also zoom; zoom speed in the developer tools) |
 | **[ / ]** | Switch to the previous / next nearby vessel |
 | **F5 / F9** | Quicksave / quickload (hold F9) |
-| **Esc** | Pause menu (resume, quicksave, quickload, revert to launch, revert to assembly, recover, leave to assembly / main menu) |
+| **Esc** | Pause menu (resume, quicksave, quickload, revert to launch, revert to assembly, recover, space center / main menu, settings) |
 | **F1 / F2** | Control guide / hide the interface |
 | **Alt + F12** or **`** | Developer tools (also in the pause menu): cheats (infinite propellant / electricity, no crash damage, ignore heat, unbreakable joints), refill tanks, teleport to a circular orbit or land at a latitude/longitude on Tellus or Luma, mouse-wheel zoom speed. Drag the window by its title |
 | **Right-click a part** | Part actions: EVA, deploy / cut parachute, activate / shut down engine, decouple, legs, enable / disable reaction wheel or RCS block, undock |

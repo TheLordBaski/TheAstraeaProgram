@@ -1,10 +1,7 @@
 using System;
-using System.Collections.Generic;
 using TAP.Persistence;
 using TAP.Simulation;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Controls;
 
 namespace TAP.Game
 {
@@ -18,84 +15,10 @@ namespace TAP.Game
         public static bool HelpOpen;
     }
 
-    /// <summary>Key binding reference (also rendered by the in-game control guide).</summary>
-    public static class Bindings
-    {
-        public static readonly (string keys, string action)[] Flight =
-        {
-            ("W / S", "Pitch down / up"),
-            ("A / D", "Yaw left / right (D tilts east on the pad)"),
-            ("Q / E", "Roll left / right"),
-            ("Shift / Ctrl", "Throttle up / down"),
-            ("Z / X", "Full throttle / cut throttle"),
-            ("Space", "Activate next stage"),
-            ("T", "Toggle SAS (stability assist)"),
-            ("F (hold)", "Temporarily toggle SAS"),
-            ("R", "Toggle RCS"),
-            ("H / N", "RCS translate forward / back"),
-            ("I / K", "RCS translate up / down"),
-            ("J / L", "RCS translate left / right"),
-            ("G", "Toggle landing legs"),
-            ("1-0", "SAS: hold, pro, retro, normal, anti-normal, radial+, radial-, target, anti-target, maneuver"),
-            ("M", "Toggle map view"),
-            (", / .", "Time warp slower / faster"),
-            ("Alt + .", "Physics warp (up to 4x)"),
-            ("/", "Stop time warp"),
-            ("V", "Camera mode (orbit / chase / locked)"),
-            ("Right mouse", "Rotate camera, scroll to zoom"),
-            ("[ / ]", "Switch to previous / next nearby vessel"),
-            ("F5 / F9", "Quicksave / quickload"),
-            ("Esc", "Pause menu"),
-            ("F1", "Control guide"),
-            ("F2", "Hide interface"),
-            ("Alt+F12 or `", "Developer tools: cheats, teleports, zoom speed"),
-            ("Right-click part", "Part actions (EVA, chutes, engines, undock...)"),
-        };
-
-        public static readonly (string keys, string action)[] Eva =
-        {
-            ("W A S D", "Walk / jetpack translate (camera relative)"),
-            ("Shift", "Run  (jetpack: up)"),
-            ("Ctrl", "Jetpack: down"),
-            ("Space", "Jump"),
-            ("R", "Toggle jetpack"),
-            ("B", "Board nearby hatch (within 3 m, < 2.5 m/s)"),
-            ("G", "Plant flag"),
-        };
-
-        public static readonly (string keys, string action)[] Map =
-        {
-            ("M", "Back to flight view"),
-            ("Tab / Backspace", "Cycle focus / focus active vessel"),
-            ("Click orbit line", "Add maneuver node / warp here"),
-            ("Drag a node", "Move it along the orbit"),
-            ("Drag node handles", "Prograde, normal, radial delta-v"),
-            ("Right-click node / Del", "Delete the node (or its × button)"),
-            ("Click body / vessel", "Select as target or focus"),
-        };
-
-        public static readonly (string keys, string action)[] Editor =
-        {
-            ("Click part list", "Pick up a new part"),
-            ("Left click", "Attach held part / pick up a placed part (with attached parts; the root takes the whole craft)"),
-            ("Click empty space", "Set the held parts aside (grey, not part of the craft)"),
-            ("Alt + click", "Copy a placed part"),
-            ("W A S D Q E", "Rotate held part (Shift: 5° steps), Space resets"),
-            ("X / Shift+X", "Radial symmetry up / down (1, 2, 3, 4, 6, 8)"),
-            ("C", "Angle snap on / off"),
-            ("Del", "Delete the hovered or held part"),
-            ("Esc", "Put picked-up parts back"),
-            ("Right click", "Part details, thrust limiter, make root part"),
-            ("Ctrl+Z / Ctrl+Y", "Undo / redo"),
-            ("Ctrl+S", "Save craft"),
-            ("Right drag / scroll", "Orbit / zoom camera; Shift+scroll or middle drag: up/down"),
-            ("F", "Frame the craft"),
-            ("V", "Show CoM / CoT / CoP markers"),
-            ("F1", "Help"),
-        };
-    }
-
-    /// <summary>Reads the keyboard and writes the active vessel's controls (or EVA inputs).</summary>
+    /// <summary>
+    /// Reads the controls (keyboard, gamepad, joystick; see <see cref="ControlTable"/>) and writes the active vessel's controls
+    /// or the EVA inputs.
+    /// </summary>
     public sealed class FlightInput : MonoBehaviour
     {
         public FlightSim Sim;
@@ -106,24 +29,39 @@ namespace TAP.Game
         public Action Quickload;
         public Action ToggleHelp;
         public Action ToggleUi;
+        /// <summary>An action-group key was pressed (1 to 10). What a group does is FLT-07.</summary>
+        public Action<int> ActionGroup;
         /// <summary>When set (autopilot), player input does not touch the controls.</summary>
         public bool ControlsLocked;
 
         public const float ThrottleRate = 0.7f;
+        /// <summary>How fast trim builds up while the modifier is held, per second (full trim in 5 s).</summary>
+        public const float TrimRate = 0.2f;
+        /// <summary>Precision controls scale the attitude inputs to this much.</summary>
+        public const float PrecisionScale = 0.25f;
+        /// <summary>Fine attitude control is on (Caps Lock by default).</summary>
+        public bool Precision;
         private bool _fHeld;
         private double _f9Held;
 
+        private static readonly (string id, SasMode mode)[] SasKeys =
+        {
+            ("Flight/SasHold", SasMode.StabilityAssist), ("Flight/SasPrograde", SasMode.Prograde), ("Flight/SasRetrograde", SasMode.Retrograde),
+            ("Flight/SasNormal", SasMode.Normal), ("Flight/SasAntiNormal", SasMode.AntiNormal), ("Flight/SasRadialOut", SasMode.RadialOut),
+            ("Flight/SasRadialIn", SasMode.RadialIn), ("Flight/SasTarget", SasMode.Target), ("Flight/SasAntiTarget", SasMode.AntiTarget),
+            ("Flight/SasManeuver", SasMode.Maneuver),
+        };
+
         private void Update()
         {
-            var kb = Keyboard.current;
-            if (kb == null || Sim == null) return;
+            if (Sim == null) return;
             if (UiState.KeyboardCaptured) return;
 
-            if (kb.escapeKey.wasPressedThisFrame) TogglePause?.Invoke();
-            if (kb.f1Key.wasPressedThisFrame) ToggleHelp?.Invoke();
-            if (kb.f2Key.wasPressedThisFrame) ToggleUi?.Invoke();
-            if (kb.f5Key.wasPressedThisFrame) Quicksave?.Invoke();
-            if (kb.f9Key.isPressed)
+            if (Controls.Down("Common/Cancel")) TogglePause?.Invoke();
+            if (Controls.Down("Common/Help")) ToggleHelp?.Invoke();
+            if (Controls.Down("Common/HideUi")) ToggleUi?.Invoke();
+            if (Controls.Down("Common/Quicksave")) Quicksave?.Invoke();
+            if (Controls.Held("Common/Quickload"))
             {
                 _f9Held += Time.unscaledDeltaTime;
                 if (_f9Held > 0.35 && _f9Held < 10) { _f9Held = 100; Quickload?.Invoke(); }
@@ -131,74 +69,103 @@ namespace TAP.Game
             else _f9Held = 0;
             if (UiState.Paused) return;
 
-            if (kb.mKey.wasPressedThisFrame) ToggleMap?.Invoke();
-            if (kb.vKey.wasPressedThisFrame) Camera?.CycleMode();
-            if (kb.leftBracketKey.wasPressedThisFrame) Sim.CycleActive(-1);
-            if (kb.rightBracketKey.wasPressedThisFrame) Sim.CycleActive(1);
-            HandleWarp(kb);
+            if (Controls.Down("Flight/ToggleMap")) ToggleMap?.Invoke();
+            if (Controls.Down("Flight/CameraMode")) Camera?.CycleMode();
+            if (Controls.Down("Flight/PreviousVessel")) Sim.CycleActive(-1);
+            if (Controls.Down("Flight/NextVessel")) Sim.CycleActive(1);
+            HandleWarp();
 
             var v = Sim.ActiveVessel;
             if (v == null || ControlsLocked) return;
-            if (v.IsEva) HandleEva(v, kb);
-            else HandleVessel(v, kb);
+            if (v.IsEva) HandleEva(v);
+            else HandleVessel(v);
         }
 
-        private void HandleWarp(Keyboard kb)
+        private void HandleWarp()
         {
-            bool alt = kb.leftAltKey.isPressed || kb.rightAltKey.isPressed;
-            if (kb.periodKey.wasPressedThisFrame)
+            bool physics = Controls.Held("Flight/Modifier");
+            if (Controls.Down("Flight/WarpFaster"))
             {
-                if (alt || Sim.Warp.PhysicsIndex > 0) Sim.SetPhysicsWarp(Sim.Warp.PhysicsIndex + 1);
+                if (physics || Sim.Warp.PhysicsIndex > 0) Sim.SetPhysicsWarp(Sim.Warp.PhysicsIndex + 1);
                 else Sim.SetRailsWarp(Sim.Warp.RailsIndex + 1);
             }
-            if (kb.commaKey.wasPressedThisFrame)
+            if (Controls.Down("Flight/WarpSlower"))
             {
                 if (Sim.Warp.PhysicsIndex > 0) Sim.SetPhysicsWarp(Sim.Warp.PhysicsIndex - 1);
                 else if (Sim.Warp.RailsIndex > 0) Sim.SetRailsWarp(Sim.Warp.RailsIndex - 1);
             }
-            if (kb.slashKey.wasPressedThisFrame || kb.numpadDivideKey.wasPressedThisFrame) Sim.StopWarp();
+            if (Controls.Down("Flight/WarpStop")) Sim.StopWarp();
         }
 
-        private void HandleVessel(Vessel v, Keyboard kb)
+        private void HandleVessel(Vessel v)
         {
             var c = v.Ctrl;
             float dt = Time.unscaledDeltaTime;
-            if (!UiState.MapActive || true)
+            bool modifier = Controls.Held("Flight/Modifier");
+
+            // Attitude: keys, then sticks. With the modifier held the keys trim instead of steering.
+            float pitch = Dir("Flight/PitchDown", "Flight/PitchUp") + Controls.Axis("Flight/PitchAxis");
+            float yaw = Dir("Flight/YawRight", "Flight/YawLeft") + Controls.Axis("Flight/YawAxis");
+            float roll = Dir("Flight/RollRight", "Flight/RollLeft") + Controls.Axis("Flight/RollAxis");
+            if (Controls.Down("Flight/TrimReset")) { c.TrimPitch = c.TrimYaw = c.TrimRoll = 0; Sim.Log("Trim reset"); }
+            if (Controls.Down("Flight/PrecisionToggle")) { Precision = !Precision; Sim.Log("Precision controls " + (Precision ? "on" : "off")); }
+            ApplyAttitude(c, pitch, yaw, roll, modifier, Precision, dt);
+            c.TransY = Dir("Flight/TransForward", "Flight/TransBack");
+            c.TransZ = Dir("Flight/TransDown", "Flight/TransUp"); // +Z = belly/down
+            c.TransX = Dir("Flight/TransRight", "Flight/TransLeft");
+
+            // Throttle: keys and triggers change it; a throttle lever sets it where it stands.
+            if (Controls.Held("Flight/ThrottleUp")) c.Throttle = Mathf.Clamp01(c.Throttle + ThrottleRate * dt);
+            if (Controls.Held("Flight/ThrottleDown")) c.Throttle = Mathf.Clamp01(c.Throttle - ThrottleRate * dt);
+            var lever = Controls.Action("Flight/ThrottleAxis");
+            if (lever.activeControl != null)
             {
-                c.Pitch = Axis(kb.wKey, kb.sKey);
-                c.Yaw = Axis(kb.dKey, kb.aKey);
-                c.Roll = Axis(kb.eKey, kb.qKey);
-                c.TransY = Axis(kb.hKey, kb.nKey);
-                c.TransZ = Axis(kb.kKey, kb.iKey); // +Z = belly/down
-                c.TransX = Axis(kb.lKey, kb.jKey);
+                if (GameSettings.Current.input.throttleLever)
+                {
+                    var o = GameSettings.Current.input.Axis("ThrottleAxis");
+                    float raw = lever.ReadValue<float>() * (o.invert ? -1f : 1f);
+                    c.Throttle = Mathf.Clamp01((raw + 1f) / 2f);
+                }
+                else c.Throttle = Mathf.Clamp01(c.Throttle + Controls.Axis("Flight/ThrottleAxis") * ThrottleRate * dt);
             }
-            if (kb.leftShiftKey.isPressed) c.Throttle = Mathf.Clamp01(c.Throttle + ThrottleRate * dt);
-            if (kb.leftCtrlKey.isPressed) c.Throttle = Mathf.Clamp01(c.Throttle - ThrottleRate * dt);
-            if (kb.zKey.wasPressedThisFrame) c.Throttle = 1f;
-            if (kb.xKey.wasPressedThisFrame) c.Throttle = 0f;
-            if (kb.spaceKey.wasPressedThisFrame && !UiState.MapActive)
+            if (Controls.Down("Flight/ThrottleFull")) c.Throttle = 1f;
+            if (Controls.Down("Flight/ThrottleCut") && !modifier) c.Throttle = 0f;
+            if (Controls.Down("Flight/Stage") && !UiState.MapActive)
             {
                 if (Sim.Warp.OnRails) Sim.StopWarp();
                 v.ActivateNextStage();
             }
-            if (kb.tKey.wasPressedThisFrame) { c.Sas = !c.Sas; v.Attitude.ResetHold(); Sim.Log("SAS " + (c.Sas ? "on" : "off")); }
-            bool f = kb.fKey.isPressed;
+            if (Controls.Down("Flight/ToggleSas")) { c.Sas = !c.Sas; v.Attitude.ResetHold(); Sim.Log("SAS " + (c.Sas ? "on" : "off")); }
+            bool f = Controls.Held("Flight/HoldSas");
             if (f != _fHeld) { c.Sas = !c.Sas; v.Attitude.ResetHold(); _fHeld = f; }
-            if (kb.rKey.wasPressedThisFrame) { c.Rcs = !c.Rcs; Sim.Log("RCS " + (c.Rcs ? "on" : "off")); }
-            if (kb.gKey.wasPressedThisFrame) { c.LegsDeployed = !c.LegsDeployed; Sim.Log("Landing legs " + (c.LegsDeployed ? "deploying" : "retracting")); }
+            if (Controls.Down("Flight/ToggleRcs")) { c.Rcs = !c.Rcs; Sim.Log("RCS " + (c.Rcs ? "on" : "off")); }
+            if (Controls.Down("Flight/ToggleLegs")) { c.LegsDeployed = !c.LegsDeployed; Sim.Log("Landing legs " + (c.LegsDeployed ? "deploying" : "retracting")); }
 
-            SasMode? mode = null;
-            if (kb.digit1Key.wasPressedThisFrame) mode = SasMode.StabilityAssist;
-            if (kb.digit2Key.wasPressedThisFrame) mode = SasMode.Prograde;
-            if (kb.digit3Key.wasPressedThisFrame) mode = SasMode.Retrograde;
-            if (kb.digit4Key.wasPressedThisFrame) mode = SasMode.Normal;
-            if (kb.digit5Key.wasPressedThisFrame) mode = SasMode.AntiNormal;
-            if (kb.digit6Key.wasPressedThisFrame) mode = SasMode.RadialOut;
-            if (kb.digit7Key.wasPressedThisFrame) mode = SasMode.RadialIn;
-            if (kb.digit8Key.wasPressedThisFrame) mode = SasMode.Target;
-            if (kb.digit9Key.wasPressedThisFrame) mode = SasMode.AntiTarget;
-            if (kb.digit0Key.wasPressedThisFrame) mode = SasMode.Maneuver;
-            if (mode.HasValue) SetSasMode(v, mode.Value);
+            if (!modifier)
+                foreach (var (id, mode) in SasKeys)
+                    if (Controls.Down(id)) SetSasMode(v, mode);
+            for (int i = 1; i <= 10; i++)
+                if (Controls.Down("Flight/ActionGroup" + i)) ActionGroup?.Invoke(i);
+        }
+
+        /// <summary>
+        /// Turns what the pilot is giving (-1 to 1 each) into the vessel's attitude input: with the modifier held it builds trim
+        /// instead of steering, precision controls cut the input to a quarter, and trim is always added, so it holds a
+        /// pitch, yaw or roll with the keys released.
+        /// </summary>
+        public static void ApplyAttitude(VesselControl c, float pitch, float yaw, float roll, bool trimming, bool precision, float dt)
+        {
+            if (trimming)
+            {
+                c.TrimPitch = Mathf.Clamp(c.TrimPitch + pitch * TrimRate * dt, -1f, 1f);
+                c.TrimYaw = Mathf.Clamp(c.TrimYaw + yaw * TrimRate * dt, -1f, 1f);
+                c.TrimRoll = Mathf.Clamp(c.TrimRoll + roll * TrimRate * dt, -1f, 1f);
+                pitch = yaw = roll = 0;
+            }
+            float k = precision ? PrecisionScale : 1f;
+            c.Pitch = Mathf.Clamp(pitch * k + c.TrimPitch, -1f, 1f);
+            c.Yaw = Mathf.Clamp(yaw * k + c.TrimYaw, -1f, 1f);
+            c.Roll = Mathf.Clamp(roll * k + c.TrimRoll, -1f, 1f);
         }
 
         public static void SetSasMode(Vessel v, SasMode mode)
@@ -209,20 +176,21 @@ namespace TAP.Game
             FlightSim.Instance?.Log("SAS: " + mode);
         }
 
-        private void HandleEva(Vessel v, Keyboard kb)
+        private void HandleEva(Vessel v)
         {
             var eva = v.RootPart.GetModule<EvaModule>();
             if (eva == null) return;
-            eva.MoveInput = new Vector2(Axis(kb.dKey, kb.aKey), Axis(kb.wKey, kb.sKey));
-            eva.RunInput = kb.leftShiftKey.isPressed && !eva.JetpackOn;
-            eva.VerticalInput = eva.JetpackOn ? Axis(kb.leftShiftKey, kb.leftCtrlKey) : 0f;
-            if (kb.spaceKey.wasPressedThisFrame) eva.JumpPressed = true;
-            if (kb.rKey.wasPressedThisFrame) { eva.JetpackOn = !eva.JetpackOn; Sim.Log("Jetpack " + (eva.JetpackOn ? "on" : "off")); }
+            eva.MoveInput = new Vector2(Dir("Eva/Right", "Eva/Left"), Dir("Eva/Forward", "Eva/Back"));
+            eva.RunInput = Controls.Held("Eva/Up") && !eva.JetpackOn;
+            eva.VerticalInput = eva.JetpackOn ? Dir("Eva/Up", "Eva/Down") : 0f;
+            if (Controls.Down("Eva/Jump")) eva.JumpPressed = true;
+            if (Controls.Down("Eva/Jetpack")) { eva.JetpackOn = !eva.JetpackOn; Sim.Log("Jetpack " + (eva.JetpackOn ? "on" : "off")); }
             if (Camera != null) eva.CameraRotation = Camera.transform.rotation;
-            if (kb.bKey.wasPressedThisFrame) Sim.RequestBoard(v);
-            if (kb.gKey.wasPressedThisFrame) Sim.Enqueue(() => Sim.PlantFlag(v, $"{v.Record.evaCrew} was here. {Sim.Frame.Body.Name}, {TAP.Core.MathD.FormatUT(Sim.UT)}"));
+            if (Controls.Down("Eva/Board")) Sim.RequestBoard(v);
+            if (Controls.Down("Eva/PlantFlag")) Sim.Enqueue(() => Sim.PlantFlag(v, $"{v.Record.evaCrew} was here. {Sim.Frame.Body.Name}, {TAP.Core.MathD.FormatUT(Sim.UT)}"));
         }
 
-        private static float Axis(KeyControl pos, KeyControl neg) => (pos.isPressed ? 1f : 0f) - (neg.isPressed ? 1f : 0f);
+        /// <summary>+1 while the first control is held, -1 for the second.</summary>
+        private static float Dir(string positive, string negative) => (Controls.Held(positive) ? 1f : 0f) - (Controls.Held(negative) ? 1f : 0f);
     }
 }

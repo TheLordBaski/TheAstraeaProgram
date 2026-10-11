@@ -92,7 +92,7 @@ namespace TAP.UI
             _envBtn = Btn("env", CycleEnvironment, "Environment used for the delta-v and TWR readouts");
             _envBtn.text = EnvName(EditorEnvironment.HomeSeaLevel);
             _flightsBtn = Btn("flights", OpenFlightsDialog, "Vessels already in flight: switch to one");
-            Btn("help", () => UIKit.Show(_help, !UIKit.Shown(_help)), "Assembly controls (F1)");
+            Btn("help", ToggleHelp, "Assembly controls");
             Btn("hub", () => { Ed.StoreSessionCraft(); GameSession.GoToHub(); }, "Save the game and return to the space center");
             Btn("menu", () => { Ed.StoreSessionCraft(); GameSession.WritePersistent(); GameSession.GoToMenu(); }, "Save the game and return to the main menu");
             _launchBtn = Btn("launch", Launch, "Roll the craft out to the launch pad");
@@ -218,11 +218,10 @@ namespace TAP.UI
                 _toast.style.opacity = Mathf.Clamp01(_toastTime / 0.6f);
             }
             _hint.text = Ed.IsHolding ? (Ed.PlacementHint ?? "") + HoldHint : IdleHint;
-            var kb = Keyboard.current;
-            if (kb != null && !UiState.KeyboardCaptured)
+            if (!UiState.KeyboardCaptured)
             {
-                if (kb.f1Key.wasPressedThisFrame) UIKit.Show(_help, !UIKit.Shown(_help));
-                if (kb.escapeKey.wasPressedThisFrame && !Ed.IsHolding) CloseDialogs();
+                if (Controls.Down("Common/Help")) ToggleHelp();
+                if (Controls.Down("Common/Cancel") && !Ed.IsHolding) CloseDialogs();
             }
             if (UIKit.Shown(_partMenu)) UpdatePartMenuPosition();
         }

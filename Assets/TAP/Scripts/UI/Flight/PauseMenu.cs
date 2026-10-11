@@ -74,11 +74,11 @@ namespace TAP.UI
         public static void BuildHelp(VisualElement into)
         {
             into.Add(UIKit.Label("CONTROL GUIDE", "help-title"));
-            void Section(string title, (string keys, string action)[] rows, bool twoColumns)
+            void Section(string title, string section, bool twoColumns)
             {
                 into.Add(UIKit.Label(title, "help-section"));
                 var grid = UIKit.Element("help-grid");
-                foreach (var (k, a) in rows)
+                foreach (var (k, a) in Controls.GuideRows(section))
                 {
                     var cell = UIKit.Element(twoColumns ? "help-cell help-cell--half" : "help-cell");
                     cell.Add(UIKit.Label(k, "help-key"));
@@ -87,9 +87,9 @@ namespace TAP.UI
                 }
                 into.Add(grid);
             }
-            Section("FLIGHT", Bindings.Flight, true);
-            Section("EVA", Bindings.Eva, true);
-            Section("MAP", Bindings.Map, true);
+            Section("FLIGHT", ControlTable.Flight, true);
+            Section("EVA", ControlTable.Eva, true);
+            Section("MAP", ControlTable.MapView, true);
             into.Add(UIKit.Label("Tips: launch east (press W briefly at ~60 m/s, then SAS Prograde). Circularise at apoapsis with a maneuver node. " +
                                  "For Luma: target Luma in the map, add a node on your orbit and drag prograde until an encounter appears. " +
                                  "Point the heat shield retrograde for reentry and stage the parachute below ~18 km.", "help-tips text-dim wrap"));
@@ -123,6 +123,7 @@ namespace TAP.UI
         public void ToggleHelp()
         {
             bool open = !UIKit.Shown(_helpPanel);
+            if (open) { var body = _root.Q("help-body"); body.Clear(); BuildHelp(body); } // the keys as they are bound now
             UIKit.Show(_helpPanel, open);
             UiState.HelpOpen = open;
         }

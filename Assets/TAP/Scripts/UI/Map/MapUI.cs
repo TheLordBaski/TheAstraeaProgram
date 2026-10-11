@@ -376,8 +376,7 @@ namespace TAP.UI
                 _rmbNode = -1;
             }
 
-            var kb = Keyboard.current;
-            if (kb != null && !UiState.KeyboardCaptured && kb.deleteKey.wasPressedThisFrame && Selected != null) DeleteSelected();
+            if (!UiState.KeyboardCaptured && Controls.Down("Map/DeleteNode") && Selected != null) DeleteSelected();
         }
 
         /// <summary>

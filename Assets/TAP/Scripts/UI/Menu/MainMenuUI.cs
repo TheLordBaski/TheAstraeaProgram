@@ -91,8 +91,7 @@ namespace TAP.UI
         {
             if (_planet != null) _planet.Rotate(Vector3.up, -1.2f * Time.deltaTime, Space.Self);
             if (_moon != null) _moon.Rotate(Vector3.up, -0.6f * Time.deltaTime, Space.Self);
-            var kb = Keyboard.current;
-            if (kb != null && kb.escapeKey.wasPressedThisFrame)
+            if (Controls.Down("Common/Cancel"))
             {
                 SettingsUI.Close();
                 UIKit.Show(_loadDialog, false);
@@ -134,7 +133,7 @@ namespace TAP.UI
             var load = _root.Q<Button>("load");
             load.clicked += OpenLoad;
             _gameButtons.Add(load);
-            _root.Q<Button>("controls").clicked += () => UIKit.Show(_controls, true);
+            _root.Q<Button>("controls").clicked += () => { _root.Q<ScrollView>("controls-list").Clear(); BuildControls(); UIKit.Show(_controls, true); };
             _root.Q<Button>("settings").clicked += SettingsUI.Open;
             _root.Q<Button>("quit").clicked += () =>
             {
@@ -150,7 +149,6 @@ namespace TAP.UI
                 "Original work built with Unity " + Application.unityVersion + " (URP)";
 
             _root.Q<Button>("new-start").clicked += StartNew;
-            BuildControls();
         }
 
         private static string FindLatestSave(out string savedAt)
@@ -289,10 +287,10 @@ namespace TAP.UI
         private void BuildControls()
         {
             var list = _root.Q<ScrollView>("controls-list");
-            void Section(string title, (string keys, string action)[] rows)
+            void Section(string title, string section)
             {
                 list.Add(UIKit.Label(title, "controls-head"));
-                foreach (var (k, a) in rows)
+                foreach (var (k, a) in Controls.GuideRows(section))
                 {
                     var row = UIKit.Element("controls-row");
                     row.Add(UIKit.Label(k, "controls-key"));
@@ -300,10 +298,11 @@ namespace TAP.UI
                     list.Add(row);
                 }
             }
-            Section("FLIGHT", Bindings.Flight);
-            Section("EVA", Bindings.Eva);
-            Section("MAP VIEW", Bindings.Map);
-            Section("ASSEMBLY BUILDING", Bindings.Editor);
+            Section("FLIGHT", ControlTable.Flight);
+            Section("EVA", ControlTable.Eva);
+            Section("MAP VIEW", ControlTable.MapView);
+            Section("ASSEMBLY BUILDING", ControlTable.Assembly);
+            Section("DEVELOPER", ControlTable.Developer);
         }
     }
 }
