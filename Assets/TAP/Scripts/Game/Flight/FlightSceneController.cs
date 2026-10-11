@@ -37,6 +37,7 @@ namespace TAP.Game
         private void Awake()
         {
             Instance = this;
+            _autosaveEvery = SaveStorage.AutosaveMinutes * 60f;
             ContentReload.Reloaded += OnContentReloaded;
         }
 
@@ -47,6 +48,21 @@ namespace TAP.Game
         }
 
         private void OnContentReloaded(string summary) => Notify(summary, true);
+
+        private float _autosaveEvery, _sinceAutosave;
+
+        private void Update()
+        {
+            GameSession.TickPlayTime(Time.unscaledDeltaTime);
+            _sinceAutosave += Time.unscaledDeltaTime;
+            // Missions in the build write their own saves and check them: no autosave under test.
+            if (_autosaveEvery <= 0 || _sinceAutosave < _autosaveEvery || GameSession.AutoTest != null) return;
+            _sinceAutosave = 0;
+            if (Sim == null || Sim.ActiveVessel == null) return;
+            CaptureSave();
+            GameSession.WritePersistent();
+            Notify("Autosaved", false);
+        }
 
         public void Build()
         {

@@ -1,0 +1,321 @@
+{
+  "version": 1,
+  "saveName": "AutoTest",
+  "ut": 339.67986586689949,
+  "activeVesselId": "56a28bf2db0643a38ed295e1254a3db4",
+  "vessels": [
+    {
+      "id": "56a28bf2db0643a38ed295e1254a3db4",
+      "name": "Meridian Orbiter",
+      "kind": "Ship",
+      "situation": "Orbiting",
+      "bodyId": "tellus",
+      "rootIndex": 0,
+      "parts": [
+        {
+          "skinTemp": 325.65901915933085,
+          "internalTemp": 288.66023358921439,
+          "resources": [
+            {
+              "id": "Monoprop",
+              "amount": 15.0,
+              "max": 15.0
+            },
+            {
+              "id": "Electric",
+              "amount": 79.99220243362501,
+              "max": 80.0
+            }
+          ],
+          "modules": {
+            "ReactionWheel": {
+              "enabled": "1"
+            }
+          },
+          "crew": [
+            "Ada Kestrel"
+          ],
+          "uid": 1,
+          "partId": "pod_kestrel",
+          "parent": -1,
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "stage": -1,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 463.46563557452123,
+          "internalTemp": 292.97107102799134,
+          "resources": [],
+          "modules": {
+            "Parachute": {
+              "state": "Stowed",
+              "area": "0",
+              "canopyTemp": "290"
+            }
+          },
+          "crew": [],
+          "uid": 2,
+          "partId": "chute_main",
+          "parent": 0,
+          "parentNode": "top",
+          "attachNode": "bottom",
+          "pos": [
+            -4.76837158E-07,
+            0.8500005,
+            5.96046448E-08
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "stage": 0,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 285.3899783978224,
+          "internalTemp": 287.95345403407293,
+          "resources": [
+            {
+              "id": "Ablator",
+              "amount": 140.0,
+              "max": 140.0
+            }
+          ],
+          "modules": {},
+          "crew": [],
+          "uid": 3,
+          "partId": "shield_s1",
+          "parent": 0,
+          "parentNode": "bottom",
+          "attachNode": "top",
+          "pos": [
+            -1.57952309E-06,
+            -0.7999996,
+            -5.96046448E-08
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "stage": -1,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 284.72264508613745,
+          "internalTemp": 287.52883271614638,
+          "resources": [],
+          "modules": {
+            "Decoupler": {
+              "fired": "0"
+            }
+          },
+          "crew": [],
+          "uid": 4,
+          "partId": "dec_s1",
+          "parent": 2,
+          "parentNode": "bottom",
+          "attachNode": "top",
+          "pos": [
+            -1.013279E-06,
+            -1.02499855,
+            -5.96046448E-08
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "stage": 1,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 284.75892473871755,
+          "internalTemp": 287.84617301586945,
+          "resources": [
+            {
+              "id": "LiquidFuel",
+              "amount": 215.63161393845678,
+              "max": 2000.0
+            }
+          ],
+          "modules": {},
+          "crew": [],
+          "uid": 5,
+          "partId": "tank_s1_long",
+          "parent": 3,
+          "parentNode": "bottom",
+          "attachNode": "top",
+          "pos": [
+            8.34465E-07,
+            -3.32500124,
+            -2.38418579E-07
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "stage": -1,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 284.7647262810724,
+          "internalTemp": 287.92654795386085,
+          "resources": [],
+          "modules": {
+            "Engine": {
+              "ignited": "1",
+              "flameout": "0",
+              "throttle": "0",
+              "limit": "1"
+            }
+          },
+          "crew": [],
+          "uid": 6,
+          "partId": "eng_ember",
+          "parent": 4,
+          "parentNode": "bottom",
+          "attachNode": "top",
+          "pos": [
+            4.76837158E-07,
+            -6.125,
+            -4.76837158E-07
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "stage": 2,
+          "symmetryGroup": -1
+        }
+      ],
+      "currentStage": 1,
+      "orbitPos": [
+        484333.654723491,
+        5495.29233334324,
+        -479369.16540529061
+      ],
+      "orbitVel": [
+        -1601.5104661667883,
+        19.568710773424591,
+        -1617.3325372530758
+      ],
+      "orbitEpoch": 339.67986586689949,
+      "landed": false,
+      "landedPos": [
+        600079.81180763245,
+        9.9832480060513262E-07,
+        8.4129383581550942E-17
+      ],
+      "landedRot": [
+        0.5,
+        0.5,
+        -0.5,
+        0.5
+      ],
+      "rotation": [
+        -0.267385781,
+        0.66604203,
+        -0.646900654,
+        -0.257706136
+      ],
+      "angularVelocity": [
+        0.0394315235,
+        0.05620455,
+        -0.03597588
+      ],
+      "comOffset": [
+        0.0009242924,
+        -2.18332529,
+        -1.40895008E-05
+      ],
+      "control": {
+        "throttle": 0.0,
+        "sas": true,
+        "sasMode": "StabilityAssist",
+        "rcs": false,
+        "legsDeployed": false,
+        "speedMode": "Orbit"
+      },
+      "maneuverNodes": [],
+      "launchUT": 1.5199993997812271,
+      "designName": "Meridian Orbiter"
+    }
+  ],
+  "crew": [
+    {
+      "name": "Ada Kestrel",
+      "status": "Assigned",
+      "vesselId": "56a28bf2db0643a38ed295e1254a3db4",
+      "flights": 0
+    },
+    {
+      "name": "Bram Holloway",
+      "status": "Available",
+      "flights": 0
+    },
+    {
+      "name": "Cyra Moss",
+      "status": "Available",
+      "flights": 0
+    },
+    {
+      "name": "Dov Linden",
+      "status": "Available",
+      "flights": 0
+    },
+    {
+      "name": "Esme Varga",
+      "status": "Available",
+      "flights": 0
+    },
+    {
+      "name": "Finn Arden",
+      "status": "Available",
+      "flights": 0
+    },
+    {
+      "name": "Gwen Tallis",
+      "status": "Available",
+      "flights": 0
+    },
+    {
+      "name": "Hal Okafor",
+      "status": "Available",
+      "flights": 0
+    }
+  ],
+  "missionLog": [
+    "[Y1 D001 00:00:00] New sandbox started",
+    "[Y1 D001 00:00:00] Rolled out Meridian Orbiter to the launch pad",
+    "[Y1 D001 00:00:00] Milestone: Launch",
+    "[Y1 D001 00:00:00] Milestone: Reach space (70 km)",
+    "[Y1 D001 00:00:00] Milestone: Achieve a stable orbit"
+  ],
+  "milestones": [
+    "launch",
+    "space",
+    "orbit"
+  ],
+  "showGuide": true,
+  "savedAt": "2026-09-25 15:46:18",
+  "scene": "flight"
+}

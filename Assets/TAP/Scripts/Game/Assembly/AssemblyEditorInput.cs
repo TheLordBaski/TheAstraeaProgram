@@ -61,6 +61,7 @@ namespace TAP.Game
 
         private void Update()
         {
+            GameSession.TickPlayTime(Time.unscaledDeltaTime);
             if (Cam == null || CraftRoot == null) return;
             var mouse = Mouse.current;
             var kb = Keyboard.current;

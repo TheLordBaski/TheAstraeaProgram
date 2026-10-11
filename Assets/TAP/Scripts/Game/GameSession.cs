@@ -118,6 +118,12 @@ namespace TAP.Game
 
         // ------------------------------------------------------------------ persistence
 
+        /// <summary>Counts real time played into the save; the flight and assembly scenes call it every frame.</summary>
+        public static void TickPlayTime(float seconds)
+        {
+            if (Save != null) Save.playTime += seconds;
+        }
+
         public static void WritePersistent()
         {
             if (Save == null) return;
@@ -127,8 +133,9 @@ namespace TAP.Game
 
         public static bool LoadPersistent(string saveName)
         {
-            var s = SaveStorage.ReadSave(saveName, "persistent");
+            var s = SaveStorage.ReadSave(saveName, "persistent", out string notice);
             if (s == null) return false;
+            if (notice != null) PendingMessage = notice;
             Save = s;
             EditorCraft = s.editorCraft != null ? SaveStorage.DeepClone(s.editorCraft) : null;
             ReconcileCrew();

@@ -168,8 +168,13 @@ namespace TAP.Persistence
     [Serializable]
     public class GameSave
     {
-        public int version = 1;
+        /// <summary>Format version; <see cref="SaveMigration"/> upgrades older files when they are read.</summary>
+        public int version = SaveMigration.Current;
         public string saveName = "Sandbox";
+        /// <summary>Game mode. Only "sandbox" exists until the game modes (FND-06) land.</summary>
+        public string mode = "sandbox";
+        /// <summary>Seconds played in this save, in real time.</summary>
+        public double playTime;
         public double ut;
         public string activeVesselId;
         public List<VesselRecord> vessels = new List<VesselRecord>();

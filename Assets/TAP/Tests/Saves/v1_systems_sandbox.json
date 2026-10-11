@@ -1,0 +1,1890 @@
+{
+  "version": 1,
+  "saveName": "Sandbox",
+  "ut": 684.50508305057883,
+  "activeVesselId": "fb35007d19b64d2f86f124a810170261",
+  "vessels": [
+    {
+      "id": "fb35007d19b64d2f86f124a810170261",
+      "name": "Luma Pathfinder",
+      "kind": "Ship",
+      "situation": "Orbiting",
+      "systemId": "home",
+      "bodyId": "tellus",
+      "rootIndex": 0,
+      "parts": [
+        {
+          "skinTemp": 294.43999121274379,
+          "internalTemp": 288.17973931236781,
+          "resources": [
+            {
+              "id": "Monoprop",
+              "amount": 15.0,
+              "max": 15.0
+            },
+            {
+              "id": "Electric",
+              "amount": 79.948411710346377,
+              "max": 80.0
+            }
+          ],
+          "modules": {
+            "ReactionWheel": {
+              "enabled": "1"
+            }
+          },
+          "crew": [
+            "Ada Kestrel"
+          ],
+          "uid": 1,
+          "partId": "pod_kestrel",
+          "parent": -1,
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": -1,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 317.68463892160577,
+          "internalTemp": 289.15352132277462,
+          "resources": [],
+          "modules": {
+            "Parachute": {
+              "state": "Stowed",
+              "area": "0",
+              "canopyTemp": "290"
+            }
+          },
+          "crew": [],
+          "uid": 2,
+          "partId": "chute_main",
+          "parent": 0,
+          "parentNode": "top",
+          "attachNode": "bottom",
+          "pos": [
+            2.98023224E-08,
+            0.850000143,
+            5.96046448E-08
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": 0,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 285.24887390999004,
+          "internalTemp": 287.94332441840623,
+          "resources": [
+            {
+              "id": "Ablator",
+              "amount": 140.0,
+              "max": 140.0
+            }
+          ],
+          "modules": {},
+          "crew": [],
+          "uid": 3,
+          "partId": "shield_s1",
+          "parent": 0,
+          "parentNode": "bottom",
+          "attachNode": "top",
+          "pos": [
+            0.0,
+            -0.8000001,
+            -5.96046448E-08
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": -1,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 284.47247385543432,
+          "internalTemp": 287.40085579235677,
+          "resources": [],
+          "modules": {
+            "Decoupler": {
+              "fired": "0"
+            }
+          },
+          "crew": [],
+          "uid": 4,
+          "partId": "dec_s1",
+          "parent": 2,
+          "parentNode": "bottom",
+          "attachNode": "top",
+          "pos": [
+            -2.98023224E-08,
+            -1.0250001,
+            -1.1920929E-07
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": 1,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 284.504303707186,
+          "internalTemp": 287.65334652293717,
+          "resources": [],
+          "modules": {
+            "ReactionWheel": {
+              "enabled": "1"
+            }
+          },
+          "crew": [],
+          "uid": 5,
+          "partId": "rw_s1",
+          "parent": 3,
+          "parentNode": "bottom",
+          "attachNode": "top",
+          "pos": [
+            -5.96046448E-08,
+            -1.25000012,
+            -1.1920929E-07
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": -1,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 284.41346995598178,
+          "internalTemp": 287.21734960719817,
+          "resources": [
+            {
+              "id": "Electric",
+              "amount": 399.74205855173039,
+              "max": 400.0
+            }
+          ],
+          "modules": {},
+          "crew": [],
+          "uid": 6,
+          "partId": "battery_s1",
+          "parent": 4,
+          "parentNode": "bottom",
+          "attachNode": "top",
+          "pos": [
+            -5.96046448E-08,
+            -1.47500014,
+            -1.1920929E-07
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": -1,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 297.07425703613592,
+          "internalTemp": 288.31921469973935,
+          "resources": [
+            {
+              "id": "LiquidFuel",
+              "amount": 2000.0,
+              "max": 2000.0
+            }
+          ],
+          "modules": {},
+          "crew": [],
+          "uid": 7,
+          "partId": "adapter_s2_s1",
+          "parent": 5,
+          "parentNode": "bottom",
+          "attachNode": "top",
+          "pos": [
+            0.0,
+            -2.525,
+            -2.38418579E-07
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": -1,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 285.32369581407255,
+          "internalTemp": 287.98380948418458,
+          "resources": [
+            {
+              "id": "LiquidFuel",
+              "amount": 4000.0,
+              "max": 4000.0
+            }
+          ],
+          "modules": {},
+          "crew": [],
+          "uid": 8,
+          "partId": "tank_s2_short",
+          "parent": 6,
+          "parentNode": "bottom",
+          "attachNode": "top",
+          "pos": [
+            -2.38418579E-07,
+            -4.425,
+            -4.76837158E-07
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": -1,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 284.53334545333985,
+          "internalTemp": 287.90592392340619,
+          "resources": [],
+          "modules": {
+            "Engine": {
+              "ignited": "0",
+              "flameout": "0",
+              "throttle": "0",
+              "limit": "1"
+            }
+          },
+          "crew": [],
+          "uid": 9,
+          "partId": "eng_ember",
+          "parent": 7,
+          "parentNode": "bottom",
+          "attachNode": "top",
+          "pos": [
+            -4.76837158E-07,
+            -5.97500038,
+            -4.76837158E-07
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": 2,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 285.50767688671277,
+          "internalTemp": 287.95588833503814,
+          "resources": [],
+          "modules": {
+            "LandingLeg": {
+              "deployed": "0",
+              "progress": "0",
+              "broken": "0"
+            }
+          },
+          "crew": [],
+          "uid": 10,
+          "partId": "leg_ls5",
+          "parent": 7,
+          "parentNode": "srf",
+          "attachNode": "srf",
+          "pos": [
+            0.9687363,
+            -5.02500057,
+            0.968735933
+          ],
+          "rot": [
+            -1.24461508E-08,
+            0.382683456,
+            7.604636E-09,
+            0.9238797
+          ],
+          "stage": -1,
+          "symmetryGroup": 1
+        },
+        {
+          "skinTemp": 285.50632720349023,
+          "internalTemp": 287.95584105030309,
+          "resources": [],
+          "modules": {
+            "LandingLeg": {
+              "deployed": "0",
+              "progress": "0",
+              "broken": "0"
+            }
+          },
+          "crew": [],
+          "uid": 11,
+          "partId": "leg_ls5",
+          "parent": 7,
+          "parentNode": "srf",
+          "attachNode": "srf",
+          "pos": [
+            0.968736768,
+            -5.02500057,
+            -0.9687371
+          ],
+          "rot": [
+            -1.25754429E-09,
+            0.9238796,
+            -1.51958837E-08,
+            0.3826835
+          ],
+          "stage": -1,
+          "symmetryGroup": 1
+        },
+        {
+          "skinTemp": 291.92944552093275,
+          "internalTemp": 288.19718771386613,
+          "resources": [],
+          "modules": {
+            "LandingLeg": {
+              "deployed": "0",
+              "progress": "0",
+              "broken": "0"
+            }
+          },
+          "crew": [],
+          "uid": 12,
+          "partId": "leg_ls5",
+          "parent": 7,
+          "parentNode": "srf",
+          "attachNode": "srf",
+          "pos": [
+            -0.9687364,
+            -5.02500057,
+            -0.9687376
+          ],
+          "rot": [
+            -7.719884E-09,
+            0.9238797,
+            -2.532412E-09,
+            -0.382683426
+          ],
+          "stage": -1,
+          "symmetryGroup": 1
+        },
+        {
+          "skinTemp": 291.929798333384,
+          "internalTemp": 288.1971995636103,
+          "resources": [],
+          "modules": {
+            "LandingLeg": {
+              "deployed": "0",
+              "progress": "0",
+              "broken": "0"
+            }
+          },
+          "crew": [],
+          "uid": 13,
+          "partId": "leg_ls5",
+          "parent": 7,
+          "parentNode": "srf",
+          "attachNode": "srf",
+          "pos": [
+            -0.968736649,
+            -5.02500057,
+            0.968735
+          ],
+          "rot": [
+            -5.05164843E-09,
+            -0.382683516,
+            -1.84546849E-08,
+            0.923879564
+          ],
+          "stage": -1,
+          "symmetryGroup": 1
+        },
+        {
+          "skinTemp": 289.07824512595533,
+          "internalTemp": 288.13560936075078,
+          "resources": [],
+          "modules": {
+            "RCS": {
+              "enabled": "1"
+            }
+          },
+          "crew": [],
+          "uid": 14,
+          "partId": "rcs_quad",
+          "parent": 7,
+          "parentNode": "srf",
+          "attachNode": "srf",
+          "pos": [
+            0.926310062,
+            -3.97500038,
+            0.9263096
+          ],
+          "rot": [
+            -1.24461508E-08,
+            0.382683456,
+            7.604636E-09,
+            0.9238797
+          ],
+          "stage": -1,
+          "symmetryGroup": 2
+        },
+        {
+          "skinTemp": 289.07553761612735,
+          "internalTemp": 288.1354959025436,
+          "resources": [],
+          "modules": {
+            "RCS": {
+              "enabled": "1"
+            }
+          },
+          "crew": [],
+          "uid": 15,
+          "partId": "rcs_quad",
+          "parent": 7,
+          "parentNode": "srf",
+          "attachNode": "srf",
+          "pos": [
+            0.926309943,
+            -3.97500038,
+            -0.926310062
+          ],
+          "rot": [
+            -1.25754429E-09,
+            0.9238796,
+            -1.51958837E-08,
+            0.3826835
+          ],
+          "stage": -1,
+          "symmetryGroup": 2
+        },
+        {
+          "skinTemp": 307.13870265035172,
+          "internalTemp": 288.95349876267403,
+          "resources": [],
+          "modules": {
+            "RCS": {
+              "enabled": "1"
+            }
+          },
+          "crew": [],
+          "uid": 16,
+          "partId": "rcs_quad",
+          "parent": 7,
+          "parentNode": "srf",
+          "attachNode": "srf",
+          "pos": [
+            -0.9263104,
+            -3.97500038,
+            -0.926310539
+          ],
+          "rot": [
+            -7.719884E-09,
+            0.9238797,
+            -2.532412E-09,
+            -0.382683426
+          ],
+          "stage": -1,
+          "symmetryGroup": 2
+        },
+        {
+          "skinTemp": 307.14111383145593,
+          "internalTemp": 288.95359737388873,
+          "resources": [],
+          "modules": {
+            "RCS": {
+              "enabled": "1"
+            }
+          },
+          "crew": [],
+          "uid": 17,
+          "partId": "rcs_quad",
+          "parent": 7,
+          "parentNode": "srf",
+          "attachNode": "srf",
+          "pos": [
+            -0.926310658,
+            -3.97500038,
+            0.926309347
+          ],
+          "rot": [
+            -5.05164843E-09,
+            -0.382683516,
+            -1.84546849E-08,
+            0.923879564
+          ],
+          "stage": -1,
+          "symmetryGroup": 2
+        },
+        {
+          "skinTemp": 284.49275818833689,
+          "internalTemp": 287.64659028162913,
+          "resources": [],
+          "modules": {
+            "Decoupler": {
+              "fired": "0"
+            }
+          },
+          "crew": [],
+          "uid": 18,
+          "partId": "dec_s1",
+          "parent": 8,
+          "parentNode": "bottom",
+          "attachNode": "top",
+          "pos": [
+            -2.38418579E-07,
+            -6.675,
+            -9.536743E-07
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": 2,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 293.43284611004214,
+          "internalTemp": 288.74275275585006,
+          "resources": [
+            {
+              "id": "LiquidFuel",
+              "amount": 228.40824780975933,
+              "max": 2000.0
+            }
+          ],
+          "modules": {},
+          "crew": [],
+          "uid": 19,
+          "partId": "adapter_s2_s1",
+          "parent": 17,
+          "parentNode": "bottom",
+          "attachNode": "top",
+          "pos": [
+            -2.38418579E-07,
+            -7.725,
+            -1.43051147E-06
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": -1,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 285.31929327351105,
+          "internalTemp": 287.91807304738728,
+          "resources": [
+            {
+              "id": "LiquidFuel",
+              "amount": 456.81649561951866,
+              "max": 4000.0
+            }
+          ],
+          "modules": {},
+          "crew": [],
+          "uid": 20,
+          "partId": "tank_s2_short",
+          "parent": 18,
+          "parentNode": "bottom",
+          "attachNode": "top",
+          "pos": [
+            -4.76837158E-07,
+            -9.625001,
+            -9.536743E-07
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": -1,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 285.30975421401433,
+          "internalTemp": 287.78444658667706,
+          "resources": [
+            {
+              "id": "LiquidFuel",
+              "amount": 228.40824780975933,
+              "max": 2000.0
+            }
+          ],
+          "modules": {},
+          "crew": [],
+          "uid": 21,
+          "partId": "adapter_s2_s1",
+          "parent": 19,
+          "parentNode": "bottom",
+          "attachNode": "bottom",
+          "pos": [
+            -9.536743E-07,
+            -11.525,
+            -9.536743E-07
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            -1.00000012,
+            0.0
+          ],
+          "stage": -1,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 284.54003933799947,
+          "internalTemp": 287.96515959217464,
+          "resources": [],
+          "modules": {
+            "Engine": {
+              "ignited": "1",
+              "flameout": "0",
+              "throttle": "0",
+              "limit": "1"
+            }
+          },
+          "crew": [],
+          "uid": 22,
+          "partId": "eng_hornet",
+          "parent": 20,
+          "parentNode": "top",
+          "attachNode": "top",
+          "pos": [
+            -4.76837158E-07,
+            -13.2750006,
+            -1.90734863E-06
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            -1.00000012
+          ],
+          "stage": 3,
+          "symmetryGroup": -1
+        }
+      ],
+      "currentStage": 2,
+      "orbitPos": [
+        -68855.394833772152,
+        -530.68416919461959,
+        -707093.41790167941
+      ],
+      "orbitVel": [
+        -2207.4024566257785,
+        -1.0622156409624273,
+        142.8704872966232
+      ],
+      "orbitEpoch": 684.50508305057883,
+      "landed": false,
+      "landedPos": [
+        56472.788886021008,
+        2.4803972422660081E-06,
+        597419.70360978716
+      ],
+      "landedRot": [
+        0.7063218,
+        0.033309292,
+        -0.033309292,
+        0.7063218
+      ],
+      "rotation": [
+        -0.166170761,
+        0.6853308,
+        -0.6891979,
+        -0.166479126
+      ],
+      "angularVelocity": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "comOffset": [
+        0.0005587241,
+        -5.56031275,
+        6.6657326E-06
+      ],
+      "control": {
+        "throttle": 0.0,
+        "sas": true,
+        "sasMode": "StabilityAssist",
+        "rcs": false,
+        "legsDeployed": false,
+        "speedMode": "Surface"
+      },
+      "maneuverNodes": [
+        {
+          "ut": 261.62204610154083,
+          "prograde": 0.0,
+          "normal": 0.0,
+          "radial": 0.0
+        },
+        {
+          "ut": 631634.3741915815,
+          "prograde": 826.7809831491586,
+          "normal": 0.0,
+          "radial": 0.0
+        }
+      ],
+      "targetId": "body:luma",
+      "launchUT": 45.899981874972582,
+      "designName": "Luma Pathfinder"
+    },
+    {
+      "id": "6d312637be28449696f583c36ca3c4e9",
+      "name": "Luma Pathfinder Debris",
+      "kind": "Debris",
+      "situation": "Flying",
+      "systemId": "home",
+      "bodyId": "tellus",
+      "rootIndex": 0,
+      "parts": [
+        {
+          "skinTemp": 288.26917519214442,
+          "internalTemp": 288.00219908553487,
+          "resources": [],
+          "modules": {
+            "Decoupler": {
+              "fired": "1"
+            }
+          },
+          "crew": [],
+          "uid": 32,
+          "partId": "dec_radial",
+          "parent": -1,
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": 4,
+          "symmetryGroup": 4
+        },
+        {
+          "skinTemp": 287.01192214971456,
+          "internalTemp": 287.99997366442426,
+          "resources": [
+            {
+              "id": "SolidFuel",
+              "amount": 0.0,
+              "max": 6400.0
+            }
+          ],
+          "modules": {
+            "Engine": {
+              "ignited": "1",
+              "flameout": "1",
+              "throttle": "0",
+              "limit": "1"
+            }
+          },
+          "crew": [],
+          "uid": 36,
+          "partId": "srb_kodiak",
+          "parent": 0,
+          "parentNode": "srf",
+          "attachNode": "srf",
+          "pos": [
+            3.841519E-05,
+            -2.33948231E-05,
+            0.725125968
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": 5,
+          "symmetryGroup": 5
+        },
+        {
+          "skinTemp": 297.41446015631453,
+          "internalTemp": 292.85371483139204,
+          "resources": [],
+          "modules": {},
+          "crew": [],
+          "uid": 40,
+          "partId": "nose_s1",
+          "parent": 1,
+          "parentNode": "top",
+          "attachNode": "bottom",
+          "pos": [
+            4.05311548E-05,
+            3.89999437,
+            0.7250914
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": -1,
+          "symmetryGroup": 6
+        },
+        {
+          "skinTemp": 292.73723114175522,
+          "internalTemp": 288.01901431312751,
+          "resources": [],
+          "modules": {},
+          "crew": [],
+          "uid": 44,
+          "partId": "fin_fs1",
+          "parent": 1,
+          "parentNode": "srf",
+          "attachNode": "srf",
+          "pos": [
+            0.625008762,
+            -2.90000725,
+            0.725027144
+          ],
+          "rot": [
+            3.60914925E-08,
+            0.707106769,
+            -6.729799E-10,
+            0.7071069
+          ],
+          "stage": -1,
+          "symmetryGroup": 7
+        },
+        {
+          "skinTemp": 291.84954568937917,
+          "internalTemp": 288.0187649817737,
+          "resources": [],
+          "modules": {},
+          "crew": [],
+          "uid": 45,
+          "partId": "fin_fs1",
+          "parent": 1,
+          "parentNode": "srf",
+          "attachNode": "srf",
+          "pos": [
+            -0.625039637,
+            -2.9000144,
+            0.724952042
+          ],
+          "rot": [
+            -6.962088E-09,
+            -0.7071069,
+            -4.07781826E-08,
+            0.7071068
+          ],
+          "stage": -1,
+          "symmetryGroup": 7
+        }
+      ],
+      "currentStage": 3,
+      "orbitPos": [
+        631393.8242840165,
+        12.135499531050552,
+        -40330.024405768308
+      ],
+      "orbitVel": [
+        308.04173741439649,
+        -2.0647182987598391,
+        -515.78986096621429
+      ],
+      "orbitEpoch": 140.93994434550405,
+      "landed": false,
+      "rotation": [
+        -0.876994669,
+        -0.3598677,
+        0.314189553,
+        -0.0515810549
+      ],
+      "angularVelocity": [
+        -0.41795072,
+        -0.148278058,
+        -0.410596818
+      ],
+      "comOffset": [
+        6.37841E-05,
+        -0.0108737964,
+        0.7030677
+      ],
+      "control": {
+        "throttle": 0.0,
+        "sas": false,
+        "sasMode": "StabilityAssist",
+        "rcs": false,
+        "legsDeployed": false,
+        "speedMode": "Surface"
+      },
+      "maneuverNodes": [],
+      "launchUT": 45.899981874972582,
+      "designName": "Luma Pathfinder"
+    },
+    {
+      "id": "caf69dfd4ce34a06a08c693826baf34b",
+      "name": "Luma Pathfinder Debris",
+      "kind": "Debris",
+      "situation": "Flying",
+      "systemId": "home",
+      "bodyId": "tellus",
+      "rootIndex": 0,
+      "parts": [
+        {
+          "skinTemp": 293.42625436569608,
+          "internalTemp": 288.04365836494577,
+          "resources": [],
+          "modules": {
+            "Decoupler": {
+              "fired": "1"
+            }
+          },
+          "crew": [],
+          "uid": 33,
+          "partId": "dec_radial",
+          "parent": -1,
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": 4,
+          "symmetryGroup": 4
+        },
+        {
+          "skinTemp": 287.77811228258486,
+          "internalTemp": 288.00295379752521,
+          "resources": [
+            {
+              "id": "SolidFuel",
+              "amount": 0.0,
+              "max": 6400.0
+            }
+          ],
+          "modules": {
+            "Engine": {
+              "ignited": "1",
+              "flameout": "1",
+              "throttle": "0",
+              "limit": "1"
+            }
+          },
+          "crew": [],
+          "uid": 37,
+          "partId": "srb_kodiak",
+          "parent": 0,
+          "parentNode": "srf",
+          "attachNode": "srf",
+          "pos": [
+            4.19244134E-05,
+            3.18586826E-05,
+            0.7249584
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": 5,
+          "symmetryGroup": 5
+        },
+        {
+          "skinTemp": 299.74828204406674,
+          "internalTemp": 294.13467985340276,
+          "resources": [],
+          "modules": {},
+          "crew": [],
+          "uid": 41,
+          "partId": "nose_s1",
+          "parent": 1,
+          "parentNode": "top",
+          "attachNode": "bottom",
+          "pos": [
+            -1.12056723E-05,
+            3.90006638,
+            0.7250353
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": -1,
+          "symmetryGroup": 6
+        },
+        {
+          "skinTemp": 310.29352380332864,
+          "internalTemp": 288.06684534755613,
+          "resources": [],
+          "modules": {},
+          "crew": [],
+          "uid": 46,
+          "partId": "fin_fs1",
+          "parent": 1,
+          "parentNode": "srf",
+          "attachNode": "srf",
+          "pos": [
+            0.6249959,
+            -2.89993954,
+            0.725034356
+          ],
+          "rot": [
+            3.91249628E-08,
+            0.707106948,
+            1.90927274E-08,
+            0.7071068
+          ],
+          "stage": -1,
+          "symmetryGroup": 8
+        },
+        {
+          "skinTemp": 291.71057249045231,
+          "internalTemp": 288.0095323637035,
+          "resources": [],
+          "modules": {},
+          "crew": [],
+          "uid": 47,
+          "partId": "fin_fs1",
+          "parent": 1,
+          "parentNode": "srf",
+          "attachNode": "srf",
+          "pos": [
+            -0.6249987,
+            -2.899947,
+            0.7250259
+          ],
+          "rot": [
+            2.07352358E-08,
+            -0.707106769,
+            -4.9422205E-08,
+            0.707106948
+          ],
+          "stage": -1,
+          "symmetryGroup": 8
+        }
+      ],
+      "currentStage": 3,
+      "orbitPos": [
+        630570.49193714757,
+        199.83350012896764,
+        -39158.923854767367
+      ],
+      "orbitVel": [
+        280.79848836223596,
+        11.883113887626383,
+        -477.3962340080825
+      ],
+      "orbitEpoch": 139.37994496151805,
+      "landed": false,
+      "rotation": [
+        -0.152756229,
+        0.287326276,
+        0.7694804,
+        0.5495536
+      ],
+      "angularVelocity": [
+        0.419847727,
+        1.38715827,
+        1.54006982
+      ],
+      "comOffset": [
+        1.64882331E-05,
+        -0.0108773932,
+        0.7030287
+      ],
+      "control": {
+        "throttle": 0.0,
+        "sas": false,
+        "sasMode": "StabilityAssist",
+        "rcs": false,
+        "legsDeployed": false,
+        "speedMode": "Surface"
+      },
+      "maneuverNodes": [],
+      "launchUT": 45.899981874972582,
+      "designName": "Luma Pathfinder"
+    },
+    {
+      "id": "08b2f83f4c934d099dcfa28a4f71c19d",
+      "name": "Luma Pathfinder Debris",
+      "kind": "Debris",
+      "situation": "Flying",
+      "systemId": "home",
+      "bodyId": "tellus",
+      "rootIndex": 0,
+      "parts": [
+        {
+          "skinTemp": 290.44585498477409,
+          "internalTemp": 288.02346062198961,
+          "resources": [],
+          "modules": {
+            "Decoupler": {
+              "fired": "1"
+            }
+          },
+          "crew": [],
+          "uid": 34,
+          "partId": "dec_radial",
+          "parent": -1,
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": 4,
+          "symmetryGroup": 4
+        },
+        {
+          "skinTemp": 287.21416057940905,
+          "internalTemp": 288.0020957761771,
+          "resources": [
+            {
+              "id": "SolidFuel",
+              "amount": 0.0,
+              "max": 6400.0
+            }
+          ],
+          "modules": {
+            "Engine": {
+              "ignited": "1",
+              "flameout": "1",
+              "throttle": "0",
+              "limit": "1"
+            }
+          },
+          "crew": [],
+          "uid": 38,
+          "partId": "srb_kodiak",
+          "parent": 0,
+          "parentNode": "srf",
+          "attachNode": "srf",
+          "pos": [
+            2.44975054E-05,
+            -1.12652788E-05,
+            0.7249765
+          ],
+          "rot": [
+            4.33753762E-08,
+            6.618707E-08,
+            9.176964E-09,
+            1.00000012
+          ],
+          "stage": 5,
+          "symmetryGroup": 5
+        },
+        {
+          "skinTemp": 300.60181050898683,
+          "internalTemp": 294.525336262979,
+          "resources": [],
+          "modules": {},
+          "crew": [],
+          "uid": 42,
+          "partId": "nose_s1",
+          "parent": 1,
+          "parentNode": "top",
+          "attachNode": "bottom",
+          "pos": [
+            1.62094821E-05,
+            3.899997,
+            0.725029945
+          ],
+          "rot": [
+            4.33753762E-08,
+            6.618707E-08,
+            9.176964E-09,
+            1.00000012
+          ],
+          "stage": -1,
+          "symmetryGroup": 6
+        },
+        {
+          "skinTemp": 292.22525086417039,
+          "internalTemp": 288.01913576127328,
+          "resources": [],
+          "modules": {},
+          "crew": [],
+          "uid": 48,
+          "partId": "fin_fs1",
+          "parent": 1,
+          "parentNode": "srf",
+          "attachNode": "srf",
+          "pos": [
+            0.6249835,
+            -2.89999652,
+            0.7249748
+          ],
+          "rot": [
+            1.67889418E-08,
+            0.707106948,
+            -2.98705016E-09,
+            0.7071069
+          ],
+          "stage": -1,
+          "symmetryGroup": 9
+        },
+        {
+          "skinTemp": 293.13129174102289,
+          "internalTemp": 288.01940856670353,
+          "resources": [],
+          "modules": {},
+          "crew": [],
+          "uid": 49,
+          "partId": "fin_fs1",
+          "parent": 1,
+          "parentNode": "srf",
+          "attachNode": "srf",
+          "pos": [
+            -0.6250268,
+            -2.89999843,
+            0.7248994
+          ],
+          "rot": [
+            6.02606853E-11,
+            -0.7071069,
+            -2.490566E-09,
+            0.707106948
+          ],
+          "stage": -1,
+          "symmetryGroup": 9
+        }
+      ],
+      "currentStage": 3,
+      "orbitPos": [
+        631678.721744954,
+        10.995072418471207,
+        -40093.691886237058
+      ],
+      "orbitVel": [
+        323.77924046615431,
+        -2.8097346352008792,
+        -501.23517346621429
+      ],
+      "orbitEpoch": 140.93994434550405,
+      "landed": false,
+      "rotation": [
+        0.204501569,
+        -0.0053933966,
+        0.959547758,
+        -0.193438053
+      ],
+      "angularVelocity": [
+        -0.267305672,
+        -0.203208089,
+        -0.66722697
+      ],
+      "comOffset": [
+        6.93908951E-05,
+        -0.0109313065,
+        0.7031087
+      ],
+      "control": {
+        "throttle": 0.0,
+        "sas": false,
+        "sasMode": "StabilityAssist",
+        "rcs": false,
+        "legsDeployed": false,
+        "speedMode": "Surface"
+      },
+      "maneuverNodes": [],
+      "launchUT": 45.899981874972582,
+      "designName": "Luma Pathfinder"
+    },
+    {
+      "id": "ecd21efdc22e40038391e759aaa3aa54",
+      "name": "Luma Pathfinder Debris",
+      "kind": "Debris",
+      "situation": "Flying",
+      "systemId": "home",
+      "bodyId": "tellus",
+      "rootIndex": 0,
+      "parts": [
+        {
+          "skinTemp": 293.42802003813142,
+          "internalTemp": 288.04366012814512,
+          "resources": [],
+          "modules": {
+            "Decoupler": {
+              "fired": "1"
+            }
+          },
+          "crew": [],
+          "uid": 35,
+          "partId": "dec_radial",
+          "parent": -1,
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "stage": 4,
+          "symmetryGroup": 4
+        },
+        {
+          "skinTemp": 287.77785729862495,
+          "internalTemp": 288.00295362010013,
+          "resources": [
+            {
+              "id": "SolidFuel",
+              "amount": 0.0,
+              "max": 6400.0
+            }
+          ],
+          "modules": {
+            "Engine": {
+              "ignited": "1",
+              "flameout": "1",
+              "throttle": "0",
+              "limit": "1"
+            }
+          },
+          "crew": [],
+          "uid": 39,
+          "partId": "srb_kodiak",
+          "parent": 0,
+          "parentNode": "srf",
+          "attachNode": "srf",
+          "pos": [
+            3.03983688E-06,
+            -2.68816948E-05,
+            0.724991143
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "stage": 5,
+          "symmetryGroup": 5
+        },
+        {
+          "skinTemp": 299.74834804483515,
+          "internalTemp": 294.13468855363146,
+          "resources": [],
+          "modules": {},
+          "crew": [],
+          "uid": 43,
+          "partId": "nose_s1",
+          "parent": 1,
+          "parentNode": "top",
+          "attachNode": "bottom",
+          "pos": [
+            3.81469727E-06,
+            3.89994669,
+            0.724991441
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "stage": -1,
+          "symmetryGroup": 6
+        },
+        {
+          "skinTemp": 291.7094845488578,
+          "internalTemp": 288.00953173999983,
+          "resources": [],
+          "modules": {},
+          "crew": [],
+          "uid": 50,
+          "partId": "fin_fs1",
+          "parent": 1,
+          "parentNode": "srf",
+          "attachNode": "srf",
+          "pos": [
+            0.624991536,
+            -2.8999474,
+            0.7250109
+          ],
+          "rot": [
+            -3.66326951E-08,
+            0.7071069,
+            -3.3028293E-08,
+            0.7071068
+          ],
+          "stage": -1,
+          "symmetryGroup": 10
+        },
+        {
+          "skinTemp": 310.2941233960226,
+          "internalTemp": 288.06684566338737,
+          "resources": [],
+          "modules": {},
+          "crew": [],
+          "uid": 51,
+          "partId": "fin_fs1",
+          "parent": 1,
+          "parentNode": "srf",
+          "attachNode": "srf",
+          "pos": [
+            -0.624948263,
+            -2.90003014,
+            0.7250469
+          ],
+          "rot": [
+            -1.589464E-08,
+            -0.7071068,
+            6.974976E-08,
+            0.7071068
+          ],
+          "stage": -1,
+          "symmetryGroup": 10
+        }
+      ],
+      "currentStage": 3,
+      "orbitPos": [
+        630570.75182484288,
+        -170.46456505657923,
+        -39159.057033478304
+      ],
+      "orbitVel": [
+        280.81740926067346,
+        -11.31704613892391,
+        -477.39486071706688
+      ],
+      "orbitEpoch": 139.37994496151805,
+      "landed": false,
+      "rotation": [
+        0.287454963,
+        -0.157479674,
+        0.555612147,
+        0.764110565
+      ],
+      "angularVelocity": [
+        -0.419648319,
+        1.386383,
+        -1.5378685
+      ],
+      "comOffset": [
+        5.33249477E-06,
+        -0.0109619107,
+        0.703017056
+      ],
+      "control": {
+        "throttle": 0.0,
+        "sas": false,
+        "sasMode": "StabilityAssist",
+        "rcs": false,
+        "legsDeployed": false,
+        "speedMode": "Surface"
+      },
+      "maneuverNodes": [],
+      "launchUT": 45.899981874972582,
+      "designName": "Luma Pathfinder"
+    },
+    {
+      "id": "f5da8c97f7d244daa120ba088e0d48b9",
+      "name": "Luma Pathfinder Debris",
+      "kind": "Debris",
+      "situation": "Flying",
+      "systemId": "home",
+      "bodyId": "tellus",
+      "rootIndex": 0,
+      "parts": [
+        {
+          "skinTemp": 294.47776094168097,
+          "internalTemp": 288.04709413929413,
+          "resources": [],
+          "modules": {
+            "Decoupler": {
+              "fired": "1"
+            }
+          },
+          "crew": [],
+          "uid": 23,
+          "partId": "dec_s1",
+          "parent": -1,
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": 3,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 296.97374429216279,
+          "internalTemp": 288.659791040848,
+          "resources": [
+            {
+              "id": "LiquidFuel",
+              "amount": 0.0,
+              "max": 2000.0
+            }
+          ],
+          "modules": {},
+          "crew": [],
+          "uid": 24,
+          "partId": "adapter_s2_s1",
+          "parent": 0,
+          "parentNode": "bottom",
+          "attachNode": "top",
+          "pos": [
+            5.54919243E-05,
+            -1.04995322,
+            1.49011612E-07
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": -1,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 290.78601941914638,
+          "internalTemp": 288.00977119533565,
+          "resources": [
+            {
+              "id": "LiquidFuel",
+              "amount": 0.0,
+              "max": 16000.0
+            }
+          ],
+          "modules": {},
+          "crew": [],
+          "uid": 25,
+          "partId": "tank_s2_long",
+          "parent": 1,
+          "parentNode": "bottom",
+          "attachNode": "top",
+          "pos": [
+            4.0769577E-05,
+            -5.74999142,
+            -1.1920929E-07
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": -1,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 288.88901625708246,
+          "internalTemp": 287.99566719693667,
+          "resources": [
+            {
+              "id": "LiquidFuel",
+              "amount": 0.0,
+              "max": 4000.0
+            }
+          ],
+          "modules": {},
+          "crew": [],
+          "uid": 26,
+          "partId": "tank_s2_short",
+          "parent": 2,
+          "parentNode": "bottom",
+          "attachNode": "top",
+          "pos": [
+            7.390976E-06,
+            -10.4499722,
+            0.0
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": -1,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 289.70670167425175,
+          "internalTemp": 287.99625490002455,
+          "resources": [],
+          "modules": {
+            "Engine": {
+              "ignited": "1",
+              "flameout": "1",
+              "throttle": "0",
+              "limit": "1"
+            }
+          },
+          "crew": [],
+          "uid": 27,
+          "partId": "eng_goliath",
+          "parent": 3,
+          "parentNode": "bottom",
+          "attachNode": "top",
+          "pos": [
+            4.76837158E-07,
+            -12.7999907,
+            -1.43051147E-06
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": 5,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 290.79828663782911,
+          "internalTemp": 288.00221812835161,
+          "resources": [],
+          "modules": {},
+          "crew": [],
+          "uid": 28,
+          "partId": "fin_fs1",
+          "parent": 3,
+          "parentNode": "srf",
+          "attachNode": "srf",
+          "pos": [
+            0.883801937,
+            -10.9500494,
+            0.883883
+          ],
+          "rot": [
+            5.85575926E-08,
+            0.3826835,
+            4.961276E-09,
+            0.923879743
+          ],
+          "stage": -1,
+          "symmetryGroup": 3
+        },
+        {
+          "skinTemp": 290.79850925739527,
+          "internalTemp": 288.00221806380131,
+          "resources": [],
+          "modules": {},
+          "crew": [],
+          "uid": 29,
+          "partId": "fin_fs1",
+          "parent": 3,
+          "parentNode": "srf",
+          "attachNode": "srf",
+          "pos": [
+            0.8837657,
+            -10.9500189,
+            -0.883884668
+          ],
+          "rot": [
+            2.45539145E-08,
+            0.923879743,
+            2.96185618E-08,
+            0.382683516
+          ],
+          "stage": -1,
+          "symmetryGroup": 3
+        },
+        {
+          "skinTemp": 317.24452869696768,
+          "internalTemp": 288.10506422950209,
+          "resources": [],
+          "modules": {},
+          "crew": [],
+          "uid": 30,
+          "partId": "fin_fs1",
+          "parent": 3,
+          "parentNode": "srf",
+          "attachNode": "srf",
+          "pos": [
+            -0.883850336,
+            -10.9500237,
+            -0.8838842
+          ],
+          "rot": [
+            1.59741056E-08,
+            0.923879743,
+            3.194665E-08,
+            -0.382683426
+          ],
+          "stage": -1,
+          "symmetryGroup": 3
+        },
+        {
+          "skinTemp": 317.24449629855451,
+          "internalTemp": 288.10506396390628,
+          "resources": [],
+          "modules": {},
+          "crew": [],
+          "uid": 31,
+          "partId": "fin_fs1",
+          "parent": 3,
+          "parentNode": "srf",
+          "attachNode": "srf",
+          "pos": [
+            -0.883832,
+            -10.9499969,
+            0.883883
+          ],
+          "rot": [
+            -1.84831634E-08,
+            -0.382683545,
+            2.01727932E-08,
+            0.9238796
+          ],
+          "stage": -1,
+          "symmetryGroup": 3
+        }
+      ],
+      "currentStage": 2,
+      "orbitPos": [
+        648174.42698305834,
+        44.048537876892127,
+        -80172.291060876581
+      ],
+      "orbitVel": [
+        274.91031921803915,
+        0.774022819192101,
+        -1080.1779651516763
+      ],
+      "orbitEpoch": 177.33992997184396,
+      "landed": false,
+      "rotation": [
+        -0.5705873,
+        0.418152869,
+        -0.417807132,
+        -0.57010144
+      ],
+      "angularVelocity": [
+        -1.59784013E-05,
+        0.574080944,
+        0.00047013312
+      ],
+      "comOffset": [
+        6.969006E-05,
+        -9.577921,
+        -5.07920731E-07
+      ],
+      "control": {
+        "throttle": 0.0,
+        "sas": false,
+        "sasMode": "StabilityAssist",
+        "rcs": false,
+        "legsDeployed": false,
+        "speedMode": "Surface"
+      },
+      "maneuverNodes": [],
+      "launchUT": 45.899981874972582,
+      "designName": "Luma Pathfinder"
+    }
+  ],
+  "crew": [
+    {
+      "name": "Ada Kestrel",
+      "status": "Assigned",
+      "vesselId": "fb35007d19b64d2f86f124a810170261",
+      "flights": 0
+    },
+    {
+      "name": "Bram Holloway",
+      "status": "Available",
+      "flights": 0
+    },
+    {
+      "name": "Cyra Moss",
+      "status": "Available",
+      "flights": 0
+    },
+    {
+      "name": "Dov Linden",
+      "status": "Available",
+      "flights": 0
+    },
+    {
+      "name": "Esme Varga",
+      "status": "Available",
+      "flights": 0
+    },
+    {
+      "name": "Finn Arden",
+      "status": "Available",
+      "flights": 0
+    },
+    {
+      "name": "Gwen Tallis",
+      "status": "Available",
+      "flights": 0
+    },
+    {
+      "name": "Hal Okafor",
+      "status": "Available",
+      "flights": 0
+    }
+  ],
+  "missionLog": [
+    "[Y1 D001 00:00:00] New sandbox started",
+    "[Y1 D001 00:00:00] Rolled out Luma Pathfinder to the launch pad",
+    "[Y1 D001 00:00:00] Milestone: Launch",
+    "[Y1 D001 00:00:00] Milestone: Reach space (70 km)",
+    "[Y1 D001 00:00:00] Milestone: Achieve a stable orbit",
+    "[Y1 D001 00:00:00] Milestone: Plan a transfer to Luma"
+  ],
+  "milestones": [
+    "launch",
+    "space",
+    "orbit",
+    "transfer"
+  ],
+  "showGuide": true,
+  "savedAt": "2026-10-05 09:04:48",
+  "scene": "flight"
+}

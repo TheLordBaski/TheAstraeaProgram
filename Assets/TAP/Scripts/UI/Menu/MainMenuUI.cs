@@ -172,9 +172,18 @@ namespace TAP.UI
             return best;
         }
 
-        private static void Continue(string saveName)
+        private void Continue(string saveName)
         {
-            if (!GameSession.LoadPersistent(saveName))
+            bool loaded;
+            try { loaded = GameSession.LoadPersistent(saveName); }
+            catch (SaveException e)
+            {
+                // Never start a new game under this name: that would overwrite the damaged file. The list says what is wrong.
+                Debug.LogError(e.Message);
+                OpenLoad();
+                return;
+            }
+            if (!loaded)
             {
                 GameSession.NewGame(saveName);
                 GameSession.GoToEditor();
@@ -257,10 +266,12 @@ namespace TAP.UI
                 string detail;
                 try
                 {
-                    var s = SaveStorage.ReadSave(name, hasPersistent ? "persistent" : "quicksave");
+                    var s = SaveStorage.ReadSave(name, hasPersistent ? "persistent" : "quicksave", out string notice);
                     int ships = 0;
                     foreach (var v in s.vessels) if (v.kind == VesselKind.Ship) ships++;
-                    detail = $"{s.savedAt} · T+{MathD.FormatUT(s.ut)} · {ships} vessel(s) · {s.milestones.Count} milestone(s)";
+                    var played = TimeSpan.FromSeconds(s.playTime);
+                    detail = $"{s.savedAt} · {s.mode} · T+{MathD.FormatUT(s.ut)} · {ships} vessel(s) · {s.milestones.Count} milestone(s) · {(int)played.TotalHours}:{played.Minutes:00} played";
+                    if (notice != null) detail += " · restored from a backup";
                 }
                 catch (Exception e) { detail = "unreadable: " + e.Message; }
                 var row = UIKit.Element("panel panel--light load-row");

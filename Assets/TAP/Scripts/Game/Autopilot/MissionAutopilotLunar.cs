@@ -370,7 +370,7 @@ namespace TAP.Game
                 if (!File.Exists(path)) { Check("Luma orbit snapshot available", false, path + " (fly the lunar test first)"); yield break; }
                 AutoTestState.ResumeStep = 1;
                 Note("loading snapshot " + Path.GetFileName(path));
-                GameSession.LoadFlightState(SaveStorage.FromJson<GameSave>(File.ReadAllText(path)), FlightEntry.Quickload);
+                GameSession.LoadFlightState(SaveStorage.ParseSave(File.ReadAllText(path)), FlightEntry.Quickload);
                 yield return WaitSecondsAny(30);
                 yield break;
             }
@@ -400,7 +400,7 @@ namespace TAP.Game
                 if (!File.Exists(path)) { Check("landed snapshot available", false, path + " (fly the lunar test first)"); yield break; }
                 AutoTestState.ResumeStep = 1;
                 Note("loading snapshot " + Path.GetFileName(path));
-                GameSession.LoadFlightState(SaveStorage.FromJson<GameSave>(File.ReadAllText(path)), FlightEntry.Quickload);
+                GameSession.LoadFlightState(SaveStorage.ParseSave(File.ReadAllText(path)), FlightEntry.Quickload);
                 yield return WaitSecondsAny(30);
                 yield break;
             }

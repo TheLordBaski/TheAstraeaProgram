@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace TAP.Persistence
@@ -133,24 +134,116 @@ namespace TAP.Persistence
 
         public static string SlotPath(string saveName, string slot) => Path.Combine(SaveFolder(saveName), slot + ".json");
 
+        /// <summary>How many earlier "persistent" saves are kept in the save's Backups folder.</summary>
+        public const int KeptBackups = 5;
+
+        /// <summary>Autosave interval in minutes while flying; 0 turns it off. The settings screen (FND-08) binds to this.</summary>
+        public static int AutosaveMinutes
+        {
+            get => Mathf.Clamp(PlayerPrefs.GetInt("TAP.AutosaveMinutes", 5), 0, 60);
+            set { PlayerPrefs.SetInt("TAP.AutosaveMinutes", Mathf.Clamp(value, 0, 60)); PlayerPrefs.Save(); }
+        }
+
+        public static string BackupFolder(string saveName) => Path.Combine(SaveFolder(saveName), "Backups");
+
         public static void WriteSave(GameSave save, string slot)
         {
             Directory.CreateDirectory(SaveFolder(save.saveName));
             save.savedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             string path = SlotPath(save.saveName, slot);
+            if (slot == "persistent") BackUp(path, save.saveName);
+            WriteAtomic(path, ToJson(save));
+        }
+
+        /// <summary>
+        /// Writes a temporary file, flushes it to disk, then swaps it in. A crash leaves the old file or the new one,
+        /// never half of either.
+        /// </summary>
+        public static void WriteAtomic(string path, string text)
+        {
             string tmp = path + ".tmp";
-            File.WriteAllText(tmp, ToJson(save));
-            if (File.Exists(path)) File.Delete(path);
-            File.Move(tmp, path);
+            var bytes = new System.Text.UTF8Encoding(false).GetBytes(text);
+            using (var fs = new FileStream(tmp, FileMode.Create, FileAccess.Write))
+            {
+                fs.Write(bytes, 0, bytes.Length);
+                fs.Flush(true);
+            }
+            if (File.Exists(path)) File.Replace(tmp, path, null);
+            else File.Move(tmp, path);
+        }
+
+        /// <summary>Copies the save about to be replaced into Backups, dropping the oldest beyond <see cref="KeptBackups"/>.</summary>
+        private static void BackUp(string path, string saveName)
+        {
+            try
+            {
+                // A damaged file is never rotated in: it would push out a good backup.
+                if (!File.Exists(path) || !TryParseSave(File.ReadAllText(path), out _)) return;
+                string dir = BackupFolder(saveName);
+                Directory.CreateDirectory(dir);
+                File.Copy(path, Path.Combine(dir, "persistent-" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff") + ".json"), true);
+                var all = Backups(saveName);   // newest first
+                for (int i = KeptBackups; i < all.Count; i++) File.Delete(all[i]);
+            }
+            catch (Exception e) { Debug.LogWarning($"Could not back up save '{saveName}': {e.Message}"); }
+        }
+
+        /// <summary>Backups of a save, newest first (the names sort by time).</summary>
+        public static List<string> Backups(string saveName)
+        {
+            var list = new List<string>();
+            string dir = BackupFolder(saveName);
+            if (Directory.Exists(dir)) list.AddRange(Directory.GetFiles(dir, "persistent-*.json"));
+            list.Sort(StringComparer.Ordinal);
+            list.Reverse();
+            return list;
         }
 
         public static bool SlotExists(string saveName, string slot) => File.Exists(SlotPath(saveName, slot));
 
-        public static GameSave ReadSave(string saveName, string slot)
+        /// <summary>Parses save JSON of any format version, upgrading it to the current one.</summary>
+        public static GameSave ParseSave(string json)
         {
+            JObject o;
+            using (var reader = new JsonTextReader(new StringReader(json)) { DateParseHandling = DateParseHandling.None })
+                o = JObject.Load(reader);
+            return SaveMigration.Upgrade(o).ToObject<GameSave>(JsonSerializer.Create(Settings));
+        }
+
+        private static bool TryParseSave(string json, out GameSave save)
+        {
+            try { save = ParseSave(json); return save != null; }
+            catch (JsonException) { save = null; return false; }
+        }
+
+        public static GameSave ReadSave(string saveName, string slot) => ReadSave(saveName, slot, out _);
+
+        /// <summary>
+        /// Reads a save slot. A damaged "persistent" file is replaced by the newest good backup and <paramref name="notice"/>
+        /// says so; with no good backup this throws <see cref="SaveException"/>. A missing slot gives null.
+        /// </summary>
+        public static GameSave ReadSave(string saveName, string slot, out string notice)
+        {
+            notice = null;
             string path = SlotPath(saveName, slot);
             if (!File.Exists(path)) return null;
-            return FromJson<GameSave>(File.ReadAllText(path));
+            string text = File.ReadAllText(path);
+            try { return ParseSave(text); }
+            catch (SaveTooNewException) { throw; }
+            catch (JsonException e)
+            {
+                if (slot == "persistent")
+                    foreach (string backup in Backups(saveName))
+                    {
+                        if (!TryParseSave(File.ReadAllText(backup), out var good)) continue;
+                        File.Copy(path, path + ".damaged", true);   // keep the evidence
+                        File.Copy(backup, path, true);
+                        notice = $"The save '{saveName}' was damaged. Restored the backup from {File.GetLastWriteTime(backup):yyyy-MM-dd HH:mm}.";
+                        Debug.LogWarning(notice + " " + e.Message);
+                        return good;
+                    }
+                throw new SaveException($"The {slot} save of '{saveName}' is damaged and no backup could be read: {e.Message}", e);
+            }
         }
 
         public static List<string> ListSaves()

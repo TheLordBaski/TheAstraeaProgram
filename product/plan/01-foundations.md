@@ -182,9 +182,25 @@ Built: [Docs/CONTENT_VALIDATION.md](../../Docs/CONTENT_VALIDATION.md).
 - A save corpus in `Assets/TAP/Tests/Saves` (v1 saves from the slice), loaded by a test on every build.
 
 **Done when**
-- [ ] Every save in the corpus loads, with the same vessels, crew and positions.
-- [ ] Killing the game in the middle of a save never corrupts it (a test truncates the temp file).
-- [ ] Backups rotate.
+- [x] Every save in the corpus loads, with the same vessels, crew and positions.
+- [x] Killing the game in the middle of a save never corrupts it (a test truncates the temp file).
+- [x] Backups rotate.
+
+Built (`SaveMigration.cs`, `SaveStorage.cs`, `SaveTests.cs`, 13 tests; format 2):
+- **Migration:** `SaveMigration` upgrades the JSON one version at a time; a save from a newer game is refused and left
+  alone. To change the format: bump `Current`, add a step, add a corpus save of the old format.
+- **Corpus:** six v1 saves in `Assets/TAP/Tests/Saves` (the slice and the star-systems builds).
+- **Writes and backups:** a flushed temporary file replaces the save; the last 5 `persistent` saves are kept in
+  `Saves/<name>/Backups`. A damaged file is never rotated in.
+- **Damage:** the newest good backup is restored (the bad file stays as `persistent.json.damaged`) and a toast says
+  so; with no usable backup the main menu lists the save as unreadable and never starts a new game over it.
+- **Metadata:** `mode`, `playTime`, in-game date and vessel count show in the load list. Autosave:
+  `SaveStorage.AutosaveMinutes` (default 5, 0 = off), for the settings screen (FND-08).
+- **Not yet:**
+  - The save thumbnail, with the save browser (UX-02).
+  - The sections for science, tech, funds, contracts, facilities and crew traits: each task adds its fields with a
+    migration step. `mode` stays a string until FND-06.
+  - Quicksaves keep their single slot, with no backup history.
 
 ### FND-06 · Game modes: sandbox, science, career
 **Milestone** M1 · **Claude** 2 d · **You** 0.5 d · **Needs** —

@@ -1,0 +1,521 @@
+{
+  "version": 1,
+  "saveName": "AutoTest",
+  "ut": 47787.172441427567,
+  "activeVesselId": "a6c5c0684dce44db9bec6525363002c5",
+  "vessels": [
+    {
+      "id": "a6c5c0684dce44db9bec6525363002c5",
+      "name": "Luma Pathfinder",
+      "kind": "Ship",
+      "situation": "Landed",
+      "bodyId": "tellus",
+      "rootIndex": 0,
+      "parts": [
+        {
+          "skinTemp": 285.43980541622244,
+          "internalTemp": 288.70461436363513,
+          "resources": [
+            {
+              "id": "Monoprop",
+              "amount": 14.296502439389466,
+              "max": 15.0
+            },
+            {
+              "id": "Electric",
+              "amount": 79.922538424599239,
+              "max": 80.0
+            }
+          ],
+          "modules": {
+            "ReactionWheel": {
+              "enabled": "1"
+            }
+          },
+          "crew": [
+            "Ada Kestrel"
+          ],
+          "uid": 1,
+          "partId": "pod_kestrel",
+          "parent": -1,
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": -1,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 296.719892475776,
+          "internalTemp": 291.97527587756127,
+          "resources": [],
+          "modules": {
+            "Parachute": {
+              "state": "Cut",
+              "area": "0",
+              "canopyTemp": "287.04684328718668"
+            }
+          },
+          "crew": [],
+          "uid": 2,
+          "partId": "chute_main",
+          "parent": 0,
+          "parentNode": "top",
+          "attachNode": "bottom",
+          "pos": [
+            -2.08616257E-07,
+            0.8500004,
+            -1.78813934E-07
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": 0,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 526.82432209581521,
+          "internalTemp": 306.62707458298405,
+          "resources": [
+            {
+              "id": "Ablator",
+              "amount": 140.0,
+              "max": 140.0
+            }
+          ],
+          "modules": {},
+          "crew": [],
+          "uid": 3,
+          "partId": "shield_s1",
+          "parent": 0,
+          "parentNode": "bottom",
+          "attachNode": "top",
+          "pos": [
+            -2.38418579E-07,
+            -0.7999999,
+            4.76837158E-07
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": -1,
+          "symmetryGroup": -1
+        }
+      ],
+      "currentStage": -1,
+      "orbitEpoch": 33859.976546295075,
+      "landed": true,
+      "landedPos": [
+        -346192.484855396,
+        -130.35050563930156,
+        490252.27218799933
+      ],
+      "landedRot": [
+        -0.0281370655,
+        -0.5332036,
+        -0.708974659,
+        -0.460713863
+      ],
+      "rotation": [
+        -0.4607966,
+        -0.7039459,
+        -0.5395399,
+        -0.0319928
+      ],
+      "angularVelocity": [
+        -0.0009675051,
+        0.00362045923,
+        0.0005005543
+      ],
+      "comOffset": [
+        4.093142E-05,
+        -0.0850217044,
+        -4.1925563E-05
+      ],
+      "control": {
+        "throttle": 0.0,
+        "sas": true,
+        "sasMode": "Retrograde",
+        "rcs": false,
+        "legsDeployed": false,
+        "speedMode": "Surface"
+      },
+      "maneuverNodes": [],
+      "targetId": "body:luma",
+      "launchUT": 1.5199993997812271,
+      "designName": "Luma Pathfinder"
+    },
+    {
+      "id": "bda67a1f08b04ffc8b3cad11e6438860",
+      "name": "Luma Pathfinder Debris",
+      "kind": "Debris",
+      "situation": "Orbiting",
+      "bodyId": "tellus",
+      "rootIndex": 0,
+      "parts": [
+        {
+          "skinTemp": 284.40439495812404,
+          "internalTemp": 287.46748898229578,
+          "resources": [],
+          "modules": {
+            "Decoupler": {
+              "fired": "1"
+            }
+          },
+          "crew": [],
+          "uid": 18,
+          "partId": "dec_s1",
+          "parent": -1,
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": 2,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 284.45065814892808,
+          "internalTemp": 287.48353369570668,
+          "resources": [
+            {
+              "id": "LiquidFuel",
+              "amount": 0.0,
+              "max": 2000.0
+            }
+          ],
+          "modules": {},
+          "crew": [],
+          "uid": 19,
+          "partId": "adapter_s2_s1",
+          "parent": 0,
+          "parentNode": "bottom",
+          "attachNode": "top",
+          "pos": [
+            -6.04987144E-06,
+            -1.05007124,
+            0.0
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": -1,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 284.46056810193306,
+          "internalTemp": 287.85888341103413,
+          "resources": [
+            {
+              "id": "LiquidFuel",
+              "amount": 0.0,
+              "max": 4000.0
+            }
+          ],
+          "modules": {},
+          "crew": [],
+          "uid": 20,
+          "partId": "tank_s2_short",
+          "parent": 1,
+          "parentNode": "bottom",
+          "attachNode": "top",
+          "pos": [
+            1.71661377E-05,
+            -2.95000577,
+            -1.1920929E-07
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.00000012
+          ],
+          "stage": -1,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 284.44778490409266,
+          "internalTemp": 287.49746402937808,
+          "resources": [
+            {
+              "id": "LiquidFuel",
+              "amount": 0.0,
+              "max": 2000.0
+            }
+          ],
+          "modules": {},
+          "crew": [],
+          "uid": 21,
+          "partId": "adapter_s2_s1",
+          "parent": 2,
+          "parentNode": "bottom",
+          "attachNode": "bottom",
+          "pos": [
+            -5.96046448E-05,
+            -4.8500104,
+            -2.38418579E-07
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            -1.00000012,
+            0.0
+          ],
+          "stage": -1,
+          "symmetryGroup": -1
+        },
+        {
+          "skinTemp": 284.46450082365919,
+          "internalTemp": 287.96334697193015,
+          "resources": [],
+          "modules": {
+            "Engine": {
+              "ignited": "1",
+              "flameout": "1",
+              "throttle": "0",
+              "limit": "1"
+            }
+          },
+          "crew": [],
+          "uid": 22,
+          "partId": "eng_hornet",
+          "parent": 3,
+          "parentNode": "top",
+          "attachNode": "top",
+          "pos": [
+            3.0040741E-05,
+            -6.60005951,
+            -9.536743E-07
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            -1.00000012
+          ],
+          "stage": 3,
+          "symmetryGroup": -1
+        }
+      ],
+      "currentStage": 1,
+      "orbitPos": [
+        462936.312929386,
+        -221.9118156421012,
+        504282.105670228
+      ],
+      "orbitVel": [
+        2040.5955405265308,
+        0.37165405861784406,
+        -1732.64595470705
+      ],
+      "orbitEpoch": 1752.9454119025031,
+      "landed": false,
+      "rotation": [
+        0.3246843,
+        0.6259274,
+        -0.6282547,
+        0.328772157
+      ],
+      "angularVelocity": [
+        6.742285E-06,
+        -0.000403312,
+        9.789781E-06
+      ],
+      "comOffset": [
+        -6.86338244E-05,
+        -5.039178,
+        -1.46724986E-07
+      ],
+      "control": {
+        "throttle": 0.0,
+        "sas": false,
+        "sasMode": "StabilityAssist",
+        "rcs": false,
+        "legsDeployed": false,
+        "speedMode": "Surface"
+      },
+      "maneuverNodes": [],
+      "launchUT": 1.5199993997812271,
+      "designName": "Luma Pathfinder"
+    },
+    {
+      "id": "3ff29c5e00a14b298b277e840725094a",
+      "name": "Flag: Ada Kestrel on Luma",
+      "kind": "Flag",
+      "situation": "Landed",
+      "bodyId": "luma",
+      "rootIndex": 0,
+      "parts": [
+        {
+          "skinTemp": 290.0,
+          "internalTemp": 290.0,
+          "resources": [],
+          "modules": {
+            "Flag": {
+              "plaque": "Ada Kestrel - first landing on Luma"
+            }
+          },
+          "crew": [],
+          "uid": 1,
+          "partId": "flag",
+          "parent": -1,
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rot": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "stage": -1,
+          "symmetryGroup": -1
+        }
+      ],
+      "currentStage": 0,
+      "orbitEpoch": 0.0,
+      "landed": true,
+      "landedPos": [
+        -87071.12637902546,
+        -7128.087473907528,
+        -202139.56344159041
+      ],
+      "landedRot": [
+        -0.427006841,
+        -0.35020563,
+        0.5777973,
+        0.6009754
+      ],
+      "rotation": [
+        0.7142706,
+        0.6955682,
+        0.0774731,
+        -0.0005389203
+      ],
+      "angularVelocity": [
+        0.0,
+        4.023315E-05,
+        -2.98023338E-06
+      ],
+      "comOffset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "control": {
+        "throttle": 0.0,
+        "sas": false,
+        "sasMode": "StabilityAssist",
+        "rcs": false,
+        "legsDeployed": false,
+        "speedMode": "Surface"
+      },
+      "maneuverNodes": [],
+      "launchUT": -1.0
+    }
+  ],
+  "crew": [
+    {
+      "name": "Ada Kestrel",
+      "status": "Assigned",
+      "vesselId": "a6c5c0684dce44db9bec6525363002c5",
+      "flights": 0
+    },
+    {
+      "name": "Bram Holloway",
+      "status": "Available",
+      "flights": 0
+    },
+    {
+      "name": "Cyra Moss",
+      "status": "Available",
+      "flights": 0
+    },
+    {
+      "name": "Dov Linden",
+      "status": "Available",
+      "flights": 0
+    },
+    {
+      "name": "Esme Varga",
+      "status": "Available",
+      "flights": 0
+    },
+    {
+      "name": "Finn Arden",
+      "status": "Available",
+      "flights": 0
+    },
+    {
+      "name": "Gwen Tallis",
+      "status": "Available",
+      "flights": 0
+    },
+    {
+      "name": "Hal Okafor",
+      "status": "Available",
+      "flights": 0
+    }
+  ],
+  "missionLog": [
+    "[Y1 D001 00:00:00] New sandbox started",
+    "[Y1 D001 00:00:00] Rolled out Luma Pathfinder to the launch pad",
+    "[Y1 D001 00:00:00] Milestone: Launch",
+    "[Y1 D001 00:00:00] Milestone: Reach space (70 km)",
+    "[Y1 D001 00:00:00] Milestone: Achieve a stable orbit",
+    "[Y1 D001 00:00:00] Milestone: Plan a transfer to Luma",
+    "[Y1 D001 00:00:00] Milestone: Enter Luma's sphere of influence",
+    "[Y1 D001 00:00:00] Milestone: Orbit Luma",
+    "[Y1 D002 01:03:00] Milestone: Land on Luma",
+    "[Y1 D002 01:18:25] Milestone: Walk on Luma (EVA)",
+    "[Y1 D002 01:18:25] Milestone: Plant a flag",
+    "[Y1 D002 01:18:25] Milestone: Board the lander",
+    "[Y1 D002 01:18:25] Milestone: Launch from Luma back to orbit",
+    "[Y1 D002 01:18:25] Milestone: Return to Tellus",
+    "[Y1 D002 01:18:25] Milestone: Survive reentry",
+    "[Y1 D002 01:18:25] Milestone: Land safely"
+  ],
+  "milestones": [
+    "launch",
+    "space",
+    "orbit",
+    "transfer",
+    "luma_soi",
+    "luma_orbit",
+    "luma_land",
+    "eva",
+    "flag",
+    "board",
+    "luma_ascent",
+    "return",
+    "reentry",
+    "landed_home"
+  ],
+  "showGuide": true,
+  "savedAt": "2026-09-25 16:40:47",
+  "scene": "flight"
+}
