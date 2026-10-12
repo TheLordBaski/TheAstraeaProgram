@@ -443,9 +443,23 @@ Built (`GameLog.cs`, `BugReport.cs`, `ProblemReportUI.cs`, `BugReportTests.cs`, 
 - Profiler markers around each simulation step. `-benchmark` writes a CSV, and CI keeps the trend.
 
 **Done when**
-- [ ] The benchmark runs headless in CI.
-- [ ] The baseline numbers are recorded in `Docs/PERFORMANCE.md`.
-- [ ] Regressions over 10% show in the job summary.
+- [ ] The benchmark runs headless in CI. (It runs headless on Windows, with and without `-nographics`: all scenarios, exit 0. The Linux job
+      in `ci.yml` and the nightly steps are written but have not run; they need the CI set-up of FND-11.)
+- [x] The baseline numbers are recorded in `Docs/PERFORMANCE.md`. (The CPU's share of a frame, no window, on the development PC. The frame rate with a GPU,
+      and the reference PC, are not measured: see "Not measured" there.)
+- [ ] Regressions over 10% show in the job summary. (`compare-benchmark.ps1` marks them and writes the table to `GITHUB_STEP_SUMMARY`; checked against a
+      second run on this PC, not in a job.)
+
+Built (`SimTimers.cs`, `BenchmarkRunner.cs`, `BenchmarkCraft.cs`, `compare-benchmark.ps1`, [Docs/PERFORMANCE.md](../../Docs/PERFORMANCE.md)):
+- **Markers:** `SimTimers.Measure(SimStep)` around pre-step, post-step, rails, render update, planets, trajectory, map, HUD and effects. A scope is a
+  `TAP.<step>` profiler marker (editor and development builds) and a stopwatch in every build.
+- **`-benchmark`:** six scenarios (launches of 50, 150 and 300 parts, a base of 10 landed vessels, the map with 40, maximum warp) plus the time to the menu and
+  to the hub; writes one CSV row each with frame statistics, the time in each step and the memory. `-benchmark-out`, `-benchmark-scenarios`, `-benchmark-seconds`.
+- **CI:** `compare-benchmark.ps1` against a baseline in `Docs/benchmarks/` (more than 10% slower is marked, budgets are checked); steps in `ci.yml` (Linux,
+  `-nographics`) and `nightly.yml` (Windows, with and without a window).
+- **Numbers:** 1.2 to 2.4 ms of CPU per frame for 50 to 300 parts, 330 to 380 MB, 1.1 s from start to the space center. The planets cost more than the physics.
+- **Not done:** the frame rate with a GPU and the budgets on the reference PC (the windowed run is yours); `UITKTextHandle.ShapeText` throws a
+  NullReferenceException about 17 times per `-batchmode` start (it did before this task; the run goes on).
 
 ### FND-14 · Remove single-mission assumptions; game events and objectives
 **Milestone** M1 · **Claude** 3 d · **You** 0.5 d · **Needs** FND-01

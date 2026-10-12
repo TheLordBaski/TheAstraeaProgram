@@ -33,7 +33,7 @@ namespace TAP.App
             ctrl.Build();
             go.AddComponent<DevOverlay>().Scene = ctrl;
             TAP.UI.FlightUI.Create(ctrl);
-            if (!string.IsNullOrEmpty(GameSession.AutoTest) && GameSession.AutoTest != "flow" && GameSession.AutoTest != "locale")
+            if (!string.IsNullOrEmpty(GameSession.AutoTest) && GameSession.AutoTest != "flow" && GameSession.AutoTest != "locale" && GameSession.AutoTest != "bench")
                 MissionAutopilot.Start(ctrl, GameSession.AutoTest, quitWhenDone: !Application.isEditor);
         }
 
@@ -57,6 +57,7 @@ namespace TAP.App
             for (int i = 0; i < args.Length; i++)
             {
                 if (args[i] == "-autotest" && i + 1 < args.Length) GameSession.AutoTest = args[i + 1];
+                if (args[i] == "-benchmark") GameSession.AutoTest = "bench";
                 if (args[i] == "-report" && i + 1 < args.Length) GameSession.AutoTestReportPath = args[i + 1];
                 if (args[i] == "-craft" && i + 1 < args.Length) GameSession.AutoTestCraft = args[i + 1];
             }

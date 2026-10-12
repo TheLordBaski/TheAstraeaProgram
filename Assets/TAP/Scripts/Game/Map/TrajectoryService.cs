@@ -36,6 +36,7 @@ namespace TAP.Game
         private void Update()
         {
             if (Sim == null) return;
+            using var timer = SimTimers.Measure(SimStep.Trajectory);
             Vessel v = Sim.ActiveVessel;
             _timer += Time.unscaledDeltaTime;
             bool nodesChanged = v != null && v.ManeuverVersion != _lastNodeVersion;

@@ -312,6 +312,7 @@ namespace TAP.Game
         private void LateUpdate()
         {
             if (!Active || Sim == null) return;
+            using var timer = SimTimers.Measure(SimStep.Map);
             double ut = Sim.UT;
             Vector3d focus = FocusAbsolute(ut);
             HandleCamera();

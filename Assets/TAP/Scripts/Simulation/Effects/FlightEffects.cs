@@ -122,6 +122,7 @@ namespace TAP.Simulation
         private void LateUpdate()
         {
             if (Sim == null) return;
+            using var timer = SimTimers.Measure(SimStep.Effects);
             UpdatePlumes();
             UpdateRcs();
             UpdatePlasma();

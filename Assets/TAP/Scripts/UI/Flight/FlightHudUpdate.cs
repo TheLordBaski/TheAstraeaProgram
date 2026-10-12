@@ -17,6 +17,7 @@ namespace TAP.UI
         private void Update()
         {
             if (Sim == null) return;
+            using var timer = SimTimers.Measure(SimStep.Hud);
             var v = Sim.ActiveVessel;
             UpdateMessages();
             UpdateClock();

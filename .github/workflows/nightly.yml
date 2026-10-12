@@ -29,6 +29,20 @@ jobs:
       - name: Run the missions
         shell: powershell
         run: ./tools/ci/run-missions.ps1 -Exe Build/Windows/TAP.exe -Out results -Missions "${{ github.event.inputs.missions }}"
+      - name: Benchmark (no window)
+        if: always()
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force results | Out-Null
+          $p = Start-Process -FilePath Build/Windows/TAP.exe -ArgumentList "-batchmode","-benchmark","-benchmark-out","results/benchmark.csv","-logFile","results/benchmark.log" -PassThru -Wait
+          ./tools/ci/compare-benchmark.ps1 -Current results/benchmark.csv -Baseline Docs/benchmarks/windows-batch.csv
+      - name: Benchmark (1080p window, with the GPU)
+        if: always()
+        shell: powershell
+        # A window opens for two minutes. Needs a signed-in desktop; the numbers are the frame rate budgets' real test.
+        run: |
+          $p = Start-Process -FilePath Build/Windows/TAP.exe -ArgumentList "-benchmark","-screen-width","1920","-screen-height","1080","-window-mode","windowed","-benchmark-out","results/benchmark-gpu.csv","-logFile","results/benchmark-gpu.log" -PassThru -Wait
+          ./tools/ci/compare-benchmark.ps1 -Current results/benchmark-gpu.csv -Baseline Docs/benchmarks/windows-gpu.csv
       - uses: actions/upload-artifact@v4
         if: always()
         with:

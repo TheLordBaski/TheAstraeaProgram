@@ -75,3 +75,28 @@ jobs:
         with:
           name: TAP-${{ matrix.targetPlatform }}
           path: build/${{ matrix.targetPlatform }}
+
+  benchmark:
+    name: Benchmark (Linux, no window)
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: TAP-StandaloneLinux64
+          path: player
+      - name: Run the benchmark
+        # No GPU on the runner: the numbers are the CPU's share of a frame, which is what a regression in the simulation shows in.
+        run: |
+          chmod +x player/TAP.x86_64
+          mkdir -p results
+          player/TAP.x86_64 -batchmode -nographics -benchmark -benchmark-out results/benchmark.csv -logFile results/benchmark.log
+      - name: Compare with the last baseline
+        shell: pwsh
+        run: ./tools/ci/compare-benchmark.ps1 -Current results/benchmark.csv -Baseline Docs/benchmarks/linux-ci.csv
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: benchmark-linux
+          path: results

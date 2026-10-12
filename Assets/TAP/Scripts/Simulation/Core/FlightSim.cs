@@ -92,6 +92,7 @@ namespace TAP.Simulation
         {
             _stepPending = false;
             if (Paused || Warp.OnRails || ActiveVessel == null) return;
+            using var timer = SimTimers.Measure(SimStep.PreStep);
             double dt = Time.fixedDeltaTime;
             PreviousUT = UT;
             Frame.PreviousOrigin = Frame.Origin;
@@ -133,6 +134,7 @@ namespace TAP.Simulation
 
         private void PostStep(double dt)
         {
+            using var timer = SimTimers.Measure(SimStep.PostStep);
             UT += dt;
             Frame.Origin += Frame.Velocity * dt;
 
@@ -301,7 +303,8 @@ namespace TAP.Simulation
 
         private void Update()
         {
-            if (!Paused && Warp.OnRails) RailsUpdate(Time.unscaledDeltaTime);
+            if (!Paused && Warp.OnRails) { using (SimTimers.Measure(SimStep.Rails)) RailsUpdate(Time.unscaledDeltaTime); }
+            using var timer = SimTimers.Measure(SimStep.RenderUpdate);
             float dt = Time.deltaTime;
             foreach (var v in LoadedVessels)
             {
@@ -318,7 +321,7 @@ namespace TAP.Simulation
         {
             double rut = RenderUT;
             double alpha = RenderAlpha;
-            Planets?.UpdateVisuals(rut, alpha);
+            using (SimTimers.Measure(SimStep.Planets)) Planets?.UpdateVisuals(rut, alpha);
             if (Warp.OnRails || Paused) { UpdateStaticVessels(UT, false); UpdatePadHolds(UT, false); }
             else UpdateStaticVesselVisuals(rut, alpha);
         }
