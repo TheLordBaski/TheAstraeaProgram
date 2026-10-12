@@ -127,9 +127,11 @@ namespace TAP.EditorTools
             "::00000011000110000000011000110000000", "/:00001000100001000100010000100010000",
             "(:00010001000100001000010000010000010", "):01000001000001000010000100010001000",
             "%:11001110100001000100010000101110011", "<:00010001000100010000010000010000010",
+            "?:01110100010000100010001000000000100",
         };
 
-        public void Text(string s, float x, float y, float scale, Color c)
+        /// <param name="sx">Horizontal stretch (text on a sphere widens away from its equator).</param>
+        public void Text(string s, float x, float y, float scale, Color c, float sx = 1f)
         {
             float cx = x;
             foreach (char ch in s)
@@ -142,15 +144,15 @@ namespace TAP.EditorTools
                         for (int col = 0; col < 5; col++)
                         {
                             if (bits[row * 5 + col] != '1') continue;
-                            float px = cx + col * scale, py = y + (6 - row) * scale;
-                            RectFill(px, py, px + scale, py + scale, c);
+                            float px = cx + col * scale * sx, py = y + (6 - row) * scale;
+                            RectFill(px, py, px + scale * sx, py + scale, c);
                         }
                 }
-                cx += 6 * scale;
+                cx += 6 * scale * sx;
             }
         }
 
-        public static float TextWidth(string s, float scale) => s.Length * 6 * scale - scale;
+        public static float TextWidth(string s, float scale, float sx = 1f) => (s.Length * 6 * scale - scale) * sx;
 
         public Texture2D ToTexture(bool mipmaps = true, bool linear = false)
         {

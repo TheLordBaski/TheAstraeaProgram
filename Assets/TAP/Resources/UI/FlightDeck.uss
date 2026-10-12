@@ -1,0 +1,206 @@
+/* Flight Deck look shared by the flight HUD and the mission guide: bezelled units with night glass, hardware keys whose
+   light bar shows what is engaged, and the move / scale / hide chrome of HudLayout. */
+
+/* ------------------------------------------------------------------ units, glass, keys */
+.fd-unit {
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Regular.ttf");
+    position: absolute;
+    background-color: rgb(29, 33, 38);
+    border-radius: 12px;
+    border-width: 1px;
+    border-top-color: rgb(62, 70, 79);
+    border-left-color: rgb(44, 50, 57);
+    border-right-color: rgb(20, 23, 27);
+    border-bottom-color: rgb(10, 12, 14);
+}
+
+.fd-screw {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border-radius: 4px;
+    background-color: rgb(70, 78, 87);
+    border-width: 1px;
+    border-color: rgb(17, 19, 21);
+}
+
+.fd-screw--tl { left: 5px; top: 5px; }
+.fd-screw--tr { right: 5px; top: 5px; }
+.fd-screw--bl { left: 5px; bottom: 5px; }
+.fd-screw--br { right: 5px; bottom: 5px; }
+
+.fd-glass {
+    position: absolute;
+    background-color: rgb(4, 6, 7);
+    border-radius: 4px;
+    border-width: 1px;
+    border-color: rgb(40, 47, 53);
+    overflow: hidden;
+}
+
+.fd-row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.fd-keyrow {
+    position: absolute;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.fd-keycol {
+    position: absolute;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.btn.fd-key {
+    background-color: rgb(42, 48, 55);
+    border-radius: 4px;
+    border-width: 1px 1px 2px 1px;
+    border-top-color: rgb(70, 79, 89);
+    border-left-color: rgb(34, 39, 45);
+    border-right-color: rgb(24, 28, 32);
+    border-bottom-color: rgb(9, 11, 13);
+    padding: 5px 4px 0 4px;
+    color: rgb(212, 219, 224);
+    font-size: 13px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
+    letter-spacing: 0.5px;
+}
+
+.btn.fd-key:hover {
+    background-color: rgb(54, 62, 71);
+}
+
+.btn.fd-key:active {
+    translate: 0 1px;
+    border-bottom-width: 1px;
+}
+
+.btn.fd-key:disabled {
+    color: rgb(86, 95, 103);
+    background-color: rgb(34, 39, 44);
+}
+
+.btn.fd-key.on {
+    background-color: rgb(42, 48, 55);
+    color: rgb(233, 255, 240);
+}
+
+.fd-key__bar {
+    position: absolute;
+    top: 3px;
+    left: 26%;
+    right: 26%;
+    height: 3px;
+    border-radius: 2px;
+    background-color: rgb(14, 17, 20);
+}
+
+.fd-key.on > .fd-key__bar {
+    background-color: rgb(72, 226, 124);
+}
+
+.fd-key--amber.on > .fd-key__bar {
+    background-color: rgb(255, 181, 71);
+}
+
+.fd-key__icon {
+    position: absolute;
+    left: 50%;
+    top: 55%;
+    width: 22px;
+    height: 22px;
+    translate: -50% -50%;
+}
+
+.fd-key:disabled > .fd-key__icon {
+    opacity: 0.3;
+}
+
+/* text on the glass */
+.fd-lbl {
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: rgb(127, 140, 149);
+}
+
+.fd-page-head {
+    height: 25px;
+    margin-bottom: 4px;
+    border-bottom-width: 1px;
+    border-color: rgb(28, 39, 45);
+    flex-shrink: 0;
+}
+
+.fd-head-title {
+    font-size: 13px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
+    letter-spacing: 1px;
+    color: rgb(94, 230, 242);
+}
+
+.fd-head-note {
+    font-size: 12px;
+    color: rgb(127, 140, 149);
+}
+
+/* ------------------------------------------------------------------ layout chrome (move, scale, hide) */
+.hud-chrome {
+    display: none;
+}
+
+.hud-panel:hover > .hud-chrome {
+    display: flex;
+}
+
+.hud-grip {
+    position: absolute;
+    right: -2px;
+    bottom: -2px;
+    width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    background-color: rgb(94, 230, 242);
+    border-width: 3px;
+    border-color: rgb(4, 6, 7);
+}
+
+.hud-grip--left {
+    right: auto;
+    left: -2px;
+}
+
+.hud-grip--top {
+    bottom: auto;
+    top: -2px;
+}
+
+.btn.hud-close {
+    position: absolute;
+    right: -4px;
+    top: -4px;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border-radius: 10px;
+    background-color: rgb(4, 6, 7);
+    border-width: 1px;
+    border-color: rgb(94, 230, 242);
+    color: rgb(94, 230, 242);
+    font-size: 15px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
+}
+
+.btn.hud-close:hover {
+    background-color: rgb(94, 230, 242);
+    color: rgb(4, 6, 7);
+}
+
+.hud-close--left {
+    right: auto;
+    left: -4px;
+}

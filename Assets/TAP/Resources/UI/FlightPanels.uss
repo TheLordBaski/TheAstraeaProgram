@@ -1,33 +1,30 @@
 /* Smaller flight screens: mission guide, pause menu (+ confirm, control guide),
    part action window, developer window and body labels. */
 
-/* mission guide (top left, under the clock and target panels) */
+/* mission guide (Flight Deck unit; HudLayout places it, under the clock by default) */
 #guide {
-    position: absolute;
-    left: 8px;
-    top: 270px;
-    width: 330px;
-    padding: 8px 12px;
+    width: 340px;
+    padding: 10px;
 }
 
-.guide-head {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px;
+.guide-glass {
+    position: relative;
+    padding: 6px 10px 8px 10px;
 }
 
 .guide-title {
-    -unity-font-style: bold;
-    color: var(--c-accent);
-    font-size: 13px;
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
-.guide-toggle {
-    width: 26px;
-    height: 22px;
-    font-size: 16px;
-    padding: 0;
+.btn.guide-toggle {
+    width: 28px;
+    height: 20px;
+    margin-left: 4px;
+    padding: 2px 0 0 0;
+    font-size: 14px;
 }
 
 .guide-text {

@@ -28,11 +28,12 @@ namespace TAP.UI
         private Image _level;
         private Matrix4x4 _rot = Matrix4x4.identity;
 
-        public static readonly Color Pro = new Color(0.9f, 0.95f, 0.2f);
-        public static readonly Color Nrm = new Color(0.85f, 0.35f, 1f);
-        public static readonly Color Rad = new Color(0.35f, 0.9f, 1f);
-        public static readonly Color Man = new Color(0.25f, 0.55f, 1f);
-        public static readonly Color Tgt = new Color(1f, 0.3f, 0.85f);
+        // Flight Deck marker colours (not KSP's): green velocity, cyan orbit frame, magenta planned burn, amber target.
+        public static readonly Color Pro = new Color32(72, 226, 124, 255);
+        public static readonly Color Nrm = new Color32(94, 230, 242, 255);
+        public static readonly Color Rad = new Color32(94, 230, 242, 255);
+        public static readonly Color Man = new Color32(255, 90, 217, 255);
+        public static readonly Color Tgt = new Color32(255, 181, 71, 255);
 
         /// <param name="root">An element sized size × size; the ball, markers and heading go inside it.</param>
         public static NavballWidget Create(GameObject host, VisualElement root, FlightSim sim, float size)
@@ -68,9 +69,9 @@ namespace TAP.UI
                 root.Add(img);
                 w._markers[key] = img;
             }
-            w._level = UIKit.Image(UIKit.Icon("nav_level"), new Color(1f, 0.62f, 0.12f), "navball__level");
+            w._level = UIKit.Image(UIKit.Icon("nav_level"), new Color32(255, 210, 74, 255), "navball__level");
             root.Add(w._level);
-            w._heading = UIKit.Label("090°", "navball__heading");
+            w._heading = UIKit.Label("090°", "navball__heading no-loc");
             root.Add(w._heading);
             return w;
         }
@@ -100,7 +101,7 @@ namespace TAP.UI
             float heading = Mathf.Atan2(Vector3.Dot(nose, eastW), Vector3.Dot(nose, northW)) * Mathf.Rad2Deg;
             if (heading < 0) heading += 360;
             float pitch = 90f - Vector3.Angle(nose, upW);
-            _heading.text = $"{heading:000}°  {pitch:+00;-00}°";
+            _heading.text = $"HDG {heading:000}°   PIT {pitch:+00;-00}°";
 
             // Markers
             Vector3 vel = (Vector3)v.SpeedModeVelocity;

@@ -179,5 +179,39 @@ namespace TAP.Tests
             g.MatchPreset();
             Assert.AreEqual(GraphicsPreset.Custom, g.preset);
         }
+
+        [Test]
+        public void AHudPanel_HugsTheEdgeItWasDroppedNear_AndKeepsItOnAWiderScreen()
+        {
+            var size = new Vector2(400, 200);
+            var hd = new Vector2(1920, 1080);
+            // dropped 20 px from the right and bottom edges: it stays 20 px from them on a 21:9 screen
+            var s = HudPanelState.At(new Vector2(1500, 860), size, hd, 1.2f);
+            Assert.AreEqual((2, 2), (s.ax, s.ay));
+            Assert.AreEqual(new Vector2(20, 20), new Vector2(s.x, s.y));
+            Assert.AreEqual(1.2f, s.scale);
+            Assert.AreEqual(new Vector2(2520 - 420, 860), s.TopLeft(new Vector2(2520, 1080), size));
+            // the middle third keeps its distance from the centre line
+            var c = HudPanelState.At(new Vector2(780, 16), size, hd, 1f);
+            Assert.AreEqual((1, 0), (c.ax, c.ay));
+            Assert.AreEqual(new Vector2(1080, 16), c.TopLeft(new Vector2(2520, 1080), size));
+            // never off the screen, however far it was stored
+            var far = new HudPanelState { ax = 2, ay = 2, x = -500, y = 5000 };
+            Assert.AreEqual(new Vector2(1520, 0), far.TopLeft(hd, size));
+        }
+
+        [Test]
+        public void HudLayouts_SurviveTheFile_AndBadValuesAreRepaired()
+        {
+            GameSettings.Load(NoArgs);
+            GameSettings.Current.ui.hud["staging"] = new HudPanelState { ax = 0, ay = 2, x = 16, y = 16, scale = 9f, hidden = true };
+            GameSettings.Save();
+            GameSettings.Forget();
+            GameSettings.Load(NoArgs);
+            var s = GameSettings.Current.ui.hud["staging"];
+            Assert.IsTrue(s.hidden);
+            Assert.AreEqual(2f, s.scale, "the scale is clamped");
+            Assert.AreEqual((0, 2), (s.ax, s.ay));
+        }
     }
 }

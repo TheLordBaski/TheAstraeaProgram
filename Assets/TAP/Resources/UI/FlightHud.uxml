@@ -1,81 +1,177 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="FlightDeck.uss" />
     <ui:Style src="FlightHud.uss" />
     <ui:VisualElement name="hud" class="screen" picking-mode="Ignore">
-        <ui:VisualElement name="altimeter" class="panel">
-            <ui:Button name="alt-mode-btn" class="btn btn--clear fill" />
-            <ui:Label name="alt-mode" class="alt-mode text-dim" picking-mode="Ignore" text="ALT (SEA)" />
-            <ui:Label name="altitude" class="altitude" picking-mode="Ignore" text="0 m" />
-            <ui:Label name="vspeed" class="vspeed" picking-mode="Ignore" />
-            <ui:Label name="situation" class="situation text-dim" picking-mode="Ignore" />
-        </ui:VisualElement>
+        <ui:VisualElement name="memo" class="memo" />
 
-        <ui:VisualElement name="clock" class="panel">
-            <ui:Label name="clock-text" class="clock-text wrap" picking-mode="Ignore" />
-            <ui:VisualElement class="warp-row">
-                <ui:Button name="warp-slower" class="btn warp-btn warp-btn--wide" text="◀◀" />
-                <ui:Button name="warp-stop" class="btn warp-btn" text="■" />
-                <ui:Button name="warp-faster" class="btn warp-btn warp-btn--wide" text="▶▶" />
-                <ui:Button name="warp-phys" class="btn warp-btn" text="P×" />
-                <ui:Label name="warp-text" class="warp-text" picking-mode="Ignore" text="1x" />
-            </ui:VisualElement>
-        </ui:VisualElement>
-        <ui:Label name="warp-limit" class="warp-limit" picking-mode="Ignore" />
-
-        <ui:VisualElement name="top-buttons" picking-mode="Ignore">
-            <ui:Button name="map-btn" class="btn top-btn" text="Map [M]" />
-            <ui:Button name="help-btn" class="btn top-btn" text="Help [F1]" />
-            <ui:Button name="menu-btn" class="btn top-btn" text="Menu [Esc]" />
-        </ui:VisualElement>
-
-        <ui:VisualElement name="right-column" picking-mode="Ignore">
-            <ui:VisualElement name="resources" class="panel side-panel">
-                <ui:Label name="resources-text" class="wrap" picking-mode="Ignore" />
-            </ui:VisualElement>
-            <ui:VisualElement name="flight-data" class="panel side-panel">
-                <ui:Label name="data-text" class="wrap" picking-mode="Ignore" />
-            </ui:VisualElement>
-        </ui:VisualElement>
-
-        <ui:VisualElement name="target" class="panel info-panel">
-            <ui:Label name="target-text" class="wrap" picking-mode="Ignore" />
-        </ui:VisualElement>
-        <ui:VisualElement name="warnings" class="panel info-panel">
-            <ui:Label name="warnings-text" class="wrap text-warn" picking-mode="Ignore" />
-        </ui:VisualElement>
-        <ui:VisualElement name="burn" class="panel">
-            <ui:Label name="burn-text" class="wrap" picking-mode="Ignore" />
-        </ui:VisualElement>
         <ui:VisualElement name="messages" picking-mode="Ignore" />
         <ui:Label name="big-notice" class="big-notice" picking-mode="Ignore" />
 
-        <ui:VisualElement name="staging" class="panel">
-            <ui:Label class="staging-title text-dim" picking-mode="Ignore" text="STAGES  [Space]" />
-            <ui:ScrollView name="stage-list" class="list stage-list" />
-        </ui:VisualElement>
-        <ui:VisualElement name="eva" class="panel info-panel">
-            <ui:Label name="eva-text" class="wrap" picking-mode="Ignore" />
+        <ui:VisualElement name="clock" class="fd-unit">
+            <ui:VisualElement class="fd-glass clock-glass">
+                <ui:VisualElement class="fd-row">
+                    <ui:Label name="met" class="clock-met no-loc" picking-mode="Ignore" />
+                    <ui:VisualElement class="grow" />
+                    <ui:Label class="fd-lbl clock-warp-label" picking-mode="Ignore" text="WARP" />
+                    <ui:Label name="warp-rate" class="warp-rate no-loc" picking-mode="Ignore" />
+                </ui:VisualElement>
+                <ui:VisualElement class="fd-row">
+                    <ui:Label name="ut" class="clock-ut no-loc" picking-mode="Ignore" />
+                    <ui:VisualElement class="grow" />
+                    <ui:VisualElement name="warp-cells" class="warp-cells" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="fd-keyrow clock-keys">
+                <ui:Button name="warp-slower" class="btn fd-key clock-key" text="◀◀" />
+                <ui:Button name="warp-stop" class="btn fd-key clock-key" text="■" />
+                <ui:Button name="warp-faster" class="btn fd-key clock-key" text="▶▶" />
+                <ui:Button name="warp-phys" class="btn fd-key fd-key--amber clock-key clock-key--wide" text="PHYS" />
+                <ui:Label name="warp-limit" class="warp-limit" picking-mode="Ignore" />
+            </ui:VisualElement>
         </ui:VisualElement>
 
-        <ui:VisualElement name="nav-cluster" picking-mode="Ignore">
-            <ui:VisualElement name="nav-bg" class="panel" />
-            <ui:VisualElement name="navball" />
-            <ui:VisualElement name="speed-panel" class="panel panel--light">
-                <ui:Button name="speed-mode" class="btn" text="SURF" />
-                <ui:Label name="speed" class="text-good" picking-mode="Ignore" text="0.0 m/s" />
+        <ui:VisualElement name="keys" class="fd-unit">
+            <ui:Button name="map-btn" class="btn fd-key top-key" />
+            <ui:Button name="help-btn" class="btn fd-key top-key" />
+            <ui:Button name="menu-btn" class="btn fd-key top-key" />
+            <ui:Button name="layout-btn" class="btn fd-key top-key" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="staging" class="fd-unit">
+            <ui:VisualElement class="fd-glass stage-glass">
+                <ui:VisualElement class="fd-row fd-page-head">
+                    <ui:Label class="fd-head-title" picking-mode="Ignore" text="STAGES" />
+                    <ui:VisualElement class="grow" />
+                    <ui:Label name="stage-total" class="stage-total no-loc" picking-mode="Ignore" />
+                </ui:VisualElement>
+                <ui:ScrollView name="stage-list" class="stage-list" />
             </ui:VisualElement>
-            <ui:VisualElement name="throttle" class="bar bar--vertical cluster-bar">
-                <ui:VisualElement class="bar__fill" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="eva" class="fd-unit">
+            <ui:VisualElement class="fd-glass eva-glass">
+                <ui:Label name="eva-text" class="wrap eva-text" picking-mode="Ignore" />
             </ui:VisualElement>
-            <ui:Label name="throttle-text" class="cluster-num" picking-mode="Ignore" text="0%" />
-            <ui:Label name="thr-label" class="text-dim" picking-mode="Ignore" text="THR" />
-            <ui:VisualElement name="gmeter" class="bar bar--vertical cluster-bar">
-                <ui:VisualElement class="bar__fill" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="burn" class="fd-unit">
+            <ui:VisualElement class="fd-glass burn-glass">
+                <ui:Label name="burn-text" class="burn-text" picking-mode="Ignore" />
             </ui:VisualElement>
-            <ui:Label name="g-text" class="cluster-num" picking-mode="Ignore" text="0.0g" />
-            <ui:Button name="sas-btn" class="btn toggle-btn" text="SAS" />
-            <ui:Button name="rcs-btn" class="btn toggle-btn" text="RCS" />
-            <ui:Button name="legs-btn" class="btn toggle-btn" text="LEGS" />
-            <ui:VisualElement name="sas-modes" picking-mode="Ignore" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="pfd" class="fd-unit">
+            <ui:VisualElement class="fd-keyrow pfd-top">
+                <ui:Button name="sas-btn" class="btn fd-key pfd-toggle" />
+                <ui:Button name="rcs-btn" class="btn fd-key pfd-toggle" />
+                <ui:Button name="legs-btn" class="btn fd-key pfd-toggle" />
+            </ui:VisualElement>
+            <ui:VisualElement name="sas-left" class="fd-keycol pfd-left" />
+            <ui:VisualElement name="sas-right" class="fd-keycol pfd-right" />
+            <ui:VisualElement class="fd-glass pfd-glass">
+                <ui:VisualElement name="navball" />
+                <ui:Button name="speed-box" class="btn readout readout--left">
+                    <ui:Label name="speed-mode" class="fd-lbl readout__label" picking-mode="Ignore" text="SPD SURF" />
+                    <ui:Label name="speed" class="readout__value no-loc" picking-mode="Ignore" />
+                    <ui:Label name="hspeed" class="readout__sub no-loc" picking-mode="Ignore" />
+                </ui:Button>
+                <ui:Button name="alt-box" class="btn readout readout--right">
+                    <ui:Label name="alt-mode" class="fd-lbl readout__label" picking-mode="Ignore" text="ALT ASL" />
+                    <ui:Label name="altitude" class="readout__value no-loc" picking-mode="Ignore" />
+                    <ui:Label name="vspeed" class="readout__sub no-loc" picking-mode="Ignore" />
+                </ui:Button>
+                <ui:Label class="fd-lbl pfd-bar-label pfd-bar-label--thr" picking-mode="Ignore" text="THR" />
+                <ui:VisualElement name="throttle" class="bar bar--vertical pfd-bar pfd-bar--thr">
+                    <ui:VisualElement class="bar__fill" />
+                </ui:VisualElement>
+                <ui:Label name="throttle-text" class="pfd-bar-value pfd-bar-value--thr no-loc" picking-mode="Ignore" />
+                <ui:Label class="fd-lbl pfd-bar-label pfd-bar-label--g" picking-mode="Ignore" text="G" />
+                <ui:VisualElement name="gmeter" class="bar bar--vertical pfd-bar pfd-bar--g">
+                    <ui:VisualElement class="bar__fill" />
+                </ui:VisualElement>
+                <ui:Label name="g-text" class="pfd-bar-value pfd-bar-value--g no-loc" picking-mode="Ignore" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="mfd" class="fd-unit">
+            <ui:VisualElement class="fd-glass mfd-glass">
+                <ui:VisualElement name="page-orb" class="mfd-page">
+                    <ui:VisualElement class="fd-row fd-page-head">
+                        <ui:Label name="orb-title" class="fd-head-title" picking-mode="Ignore" />
+                        <ui:VisualElement class="grow" />
+                        <ui:Label name="orb-state" class="fd-head-note" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="fd-row orb-body">
+                        <ui:VisualElement name="orbit-plot" class="orbit-plot" />
+                        <ui:VisualElement name="orb-rows" class="mfd-rows" />
+                    </ui:VisualElement>
+                    <ui:Label name="orb-note" class="mfd-note" picking-mode="Ignore" />
+                </ui:VisualElement>
+                <ui:VisualElement name="page-mnv" class="mfd-page">
+                    <ui:VisualElement class="fd-row fd-page-head">
+                        <ui:Label class="fd-head-title" picking-mode="Ignore" text="MANEUVER" />
+                        <ui:VisualElement class="grow" />
+                        <ui:Label name="mnv-state" class="fd-head-note" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="mnv-body">
+                        <ui:VisualElement class="fd-row mnv-big">
+                            <ui:VisualElement class="mnv-cell">
+                                <ui:Label name="mnv-time-label" class="fd-lbl" picking-mode="Ignore" text="BURN IN" />
+                                <ui:Label name="mnv-time" class="mnv-huge no-loc" picking-mode="Ignore" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="mnv-cell">
+                                <ui:Label class="fd-lbl" picking-mode="Ignore" text="ΔV REMAINING" />
+                                <ui:Label name="mnv-dv" class="mnv-huge mnv-huge--magenta no-loc" picking-mode="Ignore" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                        <ui:VisualElement name="mnv-progress" class="bar mnv-progress">
+                            <ui:VisualElement class="bar__fill" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="mnv-rows" class="mfd-rows mfd-rows--two" />
+                    </ui:VisualElement>
+                    <ui:Label name="mnv-empty" class="mfd-empty" picking-mode="Ignore" text="NO MANEUVER PLANNED&#10;Open the map (M), click your orbit and add a node." />
+                </ui:VisualElement>
+                <ui:VisualElement name="page-tgt" class="mfd-page">
+                    <ui:VisualElement class="fd-row fd-page-head">
+                        <ui:Label name="tgt-title" class="fd-head-title" picking-mode="Ignore" text="TARGET" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="tgt-rows" class="mfd-rows" />
+                    <ui:Label name="tgt-empty" class="mfd-empty" picking-mode="Ignore" text="NO TARGET&#10;Open the map (M), click a body or vessel and set it as the target." />
+                </ui:VisualElement>
+                <ui:VisualElement name="page-res" class="mfd-page">
+                    <ui:VisualElement class="fd-row fd-page-head">
+                        <ui:Label class="fd-head-title" picking-mode="Ignore" text="RESOURCES" />
+                        <ui:VisualElement class="grow" />
+                        <ui:Label name="res-crew" class="fd-head-note" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="res-rows" />
+                </ui:VisualElement>
+                <ui:VisualElement name="page-data" class="mfd-page">
+                    <ui:VisualElement class="fd-row fd-page-head">
+                        <ui:Label name="data-title" class="fd-head-title" picking-mode="Ignore" />
+                        <ui:VisualElement class="grow" />
+                        <ui:Label name="data-state" class="fd-head-note" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="data-rows" class="mfd-rows mfd-rows--two" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="fd-keyrow mfd-keys">
+                <ui:Button name="page-orb-key" class="btn fd-key mfd-key" text="ORB" />
+                <ui:Button name="page-mnv-key" class="btn fd-key mfd-key" text="MNV" />
+                <ui:Button name="page-tgt-key" class="btn fd-key mfd-key" text="TGT" />
+                <ui:Button name="page-res-key" class="btn fd-key mfd-key" text="RES" />
+                <ui:Button name="page-data-key" class="btn fd-key mfd-key" text="DATA" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="layout-menu" class="fd-unit">
+            <ui:Label class="fd-lbl layout-title" picking-mode="Ignore" text="HUD PANELS" />
+            <ui:VisualElement name="layout-rows" />
+            <ui:VisualElement class="fd-row layout-foot">
+                <ui:Button name="layout-reset" class="btn fd-key layout-key" text="RESET" />
+                <ui:Button name="layout-close" class="btn fd-key layout-key" text="CLOSE" />
+            </ui:VisualElement>
+            <ui:Label class="layout-hint wrap" picking-mode="Ignore" text="Drag a panel by its frame. Drag its corner grip to resize it, × hides it." />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

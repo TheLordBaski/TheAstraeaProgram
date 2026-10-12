@@ -209,49 +209,62 @@ namespace TAP.EditorTools
 
         private static Texture2D NavballTexture(int w, int h)
         {
+            // Night glass: a teal-black sky with a cyan graticule and a warm-black ground with dashed amber lines (the dashes
+            // tell the halves apart without colour), white heading ticks and labels on a white horizon. Not the KSP blue/brown.
             var p = new TexturePainter(w, h, Color.black);
-            Color skyTop = new Color(0.12f, 0.35f, 0.72f), skyHor = new Color(0.36f, 0.62f, 0.92f);
-            Color gndHor = new Color(0.66f, 0.43f, 0.2f), gndBot = new Color(0.36f, 0.22f, 0.1f);
+            Color skyTop = new Color32(0x05, 0x11, 0x16, 255), skyHor = new Color32(0x0f, 0x44, 0x50, 255);
+            Color gndHor = new Color32(0x2a, 0x1a, 0x0c, 255), gndBot = new Color32(0x09, 0x06, 0x04, 255);
             for (int y = 0; y < h; y++)
             {
-                float lat = ((float)y / h - 0.5f) * 180f;
+                float lat = ((y + 0.5f) / h - 0.5f) * 180f;
                 Color c = lat >= 0 ? Color.Lerp(skyHor, skyTop, lat / 90f) : Color.Lerp(gndHor, gndBot, -lat / 90f);
                 for (int x = 0; x < w; x++) p.Px[y * w + x] = c;
             }
+            float k = w / 2048f; // sizes below are for a 2048 px wide texture
             float Y(float lat) => (lat / 180f + 0.5f) * h;
             float X(float hdg) => hdg / 360f * w;
-            Color line = new Color(1, 1, 1, 0.8f);
-            // pitch lines
-            for (int lat = -80; lat <= 80; lat += 10)
+            Color Cyan(float a) => new Color(0.4f, 0.91f, 0.96f, a);
+            Color Amber(float a) => new Color(0.96f, 0.69f, 0.26f, a);
+            void DashH(float y, float width, Color c) { for (float x = 0; x < w; x += 30 * k) p.Line(x, y, x + 18 * k, y, width, c); }
+            void DashV(float x, float y0, float y1, float width, Color c) { for (float y = y0; y < y1; y += 30 * k) p.Line(x, y, x, Mathf.Min(y + 18 * k, y1), width, c); }
+            void Label(string text, float hdg, float lat, float scale, Color c)
             {
-                if (lat == 0) continue;
+                float sx = 1f / Mathf.Max(0.2f, Mathf.Cos(lat * Mathf.Deg2Rad));
+                float tw = TexturePainter.TextWidth(text, scale, sx);
+                foreach (float dx in new[] { 0f, w, -w }) p.Text(text, X(hdg) - tw / 2 + dx, Y(lat) - 3.5f * scale, scale, c, sx);
+            }
+
+            for (int lat = 10; lat < 90; lat += 10)
+            {
                 bool major = lat % 30 == 0;
-                p.Line(0, Y(lat), w, Y(lat), major ? 2.2f : 1.2f, major ? line : new Color(1, 1, 1, 0.45f));
-                if (major)
-                    for (int hd = 0; hd < 360; hd += 90)
-                    {
-                        string s = Mathf.Abs(lat).ToString();
-                        float tx = X(hd + 45) - TexturePainter.TextWidth(s, 2f) / 2;
-                        p.Text(s, tx, Y(lat) + (lat > 0 ? 4 : -18), 2f, Color.white);
-                    }
+                p.Line(0, Y(lat), w, Y(lat), (major ? 3 : 2) * k, Cyan(major ? 0.7f : 0.3f));
+                DashH(Y(-lat), (major ? 3 : 2) * k, Amber(major ? 0.75f : 0.35f));
             }
-            // horizon
-            p.RectFill(0, Y(0) - 2.5f, w, Y(0) + 2.5f, new Color(1f, 0.95f, 0.8f, 1));
-            // meridians and headings
-            string[] labels = { "N", "45", "E", "135", "S", "225", "W", "315" };
-            for (int i = 0; i < 8; i++)
+            for (int lon = 0; lon < 360; lon += 10)
             {
-                float hd = i * 45;
-                p.Line(X(hd), Y(-85), X(hd), Y(85), i % 2 == 0 ? 2f : 1.2f, line);
-                string s = labels[i];
-                float sc = i % 2 == 0 ? 3f : 2.2f;
-                float tw = TexturePainter.TextWidth(s, sc);
-                p.Text(s, X(hd) - tw / 2, Y(3), sc, Color.white);
-                p.Text(s, X(hd) - tw / 2, Y(-3) - 7 * sc, sc, Color.white);
-                if (hd == 0) p.Text(s, w - tw / 2, Y(3), sc, Color.white);
+                bool major = lon % 30 == 0;
+                if (major)
+                {
+                    p.Line(X(lon), Y(2), X(lon), Y(88), 2 * k, Cyan(0.35f));
+                    DashV(X(lon), Y(-88), Y(-2), 2 * k, Amber(0.3f));
+                }
+                p.Line(X(lon), Y(0), X(lon), Y(major ? 3.4f : 2f), 3 * k, Color.white);
+                p.Line(X(lon + 5), Y(0), X(lon + 5), Y(1f), 2 * k, new Color(1, 1, 1, 0.8f));
             }
-            for (int hd = 0; hd < 360; hd += 15)
-                if (hd % 45 != 0) p.Line(X(hd), Y(-2), X(hd), Y(2), 1.5f, line);
+            p.RectFill(0, Y(86), w, h, Cyan(0.9f));
+            p.RectFill(0, 0, w, Y(-86), Amber(0.9f));
+            p.RectFill(0, Y(0) - 3.5f * k, w, Y(0) + 3.5f * k, Color.white);
+            for (int lon = 0; lon < 360; lon += 30)
+            {
+                string s = lon == 0 ? "N" : lon == 90 ? "E" : lon == 180 ? "S" : lon == 270 ? "W" : lon.ToString("000");
+                Label(s, lon, 6.2f, (lon % 90 == 0 ? 46 : 34) * k / 7f, Color.white);
+            }
+            for (int lat = 10; lat <= 80; lat += 10)
+                foreach (int lon in new[] { 45, 135, 225, 315 })
+                {
+                    Label(lat.ToString(), lon, lat, 26 * k / 7f, Cyan(0.95f));
+                    Label("-" + lat, lon, -lat, 26 * k / 7f, Amber(0.95f));
+                }
             return p.ToTexture(false);
         }
 
@@ -352,6 +365,7 @@ namespace TAP.EditorTools
             p = N(); p.Shape((x, y) => { float dx = x - c, dy = y - (c - 4); float r = Mathf.Sqrt(dx * dx + dy * dy); return (dy < 0 ? 999 : r - 24); }, W, 0, 0, S, S);
             p.Line(c - 22, c - 4, c, c - 26, 3, W); p.Line(c + 22, c - 4, c, c - 26, 3, W); p.Line(c, c - 4, c, c - 26, 3, W);
             SaveTexture(p.ToTexture(false), "Icons/stage_chute", sprite: true);
+            BuildHudIcons();
 
             // UI panel sprites (9-sliced)
             var pan = new TexturePainter(32, 32, new Color(1, 1, 1, 0));
@@ -373,6 +387,52 @@ namespace TAP.EditorTools
             circ.Circle(32, 32, 31, Color.white);
             SaveTexture(circ.ToTexture(false), "UI/circle", sprite: true);
             Debug.Log("[AssetBuilder] Icons built.");
+        }
+
+        /// <summary>Icons on the flight HUD's keys: SAS, RCS, legs, the SAS hold mode, map, help, menu and layout.</summary>
+        private static void BuildHudIcons()
+        {
+            const int S = 64;
+            Color W = Color.white;
+            float c = S / 2f;
+            TexturePainter N() => new TexturePainter(S, S, new Color(1, 1, 1, 0));
+            // an ellipse outline, rotated by deg
+            void Ellipse(TexturePainter q, float rx, float ry, float deg, float t)
+            {
+                float cs = Mathf.Cos(deg * Mathf.Deg2Rad), sn = Mathf.Sin(deg * Mathf.Deg2Rad);
+                q.Shape((x, y) =>
+                {
+                    float dx = x - c, dy = y - c, u = dx * cs + dy * sn, v = -dx * sn + dy * cs;
+                    float f = Mathf.Sqrt(u * u / (rx * rx) + v * v / (ry * ry));
+                    return Mathf.Abs(f - 1f) * Mathf.Min(rx, ry) - t * 0.5f;
+                }, W, 0, 0, S, S);
+            }
+
+            var p = N(); p.Ring(c, c, 9, 4, W); Ellipse(p, 25, 9, 25, 3.5f); p.Circle(c, c, 3, W);
+            SaveTexture(p.ToTexture(false), "Icons/key_sas", sprite: true);
+            p = N(); p.RoundRect(c - 8, c - 8, c + 8, c + 8, 2, W);
+            for (int i = 0; i < 4; i++)
+            {
+                float a = i * Mathf.PI / 2, ca = Mathf.Cos(a), sa = Mathf.Sin(a);
+                p.Line(c + ca * 10, c + sa * 10, c + ca * 18, c + sa * 18, 4, W);
+                p.Circle(c + ca * 24, c + sa * 24, 4.5f, W);
+            }
+            SaveTexture(p.ToTexture(false), "Icons/key_rcs", sprite: true);
+            p = N(); p.RoundRect(c - 12, c + 8, c + 12, c + 24, 3, W);
+            p.Line(c - 8, c + 8, c - 20, c - 20, 4, W); p.Line(c + 8, c + 8, c + 20, c - 20, 4, W);
+            p.Line(c - 27, c - 22, c - 13, c - 22, 4, W); p.Line(c + 13, c - 22, c + 27, c - 22, 4, W);
+            SaveTexture(p.ToTexture(false), "Icons/key_legs", sprite: true);
+            p = N(); p.Ring(c, c, 10, 4, W); p.Line(c - 26, c, c - 13, c, 4, W); p.Line(c + 13, c, c + 26, c, 4, W);
+            SaveTexture(p.ToTexture(false), "Icons/sas_hold", sprite: true);
+            p = N(); p.Circle(c, c, 11, W); Ellipse(p, 27, 10, 20, 3.5f);
+            SaveTexture(p.ToTexture(false), "Icons/key_map", sprite: true);
+            p = N(); p.Ring(c, c, 25, 4, W); p.Text("?", c - 7.5f, c - 10.5f, 3f, W);
+            SaveTexture(p.ToTexture(false), "Icons/key_help", sprite: true);
+            p = N(); for (int i = -1; i <= 1; i++) p.Line(c - 20, c + i * 13, c + 20, c + i * 13, 5, W);
+            SaveTexture(p.ToTexture(false), "Icons/key_menu", sprite: true);
+            p = N(); p.RoundRect(c - 24, c + 3, c - 3, c + 24, 3, W); p.RoundRect(c + 3, c + 12, c + 24, c + 24, 3, W);
+            p.RoundRect(c + 3, c - 24, c + 24, c + 6, 3, W); p.RoundRect(c - 24, c - 24, c - 3, c - 3, 3, W);
+            SaveTexture(p.ToTexture(false), "Icons/key_layout", sprite: true);
         }
 
         private static void DrawTriangleOutline(TexturePainter p, float cx, float cy, float r, Color c, bool up)

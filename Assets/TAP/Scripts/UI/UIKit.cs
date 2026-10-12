@@ -48,7 +48,10 @@ namespace TAP.UI
 
         private static PanelSettings CreatePanelSettings()
         {
-            var ps = ScriptableObject.CreateInstance<PanelSettings>();
+            // A copy of an editor-made asset: it carries the ICU data text shaping needs in a player (a runtime instance has none).
+            var source = Resources.Load<PanelSettings>("UI/GamePanel");
+            if (source == null) Debug.LogError("UI panel settings Resources/UI/GamePanel.asset are missing");
+            var ps = source != null ? UnityEngine.Object.Instantiate(source) : ScriptableObject.CreateInstance<PanelSettings>();
             ps.name = "TAP Game Panel";
             ps.themeStyleSheet = Resources.Load<ThemeStyleSheet>("UI/GameTheme");
             if (ps.themeStyleSheet == null) Debug.LogError("UI theme Resources/UI/GameTheme.tss is missing");
@@ -68,32 +71,6 @@ namespace TAP.UI
             if (ps == null) return;
             float s = GameSettings.Current.ui.uiScale;
             ps.referenceResolution = new Vector2Int(Mathf.RoundToInt(1920 / s), Mathf.RoundToInt(1080 / s));
-        }
-
-        /// <summary>
-        /// Scales every screen-anchored child of a container about the screen edge or corner it hugs, so a larger scale grows
-        /// them inwards instead of off the screen. Used for the flight display scale.
-        /// </summary>
-        public static void ScaleAnchored(VisualElement container, float scale)
-        {
-            foreach (var c in container.Children())
-            {
-                c.style.scale = new Scale(new Vector3(scale, scale, 1));
-                if (c.ClassListContains("scale-anchored")) { Anchor(c, container); continue; }
-                c.AddToClassList("scale-anchored");
-                c.RegisterCallback<GeometryChangedEvent>(_ => Anchor(c, container));
-                Anchor(c, container);
-            }
-        }
-
-        private static void Anchor(VisualElement c, VisualElement container)
-        {
-            var parent = container.layout;
-            var r = c.layout;
-            if (parent.width < 1 || r.width < 1) return;
-            float Pick(float center, float size) { float f = center / size; return f < 0.33f ? 0f : f > 0.67f ? 100f : 50f; }
-            var origin = new TransformOrigin(Length.Percent(Pick(r.center.x, parent.width)), Length.Percent(Pick(r.center.y, parent.height)), 0);
-            if (c.style.transformOrigin != new StyleTransformOrigin(origin)) c.style.transformOrigin = origin;
         }
 
         /// <summary>

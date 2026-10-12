@@ -1,485 +1,594 @@
-/* Flight HUD. Positions are the old canvas layout at the 1920×1080 reference:
-   altimeter top centre, clock + warp top left, menu buttons top right, resources and flight data down the right,
-   staging (or the EVA panel) bottom left, the navball cluster bottom centre. */
-.fill {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
+/* Flight HUD, Flight Deck style: bezelled units with night glass and hardware keys whose light bar shows what is engaged.
+   Units: clock and warp (top left), menu keys (top right), warnings memo (top centre), staging stack or EVA (bottom left),
+   the primary flight display with the navball (bottom centre), the orbit / maneuver display (bottom right).
+   Where each unit sits comes from HudLayout (the player can move, scale and hide them); this sheet only sizes them. */
+
+/* B612, the Airbus cockpit type (SIL OFL, Assets/TAP/Fonts) */
+#hud {
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Regular.ttf");
 }
 
-/* altimeter */
-#altimeter {
-    position: absolute;
-    left: 50%;
-    top: 8px;
-    width: 360px;
-    height: 92px;
-    translate: -50% 0;
-}
-
-.alt-mode {
-    position: absolute;
-    left: 12px;
-    top: 6px;
-    font-size: 13px;
-}
-
-.altitude {
-    position: absolute;
-    left: 8px;
-    right: 8px;
-    top: 2px;
-    height: 40px;
-    -unity-text-align: middle-center;
-    -unity-font-style: bold;
-    font-size: 34px;
-}
-
-.vspeed {
-    position: absolute;
-    left: 8px;
-    right: 8px;
-    bottom: 24px;
-    height: 20px;
-    -unity-text-align: middle-center;
-    font-size: 16px;
-}
-
-.situation {
-    position: absolute;
-    left: 8px;
-    right: 8px;
-    bottom: 5px;
-    height: 18px;
-    -unity-text-align: middle-center;
-    font-size: 13px;
-}
-
-/* clock and time warp */
+/* ------------------------------------------------------------------ clock and time warp */
 #clock {
-    position: absolute;
-    left: 8px;
-    top: 8px;
-    width: 330px;
-    height: 92px;
+    width: 430px;
+    height: 116px;
 }
 
-.clock-text {
-    position: absolute;
-    left: 12px;
-    top: 8px;
-    width: 310px;
-    font-size: 16px;
-}
-
-.warp-row {
-    position: absolute;
+.clock-glass {
     left: 10px;
-    bottom: 8px;
-    height: 30px;
+    top: 10px;
+    right: 10px;
+    height: 62px;
+    padding: 4px 10px;
+    justify-content: space-between;
+}
+
+.clock-met {
+    font-size: 26px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
+    color: rgb(238, 243, 245);
+}
+
+.clock-warp-label {
+    margin-right: 8px;
+}
+
+.warp-rate {
+    min-width: 64px;
+    -unity-text-align: middle-right;
+    font-size: 19px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
+    color: rgb(72, 226, 124);
+}
+
+.warp-rate.warping {
+    color: rgb(255, 181, 71);
+}
+
+.clock-ut {
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Regular.ttf");
+    font-size: 13px;
+    color: rgb(94, 230, 242);
+}
+
+.warp-cells {
     flex-direction: row;
 }
 
-.warp-btn {
-    width: 40px;
-    height: 30px;
-    margin-right: 4px;
-    font-size: 15px;
+.btn.warp-cell {
+    width: 29px;
+    height: 18px;
+    margin-left: 2px;
+    padding: 0;
+    border-radius: 1px;
+    background-color: rgb(17, 24, 28);
+    color: rgb(64, 76, 84);
+    font-size: 10px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
 }
 
-.warp-btn--wide {
+.btn.warp-cell:hover {
+    background-color: rgb(26, 40, 46);
+}
+
+.btn.warp-cell.lit {
+    background-color: rgb(15, 58, 34);
+    color: rgb(159, 240, 189);
+}
+
+.btn.warp-cell.on {
+    background-color: rgb(72, 226, 124);
+    color: rgb(3, 32, 16);
+}
+
+.clock-keys {
+    left: 10px;
+    right: 10px;
+    bottom: 6px;
+    height: 32px;
+    justify-content: flex-start;
+}
+
+.btn.clock-key {
     width: 46px;
+    height: 28px;
+    margin-right: 6px;
+    font-size: 13px;
 }
 
-.warp-text {
-    width: 90px;
-    -unity-text-align: middle-center;
-    -unity-font-style: bold;
-    font-size: 18px;
-    color: var(--c-accent);
+.btn.clock-key--wide {
+    width: 58px;
 }
 
 .warp-limit {
-    position: absolute;
-    left: 20px;
-    top: 102px;
-    font-size: 12px;
-    color: var(--c-warn);
+    flex-grow: 1;
+    flex-shrink: 1;
+    -unity-text-align: middle-left;
+    font-size: 10px;
+    color: rgb(255, 181, 71);
+    white-space: normal;
 }
 
-/* menu buttons */
-#top-buttons {
-    position: absolute;
-    right: 8px;
-    top: 8px;
-    height: 38px;
+/* ------------------------------------------------------------------ menu keys */
+#keys {
     flex-direction: row;
-    justify-content: flex-end;
-    align-items: center;
+    padding: 9px 10px;
 }
 
-.top-btn {
-    height: 36px;
-    margin-left: 6px;
-    font-size: 15px;
+.btn.top-key {
+    width: 46px;
+    height: 38px;
+    margin: 0 3px;
 }
 
-#map-btn {
-    width: 90px;
+/* ------------------------------------------------------------------ layout menu */
+#layout-menu {
+    width: 260px;
+    padding: 12px 12px 12px 12px;
+    display: none;
 }
 
-#help-btn {
-    width: 96px;
+.layout-title {
+    margin-bottom: 6px;
 }
 
-#menu-btn {
-    width: 104px;
+.btn.layout-row {
+    height: 30px;
+    margin-bottom: 4px;
+    padding-left: 30px;
+    -unity-text-align: middle-left;
+    font-size: 13px;
 }
 
-/* resources and flight data: a column down the right edge */
-#right-column {
-    position: absolute;
-    right: 8px;
-    top: 52px;
-    width: 300px;
+.layout-row > .fd-key__bar {
+    left: 10px;
+    right: auto;
+    top: 9px;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
 }
 
-.side-panel {
-    padding: 8px 10px 8px 12px;
-    margin-bottom: 8px;
+.layout-foot {
+    margin-top: 6px;
+    justify-content: space-between;
 }
 
-#resources {
-    font-size: 15px;
+.btn.layout-key {
+    width: 112px;
+    height: 30px;
 }
 
-#flight-data {
+.layout-hint {
+    margin-top: 8px;
+    font-size: 12px;
+    color: rgb(127, 140, 149);
+}
+
+/* ------------------------------------------------------------------ warnings memo */
+#memo {
+    width: 640px;
+}
+
+.memo-line {
+    flex-direction: row;
+    padding: 5px 12px;
+    margin-bottom: 3px;
+    background-color: rgba(3, 5, 6, 0.85);
+}
+
+.memo-line__code {
+    min-width: 92px;
     font-size: 14px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
+    color: rgb(255, 181, 71);
 }
 
-/* target, warnings, maneuver */
-.info-panel {
-    position: absolute;
-    padding: 8px 10px;
-}
-
-#target {
-    left: 8px;
-    top: 108px;
-    width: 330px;
+.memo-line__text {
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Regular.ttf");
+    flex-shrink: 1;
     font-size: 14px;
+    color: rgb(255, 181, 71);
+    white-space: normal;
 }
 
-#warnings {
-    left: 50%;
-    top: 108px;
-    width: 520px;
-    translate: -50% 0;
-    padding: 6px 10px;
-    background-color: rgba(64, 13, 8, 0.85);
-    font-size: 15px;
+.memo-line--bad > .memo-line__code,
+.memo-line--bad > .memo-line__text {
+    color: rgb(255, 74, 61);
 }
 
-#burn {
-    position: absolute;
-    left: 50%;
-    bottom: 342px;
-    width: 360px;
-    height: 84px;
-    translate: -50% 0;
-    justify-content: center;
-    padding: 6px 8px;
-}
-
-#burn-text {
-    -unity-text-align: middle-center;
-    font-size: 16px;
-}
-
-/* messages and the big notice */
+/* ------------------------------------------------------------------ messages and the big notice */
 #messages {
     position: absolute;
     left: 50%;
-    top: 210px;
-    width: 760px;
-    height: 200px;
+    top: 230px;
+    width: 900px;
     translate: -50% 0;
     align-items: center;
 }
 
 .message {
-    height: 20px;
-    -unity-text-align: middle-center;
-    font-size: 15px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Regular.ttf");
+    padding: 3px 10px;
     margin-bottom: 2px;
+    background-color: rgba(3, 5, 6, 0.72);
+    font-size: 14px;
+    color: rgb(238, 243, 245);
     white-space: nowrap;
 }
 
 .message--important {
-    height: 24px;
-    font-size: 18px;
-    -unity-font-style: bold;
-    color: var(--c-warn);
+    color: rgb(72, 226, 124);
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
 }
 
 .big-notice {
     position: absolute;
     left: 50%;
-    top: 277px;
-    width: 1200px;
-    height: 50px;
+    top: 300px;
     translate: -50% 0;
-    -unity-text-align: middle-center;
-    -unity-font-style: bold;
-    font-size: 30px;
+    padding: 8px 26px;
+    background-color: rgba(2, 4, 5, 0.78);
+    border-width: 2px;
+    border-color: rgb(72, 226, 124);
+    color: rgb(72, 226, 124);
+    font-size: 28px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
+    letter-spacing: 2px;
     white-space: nowrap;
 }
 
-/* staging stack (bottom left; its height follows the mission guide from code) */
+/* ------------------------------------------------------------------ staging stack (next stage at the bottom, as in KSP) */
 #staging {
-    position: absolute;
-    left: 8px;
-    bottom: 8px;
-    width: 250px;
-    height: 520px;
+    width: 214px;
+    padding: 10px;
 }
 
-.staging-title {
-    position: absolute;
-    left: 10px;
-    top: 6px;
-    font-size: 14px;
+.stage-glass {
+    position: relative;
+    padding: 6px 6px 6px 6px;
 }
 
-.stage-list {
+.stage-total {
+    font-size: 13px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
+    color: rgb(238, 243, 245);
+}
+
+.stage-list .unity-scroll-view__content-container {
+    justify-content: flex-end;
+}
+
+.stg {
+    padding: 4px 5px 5px 6px;
+    margin-top: 4px;
+    border-width: 1px;
+    border-color: rgb(20, 32, 39);
+    background-color: rgb(7, 11, 13);
+}
+
+.stg--next {
+    border-color: rgb(72, 226, 124);
+    background-color: rgb(9, 22, 14);
+}
+
+.stg--fired {
+    border-color: rgb(102, 74, 30);
+}
+
+.stg__num {
+    font-size: 20px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
+    color: rgb(127, 140, 149);
+    min-width: 22px;
+}
+
+.stg--next .stg__num {
+    color: rgb(72, 226, 124);
+}
+
+.stg--fired .stg__num {
+    color: rgb(238, 243, 245);
+}
+
+.stg__dv {
+    font-size: 15px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
+    color: rgb(238, 243, 245);
+}
+
+.stg__unit {
+    margin-left: 3px;
+    font-size: 10px;
+    color: rgb(127, 140, 149);
+}
+
+.stg__none {
+    font-size: 11px;
+    color: rgb(58, 68, 76);
+}
+
+.stg__sub {
+    height: 14px;
+}
+
+.stg__state {
+    font-size: 10px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
+    letter-spacing: 1px;
+    color: rgb(72, 226, 124);
+}
+
+.stg--fired .stg__state {
+    color: rgb(255, 181, 71);
+}
+
+.stg__burn {
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Regular.ttf");
+    font-size: 11px;
+    color: rgb(127, 140, 149);
+}
+
+.stg__icons {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 3px;
+}
+
+.stg-tile {
+    width: 36px;
+    height: 36px;
+    margin: 0 4px 3px 0;
+    border-radius: 3px;
+    background-color: rgb(18, 27, 32);
+    border-width: 1px;
+    border-color: rgb(36, 51, 59);
+}
+
+.stg-tile__icon {
     position: absolute;
     left: 6px;
+    top: 4px;
     right: 6px;
-    top: 28px;
-    bottom: 6px;
-}
-
-.stage-row {
-    flex-direction: row;
-    margin-bottom: 4px;
-    padding: 4px 6px 4px 4px;
-    border-width: 0;
-}
-
-.stage-row--current {
-    background-color: rgba(31, 77, 102, 0.9);
-}
-
-.stage-row__num {
-    width: 26px;
-    height: 24px;
-    -unity-text-align: middle-center;
-    -unity-font-style: bold;
-    font-size: 20px;
-    color: var(--c-text-dim);
-}
-
-.stage-row--current .stage-row__num {
-    color: var(--c-accent);
-}
-
-.stage-row__items {
-    flex-grow: 1;
-    flex-shrink: 1;
-    min-width: 0;
-    padding-left: 4px;
-}
-
-.stage-item {
-    flex-direction: row;
-    height: 32px;
-    margin-bottom: 4px;
-}
-
-.stage-item__icon {
-    width: 28px;
-    height: 28px;
-    margin-right: 6px;
-}
-
-.stage-item__text {
-    flex-grow: 1;
-    flex-shrink: 1;
-    min-width: 0;
-    overflow: hidden;
-}
-
-.stage-item__title {
-    font-size: 13px;
-    white-space: nowrap;
-    overflow: hidden;
-    height: 16px;
-}
-
-.stage-item__bar {
-    width: 150px;
-    height: 8px;
-    margin-top: 4px;
-    padding: 1px;
-}
-
-/* EVA panel replaces the staging stack */
-#eva {
-    left: 8px;
     bottom: 8px;
-    width: 400px;
-    padding: 8px 12px;
-    font-size: 16px;
-    overflow: hidden;
 }
 
-/* navball cluster */
-#nav-cluster {
+.stg-tile__count {
     position: absolute;
-    left: 50%;
-    bottom: 6px;
-    width: 620px;
-    height: 330px;
-    translate: -50% 0;
+    right: 2px;
+    top: 0;
+    font-size: 10px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
+    color: rgb(238, 243, 245);
 }
 
-#nav-bg {
+.bar.stg-tile__bar {
     position: absolute;
-    left: 30px;
-    bottom: 0;
+    left: 4px;
+    right: 4px;
+    bottom: 3px;
+    height: 4px;
+    padding: 0;
+    border-radius: 1px;
+    background-color: rgb(30, 40, 46);
+}
+
+/* ------------------------------------------------------------------ EVA (in place of the staging stack) */
+#eva {
+    width: 420px;
+    padding: 10px;
+}
+
+.eva-glass {
+    position: relative;
+    padding: 8px 10px;
+}
+
+.eva-text {
+    font-size: 15px;
+}
+
+/* ------------------------------------------------------------------ burn strip (above the PFD while a node is planned) */
+#burn {
     width: 560px;
-    height: 300px;
+    height: 44px;
+}
+
+.burn-glass {
+    left: 8px;
+    top: 7px;
+    right: 8px;
+    bottom: 7px;
+    justify-content: center;
+}
+
+.burn-text {
+    -unity-text-align: middle-center;
+    font-size: 14px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
+}
+
+/* ------------------------------------------------------------------ primary flight display */
+#pfd {
+    width: 560px;
+    height: 268px;
+}
+
+.pfd-top {
+    left: 48px;
+    right: 48px;
+    top: 0;
+    height: 34px;
+}
+
+.btn.pfd-toggle {
+    width: 46px;
+    height: 26px;
+    margin: 0 4px;
+}
+
+.pfd-toggle > .fd-key__icon {
+    width: 18px;
+    height: 18px;
+}
+
+.pfd-left,
+.pfd-right {
+    top: 34px;
+    bottom: 10px;
+    width: 48px;
+    padding: 4px 0;
+}
+
+.pfd-left {
+    left: 0;
+}
+
+.pfd-right {
+    right: 0;
+}
+
+.btn.sas-key {
+    width: 38px;
+    height: 36px;
+    padding: 0;
+}
+
+.sas-key > .fd-key__icon {
+    width: 24px;
+    height: 24px;
+}
+
+.btn.fd-key.sas-key--text {
+    padding-top: 5px;
+    font-size: 11px;
+}
+
+.pfd-glass {
+    left: 48px;
+    right: 48px;
+    top: 34px;
+    bottom: 10px;
 }
 
 #navball {
     position: absolute;
-    left: 192px;
-    top: 70px;
-    width: 236px;
-    height: 236px;
+    left: 146px;
+    top: 10px;
+    width: 172px;
+    height: 172px;
 }
 
-#speed-panel {
+.btn.readout {
     position: absolute;
-    left: 50%;
-    bottom: 292px;
-    width: 250px;
-    height: 36px;
-    translate: -50% 0;
+    top: 46px;
+    width: 112px;
+    height: 84px;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0);
+    border-radius: 0;
+    justify-content: flex-start;
 }
 
-#speed-mode {
-    position: absolute;
-    left: 1px;
-    top: 1px;
-    width: 64px;
-    height: 30px;
-    font-size: 13px;
+.btn.readout:hover,
+.btn.readout:active {
+    background-color: rgba(255, 255, 255, 0.04);
 }
 
-#speed {
-    position: absolute;
-    right: 10px;
-    top: 1px;
-    width: 170px;
-    height: 30px;
-    -unity-text-align: middle-right;
-    -unity-font-style: bold;
-    font-size: 21px;
+.readout--left {
+    left: 6px;
 }
 
-.cluster-bar {
-    position: absolute;
-    bottom: 150px;
-    height: 200px;
+.readout--right {
+    right: 6px;
 }
 
-#throttle {
-    left: 141px;
-    width: 22px;
-}
-
-#gmeter {
-    left: 113px;
-    width: 14px;
-}
-
-.cluster-num {
-    position: absolute;
-    bottom: 36px;
-    height: 20px;
-    -unity-text-align: middle-center;
-}
-
-#throttle-text {
-    left: 122px;
-    width: 60px;
-    font-size: 14px;
-}
-
-#g-text {
-    left: 89px;
-    width: 50px;
-    font-size: 13px;
-}
-
-#thr-label {
-    position: absolute;
-    left: 122px;
-    width: 60px;
-    bottom: 264px;
+.readout__label {
     height: 16px;
     -unity-text-align: middle-center;
-    font-size: 12px;
 }
 
-.toggle-btn {
-    position: absolute;
-    left: 39px;
-    width: 62px;
-    height: 30px;
-    font-size: 15px;
-}
-
-#sas-btn {
-    bottom: 250px;
-}
-
-#rcs-btn {
-    bottom: 214px;
-}
-
-#legs-btn {
-    bottom: 178px;
-}
-
-#sas-modes {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-}
-
-.sas-mode {
-    position: absolute;
-    width: 36px;
+.readout__value {
     height: 34px;
-    font-size: 12px;
-    padding: 0;
+    border-width: 1px;
+    border-color: rgb(238, 243, 245);
+    background-color: rgb(0, 0, 0);
+    -unity-text-align: middle-center;
+    font-size: 19px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
+    color: rgb(238, 243, 245);
 }
 
-/* navball widget */
+.readout__sub {
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Regular.ttf");
+    height: 18px;
+    margin-top: 2px;
+    -unity-text-align: middle-center;
+    font-size: 12px;
+    color: rgb(94, 230, 242);
+}
+
+.bar.pfd-bar {
+    position: absolute;
+    top: 24px;
+    width: 10px;
+    height: 150px;
+    padding: 1px;
+    border-radius: 1px;
+    background-color: rgb(16, 22, 26);
+    border-width: 1px;
+    border-color: rgb(43, 53, 60);
+}
+
+.pfd-bar--thr {
+    left: 124px;
+}
+
+.pfd-bar--g {
+    left: 330px;
+}
+
+.pfd-bar-label,
+.pfd-bar-value {
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Regular.ttf");
+    position: absolute;
+    width: 40px;
+    -unity-text-align: middle-center;
+}
+
+.pfd-bar-label {
+    top: 6px;
+    height: 16px;
+}
+
+.pfd-bar-value {
+    top: 178px;
+    height: 16px;
+    font-size: 12px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
+}
+
+.pfd-bar-label--thr,
+.pfd-bar-value--thr {
+    left: 109px;
+}
+
+.pfd-bar-label--g,
+.pfd-bar-value--g {
+    left: 315px;
+}
+
+/* navball widget inside the PFD glass */
 .navball__bezel {
     position: absolute;
-    left: -8px;
-    top: -8px;
-    right: -8px;
-    bottom: -8px;
-    border-radius: 50%;
-    background-color: rgb(20, 23, 28);
+    left: -5px;
+    top: -5px;
+    right: -5px;
+    bottom: -5px;
+    border-radius: 91px;
+    background-color: rgb(9, 12, 14);
+    border-width: 1px;
+    border-color: rgb(44, 52, 58);
 }
 
 .navball__ball {
@@ -492,8 +601,8 @@
 
 .navball__marker {
     position: absolute;
-    width: 34px;
-    height: 34px;
+    width: 28px;
+    height: 28px;
     translate: -50% -50%;
 }
 
@@ -501,18 +610,174 @@
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 64px;
-    height: 64px;
+    width: 58px;
+    height: 58px;
     translate: -50% -50%;
 }
 
 .navball__heading {
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Regular.ttf");
     position: absolute;
     left: 50%;
-    top: -27px;
-    width: 120px;
-    height: 22px;
+    top: 186px;
+    width: 220px;
+    height: 18px;
     translate: -50% 0;
     -unity-text-align: middle-center;
-    font-size: 17px;
+    font-size: 12px;
+    color: rgb(127, 140, 149);
+}
+
+/* ------------------------------------------------------------------ orbit / maneuver display */
+#mfd {
+    width: 460px;
+    height: 296px;
+}
+
+.mfd-glass {
+    left: 10px;
+    top: 10px;
+    right: 10px;
+    bottom: 50px;
+}
+
+.mfd-page {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    padding: 6px 12px;
+    display: none;
+}
+
+.mfd-keys {
+    left: 10px;
+    right: 10px;
+    bottom: 6px;
+    height: 40px;
+}
+
+.btn.mfd-key {
+    width: 74px;
+    height: 32px;
+    margin: 0 4px;
+}
+
+.orb-body {
+    flex-grow: 1;
+    align-items: flex-start;
+}
+
+.orbit-plot {
+    width: 168px;
+    height: 168px;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.mfd-rows {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.mfd-rows--two {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.mfd-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    height: 21px;
+}
+
+.mfd-rows--two > .mfd-row {
+    width: 48%;
+    margin-right: 2%;
+}
+
+.mfd-row__key {
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    color: rgb(127, 140, 149);
+}
+
+.mfd-row__val {
+    font-size: 14px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
+    color: rgb(238, 243, 245);
+    -unity-text-align: middle-right;
+}
+
+.mfd-note {
+    font-size: 12px;
+    color: rgb(255, 90, 217);
+}
+
+.mfd-empty {
+    margin-top: 40px;
+    -unity-text-align: middle-center;
+    font-size: 15px;
+    color: rgb(127, 140, 149);
+    white-space: normal;
+}
+
+.mnv-big {
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.mnv-cell {
+    width: 49%;
+}
+
+.mnv-huge {
+    font-size: 30px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
+    color: rgb(238, 243, 245);
+}
+
+.mnv-huge--magenta {
+    color: rgb(255, 90, 217);
+}
+
+.bar.mnv-progress {
+    height: 8px;
+    margin: 6px 0 8px 0;
+    padding: 1px;
+    border-radius: 1px;
+    background-color: rgb(23, 33, 38);
+}
+
+.res-row {
+    flex-direction: row;
+    align-items: center;
+    height: 26px;
+    border-bottom-width: 1px;
+    border-color: rgb(16, 24, 28);
+}
+
+.res-row__name {
+    width: 142px;
+    font-size: 12px;
+    color: rgb(127, 140, 149);
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.bar.res-row__bar {
+    width: 104px;
+    height: 10px;
+    padding: 1px;
+    border-radius: 1px;
+    background-color: rgb(23, 33, 38);
+}
+
+.res-row__val {
+    flex-grow: 1;
+    -unity-text-align: middle-right;
+    font-size: 13px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
 }

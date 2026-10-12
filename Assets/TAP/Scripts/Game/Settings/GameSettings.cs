@@ -98,6 +98,60 @@ namespace TAP.Game
     public class InterfaceOptions
     {
         public float uiScale = 1f, hudScale = 1f;
+        /// <summary>Flight HUD panels the player moved, scaled or hid, by panel id; a panel not listed sits where the game puts it.</summary>
+        public System.Collections.Generic.Dictionary<string, HudPanelState> hud = new System.Collections.Generic.Dictionary<string, HudPanelState>();
+    }
+
+    /// <summary>
+    /// Where a flight HUD panel sits: the screen edge or corner it hugs (so it holds at any aspect), its distance from there,
+    /// its own scale (on top of the HUD scale) and whether it is hidden.
+    /// </summary>
+    [Serializable]
+    public class HudPanelState
+    {
+        /// <summary>Horizontal: 0 left, 1 centre, 2 right. Vertical: 0 top, 1 middle, 2 bottom.</summary>
+        public int ax, ay;
+        /// <summary>Distance from the anchor edge (from the centre line for 1), in panel units.</summary>
+        public float x, y;
+        public float scale = 1f;
+        public bool hidden;
+
+        public HudPanelState Copy() => (HudPanelState)MemberwiseClone();
+
+        /// <summary>The top-left corner of a panel of on-screen size <paramref name="size"/>, kept on the screen.</summary>
+        public Vector2 TopLeft(Vector2 screen, Vector2 size) =>
+            new Vector2(Axis(ax, x, screen.x, size.x), Axis(ay, y, screen.y, size.y));
+
+        private static float Axis(int anchor, float offset, float screen, float size)
+        {
+            float p = anchor == 0 ? offset : anchor == 2 ? screen - size - offset : (screen - size) * 0.5f + offset;
+            return Mathf.Clamp(p, 0, Mathf.Max(0, screen - size));
+        }
+
+        /// <summary>A panel dropped with its top-left corner at <paramref name="topLeft"/> hugs the third of the screen its centre is in.</summary>
+        public static HudPanelState At(Vector2 topLeft, Vector2 size, Vector2 screen, float scale)
+        {
+            var s = new HudPanelState { scale = scale };
+            (s.ax, s.x) = Anchor(topLeft.x, size.x, screen.x);
+            (s.ay, s.y) = Anchor(topLeft.y, size.y, screen.y);
+            return s;
+        }
+
+        private static (int, float) Anchor(float p, float size, float screen)
+        {
+            float f = (p + size * 0.5f) / Mathf.Max(1, screen);
+            if (f < 1f / 3) return (0, p);
+            if (f > 2f / 3) return (2, screen - size - p);
+            return (1, p - (screen - size) * 0.5f);
+        }
+
+        public void Sanitize()
+        {
+            ax = Mathf.Clamp(ax, 0, 2); ay = Mathf.Clamp(ay, 0, 2);
+            scale = Mathf.Clamp(float.IsNaN(scale) ? 1f : scale, 0.5f, 2f);
+            if (float.IsNaN(x) || float.IsInfinity(x)) x = 0;
+            if (float.IsNaN(y) || float.IsInfinity(y)) y = 0;
+        }
     }
 
     /// <summary>A stick, twist or lever: how much of its travel to ignore, how strongly it acts, and which way it points.</summary>
@@ -268,6 +322,9 @@ namespace TAP.Game
             if (string.IsNullOrEmpty(gameplay.language)) gameplay.language = "en";
             ui.uiScale = Mathf.Clamp(ui.uiScale, 0.75f, 1.5f);
             ui.hudScale = Mathf.Clamp(ui.hudScale, 0.75f, 1.3f);
+            ui.hud = ui.hud ?? new System.Collections.Generic.Dictionary<string, HudPanelState>();
+            foreach (var key in new System.Collections.Generic.List<string>(ui.hud.Keys))
+                if (ui.hud[key] == null) ui.hud.Remove(key); else ui.hud[key].Sanitize();
         }
 
         /// <summary>

@@ -25,8 +25,8 @@ namespace TAP.UI
     {
         public FlightSceneController Scene;
         private VisualElement _panel;
-        /// <summary>Distance from the top of the screen to the guide's lower edge (0 while hidden), for panel layout.</summary>
-        public static float BottomFromTop;
+        /// <summary>The guide's unit, for the HUD's layout (the staging stack stops under it).</summary>
+        public static VisualElement Panel { get; private set; }
         private Label _text, _title;
         private Button _toggle, _next;
         private bool _expanded = true;
@@ -39,6 +39,10 @@ namespace TAP.UI
             var g = doc.gameObject.AddComponent<MissionGuide>();
             g.Scene = scene;
             g._panel = root.Q("guide");
+            Panel = g._panel;
+            FlightHud.AddScrews(g._panel);
+            root.Query<Button>(className: "fd-key").ForEach(FlightHud.AddBar);
+            HudLayout.Instance?.Add("guide", "Mission guide", g._panel, new HudPanelState { ax = 0, ay = 0, x = 16, y = 142 });
             g._text = root.Q<Label>("guide-text");
             g._title = root.Q<Label>("guide-title");
             g._next = root.Q<Button>("guide-set");
@@ -53,20 +57,17 @@ namespace TAP.UI
 
         private void Update()
         {
-            // The guide's lower edge, measured every frame (the panel grows with its text).
-            var r = _panel.layout;
-            if (UIKit.Shown(_panel) && !float.IsNaN(r.height)) BottomFromTop = r.yMax;
             _timer -= Time.unscaledDeltaTime;
             if (_timer > 0) return;
             _timer = 0.5f;
             var tr = Scene.Tracker;
             if (tr == null) return;
             bool hide = UiState.MapActive;
-            UIKit.Show(_panel, !hide);
-            if (hide) { BottomFromTop = 0; return; }
+            Show(!hide);
+            if (hide) return;
             var sb = new StringBuilder();
             var set = tr.Set;
-            if (set == null) { UIKit.Show(_panel, false); return; }
+            if (set == null) { Show(false); return; }
             _title.text = tr.Text(set.title).ToUpperInvariant();
             UIKit.Show(_next, ObjectiveSets.All.Count > 1);
             var cur = tr.Current;
@@ -76,16 +77,22 @@ namespace TAP.UI
                 {
                     string title = tr.Text(m.title);
                     bool done = tr.Has(m.id);
-                    if (done) sb.AppendLine($"<color=#{UIKit.Hex(UIKit.Good)}>✔ {title}</color>");
-                    else if (m == cur) sb.AppendLine($"<color=#{UIKit.Hex(UIKit.Accent)}>▶ <b>{title}</b></color>");
-                    else sb.AppendLine($"<color=#{UIKit.Hex(UIKit.TextDim)}>○ {title}</color>");
+                    if (done) sb.AppendLine($"<color=#{UIKit.Hex(FlightHud.Green)}>■ {title}</color>");
+                    else if (m == cur) sb.AppendLine($"<color=#{UIKit.Hex(FlightHud.Cyan)}>▶ <b>{title}</b></color>");
+                    else sb.AppendLine($"<color=#{UIKit.Hex(FlightHud.Dim)}>□ {title}</color>");
                 }
                 sb.AppendLine();
             }
-            if (cur != null) sb.Append($"<size=13><color=#{UIKit.Hex(UIKit.Warn)}>Hint:</color> {tr.Text(cur.hint)}</size>");
-            else sb.Append($"<color=#{UIKit.Hex(UIKit.Good)}><b>Mission complete — welcome home!</b></color>");
+            if (cur != null) sb.Append($"<size=13><color=#{UIKit.Hex(FlightHud.Amber)}>Hint:</color> {tr.Text(cur.hint)}</size>");
+            else sb.Append($"<color=#{UIKit.Hex(FlightHud.Green)}><b>Mission complete — welcome home!</b></color>");
             _text.text = sb.ToString();
             _toggle.text = _expanded ? "–" : "+";
+        }
+
+        private void Show(bool on)
+        {
+            if (HudLayout.Instance != null) HudLayout.Instance.Want("guide", on);
+            else UIKit.Show(_panel, on);
         }
     }
 }
