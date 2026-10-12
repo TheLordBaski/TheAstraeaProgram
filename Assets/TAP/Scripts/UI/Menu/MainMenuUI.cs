@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 
 namespace TAP.UI
 {
-    /// <summary>Main menu: continue / new sandbox / load game / controls / quit, over a slowly turning view of Tellus and Luma.</summary>
+    /// <summary>Main menu: continue / new sandbox / load game / controls / quit, over a slowly turning view of the home planet and its moon.</summary>
     public sealed class MainMenuUI : MonoBehaviour
     {
         private VisualElement _root;
@@ -59,8 +59,10 @@ namespace TAP.UI
             sun.color = new Color(1f, 0.97f, 0.92f);
             sun.transform.rotation = Quaternion.LookRotation(new Vector3(-0.8f, -0.25f, 0.55f));
 
-            _planet = Body("Tellus", "Materials/Map_tellus", new Vector3(9f, -9f, 12f), 22f);
-            _moon = Body("Luma", "Materials/Map_luma", new Vector3(-14f, 7f, 40f), 5f);
+            // The title picture is of the session system's home planet and its first moon.
+            var sys = CelestialSystem.Default;
+            _planet = Body(sys.HomeBody.Name, MapMaterial(sys.HomeBody), new Vector3(9f, -9f, 12f), 22f);
+            _moon = Body(sys.HomeMoon?.Name ?? "Moon", MapMaterial(sys.HomeMoon), new Vector3(-14f, 7f, 40f), 5f);
             // Thin atmosphere rim
             var shellMat = Resources.Load<Material>("Materials/AtmosphereShell");
             if (shellMat != null)
@@ -73,6 +75,8 @@ namespace TAP.UI
             }
         }
 
+        private static string MapMaterial(CelestialBody b) => b == null ? null : "Materials/Map_" + b.Id.Substring(b.Id.LastIndexOf('/') + 1);
+
         private static Transform Body(string name, string mat, Vector3 pos, float diameter)
         {
             var s = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -80,7 +84,7 @@ namespace TAP.UI
             s.name = name;
             s.transform.position = pos;
             s.transform.localScale = Vector3.one * diameter;
-            var m = Resources.Load<Material>(mat);
+            var m = mat != null ? Resources.Load<Material>(mat) : null;
             if (m != null) s.GetComponent<Renderer>().sharedMaterial = m;
             // Unity's sphere UVs map longitude around Y; tilt a little for a nicer look.
             s.transform.rotation = Quaternion.Euler(12f, 0, 8f);
@@ -146,11 +150,24 @@ namespace TAP.UI
 #endif
             };
 
-            _root.Q<Label>("footer").text =
-                "A rocket-only spaceflight sandbox · Tellus (R 600 km, 1 g, 70 km atmosphere) and its airless moon Luma (R 220 km, 0.16 g, 13,000 km away)\n" +
+            _root.Q<Label>("subtitle").text = Objectives.Expand(CelestialSystem.Default, "Build rockets. Reach orbit. Walk on {moon}. Come home.");
+            _root.Q<Label>("footer").text = SystemSummary() + "\n" +
                 "Original work built with Unity " + Loc.Name(Application.unityVersion) + " (URP) · Version " + Loc.Name(Application.version);
 
             _root.Q<Button>("new-start").clicked += StartNew;
+        }
+
+        /// <summary>"A rocket-only spaceflight sandbox · Tellus (R 600 km, 1 g, 70 km atmosphere) and its airless moon Luma (R 220 km, 0.16 g, 13,000 km away)", from the data.</summary>
+        private static string SystemSummary()
+        {
+            var sys = CelestialSystem.Default;
+            var home = sys.HomeBody;
+            string text = "A rocket-only spaceflight sandbox · " + $"{home.Name} (R {home.Radius / 1000:0} km, {home.SurfaceGravity / 9.80665:0.##} g" +
+                          (home.Atmosphere != null ? $", {home.Atmosphere.Height / 1000:0} km atmosphere)" : ")");
+            var moon = sys.HomeMoon;
+            if (moon != null && moon.Orbit != null)
+                text += $" and its {(moon.Atmosphere == null ? "airless " : "")}moon {moon.Name} (R {moon.Radius / 1000:0} km, {moon.SurfaceGravity / 9.80665:0.##} g, {moon.Orbit.SemiMajorAxis / 1000:N0} km away)";
+            return text;
         }
 
         private static string FindLatestSave(out string savedAt)

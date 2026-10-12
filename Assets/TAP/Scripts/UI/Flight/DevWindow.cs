@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using TAP.Core;
 using TAP.Game;
 using TAP.Simulation;
@@ -24,15 +25,12 @@ namespace TAP.UI
         private FlightSim Sim => Scene.Sim;
         private VisualElement _panel;
         private readonly List<(Button btn, Func<bool> get)> _toggles = new List<(Button, Func<bool>)>();
-        private Button _tellusBtn, _lumaBtn;
+        private readonly System.Collections.Generic.Dictionary<CelestialBody, Button> _bodyButtons = new System.Collections.Generic.Dictionary<CelestialBody, Button>();
         private TextField _alt, _inc, _lat, _lon;
         private Label _zoomText, _info;
         private CelestialBody _body;
 
         public bool IsOpen => _panel != null && UIKit.Shown(_panel);
-
-        /// <summary>The home planet's first moon (Luma in the home system).</summary>
-        private CelestialBody HomeMoon => Sim.System.HomeMoon;
 
         public static DevWindow Create(FlightSceneController scene)
         {
@@ -66,12 +64,16 @@ namespace TAP.UI
                    "Joints never fail from structural loads; parachutes don't tear.");
             Action(root, "refill", () => Report(DevTools.Refill(Sim)), null);
 
-            _tellusBtn = root.Q<Button>("body-home");
-            _tellusBtn.text = Sim.System.HomeBody.Name;
-            _tellusBtn.clicked += () => SelectBody(Sim.System.HomeBody);
-            _lumaBtn = root.Q<Button>("body-moon");
-            _lumaBtn.text = HomeMoon?.Name ?? "—";
-            _lumaBtn.clicked += () => SelectBody(HomeMoon);
+            // Every body of the system with a surface is a place to go to: the home planet first.
+            var bodies = root.Q("bodies");
+            foreach (var body in Sim.System.Bodies.OrderBy(b => b == Sim.System.HomeBody ? 0 : 1))
+            {
+                if (body.IsStar) continue;
+                var b = body;
+                var button = UIKit.Button(b.Name, () => SelectBody(b), "dev-btn");
+                bodies.Add(button);
+                _bodyButtons[b] = button;
+            }
             _alt = root.Q<TextField>("alt");
             _inc = root.Q<TextField>("inc");
             _lat = root.Q<TextField>("lat");
@@ -173,8 +175,7 @@ namespace TAP.UI
             if (!UiState.KeyboardCaptured && Controls.Down("Dev/Window")) Toggle();
             if (!IsOpen) return;
             foreach (var (btn, get) in _toggles) UIKit.SetOn(btn, get());
-            UIKit.SetOn(_tellusBtn, _body == Sim.System.HomeBody);
-            UIKit.SetOn(_lumaBtn, _body != null && _body != Sim.System.HomeBody);
+            foreach (var kv in _bodyButtons) UIKit.SetOn(kv.Value, _body == kv.Key);
             _zoomText.text = $"{ScrollZoom.Speed:0.0#}×";
             var v = Sim.ActiveVessel;
             _info.text = v != null

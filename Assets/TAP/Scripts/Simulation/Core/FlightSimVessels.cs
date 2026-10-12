@@ -412,8 +412,8 @@ namespace TAP.Simulation
             else
             {
                 foreach (var p in h.Record.parts)
-                    if (p.crew != null) foreach (var c in p.crew) CrewLost?.Invoke(c, reason);
-                if (!string.IsNullOrEmpty(h.Record.evaCrew)) CrewLost?.Invoke(h.Record.evaCrew, reason);
+                    if (p.crew != null) foreach (var c in p.crew) { CrewLost?.Invoke(c, reason); GameEvents.Raise(GameEventKind.CrewLost, UT, h.Id, h.Name, h.Body?.Id, c, reason); }
+                if (!string.IsNullOrEmpty(h.Record.evaCrew)) { CrewLost?.Invoke(h.Record.evaCrew, reason); GameEvents.Raise(GameEventKind.CrewLost, UT, h.Id, h.Name, h.Body?.Id, h.Record.evaCrew, reason); }
             }
             Handles.Remove(h);
             VesselDestroyed?.Invoke(h);

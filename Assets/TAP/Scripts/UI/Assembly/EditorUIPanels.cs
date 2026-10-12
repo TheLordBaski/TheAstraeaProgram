@@ -453,7 +453,7 @@ namespace TAP.UI
         private void ToggleHelp()
         {
             bool open = !UIKit.Shown(_help);
-            if (open) Q<Label>("help-text").text = Controls.Expand(HelpText);
+            if (open) Q<Label>("help-text").text = Controls.Expand(Objectives.Expand(TAP.Core.CelestialSystem.Default, HelpText));
             UIKit.Show(_help, open);
         }
 
@@ -476,8 +476,8 @@ namespace TAP.UI
             "two stages to create a new one. <b>Reset</b> restores the automatic order. Δv and TWR are shown per stage for the selected environment.\n\n" +
             "<b>Design checks</b>: the engineer's report lists problems (red blocks launch). Keep launch TWR above ~1.3, the centre of pressure (cyan) below " +
             "the centre of mass (yellow), a heat shield under crew pods that return from orbit, and a parachute. " +
-            "Orbit takes about 3,400 m/s; a trip to a Luma landing and back needs roughly 6,000–6,300 m/s plus margin " +
+            "Orbit takes about 3,400 m/s; a trip to a {moon} landing and back needs roughly 6,000–6,300 m/s plus margin " +
             "(the Luma Pathfinder starter carries about 7,600 m/s in vacuum). Low thrust-to-weight upper stages are fine in space; " +
-            "a lander needs a local TWR above ~1.5 at Luma (switch the readout to Luma surface).";
+            "a lander needs a local TWR above ~1.5 at {moon} (switch the readout to its surface).";
     }
 }

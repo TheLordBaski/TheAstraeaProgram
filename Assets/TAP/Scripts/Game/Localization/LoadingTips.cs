@@ -5,7 +5,7 @@ namespace TAP.Game
     {
         public static readonly string[] All =
         {
-            "Launching east gives you Tellus's spin as free speed.",
+            "Launching east gives you the planet's spin as free speed.",
             "Z sets full throttle and X cuts it. Space fires the next stage.",
             "Press M to open the map and plan maneuver nodes on your orbit.",
             "F5 quicksaves. Hold F9 to quickload.",

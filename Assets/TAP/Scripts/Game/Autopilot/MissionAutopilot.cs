@@ -574,6 +574,10 @@ namespace TAP.Game
             var orbit = V.Orbit;
             double pe = orbit.PeriapsisRadius - V.MainBody.Radius, apf = orbit.ApoapsisRadius - V.MainBody.Radius;
             Check("stable orbit reached", pe > 70000 && orbit.IsElliptic, $"Pe {pe / 1000:F1} km, Ap {apf / 1000:F1} km, e {orbit.Eccentricity:F4}");
+            yield return WaitSeconds(1);
+            var tracker = Scene.Tracker;
+            Check("mission guide marks launch, space and orbit", tracker != null && tracker.Has("launch") && tracker.Has("space") && tracker.Has("orbit"),
+                string.Join(", ", GameSession.Save.milestones));
             Note($"in orbit {Sim.UT - ascentStartUT:F0} s after launch with {DvLeft()} left");
             Snap("orbit");
         }

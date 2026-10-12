@@ -41,6 +41,7 @@ Repository: <https://github.com/TheLordBaski/TheAstraeaProgram>. Images and othe
 | [Docs/LOGS.md](Docs/LOGS.md) | Where the logs and settings are, unhandled exceptions, and what a problem report holds |
 | [Docs/PERFORMANCE.md](Docs/PERFORMANCE.md) | Budgets, the benchmark, the timed steps and the baseline numbers |
 | [Docs/CI.md](Docs/CI.md) | Windows and Linux builds, the version stamp, mission runners, GitHub Actions and the nightly run |
+| [Docs/OBJECTIVES.md](Docs/OBJECTIVES.md) | The game-event bus and the mission guide as data: events, objective sets, conditions and text tokens |
 | [Docs/LOCALIZATION.md](Docs/LOCALIZATION.md) | String tables, adding a language, the pseudo-locale and the text audit |
 | [Docs/LUNAR_WALKTHROUGH.md](Docs/LUNAR_WALKTHROUGH.md) | Step-by-step guide to the complete Luma mission with the starter rocket |
 | [Docs/PART_MODELS.md](Docs/PART_MODELS.md) | Exporting part models, editing them in Blender and using them in the game |

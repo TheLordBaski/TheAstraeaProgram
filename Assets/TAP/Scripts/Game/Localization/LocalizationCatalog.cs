@@ -46,6 +46,11 @@ namespace TAP.Game
                 Add(b.Name);
                 if (b.Terrain != null) foreach (var biome in b.Terrain.Biomes) Add(biome.Name);
             }
+            foreach (var o in ObjectiveSets.All)
+            {
+                Add(Objectives.Expand(system, o.title));
+                foreach (var obj in o.objectives) { Add(Objectives.Expand(system, obj.title)); Add(Objectives.Expand(system, obj.hint)); }
+            }
             return set;
         }
 

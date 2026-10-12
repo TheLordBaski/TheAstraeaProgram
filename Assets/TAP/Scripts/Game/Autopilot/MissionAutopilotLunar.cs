@@ -49,6 +49,21 @@ namespace TAP.Game
             yield return TransEarthInjection();
             if (Failed) yield break;
             yield return Reentry();
+            if (Failed) yield break;
+            yield return MissionGuideComplete();
+        }
+
+        /// <summary>The mission guide (objectives as data) has marked every step of the flight just flown, from launch to touching down at home.</summary>
+        private IEnumerator MissionGuideComplete()
+        {
+            yield return WaitSeconds(2);
+            var tracker = Scene.Tracker;
+            var missing = new System.Collections.Generic.List<string>();
+            if (tracker?.Set != null)
+                foreach (var o in tracker.Set.objectives)
+                    if (o.id != "recovered" && !tracker.Has(o.id)) missing.Add(o.id); // recovering is a step of its own, not flown here
+            Check("mission guide marks every step up to landing at home", tracker?.Set != null && missing.Count == 0,
+                missing.Count == 0 ? $"{tracker.Set.objectives.Length - 1} objectives done" : "not done: " + string.Join(", ", missing));
         }
 
         // ------------------------------------------------------------------ TLI

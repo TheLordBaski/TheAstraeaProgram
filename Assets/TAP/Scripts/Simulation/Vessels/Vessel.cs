@@ -257,11 +257,13 @@ namespace TAP.Simulation
                     if (m.IsStageable) m.OnActivate();
             CurrentStage = s - 1;
             Sim?.Log($"Stage {s} activated ({list.Count} part{(list.Count == 1 ? "" : "s")})");
+            Sim?.Raise(GameEventKind.Staged, this, null, s.ToString());
             if (Record.situation == Situation.Prelaunch && Record.launchUT < 0)
             {
                 Record.launchUT = Sim != null ? Sim.UT : 0;
                 Sim?.ReleasePadHold(this);
                 Sim?.Log($"Liftoff of {VesselName}!", true);
+                Sim?.Raise(GameEventKind.Launched, this);
             }
             return true;
         }
@@ -413,6 +415,7 @@ namespace TAP.Simulation
             foreach (var crew in p.Crew) Sim?.OnCrewLost(crew, this, reason);
             p.Crew.Clear();
             Sim?.Log($"{p.Def.title} destroyed: {reason}", true);
+            Sim?.Raise(GameEventKind.PartDestroyed, this, null, p.Def.title + ": " + reason);
             RemovePart(p);
         }
 

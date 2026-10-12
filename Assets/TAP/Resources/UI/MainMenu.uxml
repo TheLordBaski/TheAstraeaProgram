@@ -2,7 +2,7 @@
     <ui:Style src="MainMenu.uss" />
     <ui:VisualElement name="menu" class="screen" picking-mode="Ignore">
         <ui:Label name="title" class="menu-title" picking-mode="Ignore" text="&lt;size=46&gt;THE&lt;/size&gt; ASTRAEA &lt;size=46&gt;PROGRAM&lt;/size&gt;" />
-        <ui:Label name="subtitle" class="menu-subtitle" picking-mode="Ignore" text="Build rockets. Reach orbit. Walk on Luma. Come home." />
+        <ui:Label name="subtitle" class="menu-subtitle" picking-mode="Ignore" text="" />
         <ui:VisualElement name="buttons" class="menu-buttons">
             <ui:Button name="continue" class="btn menu-btn btn--go" />
             <ui:Button name="new" class="btn menu-btn" text="New sandbox" />

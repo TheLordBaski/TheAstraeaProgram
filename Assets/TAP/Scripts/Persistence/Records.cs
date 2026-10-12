@@ -187,6 +187,8 @@ namespace TAP.Persistence
         /// <summary>Mission milestones reached (ids from the mission tracker), in order.</summary>
         public List<string> milestones = new List<string>();
         public bool showGuide = true;
+        /// <summary>The mission guide in use (an objective set's id).</summary>
+        public string objectiveSet = "lunar";
         /// <summary>Craft on the assembly floor when the game was saved.</summary>
         public CraftDesign editorCraft;
         public string savedAt;

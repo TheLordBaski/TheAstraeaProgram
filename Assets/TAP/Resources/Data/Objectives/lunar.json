@@ -1,0 +1,87 @@
+{
+  "id": "lunar",
+  "title": "Mission: to {moon} and back",
+  "order": 0,
+  "objectives": [
+    {
+      "id": "launch", "title": "Launch",
+      "hint": "Pick a rocket in the assembly building (Luma Pathfinder is ready to fly), press Launch, then Space to ignite. Z = full throttle.",
+      "when": { "launched": true }
+    },
+    {
+      "id": "space", "title": "Reach space ({space} km)",
+      "hint": "At ~60 m/s tap D to tip ~10° east, then select SAS Prograde. Stage (Space) when engines burn out.",
+      "when": { "body": "$home", "altitudeAbove": "space" }
+    },
+    {
+      "id": "orbit", "title": "Achieve a stable orbit",
+      "hint": "Cut throttle when apoapsis is ~{space+10} km. In the map (M) click your orbit at Ap, drag the prograde handle until Pe > {space} km, then SAS → Maneuver and burn when the timer reaches 0.",
+      "when": { "body": "$home", "situation": "Orbiting" }
+    },
+    {
+      "id": "transfer", "title": "Plan a transfer to {moon}",
+      "hint": "In the map click {moon} → Set as target. Add a node on your orbit and drag prograde (~860 m/s) and move it along the orbit until a {moon} encounter appears.",
+      "when": { "body": "$home", "encounter": "$moon", "done": [ "orbit" ] }
+    },
+    {
+      "id": "luma_soi", "title": "Enter {moon}'s sphere of influence",
+      "hint": "Execute the transfer burn, then time warp (.) — warp stops automatically near dangerous events.",
+      "when": { "body": "$moon" }
+    },
+    {
+      "id": "luma_orbit", "title": "Orbit {moon}",
+      "hint": "Add a node at the {moon} periapsis and drag retrograde until the orbit closes; burn.",
+      "when": { "body": "$moon", "situation": "Orbiting", "notDone": [ "board" ] }
+    },
+    {
+      "id": "luma_land", "title": "Land on {moon}",
+      "hint": "Deploy legs (G). Burn retrograde to drop periapsis below the surface, then use SAS Retrograde (surface speed) and throttle to touch down below 3 m/s.",
+      "when": { "body": "$moon", "situation": "Landed", "eva": false, "flag": false }
+    },
+    {
+      "id": "eva", "title": "Walk on {moon} (EVA)",
+      "hint": "Right-click the capsule → EVA. WASD to walk, Space to jump, R for the jetpack.",
+      "when": { "body": "$moon", "eva": true, "any": [ { "situation": "Landed" }, { "groundContact": true } ] }
+    },
+    {
+      "id": "flag", "title": "Plant a flag",
+      "hint": "Stand on the ground and press G.",
+      "when": { "flagOn": "$moon" }
+    },
+    {
+      "id": "board", "title": "Board the lander",
+      "hint": "Fly or walk to within 3 m of the hatch (jetpack R, Shift up) and press B.",
+      "when": { "body": "$moon", "eva": false, "crewed": true, "done": [ "eva" ] }
+    },
+    {
+      "id": "luma_ascent", "title": "Launch from {moon} back to orbit",
+      "hint": "Retract legs (G), full throttle, tip east and follow prograde until Ap ~20 km; circularise with a node.",
+      "when": { "body": "$moon", "situation": "Orbiting", "done": [ "board" ] }
+    },
+    {
+      "id": "return", "title": "Return to {home}",
+      "hint": "Plan a node on the far side of {moon} and burn prograde until the trajectory returns to {home} with periapsis ~30 km.",
+      "when": { "body": "$home", "done": [ "luma_soi" ] }
+    },
+    {
+      "id": "reentry", "title": "Survive reentry",
+      "hint": "Decouple the lander (Space), hold SAS Retrograde so the heat shield faces the airflow.",
+      "when": {
+        "any": [
+          { "kind": "ReentrySurvived", "body": "$home", "done": [ "return" ] },
+          { "body": "$home", "done": [ "return" ], "crewed": true, "situation": "Landed|Splashed", "surfaceSpeedBelow": 1 }
+        ]
+      }
+    },
+    {
+      "id": "landed_home", "title": "Land safely",
+      "hint": "Stage the parachute; it waits for safe pressure and opens fully at 1 km. Touch down under 6 m/s.",
+      "when": { "body": "$home", "done": [ "return" ], "crewed": true, "situation": "Landed|Splashed", "surfaceSpeedBelow": 1 }
+    },
+    {
+      "id": "recovered", "title": "Recover the capsule",
+      "hint": "Press Esc → Recover vessel once landed or splashed down.",
+      "when": { "kind": "CrewRecovered", "done": [ "landed_home" ] }
+    }
+  ]
+}

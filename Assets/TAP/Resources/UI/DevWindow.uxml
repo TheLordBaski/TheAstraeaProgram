@@ -20,10 +20,7 @@
             </ui:VisualElement>
 
             <ui:Label class="dev-section" text="Teleport the active vessel" />
-            <ui:VisualElement class="dev-row">
-                <ui:Button name="body-home" class="btn dev-btn" />
-                <ui:Button name="body-moon" class="btn dev-btn dev-btn--last" />
-            </ui:VisualElement>
+            <ui:VisualElement name="bodies" class="dev-row dev-bodies" />
             <ui:VisualElement class="dev-row">
                 <ui:Label class="dev-label" text="Altitude (km)" />
                 <ui:TextField name="alt" class="field dev-field" value="100" />

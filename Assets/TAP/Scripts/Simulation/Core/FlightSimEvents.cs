@@ -30,7 +30,12 @@ namespace TAP.Simulation
         {
             Log($"{crew} was lost ({reason})", true);
             CrewLost?.Invoke(crew, reason);
+            Raise(GameEventKind.CrewLost, v, crew, reason);
         }
+
+        /// <summary>Tells the game's event bus something happened to a vessel (FND-14).</summary>
+        public void Raise(GameEventKind kind, Vessel v, string crew = null, string detail = null)
+            => GameEvents.Raise(kind, UT, v != null ? v.Id : null, v != null ? v.VesselName : null, v != null && v.MainBody != null ? v.MainBody.Id : null, crew, detail);
 
         // ------------------------------------------------------------------ EVA
 
@@ -97,6 +102,7 @@ namespace TAP.Simulation
             eva.LoadedUT = UT - 10;
             SetActive(eva);
             CrewStatusChanged?.Invoke(crewName, "");
+            Raise(GameEventKind.EvaStarted, eva, crewName);
             Log($"{crewName} is on EVA");
             return eva;
         }
@@ -152,6 +158,7 @@ namespace TAP.Simulation
             eva.gameObject.SetActive(false); Destroy(eva.gameObject); // deactivate first: colliders leave physics now, not at end of frame
             SetActive(target);
             CrewStatusChanged?.Invoke(crew, target.Id);
+            Raise(GameEventKind.EvaEnded, target, crew);
             Log($"{crew} boarded {target.VesselName}");
             return true;
         }
@@ -182,6 +189,7 @@ namespace TAP.Simulation
             var flag = SpawnVessel(rec, pos, rot, Vector3.zero, Vector3.zero);
             flag.Rb.isKinematic = true;
             CaptureState(flag);
+            GameEvents.Raise(GameEventKind.FlagPlanted, UT, flag.Id, flag.VesselName, Frame.Body.Id, eva.Record.evaCrew, plaque);
             Log($"Flag planted on {Frame.Body.Name}: \"{plaque}\"", true);
             return flag;
         }
@@ -279,6 +287,7 @@ namespace TAP.Simulation
             var seen = new HashSet<int>();
             foreach (var p in va.Parts) if (!seen.Add(p.Uid)) p.Uid = ++maxUid;
             if (wasActiveB || ActiveVessel == null) SetActive(va);
+            Raise(GameEventKind.Docked, va);
             Log($"Docked: {va.VesselName}", true);
         }
 
@@ -340,6 +349,8 @@ namespace TAP.Simulation
             if (!CanRecover(v)) return;
             var h = v.Handle;
             CaptureState(v);
+            if (v.CrewCount > 0) Raise(GameEventKind.CrewRecovered, v);
+            Raise(GameEventKind.VesselRecovered, v);
             foreach (var p in v.Parts)
                 foreach (var c in p.Crew) CrewStatusChanged?.Invoke(c, null);
             if (v.IsEva && v.Record.evaCrew != null) CrewStatusChanged?.Invoke(v.Record.evaCrew, null);

@@ -20,15 +20,15 @@ namespace TAP.UI
         }
     }
 
-    /// <summary>Collapsible objective list for the complete lunar mission with contextual hints (tutorial).</summary>
+    /// <summary>Collapsible list of the objectives of the mission guide in use, with a hint for the next one (the tutorial).</summary>
     public sealed class MissionGuide : MonoBehaviour
     {
         public FlightSceneController Scene;
         private VisualElement _panel;
         /// <summary>Distance from the top of the screen to the guide's lower edge (0 while hidden), for panel layout.</summary>
         public static float BottomFromTop;
-        private Label _text;
-        private Button _toggle;
+        private Label _text, _title;
+        private Button _toggle, _next;
         private bool _expanded = true;
         private float _timer;
 
@@ -40,9 +40,10 @@ namespace TAP.UI
             g.Scene = scene;
             g._panel = root.Q("guide");
             g._text = root.Q<Label>("guide-text");
-            var sys = TAP.Core.CelestialSystem.Default;
-            var moon = sys.HomeMoon ?? sys.HomeBody;
-            root.Q<Label>("guide-title").text = $"MISSION: TO {moon.Name.ToUpperInvariant()} AND BACK";
+            g._title = root.Q<Label>("guide-title");
+            g._next = root.Q<Button>("guide-set");
+            g._next.clicked += () => { g.Scene.Tracker?.NextSet(); g._timer = 0; };
+            UIKit.Tooltip(g._next, () => "Switch to the next mission guide");
             g._toggle = root.Q<Button>("guide-toggle");
             g._toggle.clicked += () => { g._expanded = !g._expanded; g._timer = 0; };
             UIKit.Tooltip(g._toggle, () => "Collapse / expand the mission guide");
@@ -64,19 +65,24 @@ namespace TAP.UI
             UIKit.Show(_panel, !hide);
             if (hide) { BottomFromTop = 0; return; }
             var sb = new StringBuilder();
+            var set = tr.Set;
+            if (set == null) { UIKit.Show(_panel, false); return; }
+            _title.text = tr.Text(set.title).ToUpperInvariant();
+            UIKit.Show(_next, ObjectiveSets.All.Count > 1);
             var cur = tr.Current;
             if (_expanded)
             {
-                foreach (var m in MissionTracker.Lunar)
+                foreach (var m in set.objectives)
                 {
-                    bool done = tr.Has(m.Id);
-                    if (done) sb.AppendLine($"<color=#{UIKit.Hex(UIKit.Good)}>✔ {m.Title}</color>");
-                    else if (m == cur) sb.AppendLine($"<color=#{UIKit.Hex(UIKit.Accent)}>▶ <b>{m.Title}</b></color>");
-                    else sb.AppendLine($"<color=#{UIKit.Hex(UIKit.TextDim)}>○ {m.Title}</color>");
+                    string title = tr.Text(m.title);
+                    bool done = tr.Has(m.id);
+                    if (done) sb.AppendLine($"<color=#{UIKit.Hex(UIKit.Good)}>✔ {title}</color>");
+                    else if (m == cur) sb.AppendLine($"<color=#{UIKit.Hex(UIKit.Accent)}>▶ <b>{title}</b></color>");
+                    else sb.AppendLine($"<color=#{UIKit.Hex(UIKit.TextDim)}>○ {title}</color>");
                 }
                 sb.AppendLine();
             }
-            if (cur != null) sb.Append($"<size=13><color=#{UIKit.Hex(UIKit.Warn)}>Hint:</color> {cur.Hint}</size>");
+            if (cur != null) sb.Append($"<size=13><color=#{UIKit.Hex(UIKit.Warn)}>Hint:</color> {tr.Text(cur.hint)}</size>");
             else sb.Append($"<color=#{UIKit.Hex(UIKit.Good)}><b>Mission complete — welcome home!</b></color>");
             _text.text = sb.ToString();
             _toggle.text = _expanded ? "–" : "+";

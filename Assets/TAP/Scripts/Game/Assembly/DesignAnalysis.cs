@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TAP.Construction;
 using TAP.Core;
 using TAP.Parts;
@@ -8,9 +9,44 @@ using UnityEngine;
 
 namespace TAP.Game
 {
-    /// <summary>Reference environment for the editor's delta-v / TWR readouts.</summary>
-    /// <summary>Where the engineer's report evaluates thrust and TWR: the home planet (sea level or vacuum) or its first moon.</summary>
-    public enum EditorEnvironment { HomeSeaLevel, HomeVacuum, MoonSurface }
+    /// <summary>
+    /// Where the engineer's report evaluates thrust and TWR (FND-14): a body of the system, in its air at sea level or in vacuum. Any body
+    /// the system has is a destination; <see cref="All"/> lists them, the home planet first.
+    /// </summary>
+    public readonly struct EditorEnvironment : IEquatable<EditorEnvironment>
+    {
+        public readonly string BodyId;
+        public readonly bool Vacuum;
+
+        public EditorEnvironment(string bodyId, bool vacuum) { BodyId = bodyId; Vacuum = vacuum; }
+
+        public static EditorEnvironment HomeSeaLevel => new EditorEnvironment(CelestialSystem.Default.HomeBody.Id, false);
+        public static EditorEnvironment HomeVacuum => new EditorEnvironment(CelestialSystem.Default.HomeBody.Id, true);
+
+        public CelestialBody Body => CelestialSystem.Default.Get(BodyId) ?? CelestialSystem.Default.HomeBody;
+        /// <summary>The readout is in air: the body has an atmosphere and this is not its vacuum.</summary>
+        public bool InAir => !Vacuum && Body.Atmosphere != null;
+
+        /// <summary>Every place to read the report for: each body with a surface, in the air (where it has some) and in vacuum.</summary>
+        public static List<EditorEnvironment> All()
+        {
+            var sys = CelestialSystem.Default;
+            var list = new List<EditorEnvironment>();
+            foreach (var b in sys.Bodies.OrderBy(b => b == sys.HomeBody ? 0 : 1))
+            {
+                if (b.IsStar) continue;
+                if (b.Atmosphere != null) list.Add(new EditorEnvironment(b.Id, false));
+                list.Add(new EditorEnvironment(b.Id, true));
+            }
+            return list;
+        }
+
+        public bool Equals(EditorEnvironment o) => BodyId == o.BodyId && Vacuum == o.Vacuum;
+        public override bool Equals(object o) => o is EditorEnvironment e && Equals(e);
+        public override int GetHashCode() => (BodyId ?? "").GetHashCode() * 2 + (Vacuum ? 1 : 0);
+        public static bool operator ==(EditorEnvironment a, EditorEnvironment b) => a.Equals(b);
+        public static bool operator !=(EditorEnvironment a, EditorEnvironment b) => !a.Equals(b);
+    }
 
     public struct DesignWarning
     {
@@ -57,21 +93,17 @@ namespace TAP.Game
         /// <summary>Label of a readout environment, named after the session system's bodies ("Tellus sea level").</summary>
         public static string EnvironmentName(EditorEnvironment e)
         {
-            var sys = CelestialSystem.Default;
-            return e == EditorEnvironment.HomeSeaLevel ? $"{sys.HomeBody.Name} sea level"
-                 : e == EditorEnvironment.HomeVacuum ? $"{sys.HomeBody.Name} vacuum"
-                 : $"{(sys.HomeMoon ?? sys.HomeBody).Name} surface";
+            var body = e.Body;
+            return body.Atmosphere == null ? $"{body.Name} surface" : e.Vacuum ? $"{body.Name} vacuum" : $"{body.Name} sea level";
         }
 
         public static DesignStats Analyze(CraftDesign d, PartDatabase db, EditorEnvironment env)
         {
             var s = new DesignStats { Environment = env };
             var sys = CelestialSystem.Default;
-            var home = sys.HomeBody;
-            var moon = sys.HomeMoon;
-            CelestialBody envBody = env == EditorEnvironment.MoonSurface && moon != null ? moon : home;
+            var envBody = env.Body;
             s.Gravity = envBody.GM / (envBody.Radius * envBody.Radius);
-            s.PressureAtm = env == EditorEnvironment.HomeSeaLevel && home.Atmosphere != null ? home.Atmosphere.SeaLevelPressure / 101325.0 : 0.0;
+            s.PressureAtm = env.InAir ? envBody.Atmosphere.SeaLevelPressure / 101325.0 : 0.0;
             s.PartCount = d.parts.Count;
             if (d.parts.Count == 0)
             {
@@ -124,6 +156,7 @@ namespace TAP.Game
                     s.TotalDvAsl += st.DeltaVAsl;
                     s.TotalDvEnv += st.DeltaVCurrent;
                 }
+                var home = sys.HomeBody;
                 double g0 = home.GM / (home.Radius * home.Radius);
                 var launch = DeltaVCalculator.Compute(asm.ToStageModel(), maxStage, g0, 1.0, db);
                 foreach (var st in launch)
@@ -294,7 +327,7 @@ namespace TAP.Game
             }
             if (s.HasCoP && s.StabilityMargin > 0.3f && s.LaunchTwr > 0)
                 Add($"Aerodynamically unstable: the centre of pressure is {s.StabilityMargin:F1} m ahead of the centre of mass. Add fins near the bottom or move mass up.");
-            if (!hasLegs && s.TotalDvVac > 6000) Add($"No landing legs: needed for a safe touchdown on {CelestialSystem.Default.HomeMoon?.Name ?? "a moon"}.", info: true);
+            if (!hasLegs && s.TotalDvVac > 6000) Add("No landing legs: needed for a safe touchdown away from the launch pad.", info: true);
             if (s.ElectricCharge <= 0 && hasCommand) Add("No electric charge: SAS, reaction wheels and probe cores need power.");
         }
     }

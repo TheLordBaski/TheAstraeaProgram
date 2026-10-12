@@ -475,9 +475,30 @@ Built (`SimTimers.cs`, `BenchmarkRunner.cs`, `BenchmarkCraft.cs`, `compare-bench
   mission guide becomes one objective set in data.
 
 **Done when**
-- [ ] No gameplay code names a body.
-- [ ] The Luma mission guide behaves exactly as before, now driven by data.
-- [ ] A second objective set ("reach Pruina orbit") works without code changes.
+- [x] No gameplay code names a body. (`SystemTests.GameplayCode_LooksUpNoBodyById` finds no body id outside `Core/`;
+      `ObjectiveTests.PresentationCode_NamesNoBody` finds no body name in what the UI, the flight, assembly and localisation code say; the
+      objective files are checked the same way. What is left is the names of starter crafts, "Luma Pathfinder", which are data, and the mission
+      autopilot, the test harness for the one mission (it finds the moon as `HomeMoon`; its log lines say "Luma").)
+- [x] The Luma mission guide behaves exactly as before, now driven by data. (The full `lunar` mission autotest in a Windows build passes 21/21; its new
+      last check finds 14 of the 15 objectives done after the splashdown at home (the 15th, recovering, is the next step). The `orbit` autotest passes
+      11/11 and its new check finds launch, space and orbit done once in orbit. The ids and the conditions are those of the old `MissionTracker`, so older
+      saves carry on; the editor showed the title, the list, the hint and the `»` switch to the other set. Not compared step by step with the old tracker.)
+- [x] A second objective set ("reach Pruina orbit") works without code changes. (`orbit_moon.json` is a second set for the home system, in the game
+      now: the `»` button of the guide switches to it. `ObjectiveTests.ASetCanLeadToAnotherBody_WithoutCodeChanges` runs a set for another body of
+      the debug system, written in the test as JSON only. There is no body called Pruina yet; a set for it is a file.)
+
+Built (`GameEvents.cs`, `EventWatcher.cs`, `ObjectiveSet.cs`, `ObjectiveTracker.cs`, `Data/Objectives/*.json`, `ObjectiveTests.cs`, 14 tests; [Docs/OBJECTIVES.md](../../Docs/OBJECTIVES.md)):
+- **Bus:** `GameEvents.Raise` in `TAP.Core`, a static event with the last 100 kept; a listener that throws does not stop the others. The simulation raises
+  `Launched`, `Staged`, `PartDestroyed`, `CrewLost`, `EvaStarted`, `EvaEnded`, `Docked`, `FlagPlanted`, `CrewRecovered` and `VesselRecovered` where they happen;
+  `EventWatcher` raises `ReachedSpace`, `Orbit`, `SoiChanged`, `Landed`, `Splashed` and `ReentrySurvived` from the vessels' state.
+- **Objectives:** a set is a JSON file; each objective has a condition (event, body, situation, altitude, crew, flags, what is done, `any`, `not`) and
+  texts with `{home}`, `{moon}`, `{body:REF}` and `{space}`. `ObjectiveTracker` checks them in order until nothing changes, writes what is done to the
+  save (`milestones`; the first set keeps the old plain ids, so older saves carry on) and shows the notice. A file with a mistake is left out and logged.
+- **Bodies gone from code:** `MissionTracker` is deleted; the guide's title and hints, the editor's readout (`EditorEnvironment` is a body and air or
+  vacuum, cycled over every body of the system), the developer window's body buttons, the help texts, the menu's picture and footer and the loading
+  tips come from the system.
+- **Not done:** `ScienceCollected` is defined and nothing raises it (SCI tasks). Only the home system's two sets exist. The guide shows one set at a time and
+  has no list of every set. The objectives' texts are in `en.json` for the home system only.
 
 ### FND-15 · Multi-system data model: a galaxy of one system, ready for more
 **Milestone** M1 · **Claude** 2 d · **You** 0.5 d · **Needs** —

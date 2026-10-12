@@ -108,8 +108,8 @@ namespace TAP.UI
 
         private void CycleEnvironment()
         {
-            var next = (EditorEnvironment)(((int)_scene.Environment + 1) % 3);
-            _scene.SetEnvironment(next);
+            var all = EditorEnvironment.All();
+            _scene.SetEnvironment(all[(all.IndexOf(_scene.Environment) + 1) % all.Count]);
         }
 
         private static string EnvName(EditorEnvironment e) => DesignAnalysis.EnvironmentName(e);

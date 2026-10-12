@@ -25,7 +25,7 @@ namespace TAP.Game
         public MapView Map;
         public TrajectoryService Trajectory;
         public FlightInput Input;
-        public MissionTracker Tracker;
+        public ObjectiveTracker Tracker;
         public event Action<string, bool> Notification;
         public bool UiHidden;
         public event Action<bool> UiVisibilityChanged;
@@ -89,7 +89,9 @@ namespace TAP.Game
             Map.Init(Sim, Trajectory);
             PlanetVisualController.Create(this);
 
-            Tracker = gameObject.AddComponent<MissionTracker>();
+            GameEvents.Clear();
+            gameObject.AddComponent<EventWatcher>().Sim = Sim;
+            Tracker = gameObject.AddComponent<ObjectiveTracker>();
             Tracker.Scene = this;
 
             Input = gameObject.AddComponent<FlightInput>();
@@ -329,8 +331,6 @@ namespace TAP.Game
             var v = Sim.ActiveVessel;
             if (v == null || !Sim.CanRecover(v)) return;
             string name = v.VesselName;
-            bool crewed = v.CrewCount > 0;
-            Tracker?.OnRecovered(crewed);
             Sim.Recover(v);
             GameSession.Log($"{name} recovered on {Sim.System.HomeBody.Name}");
             if (Sim.ActiveVessel == null)

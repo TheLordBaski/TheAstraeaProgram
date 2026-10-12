@@ -91,9 +91,10 @@ namespace TAP.UI
             Section("FLIGHT", ControlTable.Flight, true);
             Section("EVA", ControlTable.Eva, true);
             Section("MAP", ControlTable.MapView, true);
-            into.Add(UIKit.Label("Tips: launch east (press W briefly at ~60 m/s, then SAS Prograde). Circularise at apoapsis with a maneuver node. " +
-                                 "For Luma: target Luma in the map, add a node on your orbit and drag prograde until an encounter appears. " +
-                                 "Point the heat shield retrograde for reentry and stage the parachute below ~18 km.", "help-tips text-dim wrap"));
+            into.Add(UIKit.Label(Objectives.Expand(TAP.Core.CelestialSystem.Default,
+                                 "Tips: launch east (press W briefly at ~60 m/s, then SAS Prograde). Circularise at apoapsis with a maneuver node. " +
+                                 "For {moon}: target {moon} in the map, add a node on your orbit and drag prograde until an encounter appears. " +
+                                 "Point the heat shield retrograde for reentry and stage the parachute below ~18 km."), "help-tips text-dim wrap"));
         }
 
         public void TogglePause()

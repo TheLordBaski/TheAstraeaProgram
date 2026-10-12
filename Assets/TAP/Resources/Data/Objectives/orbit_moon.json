@@ -1,0 +1,27 @@
+{
+  "id": "orbit_moon",
+  "title": "Mission: orbit {moon}",
+  "order": 1,
+  "objectives": [
+    {
+      "id": "launch", "title": "Launch",
+      "hint": "Pick a rocket in the assembly building, press Launch, then Space to ignite.",
+      "when": { "launched": true }
+    },
+    {
+      "id": "space", "title": "Reach space ({space} km)",
+      "hint": "Fly up and east, then stage when the engines burn out.",
+      "when": { "body": "$home", "altitudeAbove": "space" }
+    },
+    {
+      "id": "orbit", "title": "Achieve a stable orbit of {home}",
+      "hint": "Circularise at apoapsis with a maneuver node.",
+      "when": { "body": "$home", "situation": "Orbiting" }
+    },
+    {
+      "id": "moon_orbit", "title": "Reach orbit of {moon}",
+      "hint": "Target {moon} in the map, plan a transfer, and burn retrograde at periapsis to be captured.",
+      "when": { "body": "$moon", "situation": "Orbiting", "done": [ "orbit" ] }
+    }
+  ]
+}
