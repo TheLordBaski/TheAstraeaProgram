@@ -26,10 +26,14 @@ namespace TAP.Simulation
         /// <summary>Final translation command in the control frame, each in [-1, 1].</summary>
         public Vector3 TranslationCommand;
 
-        public bool PilotRotating => Mathf.Abs(Pitch) > 0.01f || Mathf.Abs(Yaw) > 0.01f || Mathf.Abs(Roll) > 0.01f;
+        /// <summary>True while keys or sticks steer. Trim does not count: a stray trim must not switch the SAS hold off.</summary>
+        public bool PilotRotating => Mathf.Abs(Pitch - TrimPitch) > 0.01f || Mathf.Abs(Yaw - TrimYaw) > 0.01f || Mathf.Abs(Roll - TrimRoll) > 0.01f;
 
-        /// <summary>Pilot torque vector in the control frame.</summary>
+        /// <summary>Pilot torque vector in the control frame, trim included (what steers with SAS off).</summary>
         public Vector3 PilotTorque => new Vector3(Pitch, -Roll, -Yaw);
+
+        /// <summary>Pilot torque from keys and sticks only, without trim (what overrides SAS).</summary>
+        public Vector3 StickTorque => new Vector3(Pitch - TrimPitch, -(Roll - TrimRoll), -(Yaw - TrimYaw));
 
         public void ClearInputs()
         {

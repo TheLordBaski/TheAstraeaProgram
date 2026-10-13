@@ -199,6 +199,18 @@ namespace TAP.Tests
         }
 
         [Test]
+        public void Trim_DoesNotCountAsPilotInputForSas()
+        {
+            var c = new VesselControl();
+            for (int i = 0; i < 2; i++) FlightInput.ApplyAttitude(c, 0f, 1f, 0f, trimming: true, precision: false, dt: 0.09f); // a stray Alt+key tap
+            Assert.Greater(c.TrimYaw, 0.03f);
+            Assert.IsFalse(c.PilotRotating, "a leftover trim must not switch the SAS hold off");
+            Assert.AreEqual(Vector3.zero, c.StickTorque, "nor override it");
+            FlightInput.ApplyAttitude(c, 0f, 1f, 0f, trimming: false, precision: false, dt: 0.02f);
+            Assert.IsTrue(c.PilotRotating, "steering still does");
+        }
+
+        [Test]
         public void Precision_CutsTheAttitudeInputToAQuarter()
         {
             var c = new VesselControl();

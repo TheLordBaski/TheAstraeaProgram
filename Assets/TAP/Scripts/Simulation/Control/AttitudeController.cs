@@ -112,10 +112,11 @@ namespace TAP.Simulation
                 cmd[k] = Mathf.Clamp(c, -1f, 1f);
             }
 
-            // Pilot overrides per axis.
-            if (Mathf.Abs(pilot.x) > 0.01f) cmd.x = pilot.x;
-            if (Mathf.Abs(pilot.y) > 0.01f) cmd.y = pilot.y;
-            if (Mathf.Abs(pilot.z) > 0.01f) cmd.z = pilot.z;
+            // Pilot overrides per axis (trim is not an override: with SAS on it would turn the hold into a steady push).
+            Vector3 stick = ctrl.StickTorque;
+            if (Mathf.Abs(stick.x) > 0.01f) cmd.x = pilot.x;
+            if (Mathf.Abs(stick.y) > 0.01f) cmd.y = pilot.y;
+            if (Mathf.Abs(stick.z) > 0.01f) cmd.z = pilot.z;
             return Clamp(cmd);
         }
 
