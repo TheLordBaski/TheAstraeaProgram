@@ -30,13 +30,13 @@ namespace TAP.Game
                 public Material Material;
                 public MaterialPropertyBlock Properties=new MaterialPropertyBlock();
                 public Vector3d Position;
-                public Vector3d Origin;
                 public Matrix4x4 VP;
+                public Matrix4x4 BodyToWorld=Matrix4x4.identity;
                 public Quaternion Rotation;
                 public double UT;
                 public int Width,Height,Frame,Mode,Quality;
                 public bool MapActive;
-                public ProfilingSampler IntegrateSampler,CompositeSampler;
+                public ProfilingSampler IntegrateSampler,ResolveSampler,CompositeSampler;
                 public void Dispose() { Scatter?.Release();Extinction?.Release();CoreUtils.Destroy(Material); }
             }
             sealed class Draw
@@ -84,7 +84,7 @@ namespace TAP.Game
                     var body=entry.Key;var profile=entry.Value;
                     if(!Visible(visuals,camera,body,profile,out var position,out float scale,out bool volume)) continue;
                     var key=(camera.GetEntityId(),body.Id);
-                    if(!histories.TryGetValue(key,out var history)) { history=new History { Material=CoreUtils.CreateEngineMaterial(shader),IntegrateSampler=new ProfilingSampler("Planet integration "+body.Id),CompositeSampler=new ProfilingSampler("Planet composition "+body.Id) };histories.Add(key,history); }
+                    if(!histories.TryGetValue(key,out var history)) { history=new History { Material=CoreUtils.CreateEngineMaterial(shader),IntegrateSampler=new ProfilingSampler("Planet integration "+body.Id),ResolveSampler=new ProfilingSampler("Planet resolve "+body.Id),CompositeSampler=new ProfilingSampler("Planet composition "+body.Id) };histories.Add(key,history); }
                     var desc=graph.GetTextureDesc(resources.activeColorTexture); desc.name="Planet scattering "+body.Id;
                     desc.width=Math.Max(1,desc.width/2);desc.height=Math.Max(1,desc.height/2);desc.msaaSamples=MSAASamples.None;desc.bindTextureMS=false;
                     desc.depthBufferBits=DepthBits.None;desc.colorFormat=GraphicsFormat.R16G16B16A16_SFloat;desc.clearBuffer=false;
@@ -98,16 +98,18 @@ namespace TAP.Game
                         history.Width=width;history.Height=height;
                     }
                     var sim=visuals.Scene.Sim;double ut=camera==visuals.Scene.Map.MapCamera?sim.UT:sim.RenderUT;
-                    var origin=sim.Frame.Origin;
+                    // History lives in body-relative metres, so the floating origin (which drifts by the frame's velocity every
+                    // physics step, metres per frame at orbital speed) is irrelevant: resetting on it wiped the history every frame.
                     bool reset=historyChanged || history.Frame!=Time.frameCount-1 || Math.Abs(ut-history.UT)>1 || (position-history.Position).magnitude>2500
-                        || Quaternion.Angle(camera.transform.rotation,history.Rotation)>12 || (origin-history.Origin).magnitude>1
+                        || Quaternion.Angle(camera.transform.rotation,history.Rotation)>12
                         || history.Mode!=(int)PlanetGraphics.Clouds || history.Quality!=(int)PlanetGraphics.Quality || history.MapActive!=visuals.Scene.Map.Active;
                     var props=history.Properties; props.Clear();
                     props.SetVector("_BlitScaleBias",new Vector4(1,1,0,0));
                     // Unity's view matrix includes its camera-space Z reflection; a Quaternion inverse does not.
                     var vp=PlanetVisualMath.ViewProjection(camera);
                     props.SetMatrix("_InverseVP",vp.inverse);props.SetMatrix("_PreviousVP",history.VP);
-                    props.SetMatrix("_WorldToBody",Matrix4x4.Rotate(body.RotationAtUT(ut).Inverse().ToQuaternion()));
+                    var bodyToWorld=Matrix4x4.Rotate(body.RotationAtUT(ut).ToQuaternion());
+                    props.SetMatrix("_WorldToBody",bodyToWorld.inverse);props.SetMatrix("_PreviousBodyToWorld",history.BodyToWorld);
                     props.SetVector("_CameraRelative",(Vector3)position);props.SetVector("_PreviousCamera",(Vector3)history.Position);
                     props.SetVector("_CameraForward",camera.transform.forward);props.SetFloat("_Scale",scale);
                     props.SetFloat("_PixelAngle",2*Mathf.Tan(camera.fieldOfView*.5f*Mathf.Deg2Rad)/Math.Max(1,camera.pixelHeight));
@@ -130,7 +132,8 @@ namespace TAP.Game
                     props.SetFloat("_VolumeBlend",volume?PlanetVisualMath.CloudVolumeBlend(position.magnitude,body.Radius):0);
                     props.SetFloat("_AtmosphereEnabled",visuals.HasScattering(body)?1:0);props.SetFloat("_AtmoSteps",PlanetGraphics.AtmosphereSteps);
                     props.SetFloat("_Jitter",mode==2?(.5f+Time.frameCount*.61803398875f)%1:.5f);
-                    props.SetFloat("_HistoryWeight",reset||mode!=2?0:.7f);props.SetVector("_BufferSize",new Vector4(width,height,1f/width,1f/height));
+                    // The resolve clamps history to this frame's neighbourhood, so it can lean on it heavily.
+                    props.SetFloat("_HistoryWeight",reset||mode!=2?0:.9f);props.SetVector("_BufferSize",new Vector4(width,height,1f/width,1f/height));
                     props.SetFloat("_CloudNormalEnabled",profile.WeatherNormal!=null?1:0);
                     props.SetFloat("_LayerDetailStrength",detail);
                     // Static profile assets are material-owned; every per-frame graph texture is declared and bound below.
@@ -138,22 +141,45 @@ namespace TAP.Game
                     m.SetTexture("_Weather",profile.Weather);m.SetTexture("_WeatherNormal",profile.WeatherNormal);
                     m.SetTexture("_TransmittanceLut",profile.Transmittance);m.SetTexture("_MultiScatterLut",profile.MultiScattering);
                     if(visuals.Library!=null) { m.SetTexture("_CloudNoise",visuals.Library.CloudNoise);m.SetTexture("_CloudDetail",visuals.Library.CloudDetail); }
-                    // Texture-only views do not allocate or copy temporal history. Bind an already
-                    // declared texture to the unused history inputs; history weight is zero there.
-                    var oldS=volume?graph.ImportTexture(history.Scatter):resources.activeColorTexture;
-                    var oldT=volume?graph.ImportTexture(history.Extinction):resources.activeColorTexture;
+                    // Texture-only views do not allocate or copy temporal history, and need no resolve.
+                    var oldS=volume?graph.ImportTexture(history.Scatter):default;
+                    var oldT=volume?graph.ImportTexture(history.Extinction):default;
                     var scatter=graph.CreateTexture(desc); desc.name="Planet extinction "+body.Id;var extinction=graph.CreateTexture(desc);
                     desc.name="Planet front scattering "+body.Id;var frontScatter=graph.CreateTexture(desc);
                     desc.name="Planet front extinction "+body.Id;var frontExtinction=graph.CreateTexture(desc);
                     using(var builder=graph.AddRasterRenderPass<Draw>("Planet atmosphere and clouds "+body.Id,out var draw,history.IntegrateSampler)) {
-                        draw.Material=m;draw.Properties=props;draw.Depth=resources.cameraDepthTexture;draw.OldScatter=oldS;draw.OldExtinction=oldT;
-                        builder.UseTexture(draw.Depth,AccessFlags.Read);builder.UseTexture(oldS,AccessFlags.Read);builder.UseTexture(oldT,AccessFlags.Read);
+                        draw.Material=m;draw.Properties=props;draw.Depth=resources.cameraDepthTexture;
+                        builder.UseTexture(draw.Depth,AccessFlags.Read);
                         builder.SetRenderAttachment(scatter,0,AccessFlags.Write);builder.SetRenderAttachment(extinction,1,AccessFlags.Write);
                         builder.SetRenderAttachment(frontScatter,2,AccessFlags.Write);builder.SetRenderAttachment(frontExtinction,3,AccessFlags.Write);
                         builder.SetRenderFunc(static (Draw data,RasterGraphContext context)=> {
-                            data.Properties.SetTexture(DepthId,data.Depth);data.Properties.SetTexture(HSId,data.OldScatter);data.Properties.SetTexture(HTId,data.OldExtinction);
+                            data.Properties.SetTexture(DepthId,data.Depth);
                             context.cmd.DrawProcedural(Matrix4x4.identity,data.Material,0,MeshTopology.Triangles,3,1,data.Properties);
                         });
+                    }
+                    if(volume) {
+                        // The jittered samples above are noisy by design: average them with the reprojected history, then
+                        // everything after this (composition, the history copy) uses the resolved textures.
+                        var rawScatter=scatter;var rawExtinction=extinction;var rawFrontScatter=frontScatter;var rawFrontExtinction=frontExtinction;
+                        desc.name="Planet resolved scattering "+body.Id;scatter=graph.CreateTexture(desc);
+                        desc.name="Planet resolved extinction "+body.Id;extinction=graph.CreateTexture(desc);
+                        desc.name="Planet resolved front scattering "+body.Id;frontScatter=graph.CreateTexture(desc);
+                        desc.name="Planet resolved front extinction "+body.Id;frontExtinction=graph.CreateTexture(desc);
+                        using(var builder=graph.AddRasterRenderPass<Draw>("Planet cloud temporal resolve "+body.Id,out var draw,history.ResolveSampler)) {
+                            draw.Material=m;draw.Properties=props;draw.OldScatter=oldS;draw.OldExtinction=oldT;
+                            draw.Scatter=rawScatter;draw.Extinction=rawExtinction;draw.FrontScatter=rawFrontScatter;draw.FrontExtinction=rawFrontExtinction;
+                            builder.UseTexture(rawScatter,AccessFlags.Read);builder.UseTexture(rawExtinction,AccessFlags.Read);
+                            builder.UseTexture(rawFrontScatter,AccessFlags.Read);builder.UseTexture(rawFrontExtinction,AccessFlags.Read);
+                            builder.UseTexture(oldS,AccessFlags.Read);builder.UseTexture(oldT,AccessFlags.Read);
+                            builder.SetRenderAttachment(scatter,0,AccessFlags.Write);builder.SetRenderAttachment(extinction,1,AccessFlags.Write);
+                            builder.SetRenderAttachment(frontScatter,2,AccessFlags.Write);builder.SetRenderAttachment(frontExtinction,3,AccessFlags.Write);
+                            builder.SetRenderFunc(static (Draw data,RasterGraphContext context)=> {
+                                data.Properties.SetTexture(ScatterId,data.Scatter);data.Properties.SetTexture(ExtinctionId,data.Extinction);
+                                data.Properties.SetTexture(FrontScatterId,data.FrontScatter);data.Properties.SetTexture(FrontExtinctionId,data.FrontExtinction);
+                                data.Properties.SetTexture(HSId,data.OldScatter);data.Properties.SetTexture(HTId,data.OldExtinction);
+                                context.cmd.DrawProcedural(Matrix4x4.identity,data.Material,1,MeshTopology.Triangles,3,1,data.Properties);
+                            });
+                        }
                     }
                     // Subsequent transparent draws reuse the camera's depth attachment. Preserve its MSAA count.
                     var outputDesc=graph.GetTextureDesc(resources.activeColorTexture);outputDesc.name="Planet composite "+body.Id;outputDesc.clearBuffer=false;
@@ -168,7 +194,7 @@ namespace TAP.Game
                         builder.SetRenderFunc(static (Draw data,RasterGraphContext context)=> {
                             data.Properties.SetTexture(SourceId,data.Source);data.Properties.SetTexture(DepthId,data.Depth);data.Properties.SetTexture(ScatterId,data.Scatter);data.Properties.SetTexture(ExtinctionId,data.Extinction);
                             data.Properties.SetTexture(FrontScatterId,data.FrontScatter);data.Properties.SetTexture(FrontExtinctionId,data.FrontExtinction);
-                            context.cmd.DrawProcedural(Matrix4x4.identity,data.Material,1,MeshTopology.Triangles,3,1,data.Properties);
+                            context.cmd.DrawProcedural(Matrix4x4.identity,data.Material,2,MeshTopology.Triangles,3,1,data.Properties);
                         });
                     }
                     if(volume) {
@@ -176,7 +202,7 @@ namespace TAP.Game
                         graph.AddBlitPass(extinction,oldT,Vector2.one,Vector2.zero,passName:"Store cloud extinction history");
                     }
                     resources.cameraColor=output;
-                    history.Position=position;history.Origin=origin;history.VP=vp;history.Rotation=camera.transform.rotation;history.UT=ut;history.Frame=Time.frameCount;
+                    history.Position=position;history.BodyToWorld=bodyToWorld;history.VP=vp;history.Rotation=camera.transform.rotation;history.UT=ut;history.Frame=Time.frameCount;
                     history.Mode=(int)PlanetGraphics.Clouds;history.Quality=(int)PlanetGraphics.Quality;history.MapActive=visuals.Scene.Map.Active;
                 }
             }

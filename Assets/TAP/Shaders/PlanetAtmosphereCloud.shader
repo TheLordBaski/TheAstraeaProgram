@@ -18,7 +18,7 @@ Shader "Hidden/TAP/PlanetAtmosphereCloud"
         TEXTURE2D(_TransmittanceLut); TEXTURE2D(_MultiScatterLut);
         TEXTURE3D(_CloudNoise); SAMPLER(sampler_CloudNoise);
         TEXTURE3D(_CloudDetail); SAMPLER(sampler_CloudDetail);
-        float4x4 _InverseVP,_WorldToBody,_PreviousVP;
+        float4x4 _InverseVP,_WorldToBody,_PreviousBodyToWorld,_PreviousVP;
         float3 _CameraRelative,_SunDirection,_SunIrradiance,_CameraForward;
         float4 _Radii,_CloudParams,_CloudLayer,_CloudVolume,_Rayleigh,_Mie,_Ozone,_Wind;
         float4 _Weather_TexelSize;
@@ -111,7 +111,12 @@ Shader "Hidden/TAP/PlanetAtmosphereCloud"
             }
             return tau*_CloudParams.w;
         }
-        void MarchVolume(float3 origin,float3 ray,float cs,float ce,float mu,inout float3 cloudScatter,inout float cloudTrans,inout float meanDistance,inout float weight)
+        // Interleaved gradient noise (Jimenez): a different offset for every pixel, with no visible pattern.
+        float InterleavedGradientNoise(float2 pixel)
+        {
+            return frac(52.9829189*frac(dot(pixel,float2(.06711056,.00583715))));
+        }
+        void MarchVolume(float3 origin,float3 ray,float cs,float ce,float mu,float jitter,inout float3 cloudScatter,inout float cloudTrans,inout float meanDistance,inout float weight)
         {
             float3 sunBF=mul((float3x3)_WorldToBody,_SunDirection);
             bool inside=length(origin)<_Radii.x+_CloudParams.y;
@@ -121,7 +126,7 @@ Shader "Hidden/TAP/PlanetAtmosphereCloud"
                 float a=s/steps,b=(s+1)/steps;
                 if(inside) { a*=a;b*=b; }
                 float step=(ce-cs)*(b-a);
-                float t=cs+(ce-cs)*lerp(a,b,_Jitter); float3 p=origin+ray*t;
+                float t=cs+(ce-cs)*lerp(a,b,jitter); float3 p=origin+ray*t;
                 float3 bf=mul((float3x3)_WorldToBody,p);
                 float type;
                 // Filter the noise to the (half-resolution) pixel, not the step: jitter and history hide the steps,
@@ -182,7 +187,10 @@ Shader "Hidden/TAP/PlanetAtmosphereCloud"
                 // March only the visible interval of the shell, never across the empty interior of the planet.
                 if(inner.y>0 && inner.x>cs) ce=min(ce,inner.x);
                 else if(inner.y>cs && length(origin)<_Radii.x+_CloudParams.x) cs=inner.y;
-                if(ce>cs) MarchVolume(origin,ray,cs,ce,dot(ray,_SunDirection),cloudScatter,cloudTrans,meanDistance,weight);
+                // A per-pixel offset (turning each frame) turns the step slices into fine noise that the temporal
+                // resolve averages away; one offset for the whole frame shifted every slice at once, which flickered.
+                float jitter=frac(InterleavedGradientNoise(floor(i.texcoord*_BufferSize.xy))+_Jitter);
+                if(ce>cs) MarchVolume(origin,ray,cs,ce,dot(ray,_SunDirection),jitter,cloudScatter,cloudTrans,meanDistance,weight);
                 cloudScatter*=_VolumeBlend; cloudTrans=lerp(1,cloudTrans,_VolumeBlend); weight*=_VolumeBlend; meanDistance*=_VolumeBlend;
                 // Aerial perspective to the cloud centroid; the remaining atmosphere stays behind it.
                 float fraction=weight>.001?saturate((meanDistance/weight-start)/max(1,end-start)):1;
@@ -195,27 +203,51 @@ Shader "Hidden/TAP/PlanetAtmosphereCloud"
             Buffers o;
             o.scatter=float4(scatter,distance/max(1,_Radii.x));
             o.extinction=float4(trans,min(limit/_Radii.x,10000));
-            o.frontScatter=float4(frontScatter,0);
+            // The volume's opacity travels in the front scatter's alpha: the resolve pass only works where there is cloud.
+            o.frontScatter=float4(frontScatter,weight);
             o.frontExtinction=float4(frontTrans,0);
-            // Reproject volumes in body-relative metres. History never stores scene-space origin coordinates.
-            if(_HistoryWeight>0 && weight>.01) {
-                float3 p=origin+ray*distance;
-                float4 prev=mul(_PreviousVP,float4(p-_PreviousCamera.xyz,1));
-                float2 uv=prev.xy/prev.w*.5+.5;
-                #if UNITY_UV_STARTS_AT_TOP
-                uv.y=1-uv.y;
-                #endif
-                if(prev.w>0 && all(uv>0) && all(uv<1)) {
-                    float4 hs=SAMPLE_TEXTURE2D_X_LOD(_HistoryScatter,sampler_LinearClamp,uv,0);
-                    float4 ht=SAMPLE_TEXTURE2D_X_LOD(_HistoryExtinction,sampler_LinearClamp,uv,0);
-                    float depthMatch=abs(ht.a-o.extinction.a)<max(.002,o.extinction.a*.01)?1:0;
-                    float cloudMatch=abs(hs.a-o.scatter.a)<.02?1:0;
-                    float w=_HistoryWeight*depthMatch*cloudMatch;
-                    o.scatter.rgb=lerp(o.scatter.rgb,clamp(hs.rgb,o.scatter.rgb*.7-.01,o.scatter.rgb*1.3+.01),w);
-                    o.extinction.rgb=lerp(o.extinction.rgb,clamp(ht.rgb,o.extinction.rgb-.08,o.extinction.rgb+.08),w);
-                    o.frontScatter=o.scatter; o.frontExtinction.rgb=o.extinction.rgb;
-                }
+            return o;
+        }
+
+        // ---------------------------------------------------------------- temporal resolve (half resolution)
+        // This frame's samples are jittered, so each pixel is noisy by design. The reprojected history is limited to the
+        // range of this frame's 3x3 neighbourhood (variance clipping) and blended in: a steady cloud converges to a smooth
+        // image, while history that no longer fits (a moved cloud, a new edge) is pulled in range instead of smearing.
+        Buffers Resolve(Varyings i)
+        {
+            float4 s=SAMPLE_TEXTURE2D_X_LOD(_Scatter,sampler_PointClamp,i.texcoord,0),t=SAMPLE_TEXTURE2D_X_LOD(_Extinction,sampler_PointClamp,i.texcoord,0);
+            float4 f=SAMPLE_TEXTURE2D_X_LOD(_FrontScatter,sampler_PointClamp,i.texcoord,0),ft=SAMPLE_TEXTURE2D_X_LOD(_FrontExtinction,sampler_PointClamp,i.texcoord,0);
+            Buffers o; o.scatter=s; o.extinction=t; o.frontScatter=f; o.frontExtinction=ft;
+            if(_HistoryWeight<=0 || f.a<=.01) return o;
+            // Reproject in body-relative metres. History never stores scene-space origin coordinates. A cloud belongs to
+            // the rotating body: take it back to where the body carried it a frame ago, or a camera sitting on the ground
+            // (moving with the surface at hundreds of m/s in this frame) would see every nearby cloud slide by a pixel.
+            float3 p=_CameraRelative+Ray(i.texcoord)*(s.a*_Radii.x);
+            p=mul((float3x3)_PreviousBodyToWorld,mul((float3x3)_WorldToBody,p));
+            float4 prev=mul(_PreviousVP,float4(p-_PreviousCamera.xyz,1));
+            float2 uv=prev.xy/prev.w*.5+.5;
+            #if UNITY_UV_STARTS_AT_TOP
+            uv.y=1-uv.y;
+            #endif
+            if(!(prev.w>0 && all(uv>0) && all(uv<1))) return o;
+            float4 hs=SAMPLE_TEXTURE2D_X_LOD(_HistoryScatter,sampler_LinearClamp,uv,0);
+            float4 ht=SAMPLE_TEXTURE2D_X_LOD(_HistoryExtinction,sampler_LinearClamp,uv,0);
+            float depthMatch=abs(ht.a-t.a)<max(.002,t.a*.01)?1:0;
+            float cloudMatch=abs(hs.a-s.a)<.02?1:0;
+            float w=_HistoryWeight*depthMatch*cloudMatch;
+            if(w<=0) return o;
+            float3 sm=0,sq=0,tm=0,tq=0;
+            [unroll] for(int y=-1;y<=1;y++) [unroll] for(int x=-1;x<=1;x++) {
+                float2 nuv=i.texcoord+float2(x,y)*_BufferSize.zw;
+                float3 ns=SAMPLE_TEXTURE2D_X_LOD(_Scatter,sampler_PointClamp,nuv,0).rgb;
+                float3 nt=SAMPLE_TEXTURE2D_X_LOD(_Extinction,sampler_PointClamp,nuv,0).rgb;
+                sm+=ns; sq+=ns*ns; tm+=nt; tq+=nt*nt;
             }
+            sm/=9; tm/=9;
+            float3 sd=sqrt(max(0,sq/9-sm*sm)),td=sqrt(max(0,tq/9-tm*tm));
+            o.scatter.rgb=lerp(s.rgb,clamp(hs.rgb,sm-sd*1.5,sm+sd*1.5),w);
+            o.extinction.rgb=lerp(t.rgb,clamp(ht.rgb,tm-td*1.5,tm+td*1.5),w);
+            o.frontScatter=float4(o.scatter.rgb,f.a); o.frontExtinction=float4(o.extinction.rgb,0);
             return o;
         }
 
@@ -281,12 +313,15 @@ Shader "Hidden/TAP/PlanetAtmosphereCloud"
         float4 Composite(Varyings i):SV_Target
         {
             float3 ray=Ray(i.texcoord); float limit=Distance(i.texcoord,ray); float distance=limit/_Radii.x;
-            float2 pixel=i.texcoord*_BufferSize.xy-.5,base=floor(pixel),f=frac(pixel);
+            // A soft 3x3 filter instead of bilinear: the half-resolution cloud samples are noisy at the edges and a 2x2
+            // blend shows their lattice as lines. Taps on other scene depths (ground, the pad) are still left out.
+            float2 pixel=i.texcoord*_BufferSize.xy-.5,center=floor(pixel+.5);
             float3 scattering=0,trans=0,frontS=0,frontT=0; float sum=0;
-            [unroll] for(int y=0;y<2;y++) [unroll] for(int x=0;x<2;x++) {
-                float2 uv=(base+float2(x,y)+.5)*_BufferSize.zw;
+            [unroll] for(int y=-1;y<=1;y++) [unroll] for(int x=-1;x<=1;x++) {
+                float2 tap=center+float2(x,y),d=tap-pixel;
+                float2 uv=(tap+.5)*_BufferSize.zw;
                 float4 s=SAMPLE_TEXTURE2D_X_LOD(_Scatter,sampler_PointClamp,uv,0),t=SAMPLE_TEXTURE2D_X_LOD(_Extinction,sampler_PointClamp,uv,0);
-                float w=(x==0?1-f.x:f.x)*(y==0?1-f.y:f.y)/(1+abs(t.a-distance)*500);
+                float w=exp(-.9*dot(d,d))/(1+abs(t.a-distance)*500);
                 scattering+=s.rgb*w;trans+=t.rgb*w;sum+=w;
                 frontS+=SAMPLE_TEXTURE2D_X_LOD(_FrontScatter,sampler_PointClamp,uv,0).rgb*w;
                 frontT+=SAMPLE_TEXTURE2D_X_LOD(_FrontExtinction,sampler_PointClamp,uv,0).rgb*w;
@@ -316,6 +351,14 @@ Shader "Hidden/TAP/PlanetAtmosphereCloud"
             HLSLPROGRAM
             #pragma vertex Vert
             #pragma fragment Integrate
+            ENDHLSL
+        }
+        Pass
+        {
+            Name "Temporal resolve"
+            HLSLPROGRAM
+            #pragma vertex Vert
+            #pragma fragment Resolve
             ENDHLSL
         }
         Pass
