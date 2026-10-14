@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{e656543a-b071-4ddb-8d94-3f1c7eb3ba0e}">
+		<property name="assetPath">
+			<value>Undock_Release_01.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>48</value>
+		</property>
+		<property name="channelCount">
+			<value>1</value>
+		</property>
+		<property name="length">
+			<value>0.69999999999999996</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{390f63a2-a9df-4c84-9359-4a810feb21dd}</destination>
+		</relationship>
+	</object>
+</objects>

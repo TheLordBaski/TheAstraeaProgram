@@ -4,6 +4,8 @@ Original musical composition for The Astraea Program; a first direction to audit
 Rendered with the installed **Vital**, **Valhalla Supermassive** and **BBC Symphony Orchestra Discover** instruments.
 Effects are processed and layered recordings from the owner's local Sonniss GDC collections; source credits are in `sources.json`.
 
+See [the expanded audio collection](../README.md) for Far Horizon, Night Drift and the added flight foley.
+
 ## Listen
 
 Start with **FirstLight_Audition.wav**: a 2:40 continuous musical flight, with two-bar blends between phases.
@@ -81,9 +83,9 @@ briefly duck the music; running engines duck it more gently. A master limiter ha
 replace a listening and loudness pass. Physical effects pause with the simulation and mute during rails warp; music
 keeps real-time tempo. Scene teardown stops loops and outstanding vessel effects.
 
-This is the first flight slice. Non-flight scenes, EVA-specific foley, separate samples per engine family, docking,
-leg and UI effects are still outside this pack. Most of the music is one suite with different arrangements, so more
-long-form material and quiet intervals are needed for a finished soundtrack.
+This is the original flight pack. The [expansion](../README.md) adds two more scores, docking, leg and EVA foley.
+Non-flight scenes, UI sounds and separate engine-family recordings remain outside the current integration.
+Additional long-form material and quiet intervals are still needed for a finished soundtrack.
 
 ## Edit and rebuild
 

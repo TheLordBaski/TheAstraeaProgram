@@ -4,11 +4,11 @@ Python 3.12; pip install pedalboard==0.9.26 mido scipy soundfile pyloudnorm
 Run: python tools/audio/render_flight_audio.py [music|sfx|verify|all]
 """
 from pathlib import Path
+import argparse
 import hashlib
 import json
 import math
 import struct
-import sys
 import xml.etree.ElementTree as ET
 
 import mido
@@ -151,7 +151,50 @@ def write_audio(relative, audio, loop=False):
                         "loop": loop, "frames": audio.shape[1]}
 
 
-def music():
+def alternative_score(suite):
+    # Separate harmony, phrasing and rhythmic density, while retaining the shared seven-layer contract.
+    chords = {
+        "FarHorizon": [(50, 57, 62, 66, 69), (45, 52, 59, 64, 69),
+                       (49, 56, 59, 64, 68), (42, 54, 57, 61, 68),
+                       (43, 55, 59, 62, 66), (40, 52, 55, 59, 66),
+                       (50, 57, 62, 64, 69), (45, 57, 59, 64, 66)],
+        "NightDrift": [(50, 57, 60, 64, 65), (46, 53, 57, 60, 65),
+                       (41, 53, 57, 60, 67), (48, 55, 60, 62, 67),
+                       (43, 50, 57, 58, 62), (45, 57, 60, 62, 65),
+                       (46, 53, 55, 60, 65), (45, 52, 57, 62, 64)]
+    }[suite]
+    notes = {name: [] for name in STEMS}
+    night = suite == "NightDrift"
+    for c, chord in enumerate(chords):
+        start = c * 16
+        for pitch in chord[1:]:
+            notes["Pad"].append((start, 15.7, pitch, 38 if night else 46))
+        for pitch in chord[2:4]:
+            notes["Strings"].append((start + .15, 11.5 if night else 15.2, pitch + 12, 42 if night else 53))
+        notes["Cello"].append((start, 15 if night else 7.5, chord[0], 46))
+        if not night:
+            notes["Cello"].append((start + 8, 7.4, chord[1] - 12, 50))
+        # A question and answer, with room between phrases rather than continuous ostinato.
+        phrase = [(2, chord[2], 5.5), (10, chord[3], 3.2)] if night else [
+            (0, chord[2], 2.7), (3, chord[3], 2.7), (7, chord[4], 4.5), (13, chord[3], 2.4)]
+        if not night or c % 2 == 1:
+            for offset, pitch, duration in phrase:
+                notes["Horns"].append((start + offset, duration, pitch, 45 if night else 57))
+        bells = [(3.5, chord[3] + 24, 3), (12, chord[2] + 24, 2)] if night else [
+            (.5, chord[4] + 12, 1.8), (4.5, chord[2] + 24, 2), (9, chord[3] + 24, 2.5)]
+        for offset, pitch, duration in bells:
+            notes["Celeste"].append((start + offset, duration, pitch, 38 if night else 49))
+        offsets = [0, 3, 8, 11] if night else [0, 1.5, 3, 4, 5.5, 7, 8, 9.5, 11, 12, 13.5, 15]
+        for i, offset in enumerate(offsets):
+            notes["Pizzicato"].append((start + offset, .42, chord[1 + (i % 4)] + 12, 40 if night else 52 + i % 3 * 4))
+    assert all(notes[name] for name in STEMS if name != "Pulse")
+    assert all(0 <= beat < BARS * 4 and 0 < duration and beat + duration <= BARS * 4
+               and 0 <= pitch <= 127 and 0 < velocity <= 127
+               for track in notes.values() for beat, duration, pitch, velocity in track)
+    return notes
+
+
+def music(suite="FirstLight"):
     for folder in ["MIDI", "Presets", "Stems", "Music"]:
         (OUT / folder).mkdir(parents=True, exist_ok=True)
     notes = {name: [] for name in STEMS}
@@ -172,6 +215,8 @@ def music():
         for step in range(32):
             pitch = chord[1 + [0, 2, 1, 3, 2, 1, 3, 1][step % 8]] + 12
             notes["Pizzicato"].append((start + step * 0.5 + (0.018 if step % 2 else 0), 0.30, pitch, 49 + step % 4 * 5))
+    if suite != "FirstLight":
+        notes = alternative_score(suite)
     presets = {
         "Strings": ("BBCSO_Discover_Strings_Violins_1", "Long"),
         "Cello": ("BBCSO_Discover_Strings_Celli", "Long"),
@@ -179,12 +224,17 @@ def music():
         "Celeste": ("BBCSO_Discover_Percussion_Harp_and_Celeste", "Celeste"),
         "Pizzicato": ("BBCSO_Discover_Strings_Violins_1", "Pizzicato"),
     }
+    if suite == "FarHorizon":
+        presets["Horns"] = ("BBCSO_Discover_Woodwinds_Oboes_a3", "Long")
+    elif suite == "NightDrift":
+        presets["Strings"] = ("BBCSO_Discover_Strings_Violas", "Long")
     gains = [0.15, 0.14, 0.13, 0.15, 0.09, 0.11, 0.09]
     for index, name in enumerate(STEMS):
         print("Rendering", name, flush=True)
         if name == "Pulse":
             x = np.zeros((2, FRAMES), dtype=np.float32)
-            for beat in range(BARS * 4):
+            pulse_beats = range(BARS * 4) if suite == "FirstLight" else range(0, BARS * 4, 4 if suite == "NightDrift" else 2)
+            for beat in pulse_beats:
                 t = np.arange(round(SR * 0.7)) / SR
                 hit = (np.sin(2 * np.pi * (48 * t + 7 * (1 - np.exp(-12 * t)))) * np.exp(-8 * t)
                        + RNG.normal(0, .06, len(t)) * np.exp(-35 * t))
@@ -237,7 +287,7 @@ def music():
         REPORT["Music/" + name + ".wav"]["lufs_i"] = round(meter.integrated_loudness(mix.T), 2)
     (OUT / "music.json").write_text(json.dumps({"bpm": BPM, "bars": BARS, "beats_per_bar": 4,
         "frames": FRAMES, "sample_rate": SR, "master_gain": gain, "stems": STEMS,
-        "phase_gains": PHASES}, indent=2) + "\n")
+        "phase_gains": PHASES, "suite": suite}, indent=2) + "\n")
     audition(mixes)
     reaper_project()
 
@@ -257,7 +307,7 @@ def audition(mixes):
             demo[:, start:start + fade] = old * (1 - blend) + demo[:, start:start + fade] * blend
     demo[:, :SR * 2] *= np.linspace(0, 1, SR * 2)
     demo[:, -SR * 5:] *= np.linspace(1, 0, SR * 5)
-    write_audio("FirstLight_Audition.wav", demo)
+    write_audio(OUT.name + "_Audition.wav", demo)
 
 
 def circular_splice(x, seconds):
@@ -357,7 +407,7 @@ def reaper_project():
                   '    <ITEM', '      POSITION 0', f'      LENGTH {LENGTH}', f'      NAME "{name}.wav"',
                   '      <SOURCE WAVE', f'        FILE "Stems/{name}.wav"', '      >', '    >', '  >']
     lines += ['>']
-    (OUT / "FirstLight_Stems.rpp").write_text("\n".join(lines) + "\n")
+    (OUT / (OUT.name + "_Stems.rpp")).write_text("\n".join(lines) + "\n")
 
 
 def verify():
@@ -374,20 +424,28 @@ def verify():
             assert len(x) == FRAMES and x.shape[1] == 2, path
         results[str(path.relative_to(OUT))] = {"frames": len(x), "peak": round(peak, 5),
             "sha256": hashlib.sha256(path.read_bytes()).hexdigest(), "loop": is_loop}
-    assert len(results) == 28, len(results)
+    sfx_count = len(list((OUT / "SFX").glob("*.wav")))
+    assert len(results) == (28 if OUT.name == "FirstLight" else 14), len(results)
     assert {p.stem for p in (OUT / "Stems").glob("*.wav")} == set(STEMS)
     assert {p.stem for p in (OUT / "Music").glob("*.wav")} == set(PHASES)
-    assert len(list((OUT / "SFX").glob("*.wav"))) == 13
+    assert sfx_count == (13 if OUT.name == "FirstLight" else 0)
     (OUT / "verification.json").write_text(json.dumps(results, indent=2) + "\n")
     print("Verified", len(results), "WAV files: format, signal, headroom, loop boundaries and matching stem lengths.", flush=True)
 
 
 if __name__ == "__main__":
-    action = sys.argv[1] if len(sys.argv) > 1 else "all"
-    assert action in ("music", "sfx", "verify", "all")
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("action", nargs="?", default="all", choices=("music", "sfx", "verify", "all"))
+    parser.add_argument("--suite", choices=("FirstLight", "FarHorizon", "NightDrift"), default="FirstLight")
+    args = parser.parse_args()
+    action = args.action
+    if args.suite != "FirstLight" and action not in ("music", "verify"):
+        parser.error("Alternative suites support music and verify; shared SFX stay in FirstLight.")
+    OUT = ROOT / "Art/Audio" / args.suite
+    RNG = np.random.default_rng({"FirstLight": 141026, "FarHorizon": 141027, "NightDrift": 141028}[args.suite])
     OUT.mkdir(parents=True, exist_ok=True)
     if action in ("all", "music"):
-        music()
+        music(args.suite)
     if action in ("all", "sfx"):
         sfx()
     if REPORT:

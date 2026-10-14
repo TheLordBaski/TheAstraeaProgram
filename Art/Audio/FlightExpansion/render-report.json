@@ -1,0 +1,114 @@
+{
+  "SFX/Dock_Latch_01.wav": {
+    "seconds": 0.9,
+    "channels": 1,
+    "peak_dbfs": -5.51,
+    "loop": false,
+    "frames": 43200
+  },
+  "SFX/Undock_Release_01.wav": {
+    "seconds": 0.7,
+    "channels": 1,
+    "peak_dbfs": -5.51,
+    "loop": false,
+    "frames": 33600
+  },
+  "SFX/Leg_Servo_01.wav": {
+    "seconds": 1.6,
+    "channels": 1,
+    "peak_dbfs": -7.33,
+    "loop": false,
+    "frames": 76800
+  },
+  "SFX/Dock_Latch_02.wav": {
+    "seconds": 0.9,
+    "channels": 1,
+    "peak_dbfs": -5.51,
+    "loop": false,
+    "frames": 43200
+  },
+  "SFX/Undock_Release_02.wav": {
+    "seconds": 0.7,
+    "channels": 1,
+    "peak_dbfs": -5.51,
+    "loop": false,
+    "frames": 33600
+  },
+  "SFX/Leg_Servo_02.wav": {
+    "seconds": 1.6,
+    "channels": 1,
+    "peak_dbfs": -7.33,
+    "loop": false,
+    "frames": 76800
+  },
+  "SFX/Hatch_Open.wav": {
+    "seconds": 1.0,
+    "channels": 1,
+    "peak_dbfs": -5.51,
+    "loop": false,
+    "frames": 48000
+  },
+  "SFX/Hatch_Close.wav": {
+    "seconds": 1.0,
+    "channels": 1,
+    "peak_dbfs": -5.51,
+    "loop": false,
+    "frames": 48000
+  },
+  "SFX/Step_Metal_01.wav": {
+    "seconds": 0.45,
+    "channels": 1,
+    "peak_dbfs": -8.4,
+    "loop": false,
+    "frames": 21600
+  },
+  "SFX/Step_Metal_02.wav": {
+    "seconds": 0.45,
+    "channels": 1,
+    "peak_dbfs": -8.4,
+    "loop": false,
+    "frames": 21600
+  },
+  "SFX/Step_Metal_03.wav": {
+    "seconds": 0.45,
+    "channels": 1,
+    "peak_dbfs": -8.4,
+    "loop": false,
+    "frames": 21600
+  },
+  "SFX/Step_Surface_01.wav": {
+    "seconds": 0.45,
+    "channels": 1,
+    "peak_dbfs": -8.4,
+    "loop": false,
+    "frames": 21600
+  },
+  "SFX/Step_Surface_02.wav": {
+    "seconds": 0.45,
+    "channels": 1,
+    "peak_dbfs": -8.4,
+    "loop": false,
+    "frames": 21600
+  },
+  "SFX/Step_Surface_03.wav": {
+    "seconds": 0.45,
+    "channels": 1,
+    "peak_dbfs": -8.4,
+    "loop": false,
+    "frames": 21600
+  },
+  "SFX/Jetpack_Loop.wav": {
+    "seconds": 4.0,
+    "channels": 1,
+    "peak_dbfs": -8.4,
+    "loop": true,
+    "frames": 192000
+  },
+  "SFX_Expansion_Audition.wav": {
+    "seconds": 22.6,
+    "channels": 2,
+    "peak_dbfs": -8.61,
+    "loop": false,
+    "frames": 1084800
+  }
+}

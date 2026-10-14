@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{4b9d9a60-98d7-426c-a109-0da483eca70a}">
+		<property name="assetPath">
+			<value>Dock_Latch_02.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>48</value>
+		</property>
+		<property name="channelCount">
+			<value>1</value>
+		</property>
+		<property name="length">
+			<value>0.90000000000000002</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{390f63a2-a9df-4c84-9359-4a810feb21dd}</destination>
+		</relationship>
+	</object>
+</objects>

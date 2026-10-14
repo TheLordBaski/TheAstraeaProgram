@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using FMOD.Studio;
 using FMODUnity;
 using TAP.Core;
@@ -13,6 +14,8 @@ namespace TAP.Game
     /// <summary>One shared musical clock and the active vessel's flight sounds.</summary>
     public sealed class FlightAudio : MonoBehaviour
     {
+        private static readonly string[] MusicEvents = { "event:/Music/Flight", "event:/Music/FarHorizon", "event:/Music/NightDrift" };
+        private static int _nextMusic = (Environment.TickCount & int.MaxValue) % MusicEvents.Length;
         private static readonly string[] Layers = { "Pad", "Strings", "Cello", "Horns", "Celeste", "Pizzicato", "Pulse" };
         private static readonly float[][] Gains = {
             new[] { .20f, .06f, .04f, 0f, .12f, 0f, 0f },
@@ -25,7 +28,7 @@ namespace TAP.Game
         };
         private const float BarSeconds = 4f * 60f / 72f;
         private FlightSceneController _scene;
-        private EventInstance _music, _engine, _wind, _reentry;
+        private EventInstance _music, _engine, _wind, _reentry, _jetpack;
         private Bus _masterBus, _musicBus, _effectsBus;
         private Vessel _vessel;
         private FlightAudioPhase _phase, _candidate;
@@ -33,6 +36,10 @@ namespace TAP.Game
         private readonly float[] _blendFrom = new float[7];
         private float _candidateSince, _blendStart, _duckUntil, _lastRcs = -10, _lastImpact = -10, _lastExplosion = -10;
         private bool _ready, _running, _chuteOpen, _contact;
+        private readonly Dictionary<LandingLegModule, bool> _legs = new Dictionary<LandingLegModule, bool>();
+        private readonly Dictionary<DockingPortModule, DockingPortModule.PortState> _ports = new Dictionary<DockingPortModule, DockingPortModule.PortState>();
+        private float _lastMechanism = -10, _lastStep = -10;
+        private int _stepVariant;
 
         public static void Create(FlightSceneController scene)
         {
@@ -48,15 +55,17 @@ namespace TAP.Game
                 _masterBus = RuntimeManager.GetBus("bus:/");
                 _musicBus = RuntimeManager.GetBus("bus:/Music");
                 _effectsBus = RuntimeManager.GetBus("bus:/Effects");
-                _music = RuntimeManager.CreateInstance("event:/Music/Flight");
+                _music = RuntimeManager.CreateInstance(MusicEvents[_nextMusic]);
+                _nextMusic = (_nextMusic + 1) % MusicEvents.Length;
                 _engine = RuntimeManager.CreateInstance("event:/Vessel/Engine");
                 _wind = RuntimeManager.CreateInstance("event:/Vessel/Wind");
                 _reentry = RuntimeManager.CreateInstance("event:/Vessel/Reentry");
-                _engine.setVolume(0); _wind.setVolume(0); _reentry.setVolume(0);
+                _jetpack = RuntimeManager.CreateInstance("event:/Vessel/Jetpack_Loop");
+                _engine.setVolume(0); _wind.setVolume(0); _reentry.setVolume(0); _jetpack.setVolume(0);
                 _phase = _candidate = FlightAudioPhase.Standby;
                 Array.Copy(Gains[(int)_phase], _gains, 7);
                 for (int i = 0; i < 7; i++) _music.setParameterByName(Layers[i], _gains[i]);
-                _music.start(); _engine.start(); _wind.start(); _reentry.start();
+                _music.start(); _engine.start(); _wind.start(); _reentry.start(); _jetpack.start();
                 GameEvents.Raised += OnEvent;
                 _scene.Notification += OnNotification;
                 _ready = true;
@@ -99,6 +108,9 @@ namespace TAP.Game
             double thrust = 0, rated = 0, heat = 0;
             float rcs = 0;
             bool chute = false;
+            EvaModule eva = null;
+            bool changedVessel = _vessel != v;
+            if (changedVessel) { _legs.Clear(); _ports.Clear(); }
             foreach (var part in v.Parts)
             {
                 var engine = part.GetModule<EngineModule>();
@@ -112,6 +124,22 @@ namespace TAP.Game
                     foreach (float value in jets.NozzleThrottle) rcs = Mathf.Max(rcs, value);
                 var parachute = part.GetModule<ParachuteModule>();
                 chute |= parachute != null && parachute.IsOpen;
+                eva = part.GetModule<EvaModule>() ?? eva;
+                var leg = part.GetModule<LandingLegModule>();
+                if (leg != null)
+                {
+                    if (!leg.Broken && _legs.TryGetValue(leg, out bool deployed) && deployed != leg.Deployed)
+                        Mechanism("Leg_Servo_0" + UnityEngine.Random.Range(1, 3));
+                    _legs[leg] = leg.Deployed;
+                }
+                var port = part.GetModule<DockingPortModule>();
+                if (port != null)
+                {
+                    if (_ports.TryGetValue(port, out var state) && state == DockingPortModule.PortState.Docked
+                        && port.State == DockingPortModule.PortState.Cooldown)
+                        Mechanism("Undock_Release_0" + UnityEngine.Random.Range(1, 3));
+                    _ports[port] = port.State;
+                }
                 double area = Math.Max(1, Math.PI * part.Def.diameter * part.Def.height);
                 heat = Math.Max(heat, part.HeatFlux / area);
             }
@@ -122,7 +150,6 @@ namespace TAP.Game
             double atmosphereHeight = v.MainBody.Atmosphere?.Height ?? 1;
             var next = SelectPhase(v.Situation, v.InAtmosphere, (float)(v.Altitude / atmosphereHeight),
                 v.AltitudeAGL, v.VerticalSpeed, heating, v.MainBody.IsStar, _phase);
-            bool changedVessel = _vessel != v;
             if (changedVessel)
             {
                 _vessel = v;
@@ -140,7 +167,18 @@ namespace TAP.Game
             _engine.setVolume(1f / (1f + distance / 100f));
             _wind.setVolume(sim.Warp.OnRails ? 0 : Mathf.Clamp01((float)(v.DynamicPressure / 40000)) * .55f);
             _reentry.setVolume(sim.Warp.OnRails ? 0 : heating * .8f);
+            float jet = eva != null && eva.JetpackOn && eva.Propellant > 0
+                ? Mathf.Clamp01(new Vector3(eva.MoveInput.x, eva.MoveInput.y, eva.VerticalInput).magnitude) : 0;
+            _jetpack.setVolume(sim.Warp.OnRails ? 0 : jet * .5f);
             if (sim.Warp.OnRails) return;
+
+            if (eva != null && eva.Grounded && !eva.JetpackOn && eva.MoveInput.sqrMagnitude > .02f
+                && v.SurfaceSpeed > .15 && Time.unscaledTime - _lastStep > (eva.RunInput ? .32f : .55f))
+            {
+                _stepVariant = (_stepVariant + 1) % 3;
+                Shot("Step_" + (eva.OnTerrain ? "Surface" : "Metal") + "_0" + (_stepVariant + 1), .65f);
+                _lastStep = Time.unscaledTime;
+            }
 
             if (!changedVessel)
             {
@@ -191,28 +229,41 @@ namespace TAP.Game
             if (important) _duckUntil = Time.unscaledTime + 2.5f;
         }
 
+        private void Mechanism(string name)
+        {
+            if (_scene.Sim.Paused || _scene.Sim.Warp.OnRails || Time.unscaledTime - _lastMechanism < .25f) return;
+            Shot(name, .7f);
+            _lastMechanism = Time.unscaledTime;
+        }
+
         private void OnEvent(GameEvent e)
         {
             if (!_ready || _scene.Sim == null || _scene.Sim.Paused || _scene.Sim.Warp.OnRails) return;
             string activeId = _scene.Sim.ActiveVessel?.Id ?? _vessel?.Id;
             if (e.VesselId != activeId || _vessel == null) return;
+            if (e.Kind == GameEventKind.Docked) Shot("Dock_Latch_0" + UnityEngine.Random.Range(1, 3), .85f);
+            if (e.Kind == GameEventKind.EvaStarted) Shot("Hatch_Open", .7f);
+            if (e.Kind == GameEventKind.EvaEnded) Shot("Hatch_Close", .7f);
             if (e.Kind == GameEventKind.Staged)
             {
                 Shot("Stage0" + UnityEngine.Random.Range(1, 4), 1);
                 _duckUntil = Time.unscaledTime + 2;
+                _legs.Clear(); _ports.Clear();
             }
             else if (e.Kind == GameEventKind.PartDestroyed && Time.unscaledTime - _lastExplosion > .15f)
             {
                 Shot("Explosion", 1);
                 _lastExplosion = Time.unscaledTime;
                 _duckUntil = Time.unscaledTime + 2;
+                _legs.Clear(); _ports.Clear();
             }
         }
 
         private void Shot(string name, float volume)
         {
             var instance = RuntimeManager.CreateInstance("event:/Vessel/" + name);
-            instance.set3DAttributes(RuntimeUtils.To3DAttributes(_vessel.transform.position));
+            var source = _scene.Sim.ActiveVessel ?? _vessel;
+            instance.set3DAttributes(RuntimeUtils.To3DAttributes(source.transform.position));
             instance.setVolume(volume);
             instance.start();
             instance.release();
@@ -222,7 +273,7 @@ namespace TAP.Game
         {
             GameEvents.Raised -= OnEvent;
             if (_scene != null) _scene.Notification -= OnNotification;
-            foreach (var instance in new[] { _music, _engine, _wind, _reentry })
+            foreach (var instance in new[] { _music, _engine, _wind, _reentry, _jetpack })
             {
                 if (!instance.isValid()) continue;
                 instance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
