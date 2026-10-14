@@ -89,10 +89,12 @@ python tools/audio/render_flight_audio.py music --suite Starward
 python tools/audio/verify_music_catalogue.py
 ```
 
-The raw score stems are intentionally quiet. FMOD's `FarHorizon_*` and `NightDrift_*` working WAVs include
-the corresponding `music.json` master_gain; the first score applies its gain in its FMOD event instead.
-After re-rendering a score, multiply each source stem by that gain when replacing its named FMOD working copy.
-SFX working copies are direct copies. Rebuild the Desktop banks after replacing sources.
+The raw score stems are intentionally quiet. Every alternative score's named FMOD working WAVs include
+its `music.json` master_gain; the first score applies its gain in the FMOD event instead. The renderer writes
+calibrated working copies for all nine alternatives automatically. SFX working copies are direct copies.
+Rebuild the Desktop banks after replacing sources. For a part edit, `music --suite AmberSkies --layer Horns`
+re-renders only that layer, then recalculates the phase mixes, preview, gain and calibrated working copies.
+The oboe leads stay within the installed instrument's sampled range; its notes below MIDI 58 are silent.
 The seven additional compositions are defined in `tools/audio/flight_scores.py`; their renderer also writes
 calibrated FMOD working copies. After all sources exist, `tools/audio/extend_fmod.js` adds missing events and
 builds banks. It preserves existing authored events. Normal mixing changes only need a Desktop bank build.

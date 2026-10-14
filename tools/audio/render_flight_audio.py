@@ -190,6 +190,9 @@ def alternative_score(suite):
         offsets = [0, 3, 8, 11] if night else [0, 1.5, 3, 4, 5.5, 7, 8, 9.5, 11, 12, 13.5, 15]
         for i, offset in enumerate(offsets):
             notes["Pizzicato"].append((start + offset, .42, chord[1 + (i % 4)] + 12, 40 if night else 52 + i % 3 * 4))
+    if suite == "FarHorizon":
+        notes["Horns"] = [(beat, duration, pitch + 12, velocity) for beat, duration, pitch, velocity in notes["Horns"]]
+        assert all(58 <= pitch <= 91 for _, _, pitch, _ in notes["Horns"]), "Oboe sample range"
     assert all(notes[name] for name in STEMS if name != "Pulse")
     assert all(0 <= beat < BARS * 4 and 0 < duration and beat + duration <= BARS * 4
                and 0 <= pitch <= 127 and 0 < velocity <= 127
@@ -197,7 +200,7 @@ def alternative_score(suite):
     return notes
 
 
-def music(suite="FirstLight"):
+def music(suite="FirstLight", layer=None):
     for folder in ["MIDI", "Presets", "Stems", "Music"]:
         (OUT / folder).mkdir(parents=True, exist_ok=True)
     notes = {name: [] for name in STEMS}
@@ -240,6 +243,9 @@ def music(suite="FirstLight"):
         presets["Celeste"] = ("BBCSO_Discover_Percussion_Harp_and_Celeste", "Harp")
     gains = [0.15, 0.14, 0.13, 0.15, 0.09, 0.11, 0.09]
     for index, name in enumerate(STEMS):
+        if layer is not None and name != layer:
+            assert (OUT / "Stems" / (name + ".wav")).exists(), "Render the complete score before editing one layer."
+            continue
         print("Rendering", name, flush=True)
         if name == "Pulse":
             x = np.zeros((2, FRAMES), dtype=np.float32)
@@ -301,8 +307,8 @@ def music(suite="FirstLight"):
         "frames": FRAMES, "sample_rate": SR, "master_gain": gain, "stems": STEMS,
         "phase_gains": PHASES, "suite": suite}, indent=2) + "\n")
     audition(mixes)
-    reaper_project(gain if config else .8)
-    if config:
+    reaper_project(gain if suite != "FirstLight" else .8)
+    if suite != "FirstLight":
         # FMOD working copies include the measured gain, as in the earlier alternative scores.
         for name, stem in zip(STEMS, stems):
             calibrated = stem * gain
@@ -455,8 +461,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", nargs="?", default="all", choices=("music", "sfx", "verify", "all"))
     parser.add_argument("--suite", choices=("FirstLight", "FarHorizon", "NightDrift", *SCORES), default="FirstLight")
+    parser.add_argument("--layer", choices=STEMS, help="Re-render one layer of an existing score and rebuild its mixes.")
     args = parser.parse_args()
     action = args.action
+    if args.layer and action != "music":
+        parser.error("--layer is available with music only.")
     if args.suite != "FirstLight" and action not in ("music", "verify"):
         parser.error("Alternative suites support music and verify; shared SFX stay in FirstLight.")
     OUT = ROOT / "Art/Audio" / args.suite
@@ -464,7 +473,7 @@ if __name__ == "__main__":
     RNG = np.random.default_rng(141026 + suite_names.index(args.suite))
     OUT.mkdir(parents=True, exist_ok=True)
     if action in ("all", "music"):
-        music(args.suite)
+        music(args.suite, args.layer)
     if action in ("all", "sfx"):
         sfx()
     if REPORT:

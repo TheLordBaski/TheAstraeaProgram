@@ -51,7 +51,7 @@
   "Music/01_Launch.wav": {
     "seconds": 106.666667,
     "channels": 2,
-    "peak_dbfs": -5.02,
+    "peak_dbfs": -5.16,
     "loop": true,
     "frames": 5120000,
     "lufs_i": -18.0
@@ -59,47 +59,47 @@
   "Music/02_HighAtmosphere.wav": {
     "seconds": 106.666667,
     "channels": 2,
-    "peak_dbfs": -7.36,
+    "peak_dbfs": -7.98,
     "loop": true,
     "frames": 5120000,
-    "lufs_i": -19.19
+    "lufs_i": -19.6
   },
   "Music/03_Orbit.wav": {
     "seconds": 106.666667,
     "channels": 2,
-    "peak_dbfs": -7.73,
+    "peak_dbfs": -8.25,
     "loop": true,
     "frames": 5120000,
-    "lufs_i": -20.3
+    "lufs_i": -20.82
   },
   "Music/04_Transit.wav": {
     "seconds": 106.666667,
     "channels": 2,
-    "peak_dbfs": -10.51,
+    "peak_dbfs": -11.03,
     "loop": true,
     "frames": 5120000,
-    "lufs_i": -22.23
+    "lufs_i": -22.75
   },
   "Music/05_Touchdown.wav": {
     "seconds": 106.666667,
     "channels": 2,
-    "peak_dbfs": -8.79,
+    "peak_dbfs": -8.71,
     "loop": true,
     "frames": 5120000,
-    "lufs_i": -20.46
+    "lufs_i": -20.79
   },
   "Music/06_Reentry.wav": {
     "seconds": 106.666667,
     "channels": 2,
-    "peak_dbfs": -7.78,
+    "peak_dbfs": -8.52,
     "loop": true,
     "frames": 5120000,
-    "lufs_i": -22.13
+    "lufs_i": -22.54
   },
   "AmberSkies_Audition.wav": {
     "seconds": 160.0,
     "channels": 2,
-    "peak_dbfs": -5.86,
+    "peak_dbfs": -6.63,
     "loop": false,
     "frames": 7680000
   }

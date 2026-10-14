@@ -49,7 +49,7 @@ SCORES = {
         "bells": [(0,2,2), (4,3,2), (8.5,4,2.5), (13.5,3,1.8)], "bell_octave": 12, "harp": True,
         "rhythm": [0,2,3.5,6,8,10,11.5,14], "pattern": [0,3,1,2],
         "bass": [(0,11.5,0), (12,3.5,7)], "pulse": [0,4.5],
-        "lead": "Woodwinds_Oboes_a3", "pad_cutoff": .43,
+        "lead": "Woodwinds_Oboes_a3", "lead_octave": 12, "pad_cutoff": .43,
     },
     "ClockworkVoyage": {
         "title": "Clockwork Voyage", "description": "Interlocking pizzicato in groups of three, clarinet fragments and a quiet mechanical pulse.",
@@ -99,4 +99,6 @@ def compose(name):
     assert all(0 <= beat < 128 and 0 < duration and beat + duration <= 128
                and 0 <= pitch <= 127 and 0 < velocity <= 127
                for track in notes.values() for beat, duration, pitch, velocity in track), name
+    if config.get("lead") == "Woodwinds_Oboes_a3":
+        assert all(58 <= pitch <= 91 for _, _, pitch, _ in notes["Horns"]), "Oboe sample range"
     return notes

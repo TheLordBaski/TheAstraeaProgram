@@ -1,44 +1,44 @@
 {
   "FarHorizon_Audition.wav": {
     "frames": 7680000,
-    "peak": 0.54691,
-    "sha256": "2080e27a164b1e7daf36acaaa0924a254b0fa1b4bdcd0f15d6247731ab957026",
+    "peak": 0.46791,
+    "sha256": "523c2c07b84d68dd7070b298760e6837e76a2e86ea9c0a4c8860bb4e227dda8e",
     "loop": false
   },
   "Music\\01_Launch.wav": {
     "frames": 5120000,
-    "peak": 0.54691,
-    "sha256": "67c028fa7fb391c1ab57b2ac7681ec32984d57d33ead13c3c50c2d3e2403b1e4",
+    "peak": 0.52956,
+    "sha256": "a3571043f8c12c0c8da5bc621af9e6ba4c657c805346cb3c47c16b02fa7e37b9",
     "loop": true
   },
   "Music\\02_HighAtmosphere.wav": {
     "frames": 5120000,
-    "peak": 0.38291,
-    "sha256": "beaa4a14ed73d93dabe5dea3a4f24e723284a251dfcad605ca9438b281a18f5e",
+    "peak": 0.38563,
+    "sha256": "5048c4b8a1435e64ddff0d178c3836d3ede2f1665ef965e5f9f6137562a3d58d",
     "loop": true
   },
   "Music\\03_Orbit.wav": {
     "frames": 5120000,
-    "peak": 0.35862,
-    "sha256": "73aafd69301566362c287c23ddea1f46e7ff29c2e0d510178bfa445dceeeaa3b",
+    "peak": 0.32852,
+    "sha256": "5307002bbf8c4f48e9ed116dd6ed924d66cf05655ea99a1b6b0cccb9c77b4150",
     "loop": true
   },
   "Music\\04_Transit.wav": {
     "frames": 5120000,
-    "peak": 0.27814,
-    "sha256": "d6d3ce16148c886217c59d782b58c29d93b057b62fcb3c0d330254293b4b6d53",
+    "peak": 0.25479,
+    "sha256": "6168de6ebb2d90e66a45308e4e26122be95593ee35cf0aebd9475495c75ab38d",
     "loop": true
   },
   "Music\\05_Touchdown.wav": {
     "frames": 5120000,
-    "peak": 0.3741,
-    "sha256": "30b888b91c344dd986530a5e39f964672635ff99e9f7f37da221723b7eb35111",
+    "peak": 0.3332,
+    "sha256": "6813fc57ed9fe7861775c1f9e2b48ed9d9c22ae5dbb8ae1a0c2feac8a71ccb0a",
     "loop": true
   },
   "Music\\06_Reentry.wav": {
     "frames": 5120000,
-    "peak": 0.39518,
-    "sha256": "add8b4c8e86ceae5ff08943b648d63758bac708eaa768a084a789c7028f8c0c8",
+    "peak": 0.35502,
+    "sha256": "4d7925c017d534bdd35e0ad4dafa2b7e98786a8c0fedd1dcfa2acf3cd936ee49",
     "loop": true
   },
   "Stems\\Celeste.wav": {
@@ -56,7 +56,7 @@
   "Stems\\Horns.wav": {
     "frames": 5120000,
     "peak": 0.15,
-    "sha256": "58808c4a1e392d3b76f7f354fe81c1b177e649ec9627f550c40a601f9c73f3e4",
+    "sha256": "163e7a3cc8181ff359efb8a8a3dd5111438ba2aab81314994aa673bfb4236184",
     "loop": true
   },
   "Stems\\Pad.wav": {

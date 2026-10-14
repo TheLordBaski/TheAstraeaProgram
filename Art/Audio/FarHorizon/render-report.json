@@ -51,7 +51,7 @@
   "Music/01_Launch.wav": {
     "seconds": 106.666667,
     "channels": 2,
-    "peak_dbfs": -5.24,
+    "peak_dbfs": -5.52,
     "loop": true,
     "frames": 5120000,
     "lufs_i": -18.0
@@ -59,47 +59,47 @@
   "Music/02_HighAtmosphere.wav": {
     "seconds": 106.666667,
     "channels": 2,
-    "peak_dbfs": -8.34,
+    "peak_dbfs": -8.28,
     "loop": true,
     "frames": 5120000,
-    "lufs_i": -19.89
+    "lufs_i": -20.46
   },
   "Music/03_Orbit.wav": {
     "seconds": 106.666667,
     "channels": 2,
-    "peak_dbfs": -8.91,
+    "peak_dbfs": -9.67,
     "loop": true,
     "frames": 5120000,
-    "lufs_i": -21.28
+    "lufs_i": -22.04
   },
   "Music/04_Transit.wav": {
     "seconds": 106.666667,
     "channels": 2,
-    "peak_dbfs": -11.11,
+    "peak_dbfs": -11.88,
     "loop": true,
     "frames": 5120000,
-    "lufs_i": -23.46
+    "lufs_i": -24.22
   },
   "Music/05_Touchdown.wav": {
     "seconds": 106.666667,
     "channels": 2,
-    "peak_dbfs": -8.54,
+    "peak_dbfs": -9.55,
     "loop": true,
     "frames": 5120000,
-    "lufs_i": -20.8
+    "lufs_i": -21.25
   },
   "Music/06_Reentry.wav": {
     "seconds": 106.666667,
     "channels": 2,
-    "peak_dbfs": -8.06,
+    "peak_dbfs": -8.99,
     "loop": true,
     "frames": 5120000,
-    "lufs_i": -22.18
+    "lufs_i": -22.78
   },
   "FarHorizon_Audition.wav": {
     "seconds": 160.0,
     "channels": 2,
-    "peak_dbfs": -5.24,
+    "peak_dbfs": -6.6,
     "loop": false,
     "frames": 7680000
   }
