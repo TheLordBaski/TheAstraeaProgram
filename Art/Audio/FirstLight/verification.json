@@ -1,0 +1,170 @@
+{
+  "FirstLight_Audition.wav": {
+    "frames": 7680000,
+    "peak": 0.44676,
+    "sha256": "a69334820420074fb53e02c19856011f747e5a633ada7786b2491c3c72dd65cb",
+    "loop": false
+  },
+  "Music\\01_Launch.wav": {
+    "frames": 5120000,
+    "peak": 0.45726,
+    "sha256": "aea03ed56e2ad1e7d5b77e6dec03936b3c6cb52277e01d47a14b63e43318607e",
+    "loop": true
+  },
+  "Music\\02_HighAtmosphere.wav": {
+    "frames": 5120000,
+    "peak": 0.32927,
+    "sha256": "bc9b5ba24992859abb823a659a640b14306ba7d021379654c5e325cbf9d85d0e",
+    "loop": true
+  },
+  "Music\\03_Orbit.wav": {
+    "frames": 5120000,
+    "peak": 0.29146,
+    "sha256": "36479d7f7b5899b34b5edb42cbfb2ba863a643e4f2e6fbe13a104b71d76cea46",
+    "loop": true
+  },
+  "Music\\04_Transit.wav": {
+    "frames": 5120000,
+    "peak": 0.22207,
+    "sha256": "4db015ae612636dedff034c25d54b115b91974c0a1f31a8ca8dd4046b08a3012",
+    "loop": true
+  },
+  "Music\\05_Touchdown.wav": {
+    "frames": 5120000,
+    "peak": 0.30468,
+    "sha256": "7c43e980c3b9a57a2cd17425650bffc990302c417c5bc8d548b43c6397cd4ae7",
+    "loop": true
+  },
+  "Music\\06_Reentry.wav": {
+    "frames": 5120000,
+    "peak": 0.29246,
+    "sha256": "75c8167fe89c0e9fa8f4e5d7c59212854f8e8a9ec4cfd18611d083100a9e6d48",
+    "loop": true
+  },
+  "SFX\\Atmosphere_Wind_Loop.wav": {
+    "frames": 576000,
+    "peak": 0.53,
+    "sha256": "ea304160bd0bb07e9704089acd18f964b05a27cc0a3a4a699ba6aaf0ff8db5b4",
+    "loop": true
+  },
+  "SFX\\Engine_High_Loop.wav": {
+    "frames": 576000,
+    "peak": 0.53,
+    "sha256": "cdf22ee4a735a0d64e3d4ab1223ee0daa9c3936b4e5193b51198b075edbe167f",
+    "loop": true
+  },
+  "SFX\\Engine_Ignition.wav": {
+    "frames": 192000,
+    "peak": 0.67,
+    "sha256": "c87ef1125bdc85f6399459cde43785e2eb2a328bf4b608ea74448a3b01f08b50",
+    "loop": false
+  },
+  "SFX\\Engine_Low_Loop.wav": {
+    "frames": 576000,
+    "peak": 0.53,
+    "sha256": "dac22cc8c4b16b1419b95363f2be656aa230ba1383509d781036b9fa1cad3962",
+    "loop": true
+  },
+  "SFX\\Engine_Shutdown.wav": {
+    "frames": 96000,
+    "peak": 0.67,
+    "sha256": "40a3846f4f7ffadff61f0e9c88b852dfe8d5014f3305e870d7144abd0846cbb5",
+    "loop": false
+  },
+  "SFX\\Explosion.wav": {
+    "frames": 240000,
+    "peak": 0.67,
+    "sha256": "5d081c27e8199e53d894163f19580fb2cae51c439f81deb922b15a9454f96938",
+    "loop": false
+  },
+  "SFX\\Parachute_Deploy.wav": {
+    "frames": 144000,
+    "peak": 0.67,
+    "sha256": "afc8f06d1d7bc64e3bb83866a31b4a628dfe7e7113192074becde1f763cf6ef0",
+    "loop": false
+  },
+  "SFX\\RCS_Burst.wav": {
+    "frames": 19200,
+    "peak": 0.67,
+    "sha256": "7a88b85ae0f26643140861bae78d5fe6ddcd44e97ab6f4bc8c90759ad0bf0cb2",
+    "loop": false
+  },
+  "SFX\\Reentry_Plasma_Loop.wav": {
+    "frames": 576000,
+    "peak": 0.53,
+    "sha256": "55e06d8ef8cf5dead7ed3a3bfe128c64246a4c6bc89f0c227403f1e19ba9a80f",
+    "loop": true
+  },
+  "SFX\\Stage_Separation_01.wav": {
+    "frames": 144000,
+    "peak": 0.67,
+    "sha256": "44ef031eb2ff2825de7d8bfc0ae05ab179876f44b102c8df41402f2ec60fd49b",
+    "loop": false
+  },
+  "SFX\\Stage_Separation_02.wav": {
+    "frames": 144000,
+    "peak": 0.67,
+    "sha256": "a4854ff915f9bd76ea4832a87f5cc1ed095c89e09db3c471c47f6c9cec376c8f",
+    "loop": false
+  },
+  "SFX\\Stage_Separation_03.wav": {
+    "frames": 144000,
+    "peak": 0.67,
+    "sha256": "cf068b7eb55c0c95ac38ad8e20f890a96cb19224bcb0db070762885e7e6b64d3",
+    "loop": false
+  },
+  "SFX\\Touchdown.wav": {
+    "frames": 96000,
+    "peak": 0.67,
+    "sha256": "c847c556837fe827e631b0c04adb594401aca28f9c26432f65feaa40594a553b",
+    "loop": false
+  },
+  "SFX_Audition.wav": {
+    "frames": 2563200,
+    "peak": 0.402,
+    "sha256": "a1aee71d14ca4cfb091330cc9c77965a4945386c3fe6fae92c8aef7313e88157",
+    "loop": false
+  },
+  "Stems\\Celeste.wav": {
+    "frames": 5120000,
+    "peak": 0.09,
+    "sha256": "9ddcd6d70c026c3634f554ffdd96a7fb290bc6e650b593cc99821fdccf908709",
+    "loop": true
+  },
+  "Stems\\Cello.wav": {
+    "frames": 5120000,
+    "peak": 0.13,
+    "sha256": "f2c443f9b861d6fb230cd2b24b2174b494d9ed875fbb9c75f75f74f32c25f27f",
+    "loop": true
+  },
+  "Stems\\Horns.wav": {
+    "frames": 5120000,
+    "peak": 0.15,
+    "sha256": "1be85e8ccfcf2b581cb6b20f84bff4c6a9629d35c477043c76a6149d94993e08",
+    "loop": true
+  },
+  "Stems\\Pad.wav": {
+    "frames": 5120000,
+    "peak": 0.15,
+    "sha256": "ff561cc35f9721e918e366b3be65f529b32896d2cd4a0178d321c3bb4f685841",
+    "loop": true
+  },
+  "Stems\\Pizzicato.wav": {
+    "frames": 5120000,
+    "peak": 0.11,
+    "sha256": "a25c2d5be9b96f5ef706d6ce859dda2fe02a0eb4834e5fb63ac0ae6322d9abf6",
+    "loop": true
+  },
+  "Stems\\Pulse.wav": {
+    "frames": 5120000,
+    "peak": 0.09,
+    "sha256": "71a3fb23783844f25508a7a370354aef0e9e77f523236e1837c8cae19a31400c",
+    "loop": true
+  },
+  "Stems\\Strings.wav": {
+    "frames": 5120000,
+    "peak": 0.14,
+    "sha256": "87b33883713d91ede6092d2273cc5510fe022059c9d85892cbb0e118e212d822",
+    "loop": true
+  }
+}

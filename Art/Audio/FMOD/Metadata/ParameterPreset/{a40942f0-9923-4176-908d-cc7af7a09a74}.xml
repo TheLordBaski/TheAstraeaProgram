@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="ParameterPreset" id="{a40942f0-9923-4176-908d-cc7af7a09a74}">
+		<property name="name">
+			<value>AirPresence</value>
+		</property>
+		<relationship name="folder">
+			<destination>{e9351f9d-9e31-4780-9ed1-2a743af7e772}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{1598d79c-3ed1-4934-8cec-d9884f48ff7d}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{1598d79c-3ed1-4934-8cec-d9884f48ff7d}">
+		<property name="initialValue">
+			<value>1</value>
+		</property>
+	</object>
+</objects>

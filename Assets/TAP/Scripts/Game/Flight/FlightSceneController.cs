@@ -113,6 +113,7 @@ namespace TAP.Game
             Sim.Message += (m, important) => Notification?.Invoke(m, important);
 
             StartFlight();
+            if (Sim.ActiveVessel != null) FlightAudio.Create(this);
         }
 
         private void StartFlight()

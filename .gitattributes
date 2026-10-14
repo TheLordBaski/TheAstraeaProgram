@@ -125,3 +125,11 @@ Assets/Animations/Baked/**/*.asset lfs
 *.bundle filter=lfs diff=lfs merge=lfs -text
 # Avatar core assets
 *.avpkg lfs
+
+# FMOD audio assets
+*.bank lfs
+*.dylib lfs
+*.vst3state lfs
+*.mid lfs
+Assets/Plugins/FMOD/**/*.a lfs
+Assets/Plugins/FMOD/**/Contents/MacOS/* lfs

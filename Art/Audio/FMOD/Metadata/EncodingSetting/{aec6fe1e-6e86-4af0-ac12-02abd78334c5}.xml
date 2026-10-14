@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="EncodingSetting" id="{aec6fe1e-6e86-4af0-ac12-02abd78334c5}">
+		<relationship name="platform">
+			<destination>{704e521e-9ad4-4518-946c-3ed7ea638701}</destination>
+		</relationship>
+	</object>
+</objects>
