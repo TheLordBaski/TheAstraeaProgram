@@ -17,6 +17,7 @@ import pedalboard as pb
 import pyloudnorm as loudness
 import soundfile as sf
 from scipy import signal
+from flight_scores import SCORES, compose
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "Art/Audio/FirstLight"
@@ -152,6 +153,8 @@ def write_audio(relative, audio, loop=False):
 
 
 def alternative_score(suite):
+    if suite in SCORES:
+        return compose(suite)
     # Separate harmony, phrasing and rhythmic density, while retaining the shared seven-layer contract.
     chords = {
         "FarHorizon": [(50, 57, 62, 66, 69), (45, 52, 59, 64, 69),
@@ -228,12 +231,21 @@ def music(suite="FirstLight"):
         presets["Horns"] = ("BBCSO_Discover_Woodwinds_Oboes_a3", "Long")
     elif suite == "NightDrift":
         presets["Strings"] = ("BBCSO_Discover_Strings_Violas", "Long")
+    config = SCORES.get(suite, {})
+    if config.get("lead"):
+        presets["Horns"] = ("BBCSO_Discover_" + config["lead"], "Long")
+    if config.get("strings"):
+        presets["Strings"] = ("BBCSO_Discover_Strings_" + config["strings"], "Long")
+    if config.get("harp"):
+        presets["Celeste"] = ("BBCSO_Discover_Percussion_Harp_and_Celeste", "Harp")
     gains = [0.15, 0.14, 0.13, 0.15, 0.09, 0.11, 0.09]
     for index, name in enumerate(STEMS):
         print("Rendering", name, flush=True)
         if name == "Pulse":
             x = np.zeros((2, FRAMES), dtype=np.float32)
             pulse_beats = range(BARS * 4) if suite == "FirstLight" else range(0, BARS * 4, 4 if suite == "NightDrift" else 2)
+            if config:
+                pulse_beats = [bar + offset for bar in range(0, BARS * 4, 8) for offset in config["pulse"]]
             for beat in pulse_beats:
                 t = np.arange(round(SR * 0.7)) / SR
                 hit = (np.sin(2 * np.pi * (48 * t + 7 * (1 - np.exp(-12 * t)))) * np.exp(-8 * t)
@@ -247,10 +259,10 @@ def music(suite="FirstLight"):
                 # Vital exposes envelope times as normalized, nonlinear parameters.
                 plugin.parameters["envelope_1_attack"].raw_value = 0.56
                 plugin.parameters["envelope_1_release"].raw_value = 0.62
-                plugin.oscillator_1_unison_voices = "5v"
+                plugin.oscillator_1_unison_voices = config.get("pad_voices", "5v")
                 plugin.oscillator_1_unison_detune = 5
                 plugin.filter_1_switch = True
-                plugin.parameters["filter_1_cutoff"].raw_value = 0.47
+                plugin.parameters["filter_1_cutoff"].raw_value = config.get("pad_cutoff", .47)
                 plugin.filter_1_resonance = 12
                 plugin.volume = -14
             else:
@@ -289,7 +301,13 @@ def music(suite="FirstLight"):
         "frames": FRAMES, "sample_rate": SR, "master_gain": gain, "stems": STEMS,
         "phase_gains": PHASES, "suite": suite}, indent=2) + "\n")
     audition(mixes)
-    reaper_project()
+    reaper_project(gain if config else .8)
+    if config:
+        # FMOD working copies include the measured gain, as in the earlier alternative scores.
+        for name, stem in zip(STEMS, stems):
+            calibrated = stem * gain
+            assert np.isfinite(calibrated).all() and np.max(np.abs(calibrated)) < .98
+            sf.write(ROOT / "Art/Audio/FMOD/Assets" / (suite + "_" + name + ".wav"), calibrated.T, SR, subtype="PCM_24")
 
 
 def audition(mixes):
@@ -400,8 +418,8 @@ def sfx():
     write_audio("SFX_Audition.wav", np.concatenate(reel, axis=-1))
 
 
-def reaper_project():
-    lines = ['<REAPER_PROJECT 0.1 7.0 1', f'  TEMPO {BPM}', f'  SAMPLERATE {SR}', '  MASTER_VOLUME 0.8']
+def reaper_project(master_gain=.8):
+    lines = ['<REAPER_PROJECT 0.1 7.0 1', f'  TEMPO {BPM}', f'  SAMPLERATE {SR}', f'  MASTER_VOLUME {master_gain}']
     for name, gain in zip(STEMS, PHASES["01_Launch"]):
         lines += ['  <TRACK', f'    NAME "{name}"', f'    VOLPAN {gain} 0',
                   '    <ITEM', '      POSITION 0', f'      LENGTH {LENGTH}', f'      NAME "{name}.wav"',
@@ -436,13 +454,14 @@ def verify():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", nargs="?", default="all", choices=("music", "sfx", "verify", "all"))
-    parser.add_argument("--suite", choices=("FirstLight", "FarHorizon", "NightDrift"), default="FirstLight")
+    parser.add_argument("--suite", choices=("FirstLight", "FarHorizon", "NightDrift", *SCORES), default="FirstLight")
     args = parser.parse_args()
     action = args.action
     if args.suite != "FirstLight" and action not in ("music", "verify"):
         parser.error("Alternative suites support music and verify; shared SFX stay in FirstLight.")
     OUT = ROOT / "Art/Audio" / args.suite
-    RNG = np.random.default_rng({"FirstLight": 141026, "FarHorizon": 141027, "NightDrift": 141028}[args.suite])
+    suite_names = ["FirstLight", "FarHorizon", "NightDrift", *SCORES]
+    RNG = np.random.default_rng(141026 + suite_names.index(args.suite))
     OUT.mkdir(parents=True, exist_ok=True)
     if action in ("all", "music"):
         music(args.suite)

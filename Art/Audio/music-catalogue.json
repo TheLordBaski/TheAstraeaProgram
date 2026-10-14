@@ -1,0 +1,172 @@
+{
+  "bpm": 72,
+  "bars": 32,
+  "seconds_per_score": 106.66666666666667,
+  "scores": [
+    {
+      "id": "FirstLight",
+      "title": "First Light",
+      "event": "event:/Music/Flight",
+      "preview": "FirstLight/FirstLight_Audition.wav",
+      "reaper": "FirstLight/FirstLight_Stems.rpp",
+      "arrangements": {
+        "01_Launch": "FirstLight/Music/01_Launch.wav",
+        "02_HighAtmosphere": "FirstLight/Music/02_HighAtmosphere.wav",
+        "03_Orbit": "FirstLight/Music/03_Orbit.wav",
+        "04_Transit": "FirstLight/Music/04_Transit.wav",
+        "05_Touchdown": "FirstLight/Music/05_Touchdown.wav",
+        "06_Reentry": "FirstLight/Music/06_Reentry.wav"
+      }
+    },
+    {
+      "id": "FarHorizon",
+      "title": "Far Horizon",
+      "event": "event:/Music/FarHorizon",
+      "preview": "FarHorizon/FarHorizon_Audition.wav",
+      "reaper": "FarHorizon/FarHorizon_Stems.rpp",
+      "arrangements": {
+        "01_Launch": "FarHorizon/Music/01_Launch.wav",
+        "02_HighAtmosphere": "FarHorizon/Music/02_HighAtmosphere.wav",
+        "03_Orbit": "FarHorizon/Music/03_Orbit.wav",
+        "04_Transit": "FarHorizon/Music/04_Transit.wav",
+        "05_Touchdown": "FarHorizon/Music/05_Touchdown.wav",
+        "06_Reentry": "FarHorizon/Music/06_Reentry.wav"
+      }
+    },
+    {
+      "id": "NightDrift",
+      "title": "Night Drift",
+      "event": "event:/Music/NightDrift",
+      "preview": "NightDrift/NightDrift_Audition.wav",
+      "reaper": "NightDrift/NightDrift_Stems.rpp",
+      "arrangements": {
+        "01_Launch": "NightDrift/Music/01_Launch.wav",
+        "02_HighAtmosphere": "NightDrift/Music/02_HighAtmosphere.wav",
+        "03_Orbit": "NightDrift/Music/03_Orbit.wav",
+        "04_Transit": "NightDrift/Music/04_Transit.wav",
+        "05_Touchdown": "NightDrift/Music/05_Touchdown.wav",
+        "06_Reentry": "NightDrift/Music/06_Reentry.wav"
+      }
+    },
+    {
+      "id": "Starward",
+      "title": "Starward",
+      "event": "event:/Music/Starward",
+      "preview": "Starward/Starward_Audition.wav",
+      "reaper": "Starward/Starward_Stems.rpp",
+      "arrangements": {
+        "01_Launch": "Starward/Music/01_Launch.wav",
+        "02_HighAtmosphere": "Starward/Music/02_HighAtmosphere.wav",
+        "03_Orbit": "Starward/Music/03_Orbit.wav",
+        "04_Transit": "Starward/Music/04_Transit.wav",
+        "05_Touchdown": "Starward/Music/05_Touchdown.wav",
+        "06_Reentry": "Starward/Music/06_Reentry.wav"
+      }
+    },
+    {
+      "id": "BlueSilence",
+      "title": "Blue Silence",
+      "event": "event:/Music/BlueSilence",
+      "preview": "BlueSilence/BlueSilence_Audition.wav",
+      "reaper": "BlueSilence/BlueSilence_Stems.rpp",
+      "arrangements": {
+        "01_Launch": "BlueSilence/Music/01_Launch.wav",
+        "02_HighAtmosphere": "BlueSilence/Music/02_HighAtmosphere.wav",
+        "03_Orbit": "BlueSilence/Music/03_Orbit.wav",
+        "04_Transit": "BlueSilence/Music/04_Transit.wav",
+        "05_Touchdown": "BlueSilence/Music/05_Touchdown.wav",
+        "06_Reentry": "BlueSilence/Music/06_Reentry.wav"
+      }
+    },
+    {
+      "id": "GravityWell",
+      "title": "Gravity Well",
+      "event": "event:/Music/GravityWell",
+      "preview": "GravityWell/GravityWell_Audition.wav",
+      "reaper": "GravityWell/GravityWell_Stems.rpp",
+      "arrangements": {
+        "01_Launch": "GravityWell/Music/01_Launch.wav",
+        "02_HighAtmosphere": "GravityWell/Music/02_HighAtmosphere.wav",
+        "03_Orbit": "GravityWell/Music/03_Orbit.wav",
+        "04_Transit": "GravityWell/Music/04_Transit.wav",
+        "05_Touchdown": "GravityWell/Music/05_Touchdown.wav",
+        "06_Reentry": "GravityWell/Music/06_Reentry.wav"
+      }
+    },
+    {
+      "id": "DawnPatrol",
+      "title": "Dawn Patrol",
+      "event": "event:/Music/DawnPatrol",
+      "preview": "DawnPatrol/DawnPatrol_Audition.wav",
+      "reaper": "DawnPatrol/DawnPatrol_Stems.rpp",
+      "arrangements": {
+        "01_Launch": "DawnPatrol/Music/01_Launch.wav",
+        "02_HighAtmosphere": "DawnPatrol/Music/02_HighAtmosphere.wav",
+        "03_Orbit": "DawnPatrol/Music/03_Orbit.wav",
+        "04_Transit": "DawnPatrol/Music/04_Transit.wav",
+        "05_Touchdown": "DawnPatrol/Music/05_Touchdown.wav",
+        "06_Reentry": "DawnPatrol/Music/06_Reentry.wav"
+      }
+    },
+    {
+      "id": "AmberSkies",
+      "title": "Amber Skies",
+      "event": "event:/Music/AmberSkies",
+      "preview": "AmberSkies/AmberSkies_Audition.wav",
+      "reaper": "AmberSkies/AmberSkies_Stems.rpp",
+      "arrangements": {
+        "01_Launch": "AmberSkies/Music/01_Launch.wav",
+        "02_HighAtmosphere": "AmberSkies/Music/02_HighAtmosphere.wav",
+        "03_Orbit": "AmberSkies/Music/03_Orbit.wav",
+        "04_Transit": "AmberSkies/Music/04_Transit.wav",
+        "05_Touchdown": "AmberSkies/Music/05_Touchdown.wav",
+        "06_Reentry": "AmberSkies/Music/06_Reentry.wav"
+      }
+    },
+    {
+      "id": "ClockworkVoyage",
+      "title": "Clockwork Voyage",
+      "event": "event:/Music/ClockworkVoyage",
+      "preview": "ClockworkVoyage/ClockworkVoyage_Audition.wav",
+      "reaper": "ClockworkVoyage/ClockworkVoyage_Stems.rpp",
+      "arrangements": {
+        "01_Launch": "ClockworkVoyage/Music/01_Launch.wav",
+        "02_HighAtmosphere": "ClockworkVoyage/Music/02_HighAtmosphere.wav",
+        "03_Orbit": "ClockworkVoyage/Music/03_Orbit.wav",
+        "04_Transit": "ClockworkVoyage/Music/04_Transit.wav",
+        "05_Touchdown": "ClockworkVoyage/Music/05_Touchdown.wav",
+        "06_Reentry": "ClockworkVoyage/Music/06_Reentry.wav"
+      }
+    },
+    {
+      "id": "Homecoming",
+      "title": "Homecoming",
+      "event": "event:/Music/Homecoming",
+      "preview": "Homecoming/Homecoming_Audition.wav",
+      "reaper": "Homecoming/Homecoming_Stems.rpp",
+      "arrangements": {
+        "01_Launch": "Homecoming/Music/01_Launch.wav",
+        "02_HighAtmosphere": "Homecoming/Music/02_HighAtmosphere.wav",
+        "03_Orbit": "Homecoming/Music/03_Orbit.wav",
+        "04_Transit": "Homecoming/Music/04_Transit.wav",
+        "05_Touchdown": "Homecoming/Music/05_Touchdown.wav",
+        "06_Reentry": "Homecoming/Music/06_Reentry.wav"
+      }
+    }
+  ],
+  "alternatives_per_phase": {
+    "01_Launch": 10,
+    "02_HighAtmosphere": 10,
+    "03_Orbit": 10,
+    "04_Transit": 10,
+    "05_Touchdown": 10,
+    "06_Reentry": 10
+  },
+  "checks": {
+    "distinct_midi_scores": 10,
+    "distinct_phase_arrangements": 60,
+    "synchronized_stems": 70,
+    "fmod_source_calibration": "passed",
+    "phase_mix_reconstruction": "passed"
+  }
+}

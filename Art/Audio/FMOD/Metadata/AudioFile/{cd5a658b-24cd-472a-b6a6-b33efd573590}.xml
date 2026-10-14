@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{cd5a658b-24cd-472a-b6a6-b33efd573590}">
+		<property name="assetPath">
+			<value>Homecoming_Pulse.wav</value>
+		</property>
+		<property name="isStreaming">
+			<value>true</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>48</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>106.66666666666667</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{390f63a2-a9df-4c84-9359-4a810feb21dd}</destination>
+		</relationship>
+	</object>
+</objects>

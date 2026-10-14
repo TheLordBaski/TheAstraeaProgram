@@ -1,4 +1,4 @@
-// Add the two alternative scores without modifying existing authored events.
+// Add missing alternative scores and foley without modifying existing authored events.
 // Run: fmodstudiocl -script tools/audio/extend_fmod.js Art/Audio/FMOD/FirstLight.fspro
 var root = studio.project.filePath.replace(/\\/g, "/").replace(/\/[^/]+$/, "");
 var ws = studio.project.workspace;
@@ -10,11 +10,13 @@ function named(type, name) {
 var folder = named("EventFolder", "Music");
 var bus = named("MixerGroup", "Music");
 var bank = named("Bank", "Flight");
-["FarHorizon", "NightDrift"].forEach(function(suite) {
-    if (studio.project.model.Event.findInstances().some(function(e) { return e.name === suite; }))
-        throw new Error(suite + " already exists; build the saved project normally.");
-});
-["FarHorizon", "NightDrift"].forEach(function(suite) {
+var addedMusic = 0, addedFoley = 0;
+function exists(name) {
+    return studio.project.model.Event.findInstances().some(function(e) { return e.name === name; });
+}
+["FarHorizon", "NightDrift", "Starward", "BlueSilence", "GravityWell", "DawnPatrol", "AmberSkies",
+ "ClockworkVoyage", "Homecoming"].forEach(function(suite) {
+    if (exists(suite)) return;
     var e = ws.addEvent(suite, false);
     e.folder = folder;
     e.mixerInput.output = bus;
@@ -42,6 +44,7 @@ var bank = named("Bank", "Flight");
         for (var i=1; i<=40; i++) curve.addAutomationPoint(i/40, 20*Math.log(i/40)/Math.LN10);
     });
     e.markerTracks[0].addRegion(0, 106.6666666667, "Loop", studio.project.regionLoopMode.Looping);
+    addedMusic++;
 });
 var vesselFolder = named("EventFolder", "Vessel");
 var effects = named("MixerGroup", "Effects");
@@ -55,6 +58,7 @@ var specs = [
     ["Jetpack_Loop", 4]
 ];
 specs.forEach(function(spec) {
+    if (exists(spec[0])) return;
     var e = ws.addEvent(spec[0], spec[0] !== "Jetpack_Loop");
     e.folder = vesselFolder;
     e.mixerInput.output = effects;
@@ -70,8 +74,9 @@ specs.forEach(function(spec) {
     instrument.audioFile = asset;
     if (spec[0] === "Jetpack_Loop")
         e.markerTracks[0].addRegion(0, spec[1], "Loop", studio.project.regionLoopMode.Looping);
+    addedFoley++;
 });
 if (!studio.project.save()) throw new Error("FMOD project save failed");
 if (!studio.project.build({platforms:"Desktop"})) throw new Error("FMOD bank build failed");
 studio.project.exportGUIDs();
-console.log("Added two flight scores and 15 missing vessel foley effects.");
+console.log("Added " + addedMusic + " scores and " + addedFoley + " foley events; existing events preserved.");

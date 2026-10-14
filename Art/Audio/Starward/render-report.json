@@ -1,0 +1,106 @@
+{
+  "Stems/Pad.wav": {
+    "seconds": 106.666667,
+    "channels": 2,
+    "peak_dbfs": -16.48,
+    "loop": true,
+    "frames": 5120000
+  },
+  "Stems/Strings.wav": {
+    "seconds": 106.666667,
+    "channels": 2,
+    "peak_dbfs": -17.08,
+    "loop": true,
+    "frames": 5120000
+  },
+  "Stems/Cello.wav": {
+    "seconds": 106.666667,
+    "channels": 2,
+    "peak_dbfs": -17.72,
+    "loop": true,
+    "frames": 5120000
+  },
+  "Stems/Horns.wav": {
+    "seconds": 106.666667,
+    "channels": 2,
+    "peak_dbfs": -16.48,
+    "loop": true,
+    "frames": 5120000
+  },
+  "Stems/Celeste.wav": {
+    "seconds": 106.666667,
+    "channels": 2,
+    "peak_dbfs": -20.92,
+    "loop": true,
+    "frames": 5120000
+  },
+  "Stems/Pizzicato.wav": {
+    "seconds": 106.666667,
+    "channels": 2,
+    "peak_dbfs": -19.17,
+    "loop": true,
+    "frames": 5120000
+  },
+  "Stems/Pulse.wav": {
+    "seconds": 106.666667,
+    "channels": 2,
+    "peak_dbfs": -21.31,
+    "loop": true,
+    "frames": 5120000
+  },
+  "Music/01_Launch.wav": {
+    "seconds": 106.666667,
+    "channels": 2,
+    "peak_dbfs": -5.64,
+    "loop": true,
+    "frames": 5120000,
+    "lufs_i": -18.0
+  },
+  "Music/02_HighAtmosphere.wav": {
+    "seconds": 106.666667,
+    "channels": 2,
+    "peak_dbfs": -7.0,
+    "loop": true,
+    "frames": 5120000,
+    "lufs_i": -19.12
+  },
+  "Music/03_Orbit.wav": {
+    "seconds": 106.666667,
+    "channels": 2,
+    "peak_dbfs": -7.49,
+    "loop": true,
+    "frames": 5120000,
+    "lufs_i": -20.11
+  },
+  "Music/04_Transit.wav": {
+    "seconds": 106.666667,
+    "channels": 2,
+    "peak_dbfs": -10.49,
+    "loop": true,
+    "frames": 5120000,
+    "lufs_i": -22.25
+  },
+  "Music/05_Touchdown.wav": {
+    "seconds": 106.666667,
+    "channels": 2,
+    "peak_dbfs": -8.02,
+    "loop": true,
+    "frames": 5120000,
+    "lufs_i": -20.34
+  },
+  "Music/06_Reentry.wav": {
+    "seconds": 106.666667,
+    "channels": 2,
+    "peak_dbfs": -8.32,
+    "loop": true,
+    "frames": 5120000,
+    "lufs_i": -21.8
+  },
+  "Starward_Audition.wav": {
+    "seconds": 160.0,
+    "channels": 2,
+    "peak_dbfs": -5.75,
+    "loop": false,
+    "frames": 7680000
+  }
+}

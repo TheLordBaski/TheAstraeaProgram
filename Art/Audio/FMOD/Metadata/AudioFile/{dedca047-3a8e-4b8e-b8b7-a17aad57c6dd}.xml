@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{dedca047-3a8e-4b8e-b8b7-a17aad57c6dd}">
+		<property name="assetPath">
+			<value>Starward_Pad.wav</value>
+		</property>
+		<property name="isStreaming">
+			<value>true</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>48</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>106.66666666666667</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{390f63a2-a9df-4c84-9359-4a810feb21dd}</destination>
+		</relationship>
+	</object>
+</objects>

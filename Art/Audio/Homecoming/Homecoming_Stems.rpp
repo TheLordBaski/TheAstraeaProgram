@@ -1,0 +1,89 @@
+<REAPER_PROJECT 0.1 7.0 1
+  TEMPO 72
+  SAMPLERATE 48000
+  MASTER_VOLUME 2.697736326003246
+  <TRACK
+    NAME "Pad"
+    VOLPAN 0.24 0
+    <ITEM
+      POSITION 0
+      LENGTH 106.66666666666667
+      NAME "Pad.wav"
+      <SOURCE WAVE
+        FILE "Stems/Pad.wav"
+      >
+    >
+  >
+  <TRACK
+    NAME "Strings"
+    VOLPAN 0.6 0
+    <ITEM
+      POSITION 0
+      LENGTH 106.66666666666667
+      NAME "Strings.wav"
+      <SOURCE WAVE
+        FILE "Stems/Strings.wav"
+      >
+    >
+  >
+  <TRACK
+    NAME "Cello"
+    VOLPAN 0.66 0
+    <ITEM
+      POSITION 0
+      LENGTH 106.66666666666667
+      NAME "Cello.wav"
+      <SOURCE WAVE
+        FILE "Stems/Cello.wav"
+      >
+    >
+  >
+  <TRACK
+    NAME "Horns"
+    VOLPAN 0.72 0
+    <ITEM
+      POSITION 0
+      LENGTH 106.66666666666667
+      NAME "Horns.wav"
+      <SOURCE WAVE
+        FILE "Stems/Horns.wav"
+      >
+    >
+  >
+  <TRACK
+    NAME "Celeste"
+    VOLPAN 0.26 0
+    <ITEM
+      POSITION 0
+      LENGTH 106.66666666666667
+      NAME "Celeste.wav"
+      <SOURCE WAVE
+        FILE "Stems/Celeste.wav"
+      >
+    >
+  >
+  <TRACK
+    NAME "Pizzicato"
+    VOLPAN 0.74 0
+    <ITEM
+      POSITION 0
+      LENGTH 106.66666666666667
+      NAME "Pizzicato.wav"
+      <SOURCE WAVE
+        FILE "Stems/Pizzicato.wav"
+      >
+    >
+  >
+  <TRACK
+    NAME "Pulse"
+    VOLPAN 0.55 0
+    <ITEM
+      POSITION 0
+      LENGTH 106.66666666666667
+      NAME "Pulse.wav"
+      <SOURCE WAVE
+        FILE "Stems/Pulse.wav"
+      >
+    >
+  >
+>

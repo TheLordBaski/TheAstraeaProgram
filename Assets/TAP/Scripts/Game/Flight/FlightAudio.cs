@@ -14,7 +14,11 @@ namespace TAP.Game
     /// <summary>One shared musical clock and the active vessel's flight sounds.</summary>
     public sealed class FlightAudio : MonoBehaviour
     {
-        private static readonly string[] MusicEvents = { "event:/Music/Flight", "event:/Music/FarHorizon", "event:/Music/NightDrift" };
+        private static readonly string[] MusicEvents = {
+            "event:/Music/Flight", "event:/Music/FarHorizon", "event:/Music/NightDrift", "event:/Music/Starward",
+            "event:/Music/BlueSilence", "event:/Music/GravityWell", "event:/Music/DawnPatrol", "event:/Music/AmberSkies",
+            "event:/Music/ClockworkVoyage", "event:/Music/Homecoming"
+        };
         private static int _nextMusic = (Environment.TickCount & int.MaxValue) % MusicEvents.Length;
         private static readonly string[] Layers = { "Pad", "Strings", "Cello", "Horns", "Celeste", "Pizzicato", "Pulse" };
         private static readonly float[][] Gains = {
@@ -40,6 +44,9 @@ namespace TAP.Game
         private readonly Dictionary<DockingPortModule, DockingPortModule.PortState> _ports = new Dictionary<DockingPortModule, DockingPortModule.PortState>();
         private float _lastMechanism = -10, _lastStep = -10;
         private int _stepVariant;
+        private int _musicPosition;
+        private float _duckVolume = 1;
+        private bool _rotateMusic = true;
 
         public static void Create(FlightSceneController scene)
         {
@@ -55,12 +62,12 @@ namespace TAP.Game
                 _masterBus = RuntimeManager.GetBus("bus:/");
                 _musicBus = RuntimeManager.GetBus("bus:/Music");
                 _effectsBus = RuntimeManager.GetBus("bus:/Effects");
-                _music = RuntimeManager.CreateInstance(MusicEvents[_nextMusic]);
-                _nextMusic = (_nextMusic + 1) % MusicEvents.Length;
+                _music = CreateMusic();
                 _engine = RuntimeManager.CreateInstance("event:/Vessel/Engine");
                 _wind = RuntimeManager.CreateInstance("event:/Vessel/Wind");
                 _reentry = RuntimeManager.CreateInstance("event:/Vessel/Reentry");
                 _jetpack = RuntimeManager.CreateInstance("event:/Vessel/Jetpack_Loop");
+                _music.setVolume(0);
                 _engine.setVolume(0); _wind.setVolume(0); _reentry.setVolume(0); _jetpack.setVolume(0);
                 _phase = _candidate = FlightAudioPhase.Standby;
                 Array.Copy(Gains[(int)_phase], _gains, 7);
@@ -103,7 +110,7 @@ namespace TAP.Game
             _effectsBus.setVolume(settings.effects);
             _effectsBus.setPaused(sim.Paused);
             _effectsBus.setMute(v == null || sim.Warp.OnRails);
-            if (v == null) return;
+            if (v == null) { UpdateMusic(FlightAudioPhase.Standby, 0, sim.Paused); return; }
 
             double thrust = 0, rated = 0, heat = 0;
             float rcs = 0;
@@ -201,10 +208,31 @@ namespace TAP.Game
         private void UpdateMusic(FlightAudioPhase next, float output, bool paused)
         {
             float now = Time.unscaledTime;
+            _music.getTimelinePosition(out int milliseconds);
+            if (_rotateMusic && milliseconds < _musicPosition)
+            {
+                try
+                {
+                    var upcoming = CreateMusic();
+                    for (int i = 0; i < 7; i++) upcoming.setParameterByName(Layers[i], _gains[i]);
+                    upcoming.setVolume(0);
+                    upcoming.start();
+                    _music.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+                    _music.release();
+                    _music = upcoming;
+                    milliseconds = 0;
+                }
+                catch (Exception ex)
+                {
+                    // Keep the current score if an authoring bank is incomplete during live editing.
+                    Debug.LogError("[Flight audio] Music rotation disabled: " + ex.Message);
+                    _rotateMusic = false;
+                }
+            }
+            _musicPosition = milliseconds;
             if (!paused)
             {
                 if (_candidate != next) { _candidate = next; _candidateSince = now; }
-                _music.getTimelinePosition(out int milliseconds);
                 bool barStart = milliseconds / 1000f % BarSeconds < Time.unscaledDeltaTime + .02f;
                 if (next != _phase && now - _candidateSince >= 1.5f && barStart)
                 {
@@ -220,8 +248,22 @@ namespace TAP.Game
                 _music.setParameterByName(Layers[i], _gains[i]);
             }
             float duck = now < _duckUntil ? .45f : Mathf.Lerp(1, .65f, output);
-            _music.getVolume(out float volume);
-            _music.setVolume(Mathf.Lerp(volume, duck, 1 - Mathf.Exp(-Time.unscaledDeltaTime * 4)));
+            _duckVolume = Mathf.Lerp(_duckVolume, duck, 1 - Mathf.Exp(-Time.unscaledDeltaTime * 4));
+            _music.setVolume(_duckVolume * (_rotateMusic ? MusicEdgeGain(milliseconds) : 1));
+        }
+
+        private static EventInstance CreateMusic()
+        {
+            var music = RuntimeManager.CreateInstance(MusicEvents[_nextMusic]);
+            _nextMusic = (_nextMusic + 1) % MusicEvents.Length;
+            return music;
+        }
+
+        /// <summary>One bar of silence-to-music at each edge lets scores change key without overlapping phrases.</summary>
+        public static float MusicEdgeGain(int milliseconds)
+        {
+            float seconds = milliseconds / 1000f;
+            return Mathf.SmoothStep(0, 1, Mathf.Min(seconds, 32 * BarSeconds - seconds) / BarSeconds);
         }
 
         private void OnNotification(string text, bool important)

@@ -18,11 +18,14 @@ namespace TAP.Tests
                 string directory = UnityEngine.Application.streamingAssetsPath + "/FMOD/";
                 foreach (string bank in new[] { "Master", "Master.strings", "Flight" })
                     Assert.AreEqual(FMOD.RESULT.OK, studio.loadBankFile(directory + bank + ".bank", FMOD.Studio.LOAD_BANK_FLAGS.NORMAL, out _), bank);
-                foreach (string name in new[] { "Flight", "FarHorizon", "NightDrift" })
+                foreach (string name in new[] { "Flight", "FarHorizon", "NightDrift", "Starward", "BlueSilence", "GravityWell",
+                    "DawnPatrol", "AmberSkies", "ClockworkVoyage", "Homecoming" })
                 {
                     Assert.AreEqual(FMOD.RESULT.OK, studio.getEvent("event:/Music/" + name, out var music), name);
                     Assert.AreEqual(FMOD.RESULT.OK, music.isOneshot(out bool oneshot));
                     Assert.IsFalse(oneshot, name);
+                    Assert.AreEqual(FMOD.RESULT.OK, music.getLength(out int length));
+                    Assert.That(length, Is.InRange(106650, 106700), name);
                     foreach (string layer in new[] { "Pad", "Strings", "Cello", "Horns", "Celeste", "Pizzicato", "Pulse" })
                         Assert.AreEqual(FMOD.RESULT.OK, music.getParameterDescriptionByName(layer, out _), name + "/" + layer);
                     Assert.AreEqual(FMOD.RESULT.OK, music.createInstance(out var instance));
@@ -45,6 +48,17 @@ namespace TAP.Tests
                 }
             }
             finally { studio.release(); }
+        }
+
+        [Test]
+        public void MusicChangesAtSilentEdgesAndKeepsFullLevelInsideThePiece()
+        {
+            Assert.That(FlightAudio.MusicEdgeGain(0), Is.EqualTo(0));
+            Assert.That(FlightAudio.MusicEdgeGain(1667), Is.EqualTo(.5f).Within(.001f));
+            Assert.That(FlightAudio.MusicEdgeGain(3334), Is.EqualTo(1));
+            Assert.That(FlightAudio.MusicEdgeGain(50000), Is.EqualTo(1));
+            Assert.That(FlightAudio.MusicEdgeGain(105000), Is.EqualTo(.5f).Within(.001f));
+            Assert.That(FlightAudio.MusicEdgeGain(106667), Is.EqualTo(0));
         }
 
         [TestCase(Situation.Prelaunch, true, 0f, 0, 0, 0f, false, FlightAudioPhase.Standby)]

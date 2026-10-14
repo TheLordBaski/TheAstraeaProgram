@@ -1,0 +1,86 @@
+{
+  "ClockworkVoyage_Audition.wav": {
+    "frames": 7680000,
+    "peak": 0.66845,
+    "sha256": "91e0bab757171c1dea11ec050a487508bf7bfa2648c40068718c6fe13fed56d4",
+    "loop": false
+  },
+  "Music\\01_Launch.wav": {
+    "frames": 5120000,
+    "peak": 0.66845,
+    "sha256": "3c2b734d42574db425deb40c4a85e557007ae8453f28f0e7e95d86f5cedae2bb",
+    "loop": true
+  },
+  "Music\\02_HighAtmosphere.wav": {
+    "frames": 5120000,
+    "peak": 0.46218,
+    "sha256": "8488c478ad91b4e85e39eb11dd9e113b087fb18b166a3050d4233fe0b14ec86c",
+    "loop": true
+  },
+  "Music\\03_Orbit.wav": {
+    "frames": 5120000,
+    "peak": 0.41107,
+    "sha256": "da8bc8380d00c4a81ac78a32ad6bd6d90787827abc62bf0ecdd36a58934361e1",
+    "loop": true
+  },
+  "Music\\04_Transit.wav": {
+    "frames": 5120000,
+    "peak": 0.29407,
+    "sha256": "6e1ca78d6a0a4595c5e72a6af4148c9a96d471913d70e8e0f27a09cecd36c06d",
+    "loop": true
+  },
+  "Music\\05_Touchdown.wav": {
+    "frames": 5120000,
+    "peak": 0.40578,
+    "sha256": "1942d700ec68ddd4a180723bd2fe93d1a5845fb17939151ea9b481b65ed12e47",
+    "loop": true
+  },
+  "Music\\06_Reentry.wav": {
+    "frames": 5120000,
+    "peak": 0.43612,
+    "sha256": "c1e48e445ae9a1297d08674dc8ff81808801a92bbc5e880344ab9db663a3bd45",
+    "loop": true
+  },
+  "Stems\\Celeste.wav": {
+    "frames": 5120000,
+    "peak": 0.09,
+    "sha256": "c232112930d74041a77c5a96bc644a7df54d21310c005f918ec657643e422281",
+    "loop": true
+  },
+  "Stems\\Cello.wav": {
+    "frames": 5120000,
+    "peak": 0.13,
+    "sha256": "95b8034c1b6af2324346a80c4764359d36df25a72a517aebe42ed8e2135156cd",
+    "loop": true
+  },
+  "Stems\\Horns.wav": {
+    "frames": 5120000,
+    "peak": 0.15,
+    "sha256": "f43e49d327fd32dd3fb6f40f5b51f065db7af5fc8905bade1c6c1bf09ff34f5a",
+    "loop": true
+  },
+  "Stems\\Pad.wav": {
+    "frames": 5120000,
+    "peak": 0.15,
+    "sha256": "eb1aab6d5f766e717e6de983cf23c21470087cfafb1b02203bc8bbdd4f2a738a",
+    "loop": true
+  },
+  "Stems\\Pizzicato.wav": {
+    "frames": 5120000,
+    "peak": 0.11,
+    "sha256": "49b050fa430913c9ad46c9c8a40ca190398a2a946590a80d3265814307837bf1",
+    "loop": true
+  },
+  "Stems\\Pulse.wav": {
+    "frames": 5120000,
+    "peak": 0.0883,
+    "sha256": "953e8e6ff4be8d17fbc715c2f49b1bf7c9a2f0fc622ce551578f4212b644c698",
+    "loop": true
+  },
+  "Stems\\Strings.wav": {
+    "frames": 5120000,
+    "peak": 0.14,
+    "sha256": "16b183299fdb1368415bc22423d8c1f0442f49fb58893487229a4011c2d9f0ed",
+    "loop": true
+  }
+}

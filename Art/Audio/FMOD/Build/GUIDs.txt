@@ -4,9 +4,16 @@
 {fb2977e3-383d-4cfa-92d1-d45c2c42f477} bus:/
 {8bc351af-0b43-4baa-8aef-9bf0544eb92b} bus:/Effects
 {137eb931-98b4-4363-98ab-28c87c734998} bus:/Music
+{34c41637-72ed-455e-9323-e11c41176ac7} event:/Music/AmberSkies
+{4d17b848-d66a-47d2-b130-0520ac8c2403} event:/Music/BlueSilence
+{0ae44d48-afac-4b74-887e-65f9b62d85e1} event:/Music/ClockworkVoyage
+{c9f652f0-79d1-42e8-9e24-784a09a6ea86} event:/Music/DawnPatrol
 {0700cd8a-2479-45c7-8f57-e04502538c65} event:/Music/FarHorizon
 {ee35c1eb-941e-4d3b-92bf-67e27120622f} event:/Music/Flight
+{d5d3e852-1c53-4db6-ab0d-c4ab8c9da3f7} event:/Music/GravityWell
+{42c9f4f4-7015-433c-98b8-7ca6c0225cc8} event:/Music/Homecoming
 {cb449868-3efb-4030-84c1-930fc4684b0f} event:/Music/NightDrift
+{95262207-a2e7-4433-8707-bac44a8d474a} event:/Music/Starward
 {f056856e-c6b5-4647-a689-d7a1759ee198} event:/Vessel/Dock_Latch_01
 {8d529d28-fbcf-49a6-be56-2ab4ca25db26} event:/Vessel/Dock_Latch_02
 {65e89aed-ab1e-4dfd-81f5-c790de94e79a} event:/Vessel/Engine
