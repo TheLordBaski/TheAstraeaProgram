@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TAP.Core;
+using TAP.Parts;
 using TAP.Persistence;
 using TAP.Trajectory;
 using UnityEngine;
@@ -45,6 +46,8 @@ namespace TAP.Simulation
             var body = v.MainBody;
             double alt = v.Altitude;
             if (body.Atmosphere != null && alt < body.Atmosphere.Height) { reason = "In atmosphere (physics warp only)"; return 0; }
+            // Temperatures are not simulated on rails: near the star a warp would hide the overheating.
+            if (body.IsStar && v.Handle != null && v.TruePosition.magnitude < StarBurnRadius(v.Handle)) { reason = "Too close to the star (physics warp only)"; return 0; }
             var lim = body.WarpAltitudeLimits;
             int max = TimeWarp.RailsRates.Length - 1;
             if (lim != null)
@@ -54,6 +57,25 @@ namespace TAP.Simulation
             }
             return max;
         }
+
+        /// <summary>
+        /// The distance from the star (m) inside which a vessel is lost on rails: where its weakest part overheats in vacuum
+        /// (Thermal.BurnRadius), never less than the photosphere. 0 without a star.
+        /// </summary>
+        public double StarBurnRadius(VesselHandle h)
+        {
+            var star = System.Star;
+            if (star == null) return 0;
+            if (star.Luminosity <= 0 || DevCheats.IgnoreHeat) return star.Radius;
+            double limit = double.MaxValue;
+            if (h.Loaded != null) foreach (var p in h.Loaded.Parts) limit = Math.Min(limit, Thermal.Limit(p.Def));
+            else foreach (var r in h.Record.parts) limit = Math.Min(limit, Thermal.Limit(PartDatabase.Instance.Get(r.partId)));
+            return limit == double.MaxValue ? star.Radius : Math.Max(star.Radius, Thermal.BurnRadius(star.Luminosity, limit));
+        }
+
+        /// <summary>The time an orbit round the star first comes within the radius, from t0 (t0 itself when already inside).</summary>
+        private static double StarBurnUT(Orbit o, double radius, double t0) =>
+            o.GetPositionAtUT(t0).magnitude <= radius ? t0 : PatchedConics.FindRadiusDescending(o, radius, t0);
 
         public bool SetRailsWarp(int index)
         {
@@ -207,6 +229,21 @@ namespace TAP.Simulation
                     return;
                 }
             }
+            // Likewise don't warp it into the star's heat: physics takes over at the burn radius.
+            if (a.Orbit != null && !a.Landed && a.Body.IsStar)
+            {
+                double rBurn = StarBurnRadius(a);
+                double tBurn = rBurn > 0 ? StarBurnUT(a.Orbit, rBurn, t0) : double.NaN;
+                if (!double.IsNaN(tBurn) && tBurn < t1)
+                {
+                    t1 = Math.Max(t0, tBurn - 1);
+                    UT = t1;
+                    SyncRailsFrame();
+                    Log("Too close to the star — time warp stopped", true);
+                    StopWarp();
+                    return;
+                }
+            }
             if (a.Orbit != null && !a.Landed && a.Body.WarpAltitudeLimits != null && Warp.RailsIndex < a.Body.WarpAltitudeLimits.Length)
             {
                 double lim = a.Body.WarpAltitudeLimits[Warp.RailsIndex];
@@ -274,6 +311,18 @@ namespace TAP.Simulation
                     Log($"{h.Name} {(body.Atmosphere != null ? "burned up in the atmosphere" : "crashed into " + body.Name)}");
                     DestroyHandle(h, body.Atmosphere != null ? "lost in the atmosphere" : "crashed");
                     return;
+                }
+                // Vessels on rails burn up inside the star's heat (the active one is stopped before, see RailsUpdate).
+                if (body.IsStar && h != ActiveHandle)
+                {
+                    double rBurn = StarBurnRadius(h);
+                    double tBurn = rBurn > 0 ? StarBurnUT(o, rBurn, t0) : double.NaN;
+                    if (!double.IsNaN(tBurn) && tBurn >= t0 && tBurn < tEvent)
+                    {
+                        Log($"{h.Name} burned up near {body.Name}");
+                        DestroyHandle(h, "burned up near the star");
+                        return;
+                    }
                 }
                 if (next == null) return;
                 o.GetStateAtUT(tEvent, out Vector3d r, out Vector3d v);

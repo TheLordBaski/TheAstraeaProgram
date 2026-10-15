@@ -20,7 +20,11 @@ after 1.0 (`product/plan/20-multi-system-and-trade.md`).
 | Rotation | 432,000 s (20 Tellus days) |
 | Surface | None: no terrain, no landing. It lights the system: the sun direction everywhere comes from its position |
 | Time-warp limits | 5×/10× above 20 Mm, 50× above 40 Mm, 100× above 80 Mm, 1,000× above 200 Mm, 10,000× above 500 Mm, 100,000× above 1 Gm (heights above its surface) |
-| Orbiting it | An orbit 60 Mm up has a period of 8.7 h and a speed of 62 km/s. The developer window can put a vessel there (*Teleport*, Astraea), and the map draws the orbit round the star. Nothing hovers closer than 10 Mm. Flying into the surface destroys the vessel |
+| Orbiting it | An orbit 60 Mm up has a period of 8.7 h and a speed of 62 km/s. The developer window can put a vessel there (*Teleport*, Astraea), and the map draws the orbit round the star. Nothing hovers closer than 10 Mm |
+| Sunlight | The flight display's *SUNLIGHT* row shows the flux at the vessel: L / 4πr², four times as much at half the distance. 300 Mm from the centre it is 2,960 kW/m². Eclipses by planets are not counted |
+| Heat | In vacuum a part settles where the sunlight it absorbs equals what it radiates: σT⁴ = 0.65 S / 4. That is 250 K at Tellus's distance (`Thermal.SinkTemperature`). A part is lost when its skin or interior passes its limit: 1,300 K standard parts at about 520 Mm from the centre, the 1,000 K batteries at about 870 Mm. At 300 Mm from the centre the sink is 1,700 K, more than any standard part bears |
+| The photosphere | A vessel inside the radius is destroyed whatever it is made of (and with *Ignore heat* on) |
+| On rails | Temperatures are not simulated on rails, so a vessel inside its burn radius (`FlightSim.StarBurnRadius`, set by its weakest part, never less than the radius) can't time warp, a warp towards the star stops at that distance, and a vessel left there burns up while another is warped |
 
 ## Tellus (home world)
 

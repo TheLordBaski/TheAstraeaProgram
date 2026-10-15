@@ -82,9 +82,15 @@ SYS-09.
 - The star is a map target, a science subject (in space high and low; no landing) and appears in the handbook.
 
 **Done when**
-- [ ] A solar panel gives about 4 times the output at half Tellus's distance.
-- [ ] A probe sent to 300 Mm of the star burns up.
-- [ ] Science in orbit of the star works.
+- [ ] A solar panel gives about 4 times the output at half Tellus's distance. (The flux is there: `CelestialSystem.SolarFlux`
+      and `Vessel.SolarFlux`, 4× at half the distance in `SystemTests`, shown as *SUNLIGHT* in the flight display. There are no
+      solar panels until FLT-02.)
+- [x] A probe sent to 300 Mm of the star burns up. (`star` autotest: the test probe loses its core to heat in 36 s, a probe at
+      1.25× the burn radius lives, a vessel inside the photosphere is destroyed even with heat ignored. Sunlight sets the
+      radiative sink of the thermal model, `Thermal.SinkTemperature`; the burn radius and the rails rules are in
+      [PLANETARY_SYSTEM.md](../../Docs/PLANETARY_SYSTEM.md).)
+- [ ] Science in orbit of the star works. (Needs the science system, SCI-01 to SCI-03. The star can be focused and set as a
+      target on the map already; the handbook page waits for UX-07.)
 
 ### SYS-03 · Pruina, the icy moon
 **Milestone** EA1 · **Claude** 2 d · **You** 1 d · **Needs** FND-02

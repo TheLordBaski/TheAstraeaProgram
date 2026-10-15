@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using NUnit.Framework;
 using TAP.Core;
 using TAP.Persistence;
+using TAP.Simulation;
 using TAP.Trajectory;
 using UnityEngine;
 
@@ -56,6 +57,25 @@ namespace TAP.Tests
             double flux = sys.SolarFlux(tellus.GetPositionAtUT(ut));
             Assert.AreEqual(1360, flux, 5);
             Assert.AreEqual(4 * flux, sys.SolarFlux(tellus.GetPositionAtUT(ut) * 0.5), 1);
+        }
+
+        [Test]
+        public void StarHeat_SinkTemperatureAndBurnRadius()
+        {
+            var sys = CelestialSystem.LoadFromResources();
+            var star = sys.Star;
+            var tellus = sys.Get("tellus");
+            // In space at Tellus's distance a part sits at 250 K, the sink the thermal model had before the star shone.
+            Assert.AreEqual(250, Thermal.SinkTemperature(sys.SolarFlux(tellus.GetPositionAtUT(sys.Def.startUT))), 3);
+            // Without sunlight (a system with no star) it falls back to the constant.
+            Assert.AreEqual(Thermal.SpaceTemperature, Thermal.SinkTemperature(0));
+            // 300 Mm from the star's centre is hotter than the standard parts' limits (skin 1500 K, interior 1300 K).
+            Assert.Greater(Thermal.SinkTemperature(sys.SolarFlux(new Vector3d(300e6, 0, 0))), 1500);
+            // The burn radius is where the sink reaches the limit, and it shrinks for parts that bear more.
+            double r = Thermal.BurnRadius(star.Luminosity, 1300);
+            Assert.Greater(r, 300e6);
+            Assert.AreEqual(1300, Thermal.SinkTemperature(sys.SolarFlux(new Vector3d(r, 0, 0))), 0.5);
+            Assert.Less(Thermal.BurnRadius(star.Luminosity, 2000), r);
         }
 
         [Test]

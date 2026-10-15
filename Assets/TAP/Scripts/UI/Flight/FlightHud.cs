@@ -260,7 +260,7 @@ namespace TAP.UI
             _dataTitle = Q<Label>("data-title");
             _dataState = Q<Label>("data-state");
             Rows(Q("data-rows"), "data", ("surf", "SURF"), ("orb", "ORB"), ("mach", "MACH"), ("q", "Q"), ("p", "PRESSURE"), ("temp", "AIR TEMP"),
-                ("mass", "MASS"), ("twr", "TWR"), ("dvs", "ΔV STAGE"), ("dvt", "ΔV TOTAL"), ("parts", "PARTS"), ("stage", "STAGE"));
+                ("sun", "SUNLIGHT"), ("mass", "MASS"), ("twr", "TWR"), ("dvs", "ΔV STAGE"), ("dvt", "ΔV TOTAL"), ("parts", "PARTS"), ("stage", "STAGE"));
             ShowPage(_page);
         }
 

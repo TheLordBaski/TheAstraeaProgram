@@ -340,6 +340,8 @@ namespace TAP.UI
                 Set("data.p", $"{v.StaticPressure / 1000:0.00} kPa");
                 Set("data.temp", $"{v.AirTemperature:0} K");
             }
+            ShowRow("data.sun", v.SolarFlux > 0);
+            if (v.SolarFlux > 0) Set("data.sun", v.SolarFlux >= 1e5 ? $"{v.SolarFlux / 1000:N0} kW/m²" : $"{v.SolarFlux:N0} W/m²");
             v.GetPropulsion(out double thrust, out _);
             double g = v.GravityAccel.magnitude;
             Set("data.mass", $"{v.TotalMass / 1000:0.00} t");

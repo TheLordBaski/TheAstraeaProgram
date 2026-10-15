@@ -9,7 +9,10 @@ using UnityEngine;
 
 namespace TAP.Game
 {
-    /// <summary>Orbiting the star: low circular orbits flown in physics and on rails must follow Kepler exactly.</summary>
+    /// <summary>
+    /// Orbiting the star: low circular orbits flown in physics and on rails must follow Kepler exactly. Then its heat: a
+    /// probe 300 Mm from the star burns up, one beyond the burn radius lives, and the photosphere kills whatever reaches it.
+    /// </summary>
     public sealed partial class MissionAutopilot
     {
         private IEnumerator StarMission()
@@ -17,6 +20,9 @@ namespace TAP.Game
             var star = Sim.System.Star;
             if (star == null) { Check("the system has a star", false, "no star body"); yield break; }
             var db = PartDatabase.Instance;
+            ExpectLosses = true;
+            CaptureMessages();
+            DevCheats.IgnoreHeat = true; // the orbits are about Kepler, not survival: the heat comes after them
             // A low orbit 60 Mm up (a quarter of a revolution at 50x, the warp allowed there) and a high one 400 Mm up (a whole
             // revolution at 1,000x).
             foreach (var (altitude, revolutions) in new[] { (60e6, 0.25), (400e6, 1.0) })
@@ -65,6 +71,55 @@ namespace TAP.Game
                 Check("the map shows the orbit round the star", Scene.Map.Active && Scene.Trajectory != null, $"map open, focus {Scene.Map.FocusVessel?.Name}, camera {Scene.Map.CamDistance:F0} units out, flight camera {(Scene.Camera.Cam.enabled ? "on" : "off")}");
                 Scene.SetMap(false);
                 yield return WaitSecondsAny(1);
+            }
+
+            // The photosphere: no surface, so a vessel inside it is gone, whatever it is made of.
+            SetPhase("photosphere");
+            var inside = CreateOrbitalHandle(TestCraft.DockTarget(db), "Sunfall", new Vector3d(star.Radius - 1e6, 0, 0), new Vector3d(0, 0, 1),
+                Quaternion.identity, star);
+            if (!Sim.SwitchTo(inside)) { Check("probe in the photosphere", false, "could not switch to the probe"); yield break; }
+            var lost = V;
+            int parts0 = lost.Parts.Count;
+            yield return WaitSecondsAny(5);
+            Check("a heat-proof vessel inside the photosphere is destroyed", lost == null || lost.Parts.Count < parts0, $"{(lost == null ? 0 : lost.Parts.Count)} of {parts0} parts left");
+
+            // The heat: 300 Mm from the star's centre (50 Mm above the photosphere), in a circular orbit.
+            DevCheats.IgnoreHeat = false;
+            SetPhase("heat at 300 Mm");
+            double[] distances = { 300e6, 0 };
+            double burnRadius = 0;
+            foreach (double d0 in distances)
+            {
+                double d = d0 > 0 ? d0 : burnRadius * 1.25; // second pass: just beyond where the weakest part overheats
+                double vc = Math.Sqrt(star.GM / d);
+                var hp = CreateOrbitalHandle(TestCraft.DockTarget(db), "Sunburner", new Vector3d(d, 0, 0), new Vector3d(0, 0, vc),
+                    Quaternion.LookRotation(Vector3.forward, Vector3.right), star);
+                if (!Sim.SwitchTo(hp)) { Check("probe in the heat", false, "could not switch to the probe"); yield break; }
+                var hot = V;
+                int n0 = hot.Parts.Count;
+                burnRadius = Sim.StarBurnRadius(hp);
+                int m0 = _messages.Count;
+                yield return WaitSecondsAny(2);
+                double expectedFlux = star.Luminosity / (4 * Math.PI * d * d);
+                Check($"the sunlight {d / 1e6:F0} Mm from the star is L / 4πr²", hot != null && Math.Abs(hot.SolarFlux / expectedFlux - 1) < 0.01,
+                    $"{hot?.SolarFlux / 1e3:F0} kW/m² vs {expectedFlux / 1e3:F0} kW/m²");
+                if (d0 > 0)
+                {
+                    Check("the burn radius lies beyond 300 Mm and above the photosphere", burnRadius > d && burnRadius > star.Radius, $"{burnRadius / 1e6:F0} Mm");
+                    double t0 = Sim.UT;
+                    while (V == hot && hot != null && hot.Parts.Count == n0 && Sim.UT - t0 < 120) yield return null;
+                    string msg = FindMessage(m0, "overheated");
+                    Check("a probe 300 Mm from the star burns up", hot == null || hot.Parts.Count < n0, msg ?? $"still whole after {Sim.UT - t0:F0} s");
+                    SetPhase("heat beyond the burn radius");
+                }
+                else
+                {
+                    yield return WaitSecondsAny(60);
+                    double skin = 0;
+                    if (hot != null) foreach (var p in hot.Parts) skin = Math.Max(skin, p.SkinTemp);
+                    Check($"a probe {d / 1e6:F0} Mm from the star (1.25x the burn radius) survives a minute", hot != null && hot.Parts.Count == n0 && FindMessage(m0, "overheated") == null,
+                        $"{(hot == null ? 0 : hot.Parts.Count)} of {n0} parts, hottest skin {skin:F0} K");
+                }
             }
         }
     }

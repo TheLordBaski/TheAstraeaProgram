@@ -1,5 +1,6 @@
 using System;
 using TAP.Core;
+using TAP.Parts;
 using UnityEngine;
 
 namespace TAP.Simulation
@@ -129,8 +130,27 @@ namespace TAP.Simulation
         public static double ConvectionK = 1.45;
         public const double SkinToInternal = 6.0;    // W/m^2/K
         public const double JointConductance = 35.0; // W/K
-        public const double SpaceTemperature = 250.0; // effective radiative sink incl. sunlight (K)
+        public const double SpaceTemperature = 250.0; // radiative sink in a system without a star (K)
         public const double PyrolysisTemp = 1150.0;  // ablator surface temperature (K)
+        /// <summary>
+        /// Sunlight absorbed per unit of heat radiated (absorptivity / emissivity). 0.65 puts a part in space at Tellus's
+        /// distance at 250 K, the sink the model used before the star gave off light.
+        /// </summary>
+        public const double SolarAbsorption = 0.65;
+
+        /// <summary>
+        /// The temperature a part reaches in vacuum in sunlight of this flux (W/m²): absorbed S/4 per area (a sphere in
+        /// all orientations) against radiated σT⁴. It is the radiative sink of the thermal model out of an atmosphere.
+        /// </summary>
+        public static double SinkTemperature(double flux) =>
+            flux > 0 ? Math.Pow(SolarAbsorption * flux / (4 * MathD.StefanBoltzmann), 0.25) : SpaceTemperature;
+
+        /// <summary>The distance from a star (m) at which a part in vacuum settles at this temperature (K).</summary>
+        public static double BurnRadius(double luminosity, double limitK) =>
+            Math.Sqrt(luminosity * SolarAbsorption / (16 * Math.PI * MathD.StefanBoltzmann * Math.Pow(limitK, 4)));
+
+        /// <summary>The highest temperature, skin or interior, a part survives (K).</summary>
+        public static double Limit(PartDefinition d) => d == null ? double.MaxValue : Math.Min(d.skinMaxTemp, d.maxTemp);
 
         private static float[] _s = new float[64];
         private static Vector3[] _c = new Vector3[64];
@@ -153,7 +173,7 @@ namespace TAP.Simulation
             float speed = vRel.magnitude;
             bool flow = rho > 1e-10 && speed > 20f;
             double tAmb = v.InAtmosphere ? v.AirTemperature : SpaceTemperature;
-            double tEnv = v.InAtmosphere ? Math.Max(v.AirTemperature, 180) : SpaceTemperature;
+            double tEnv = v.InAtmosphere ? Math.Max(v.AirTemperature, 180) : SinkTemperature(v.SolarFlux);
             double tRec = tAmb + 0.9 * speed * speed / 2008.0;
             double h = flow ? ConvectionK * Math.Sqrt(rho) * speed : 0;
             // weak natural/forced convection towards ambient at low speed
@@ -234,6 +254,12 @@ namespace TAP.Simulation
             }
 
             // Failures
+            // The star has no surface: whatever reaches the photosphere is gone, shielded or not.
+            if (v.MainBody.IsStar && v.Altitude < 0)
+            {
+                for (int i = 0; i < n; i++) v.QueueDestroy(v.Parts[i], "lost in the photosphere");
+                return;
+            }
             if (v.ImpactProtected || DevCheats.IgnoreHeat) return;
             for (int i = 0; i < n; i++)
             {

@@ -109,6 +109,8 @@ namespace TAP.Simulation
         public double SpeedOfSound { get; private set; } = 340;
         public double Mach { get; private set; }
         public double DynamicPressure { get; private set; }
+        /// <summary>Sunlight at the vessel (W/m²), from the star's luminosity and the distance to it; 0 without a star. Eclipses are not counted.</summary>
+        public double SolarFlux { get; private set; }
         public double GForce { get; private set; }
         public Vector3 ProperAcceleration { get; private set; }
         public Vector3 GravityAccel { get; private set; }
@@ -183,6 +185,7 @@ namespace TAP.Simulation
             double sp = SurfaceVelocity.magnitude;
             Mach = SpeedOfSound > 1 ? sp / SpeedOfSound : 0;
             DynamicPressure = 0.5 * AirDensity * sp * sp;
+            SolarFlux = Sim.System.SolarFlux(TruePosition + body.GetPositionAtUT(ut));
             Splashed = body.HasOcean && Altitude < 1.5 && !GroundContact && AnyPartBelowSeaLevel();
             double gmag = body.GM / (r * r);
             GravityAccel = (Vector3)(-TruePosition / r * gmag);
