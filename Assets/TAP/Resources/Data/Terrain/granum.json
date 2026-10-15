@@ -1,0 +1,47 @@
+{
+  "description": "Granum: the seed. A tiny elongated moon, twice as long as it is wide, with a dark groove running round its middle, pale tips and a dusting of craters.",
+  "seed": 9800,
+  "minHeight": -12800,
+  "maxHeight": 22800,
+  "fields": [
+    {
+      "id": "seam", "note": "1 along the dark groove round the middle, with ragged edges",
+      "term": { "of": "absLatitude", "smooth": [5, 2], "jitter": { "type": "fbm", "seed": 71, "frequency": 9, "octaves": 3, "amount": 1.4 } }
+    },
+    { "id": "lumps", "note": "the broad lumps of the rock", "noise": { "type": "fbm", "seed": 72, "frequency": 2.8, "octaves": 5 } },
+    { "id": "mottle", "note": "1 on pale patches", "noise": { "type": "fbm", "seed": 73, "frequency": 6, "octaves": 3 }, "smooth": [0.2, 0.5] }
+  ],
+  "layers": [
+    { "note": "a seed: long in x, round in section", "ellipsoid": [66000, 33000, 33000] },
+    { "note": "lumps", "from": "lumps", "amplitude": 600 },
+    { "note": "the groove", "from": "seam", "amplitude": -420 },
+    {
+      "note": "craters",
+      "craters": {
+        "seed": 74,
+        "sizes": [
+          { "cell": 20000, "chance": 0.3, "depth": 0.1 },
+          { "cell": 6500, "chance": 0.4, "depth": 0.14 },
+          { "cell": 2100, "chance": 0.45, "depth": 0.17 },
+          { "cell": 700, "chance": 0.45, "depth": 0.18 }
+        ],
+        "erosion": 0.35, "floorField": "craterFloor", "floorMinRadius": 2800
+      }
+    },
+    { "note": "ground detail", "noise": { "type": "fbm", "seed": 75, "frequency": 1400, "octaves": 3 }, "amplitude": 3, "detail": true }
+  ],
+  "colors": [
+    { "note": "tan seed husk", "color": "#B79C6A" },
+    { "note": "pale patches", "color": "#CDB887", "mask": { "of": "mottle" } },
+    { "note": "the pale tips", "color": "#DCC999", "mask": { "of": "height", "smooth": [13000, 20000] } },
+    { "note": "crater floors", "color": "#9A8156", "mask": { "of": "craterFloor" } },
+    { "note": "the dark groove", "color": "#4D3E2A", "mask": { "of": "seam" } }
+  ],
+  "shading": { "noise": { "type": "fbm", "seed": 76, "frequency": 22, "octaves": 2 }, "amount": 0.1, "slopeDarkening": 0.7 },
+  "biomes": [
+    { "id": "tips", "name": "Seed Tips", "color": "#FFF27A", "material": 5, "when": { "of": "height", "atLeast": 12000 } },
+    { "id": "groove", "name": "Groove", "color": "#6B3FA0", "material": 5, "when": { "of": "seam", "atLeast": 0.5 } },
+    { "id": "craters", "name": "Craters", "color": "#8FA3B0", "material": 5, "when": { "of": "craterFloor", "atLeast": 0.5 } },
+    { "id": "flanks", "name": "Flanks", "color": "#B79C6A", "material": 5 }
+  ]
+}

@@ -312,9 +312,10 @@ namespace TAP.Game
         // ------------------------------------------------------------------ docking
 
         /// <summary>Test scenario setup: a vessel record in orbit with the given state and root orientation (not yet loaded).</summary>
-        private VesselHandle CreateOrbitalHandle(CraftDesign d, string name, Vector3d pos, Vector3d vel, Quaternion rot)
+        private VesselHandle CreateOrbitalHandle(CraftDesign d, string name, Vector3d pos, Vector3d vel, Quaternion rot, CelestialBody body = null)
         {
             var rec = LaunchService.CreateLaunchRecord(d, PartDatabase.Instance, Sim.UT);
+            if (body != null) rec.bodyId = body.Id;
             rec.name = name;
             rec.designName = name;
             rec.landed = false;

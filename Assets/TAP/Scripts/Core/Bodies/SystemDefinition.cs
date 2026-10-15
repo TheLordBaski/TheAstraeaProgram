@@ -80,6 +80,39 @@ namespace TAP.Core
         public double luminosity;
         /// <summary>Stars: surface temperature (K), for the star's colour and glare.</summary>
         public double surfaceTemperature;
+        /// <summary>Density of the body's sea (kg/m³): what floats and how hard it pushes. Water is 1000; Caligo's brine is denser.</summary>
+        public double oceanDensity = 1000;
+        /// <summary>
+        /// Air pressure (Pa) above which a vessel is crushed: gas giants have no surface, only deeper and denser air. 0: never.
+        /// Chosen below the pressure at the datum, so the vessel is lost in the clouds, never on a "ground".
+        /// </summary>
+        public double crushPressure;
+        /// <summary>Rings around the body's equator: lit by the star, shadowed by the body, with no collision.</summary>
+        public List<RingDefinition> rings;
+        /// <summary>
+        /// Tilt of the ring plane from the equator (degrees), towards the direction <see cref="ringTiltAzimuthDeg"/> in the
+        /// equatorial plane (0 is +X, 90 is +Z). Bodies spin about one axis only, so this is what gives rings their seasons:
+        /// the star climbs above and sinks below the ring plane as the planet goes round. Visual only.
+        /// </summary>
+        public double ringTiltDeg;
+        public double ringTiltAzimuthDeg;
+    }
+
+    /// <summary>One ring (or one band of a ring system): a flat annulus in the body's equatorial plane.</summary>
+    [Serializable]
+    public class RingDefinition
+    {
+        public string note;
+        /// <summary>Inner and outer radius from the body's centre (m).</summary>
+        public double inner, outer;
+        /// <summary>Opacity at normal incidence, 0 (a gap) to 1 (solid).</summary>
+        public double opacity = 0.5;
+        /// <summary>Colour of the ring's material (linear 0-1 r, g, b).</summary>
+        public float[] color = { 0.8f, 0.75f, 0.65f };
+        /// <summary>Fine structure: how much narrow ringlets vary the opacity and brightness, 0 (smooth) to 1.</summary>
+        public double ringlets = 0.4;
+        /// <summary>Share of the ring's width over which each edge fades (0 = sharp).</summary>
+        public double softEdge = 0.04;
     }
 
     [Serializable]

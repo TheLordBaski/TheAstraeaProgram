@@ -48,6 +48,7 @@ namespace TAP.Game
             public Transform Root;
             public Material Material;       // the terrain of a planet or moon; the disc of the star
             public AtmosphereShell Shell;
+            public PlanetRing Ring;         // the body's rings, seen from afar
             public Transform Glow;          // the star's corona, or a body's point of light
             public Material GlowMaterial;
             public bool Local;              // the flight camera draws its terrain
@@ -138,6 +139,7 @@ namespace TAP.Game
                 }
             }
             if (b.Atmosphere != null) fb.Shell = AtmosphereShell.Create(b, _root, Layers.Scaled);
+            fb.Ring = PlanetRing.Create(b, _root, Layers.Scaled);
             fb.GlowMaterial = NewGlow("Point of light " + b.Name);
             fb.GlowMaterial.SetFloat("_Gauss", 1f);
             fb.Glow = Billboard("Point " + b.Name, fb.GlowMaterial);

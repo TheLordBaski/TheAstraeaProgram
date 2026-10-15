@@ -1,0 +1,67 @@
+{
+  "description": "Remota: the far ice dwarf. A great bright plain of frozen nitrogen, dark reddish streaks around the equator, mountains of water ice standing on the plain's edge, and old craters where the surface is not renewed.",
+  "seed": 8400,
+  "minHeight": -3300,
+  "maxHeight": 4500,
+  "fields": [
+    {
+      "id": "plain", "note": "1 on the great bright plain",
+      "noise": { "type": "fbm", "seed": 31, "frequency": 3, "octaves": 3 }, "scale": 0.3, "add": -0.05,
+      "spots": [
+        { "lat": 18, "lon": 165, "radius": 70000, "amount": 1 },
+        { "lat": 2, "lon": 158, "radius": 48000, "amount": 0.9 },
+        { "lat": 30, "lon": 195, "radius": 30000, "amount": 0.7 }
+      ],
+      "smooth": [0.25, 0.7]
+    },
+    {
+      "id": "belt", "note": "1 in the dark equatorial belt, with ragged edges",
+      "term": { "of": "absLatitude", "smooth": [30, 14], "jitter": { "type": "fbm", "seed": 32, "frequency": 6, "octaves": 4, "amount": 8 } }
+    },
+    { "id": "ridges", "note": "mountains of water ice", "noise": { "type": "ridged", "seed": 33, "frequency": 6, "offset": [4.2, 1.1, 7.7], "octaves": 4 } },
+    { "id": "relief", "note": "the broad rise and fall of the uplands", "noise": { "type": "fbm", "seed": 34, "frequency": 2.8, "octaves": 2 } },
+    {
+      "id": "polar", "note": "the tinted polar caps, with ragged edges",
+      "term": { "of": "absLatitude", "smooth": [66, 72], "jitter": { "type": "fbm", "seed": 35, "frequency": 10, "octaves": 3, "amount": 4 } }
+    }
+  ],
+  "layers": [
+    { "note": "rolling uplands, almost flat on the plain", "noise": { "type": "fbm", "seed": 34, "frequency": 2.8, "octaves": 6 }, "amplitude": 800, "mask": { "of": "plain", "remap": [1, 0.06] } },
+    { "note": "the plain lies low", "constant": -450, "mask": { "of": "plain" } },
+    { "note": "ice mountains", "from": "ridges", "power": 1.6, "amplitude": 1500, "mask": [ { "of": "plain", "remap": [1, 0] }, { "of": "belt", "remap": [0.35, 1] } ] },
+    { "note": "hills", "noise": { "type": "fbm", "seed": 36, "frequency": 20, "offset": [3, 6, 9], "octaves": 4 }, "amplitude": 150, "mask": { "of": "plain", "remap": [1, 0.1] } },
+    {
+      "note": "craters: old and many on the uplands, few on the plain",
+      "craters": {
+        "seed": 37,
+        "sizes": [
+          { "cell": 42000, "chance": 0.22, "depth": 0.06 },
+          { "cell": 12500, "chance": 0.3, "depth": 0.09 },
+          { "cell": 3900, "chance": 0.38, "depth": 0.14 },
+          { "cell": 1200, "chance": 0.4, "depth": 0.16 },
+          { "cell": 380, "chance": 0.4, "depth": 0.16 }
+        ],
+        "erosion": 0.5, "fresh": 0.1, "floorField": "craterFloor", "floorMinRadius": 5000
+      },
+      "mask": { "of": "plain", "remap": [1, 0.1] }
+    },
+    { "note": "ground detail", "noise": { "type": "fbm", "seed": 38, "frequency": 2000, "octaves": 3 }, "amplitude": 4, "detail": true }
+  ],
+  "colors": [
+    { "note": "pinkish water-ice uplands", "color": "#CBBBAF" },
+    { "note": "the bright nitrogen plain", "color": "#F0EBE1", "mask": { "of": "plain" } },
+    { "note": "dark reddish streaks around the equator", "color": "#7B4C3C", "mask": [ { "of": "belt" }, { "of": "plain", "invert": true } ] },
+    { "note": "crater floors", "color": "#A89A8F", "mask": { "of": "craterFloor" } },
+    { "note": "ice mountains, grey-white", "color": "#C2C6CB", "mask": { "of": "height", "smooth": [900, 1800] } },
+    { "note": "tinted polar caps", "color": "#A4755C", "mask": [ { "of": "polar" }, { "of": "plain", "invert": true } ] }
+  ],
+  "shading": { "noise": { "type": "fbm", "seed": 39, "frequency": 45, "octaves": 2 }, "amount": 0.07, "slopeDarkening": 0.5 },
+  "biomes": [
+    { "id": "polarCaps", "name": "Polar Caps", "color": "#C28A6B", "material": 6, "when": [ { "of": "polar", "atLeast": 0.5 }, { "of": "plain", "below": 0.5 } ] },
+    { "id": "brightPlain", "name": "Bright Plain", "color": "#FFFFFF", "material": 6, "when": { "of": "plain", "atLeast": 0.5 } },
+    { "id": "iceMountains", "name": "Ice Mountains", "color": "#7F8C9B", "material": 6, "when": { "of": "height", "atLeast": 1100 } },
+    { "id": "craterFloors", "name": "Crater Floors", "color": "#8FA3B0", "material": 6, "when": { "of": "craterFloor", "atLeast": 0.5 } },
+    { "id": "darkBelt", "name": "Dark Belt", "color": "#7B4C3C", "material": 6, "when": { "of": "belt", "atLeast": 0.5 } },
+    { "id": "crateredUplands", "name": "Cratered Uplands", "color": "#CBBBAF", "material": 6 }
+  ]
+}

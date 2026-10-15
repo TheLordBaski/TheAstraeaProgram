@@ -105,7 +105,7 @@ namespace TAP.Tests
         {
             Type[] types = { typeof(BodyDefinition), typeof(OrbitDefinition), typeof(AtmosphereDefinition), typeof(TerrainDefinition), typeof(NoiseDef),
                 typeof(TerrainFieldDef), typeof(WeightDef), typeof(SpotDef), typeof(TerrainLayerDef), typeof(TermDef), typeof(CraterSizeDef), typeof(CraterFieldDef),
-                typeof(RiftDef), typeof(CanyonDef), typeof(TerraceDef), typeof(DuneDef), typeof(FlatAreaDef), typeof(PlaceDef), typeof(ShoreDef), typeof(ColorRuleDef), typeof(ShadingDef), typeof(BiomeDef) };
+                typeof(RiftDef), typeof(CanyonDef), typeof(TerraceDef), typeof(DuneDef), typeof(FlatAreaDef), typeof(PlaceDef), typeof(ShoreDef), typeof(ColorRuleDef), typeof(ShadingDef), typeof(BiomeDef), typeof(RingDefinition) };
             foreach (var type in types)
                 foreach (var field in type.GetFields()) Assert.IsNotNull(BodyLabHelp.Describe(type, field.Name), type.Name + "." + field.Name);
             StringAssert.Contains("(m)", BodyLabHelp.Label(typeof(BodyDefinition), "radius"));
@@ -144,9 +144,9 @@ namespace TAP.Tests
             {
                 host.Show(); host.position = new Rect(200, 200, 600, 400);
                 var view = new BodyLabOrbitView(); view.style.width = 580; view.style.height = 340; host.rootVisualElement.Add(view);
-                var d = Doc(); view.SetSystem(d.BuildSystem(), d.Id); view.SetTime(12345);
+                var d = Doc(); var system = d.BuildSystem(); view.SetSystem(system, d.Id); view.SetTime(12345);
                 yield return null; yield return null;
-                Assert.Greater(view.contentRect.width, 0); Assert.AreEqual(3, view.Frame.Entries.Length);
+                Assert.Greater(view.contentRect.width, 0); Assert.AreEqual(system.Bodies.Count, view.Frame.Entries.Length);
                 view.SetParentView(true); yield return null;
                 Assert.IsNotNull(view.Frame.Focus);
             }

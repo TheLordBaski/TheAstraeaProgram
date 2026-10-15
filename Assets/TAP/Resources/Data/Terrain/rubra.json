@@ -1,0 +1,99 @@
+{
+  "description": "Rubra: the red desert. Old cratered highlands in the south, smooth dust plains in the north, a long rift valley, three great volcanoes, dark dune fields and thin polar ice caps.",
+  "seed": 7300,
+  "minHeight": -5200,
+  "maxHeight": 10200,
+  "fields": [
+    {
+      "id": "lowlands", "note": "1 over the smooth northern plains, 0 over the old southern highlands",
+      "term": { "of": "latitude", "smooth": [4, 22], "jitter": { "type": "fbm", "seed": 5, "frequency": 3.5, "octaves": 4, "amount": 12 } }
+    },
+    {
+      "id": "mons", "note": "1 on the three great volcanoes (a round bump each)",
+      "noise": { "type": "perlin", "seed": 9, "frequency": 0.001 }, "scale": 0,
+      "spots": [
+        { "note": "Mons Rubra", "lat": 15, "lon": -120, "radius": 38000, "amount": 1 },
+        { "lat": 8, "lon": -95, "radius": 22000, "amount": 0.6 },
+        { "lat": 2, "lon": -80, "radius": 20000, "amount": 0.55 }
+      ]
+    },
+    {
+      "id": "caldera", "note": "the summit calderas",
+      "noise": { "type": "perlin", "seed": 10, "frequency": 0.001 }, "scale": 0,
+      "spots": [ { "lat": 15, "lon": -120, "radius": 7000, "amount": 1 }, { "lat": 8, "lon": -95, "radius": 4500, "amount": 1 }, { "lat": 2, "lon": -80, "radius": 4000, "amount": 1 } ]
+    },
+    { "id": "duneField", "note": "1 in the dune seas", "noise": { "type": "fbm", "seed": 7, "frequency": 3.4, "octaves": 3 }, "smooth": [0.22, 0.4] },
+    {
+      "id": "polar", "note": "the polar ice caps, with ragged edges",
+      "term": { "of": "absLatitude", "smooth": [79, 83], "jitter": { "type": "fbm", "seed": 21, "frequency": 14, "octaves": 3, "amount": 3 } }
+    },
+    { "id": "shade", "note": "above 0 bright ray (worked out after the craters)", "from": "rays" }
+  ],
+  "layers": [
+    { "note": "old highlands, raised and rolling", "noise": { "type": "fbm", "seed": 1, "frequency": 2.6, "octaves": 6 }, "amplitude": 1500, "add": 900, "mask": { "of": "lowlands", "invert": true } },
+    { "note": "the northern plains lie low and smooth", "noise": { "type": "fbm", "seed": 2, "frequency": 3, "octaves": 4 }, "amplitude": 300, "add": -1800, "mask": { "of": "lowlands" } },
+    { "note": "hills", "noise": { "type": "fbm", "seed": 3, "frequency": 18, "offset": [4, 2, 8], "octaves": 4 }, "amplitude": 160, "mask": { "of": "lowlands", "remap": [1, 0.3] } },
+    { "note": "the volcanoes", "from": "mons", "amplitude": 7000 },
+    { "note": "summit calderas", "from": "caldera", "amplitude": -650 },
+    {
+      "note": "the great rift valley",
+      "rift": {
+        "path": [ [-6, -100], [-9, -78], [-6, -55], [-10, -30], [-7, -12] ],
+        "width": 22000, "depth": 4200, "floor": 0.35, "shoulders": 0.1,
+        "wobble": { "type": "fbm", "seed": 3, "frequency": 22, "octaves": 3, "amount": 3000 },
+        "field": "rift"
+      }
+    },
+    {
+      "note": "a network of small canyons in the highlands",
+      "canyons": { "noise": { "type": "fbm", "seed": 5, "frequency": 9, "octaves": 4 }, "width": 0.012, "depth": 380, "sharpness": 2 },
+      "mask": { "of": "lowlands", "invert": true }
+    },
+    {
+      "note": "impact craters: many in the highlands, fewer on the plains",
+      "craters": {
+        "seed": 17,
+        "sizes": [
+          { "cell": 30000, "chance": 0.28, "depth": 0.07 },
+          { "cell": 9500, "chance": 0.38, "depth": 0.1 },
+          { "cell": 3000, "chance": 0.45, "depth": 0.16 },
+          { "cell": 950, "chance": 0.45, "depth": 0.18 },
+          { "cell": 300, "chance": 0.4, "depth": 0.18 }
+        ],
+        "erosion": 0.55, "fresh": 0.03, "rays": 0.5, "raysField": "rays", "floorField": "craterFloor", "floorMinRadius": 4500
+      },
+      "mask": { "of": "lowlands", "remap": [1, 0.3] }
+    },
+    {
+      "note": "dunes crossing the northern plains",
+      "dunes": { "wavelength": 650, "height": 38, "axisLat": 0, "axisLon": 90, "crest": 0.7, "warp": { "type": "fbm", "seed": 8, "frequency": 30, "octaves": 2, "amount": 1.5 } },
+      "mask": [ { "of": "duneField" }, { "of": "lowlands" } ]
+    },
+    { "note": "ice on the polar caps", "constant": 140, "mask": { "of": "polar" } },
+    { "note": "ground detail", "noise": { "type": "fbm", "seed": 13, "frequency": 2600, "octaves": 3 }, "amplitude": 5, "detail": true },
+    { "noise": { "type": "perlin", "seed": 13, "frequency": 21000 }, "amplitude": 0.7, "detail": true }
+  ],
+  "colors": [
+    { "note": "rust dust", "color": "#B4532F" },
+    { "note": "iron-rich highland rock", "color": "#85402A", "mask": { "of": "lowlands", "invert": true } },
+    { "note": "pale dust of the northern plains", "color": "#C77846", "mask": { "of": "lowlands" } },
+    { "note": "bright ejecta", "color": "#D9A07A", "mask": { "of": "shade", "linear": [0.25, 1], "scale": 0.6 } },
+    { "note": "dark basalt sand of the dune seas", "color": "#5E463C", "mask": [ { "of": "duneField" }, { "of": "lowlands" } ] },
+    { "note": "volcanic basalt", "color": "#80594A", "mask": { "of": "mons", "smooth": [0.12, 0.55] } },
+    { "note": "the rift floor", "color": "#7B3E2E", "mask": { "of": "rift", "smooth": [0.2, 0.8] } },
+    { "note": "crater floors, a little darker", "color": "#7E4A38", "mask": { "of": "craterFloor" } },
+    { "note": "dark streaks down slopes", "color": "#69392B", "mask": { "of": "slope", "smooth": [14, 30] } },
+    { "note": "polar ice", "color": "#EEF0F3", "mask": { "of": "polar" } }
+  ],
+  "shading": { "noise": { "type": "billow", "seed": 21, "frequency": 50, "octaves": 3 }, "amount": 0.09, "slopeDarkening": 0.6 },
+  "biomes": [
+    { "id": "polarCaps", "name": "Polar Caps", "color": "#DDEEFF", "material": 6, "when": { "of": "polar", "atLeast": 0.5 } },
+    { "id": "riftValley", "name": "Rift Valley", "color": "#6B3FA0", "material": 3, "when": { "of": "rift", "atLeast": 0.5 } },
+    { "id": "greatVolcanoes", "name": "Great Volcanoes", "color": "#303030", "material": 4, "when": { "of": "mons", "atLeast": 0.25 } },
+    { "id": "duneFields", "name": "Dune Fields", "color": "#E8C170", "material": 3, "when": [ { "of": "duneField", "atLeast": 0.5 }, { "of": "lowlands", "atLeast": 0.5 } ] },
+    { "id": "craterFloors", "name": "Crater Floors", "color": "#8FA3B0", "material": 3, "when": { "of": "craterFloor", "atLeast": 0.5 } },
+    { "id": "escarpments", "name": "Escarpments", "color": "#A33A3A", "material": 4, "when": { "of": "slope", "atLeast": 16 } },
+    { "id": "dustPlains", "name": "Dust Plains", "color": "#E0A56F", "material": 3, "when": { "of": "lowlands", "atLeast": 0.5 } },
+    { "id": "crateredHighlands", "name": "Cratered Highlands", "color": "#9A5A44", "material": 4 }
+  ]
+}

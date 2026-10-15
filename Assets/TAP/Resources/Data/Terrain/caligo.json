@@ -1,0 +1,61 @@
+{
+  "description": "Caligo: seas of dense brine under a thick purple-teal haze. Salt-crusted lowlands, brackish fens, rust-red highlands and violet mountain ranges, with slush at the poles. Landings are easy, ascents are not.",
+  "seed": 6100,
+  "minHeight": -4200,
+  "maxHeight": 7600,
+  "fields": [
+    {
+      "id": "continent", "note": "land where positive, brine where negative",
+      "noise": { "type": "fbm", "seed": 2, "frequency": 1.5, "offset": [5.2, 1.8, 8.4], "octaves": 7, "gain": 0.52 },
+      "scale": 1.6, "add": -0.04
+    },
+    { "id": "mountains", "note": "1 in the ranges, fading out towards the lowlands", "from": "continent", "smooth": [0.1, 0.36] },
+    { "id": "dryness", "note": "the climate over large regions: negative wet fens, positive dry salt pans", "noise": { "type": "fbm", "seed": 606, "frequency": 3.4, "octaves": 3 }, "scale": 2.2 },
+    { "id": "patches", "note": "local variety within a region", "noise": { "type": "fbm", "seed": 212, "frequency": 80, "offset": [3, 7, 5], "octaves": 2 } },
+    { "id": "crust", "note": "0 = damp ground, 1 = salt crust", "sum": [ { "of": "dryness", "weight": 0.3 }, { "of": "patches", "weight": 0.3 } ], "add": 0.5 },
+    {
+      "id": "polar", "note": "the polar slush, with ragged edges",
+      "term": { "of": "absLatitude", "smooth": [68, 73], "jitter": { "type": "fbm", "seed": 414, "frequency": 11, "octaves": 3, "amount": 4 } }
+    }
+  ],
+  "layers": [
+    { "note": "the brine sea floor", "from": "continent", "smooth": [0, -0.35], "amplitude": -3600, "mask": { "of": "continent", "below": 0 } },
+    { "note": "the step off the shore", "from": "continent", "smooth": [0, -0.02], "amplitude": -30, "mask": { "of": "continent", "below": 0 } },
+    { "note": "lowlands rising inland", "from": "continent", "amplitude": 1700, "add": 10, "mask": { "of": "continent", "atLeast": 0 } },
+    {
+      "note": "mountain ranges",
+      "noise": { "type": "ridged", "seed": 111, "frequency": 5.6, "offset": [4.1, 9.2, 6.3], "octaves": 6 },
+      "power": 1.6, "amplitude": 3700, "mask": { "of": "mountains" }
+    },
+    { "note": "rolling hills", "noise": { "type": "fbm", "seed": 212, "frequency": 34, "octaves": 4 }, "amplitude": 170, "mask": { "of": "continent", "smooth": [0, 0.06] } },
+    { "note": "slush shelves over the polar seas", "constant": 30, "blend": "max", "mask": { "of": "polar" } },
+    { "note": "ground detail", "noise": { "type": "fbm", "seed": 313, "frequency": 3000, "octaves": 3 }, "amplitude": 7, "detail": true },
+    { "noise": { "type": "perlin", "seed": 313, "frequency": 24000 }, "amplitude": 0.9, "detail": true }
+  ],
+  "shore": { "field": "continent" },
+  "colors": [
+    { "note": "salt-crusted lowland", "color": "#9C966B" },
+    { "note": "brackish fen", "color": "#566040", "mask": { "of": "crust", "smooth": [0.5, 0.22] } },
+    { "note": "pale salt pans", "color": "#C9C3A2", "mask": { "of": "crust", "smooth": [0.55, 0.85] } },
+    { "note": "rust-red highlands", "color": "#8A5C4E", "mask": { "of": "height", "smooth": [900, 2200] } },
+    { "note": "violet rock on slopes and peaks", "color": "#62526B", "mask": { "sum": [ { "of": "slope", "smooth": [24, 34] }, { "of": "height", "smooth": [2800, 3700], "scale": 0.6 } ] } },
+    { "note": "salt flats along the shore", "color": "#DCD6BF", "mask": { "of": "height", "linear": [32, 14] } },
+    { "note": "rime on the peaks", "color": "#E9EAF1", "mask": [ { "of": "height", "smooth": [3700, 4400] }, { "of": "slope", "smooth": [28, 36], "invert": true } ] },
+    { "note": "polar slush", "color": "#D6E3E6", "mask": { "of": "polar" } },
+    { "note": "shallow brine", "color": "#3D8077", "mask": { "of": "height", "below": 0 } },
+    { "note": "deep brine", "color": "#17353F", "mask": [ { "of": "height", "below": 0 }, { "of": "height", "smooth": [0, -450] } ] }
+  ],
+  "shading": { "noise": { "type": "fbm", "seed": 29, "frequency": 36, "octaves": 2 }, "amount": 0.08, "slopeDarkening": 0.5 },
+  "biomes": [
+    { "id": "polarSlush", "name": "Polar Slush", "color": "#BFE6FF", "material": 6, "when": { "of": "polar", "atLeast": 0.5 } },
+    { "id": "shallows", "name": "Shallows", "color": "#3FA7A0", "material": 7, "when": [ { "of": "height", "below": 0 }, { "of": "shore", "atLeast": -18000 } ] },
+    { "id": "deepBrine", "name": "Deep Brine", "color": "#1B3F5B", "material": 7, "when": { "of": "height", "below": 0 } },
+    { "id": "saltPeaks", "name": "Salt Peaks", "color": "#F4F4FA", "material": 5, "when": { "of": "height", "atLeast": 3700 } },
+    { "id": "saltFlats", "name": "Salt Flats", "color": "#F2E6B0", "material": 3, "when": { "of": "shore", "below": 2500 } },
+    { "id": "violetRanges", "name": "Violet Ranges", "color": "#7A4E8A", "material": 4, "when": { "of": "continent", "atLeast": 0.27 } },
+    { "id": "rustHighlands", "name": "Rust Highlands", "color": "#B0603E", "material": 2, "when": { "of": "continent", "atLeast": 0.14 } },
+    { "id": "brineFens", "name": "Brine Fens", "color": "#3E6B3A", "material": 1, "when": { "of": "dryness", "below": -0.15 } },
+    { "id": "saltPans", "name": "Salt Pans", "color": "#E8DDB8", "material": 3, "when": { "of": "dryness", "atLeast": 0.2 } },
+    { "id": "crustedLowlands", "name": "Crusted Lowlands", "color": "#9C966B", "material": 0 }
+  ]
+}

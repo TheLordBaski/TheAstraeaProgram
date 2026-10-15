@@ -338,6 +338,14 @@ namespace TAP.Simulation
             UpdateFlightState(ut);
             UpdateSituation();
 
+            // A gas giant has no ground: below its crush pressure the vessel is lost in the clouds.
+            if (!IsFlag && MainBody.CrushPressure > 0 && StaticPressure > MainBody.CrushPressure && !ImpactProtected && !DevCheats.NoCrashDamage)
+            {
+                string crush = $"crushed by the pressure of {StaticPressure / 1e5:F1} bar in {MainBody.Name}'s clouds";
+                foreach (var p in Parts) QueueDestroy(p, crush);
+                Sim.RequestStructurePass(this);
+            }
+
             // Safety net against tunnelling: a vessel found well below the terrain surface has crashed.
             if (!IsFlag && AltitudeAGL < -30 && !ImpactProtected)
             {

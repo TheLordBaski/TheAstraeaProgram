@@ -1,0 +1,50 @@
+{
+  "description": "Vagus: Glacies's captured moon, circling the wrong way round. Cantaloupe terrain of rounded dimples, smooth plains where ice has welled up and frozen, a bright pink-cream southern cap with dark wind streaks, and few craters.",
+  "seed": 10200,
+  "minHeight": -2300,
+  "maxHeight": 2300,
+  "fields": [
+    { "id": "plains", "note": "1 on the smooth frozen plains", "noise": { "type": "fbm", "seed": 111, "frequency": 2.4, "octaves": 3 }, "smooth": [0.08, 0.32] },
+    {
+      "id": "cap", "note": "the bright southern cap, with ragged edges",
+      "term": { "of": "latitude", "smooth": [-38, -52], "jitter": { "type": "fbm", "seed": 112, "frequency": 7, "octaves": 3, "amount": 6 } }
+    },
+    { "id": "streaks", "note": "1 along the dark wind streaks on the cap", "noise": { "type": "ridged", "seed": 113, "frequency": 16, "offset": [3.3, 6.1, 1.7], "octaves": 2 }, "smooth": [0.86, 0.98] },
+    { "id": "relief", "note": "the broad rise and fall of the uplands", "noise": { "type": "fbm", "seed": 114, "frequency": 2.2, "octaves": 2 } }
+  ],
+  "layers": [
+    { "note": "rolling uplands", "noise": { "type": "fbm", "seed": 114, "frequency": 2.2, "octaves": 5 }, "amplitude": 650, "mask": { "of": "plains", "remap": [1, 0.15] } },
+    { "note": "the plains lie low", "constant": -220, "mask": { "of": "plains" } },
+    { "note": "cantaloupe dimples", "noise": { "type": "billow", "seed": 115, "frequency": 15, "octaves": 2 }, "amplitude": 260, "mask": { "of": "plains", "invert": true } },
+    {
+      "note": "few, soft craters",
+      "craters": {
+        "seed": 116,
+        "sizes": [
+          { "cell": 40000, "chance": 0.1, "depth": 0.05 },
+          { "cell": 12000, "chance": 0.15, "depth": 0.07 },
+          { "cell": 3500, "chance": 0.2, "depth": 0.1 }
+        ],
+        "erosion": 0.7, "fresh": 0.1, "floorField": "craterFloor", "floorMinRadius": 4000
+      }
+    },
+    { "note": "ground detail", "noise": { "type": "fbm", "seed": 117, "frequency": 1900, "octaves": 3 }, "amplitude": 3, "detail": true }
+  ],
+  "colors": [
+    { "note": "pink-cream nitrogen frost", "color": "#E4D2C6" },
+    { "note": "the cantaloupe terrain, a deeper rose", "color": "#C9A89A", "mask": { "of": "plains", "invert": true } },
+    { "note": "the smooth plains", "color": "#EEE1D4", "mask": { "of": "plains" } },
+    { "note": "crater floors", "color": "#D5C0B3", "mask": { "of": "craterFloor" } },
+    { "note": "the bright southern cap", "color": "#F7E8DE", "mask": { "of": "cap" } },
+    { "note": "dark wind streaks across the cap", "color": "#5B4638", "mask": [ { "of": "streaks" }, { "of": "cap", "smooth": [0.3, 1] } ] }
+  ],
+  "shading": { "noise": { "type": "fbm", "seed": 118, "frequency": 40, "octaves": 2 }, "amount": 0.06, "slopeDarkening": 0.5 },
+  "biomes": [
+    { "id": "darkStreaks", "name": "Dark Streaks", "color": "#5B4638", "material": 6, "when": [ { "of": "streaks", "atLeast": 0.5 }, { "of": "cap", "atLeast": 0.3 } ] },
+    { "id": "southernCap", "name": "Southern Cap", "color": "#F7C6B0", "material": 6, "when": { "of": "cap", "atLeast": 0.5 } },
+    { "id": "smoothPlains", "name": "Smooth Plains", "color": "#EEE1D4", "material": 6, "when": { "of": "plains", "atLeast": 0.5 } },
+    { "id": "impactPits", "name": "Impact Pits", "color": "#8FA3B0", "material": 6, "when": { "of": "craterFloor", "atLeast": 0.5 } },
+    { "id": "uplands", "name": "Uplands", "color": "#C9C1B2", "material": 6, "when": { "of": "relief", "atLeast": 0.1 } },
+    { "id": "cantaloupe", "name": "Cantaloupe Terrain", "color": "#C9A89A", "material": 6 }
+  ]
+}

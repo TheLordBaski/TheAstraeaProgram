@@ -67,6 +67,9 @@ namespace TAP.Game
 
         public void Build()
         {
+            var clock = System.Diagnostics.Stopwatch.StartNew();
+            double t = 0;
+            string Lap() { double now = clock.Elapsed.TotalMilliseconds; string ms = $"{now - t:F0}"; t = now; return ms; }
             GameSession.EnsureGame();
             var simGo = new GameObject("FlightSim");
             Sim = simGo.AddComponent<FlightSim>();
@@ -77,17 +80,23 @@ namespace TAP.Game
             Camera = FlightCamera.Create(Sim);
             Planets = new GameObject("Planets").AddComponent<PlanetManager>();
             var terrainMat = Resources.Load<Material>("Materials/Terrain");
+            string basics = Lap();
             Planets.Init(Sim, Camera.Cam, terrainMat);
             Sim.Planets = Planets;
+            string planets = Lap();
             Sky = SkyController.Create(Sim, Camera.Cam);
             FarView = ScaledSpace.Create(Sim, Camera, Sky, Planets);
+            string farView = Lap();
             LaunchSiteBuilder.Build(Sim, Planets);
+            string site = Lap();
 
             Trajectory = new GameObject("Trajectory").AddComponent<TrajectoryService>();
             Trajectory.Sim = Sim;
             Map = new GameObject("MapView").AddComponent<MapView>();
             Map.Init(Sim, Trajectory);
+            string map = Lap();
             PlanetVisualController.Create(this);
+            string visuals = Lap();
 
             GameEvents.Clear();
             gameObject.AddComponent<EventWatcher>().Sim = Sim;
@@ -114,6 +123,7 @@ namespace TAP.Game
 
             StartFlight();
             if (Sim.ActiveVessel != null) FlightAudio.Create(this);
+            Debug.Log($"[Flight] Scene built in {clock.Elapsed.TotalMilliseconds:F0} ms with {Sim.System.Bodies.Count} bodies: basics {basics}, planets {planets}, far view {farView}, launch site {site}, map {map}, planet visuals {visuals}, vessels {Lap()}");
         }
 
         private void StartFlight()

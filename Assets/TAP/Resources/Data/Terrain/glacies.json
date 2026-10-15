@@ -1,0 +1,43 @@
+{
+  "description": "Glacies: the ice giant. A cold methane haze makes it a soft, even cyan, with bands that only show at the edge of the light, bright cirrus streaks and a dark oval storm that the clouds keep re-forming.",
+  "seed": 9300,
+  "minHeight": -10,
+  "maxHeight": 10,
+  "fields": [
+    {
+      "id": "zone", "note": "distance from the equator in degrees, bent by the wind",
+      "term": { "of": "absLatitude", "jitter": { "type": "fbm", "seed": 5, "frequency": 3.0, "octaves": 4, "amount": 2.2 } }
+    },
+    { "id": "swirl", "note": "turbulence along the bands", "noise": { "type": "fbm", "seed": 11, "frequency": 26, "offset": [6.1, 2.4, 8.8], "octaves": 6 } },
+    { "id": "cirrus", "note": "bright cirrus streaks", "noise": { "type": "ridged", "seed": 14, "frequency": 16, "offset": [1.9, 7.3, 4.2], "octaves": 3 } },
+    {
+      "id": "storm", "note": "1 inside the Dark Oval",
+      "noise": { "type": "perlin", "seed": 8, "frequency": 0.001 }, "scale": 0,
+      "spots": [ { "note": "the Dark Oval", "lat": -24, "lon": 95, "radius": 420000, "amount": 1.1 } ],
+      "smooth": [0.2, 0.7]
+    },
+    {
+      "id": "companion", "note": "bright clouds around the Dark Oval",
+      "noise": { "type": "perlin", "seed": 9, "frequency": 0.001 }, "scale": 0,
+      "spots": [ { "lat": -33, "lon": 80, "radius": 220000, "amount": 1 }, { "lat": -14, "lon": 112, "radius": 150000, "amount": 1 } ],
+      "smooth": [0.2, 0.8]
+    }
+  ],
+  "colors": [
+    { "note": "soft cyan haze", "color": "#8DCFD6" },
+    { "note": "the equator, slightly paler", "color": "#A2DADF", "mask": { "of": "zone", "smooth": [18, 6] } },
+    { "note": "a slightly deeper band", "color": "#74BCCB", "mask": [ { "of": "zone", "smooth": [28, 32] }, { "of": "zone", "smooth": [46, 40] } ] },
+    { "note": "the polar region, greener", "color": "#8BD2C4", "mask": { "of": "zone", "smooth": [55, 75] } },
+    { "note": "turbulence", "color": "#6AAFC2", "mask": { "of": "swirl", "smooth": [0.2, 0.85], "scale": 0.35 } },
+    { "note": "cirrus", "color": "#E4F6F7", "mask": [ { "of": "cirrus", "smooth": [0.7, 0.99], "scale": 0.45 }, { "of": "zone", "smooth": [12, 24] } ] },
+    { "note": "the Dark Oval", "color": "#376C8D", "mask": { "of": "storm" } },
+    { "note": "its bright companions", "color": "#F1FBFB", "mask": { "of": "companion" } }
+  ],
+  "shading": { "noise": { "type": "fbm", "seed": 33, "frequency": 60, "octaves": 4 }, "amount": 0.04, "slopeDarkening": 0 },
+  "biomes": [
+    { "id": "darkOval", "name": "Dark Oval", "color": "#1F4E79", "material": 0, "when": { "of": "storm", "atLeast": 0.5 } },
+    { "id": "polarClouds", "name": "Polar Clouds", "color": "#7ED6C5", "material": 0, "when": { "of": "zone", "atLeast": 55 } },
+    { "id": "equatorialHaze", "name": "Equatorial Haze", "color": "#A2DADF", "material": 0, "when": { "of": "zone", "below": 18 } },
+    { "id": "midlatitudeBands", "name": "Mid-Latitude Bands", "color": "#74BCCB", "material": 0 }
+  ]
+}

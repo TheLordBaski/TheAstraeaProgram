@@ -82,7 +82,7 @@ namespace TAP.Core
         /// <summary>Formats a duration in seconds as a compact d/h/m/s string, in days of the home planet (<see cref="Calendar"/>).</summary>
         public static string FormatDuration(double seconds, bool showSign = false) => Calendar.Current.FormatDuration(seconds, showSign);
 
-        /// <summary>Formats a distance in metres with an adaptive unit (m, km, Mm).</summary>
+        /// <summary>Formats a distance in metres with an adaptive unit (m, km, Mm, Gm).</summary>
         public static string FormatDistance(double meters, int decimals = 1)
         {
             if (double.IsNaN(meters)) return "--";
@@ -91,7 +91,8 @@ namespace TAP.Core
             string f = "F" + decimals;
             if (a < 10000) return meters.ToString("F0") + " m";
             if (a < 1e7) return (meters / 1000.0).ToString(f) + " km";
-            return (meters / 1e6).ToString(f) + " Mm";
+            if (a < 1e10) return (meters / 1e6).ToString(f) + " Mm";
+            return (meters / 1e9).ToString(f) + " Gm";
         }
 
         public static string FormatSpeed(double mps) => double.IsNaN(mps) ? "--" : mps.ToString(Math.Abs(mps) < 100 ? "F1" : "F0") + " m/s";

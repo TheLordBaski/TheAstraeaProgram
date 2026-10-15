@@ -1,0 +1,42 @@
+{
+  "description": "Anulus: the ringed giant. A deep, hazy atmosphere hides most of its banding under pale gold, with only the bands near the equator and an old white storm showing through. A cooler blue-grey haze caps the north.",
+  "seed": 9200,
+  "minHeight": -10,
+  "maxHeight": 10,
+  "fields": [
+    {
+      "id": "zone", "note": "distance from the equator in degrees, bent by the wind",
+      "term": { "of": "absLatitude", "jitter": { "type": "fbm", "seed": 4, "frequency": 3.2, "octaves": 5, "amount": 1.8 } }
+    },
+    { "id": "north", "note": "1 over the north, 0 over the south", "term": { "of": "latitude", "smooth": [-6, 10] } },
+    { "id": "swirl", "note": "turbulence along the bands", "noise": { "type": "fbm", "seed": 9, "frequency": 30, "offset": [2.7, 5.1, 1.1], "octaves": 6 } },
+    { "id": "streaks", "note": "fine streaks that follow the bands", "noise": { "type": "fbm", "seed": 13, "frequency": 170, "offset": [8.4, 1.2, 3.8], "octaves": 5 } },
+    {
+      "id": "storm", "note": "1 inside the old white storm",
+      "noise": { "type": "perlin", "seed": 7, "frequency": 0.001 }, "scale": 0,
+      "spots": [ { "note": "the White Storm", "lat": 36, "lon": -35, "radius": 720000, "amount": 1.1 } ],
+      "smooth": [0.2, 0.75]
+    }
+  ],
+  "colors": [
+    { "note": "pale gold haze", "color": "#E3D3A7" },
+    { "note": "the equatorial band, a touch warmer", "color": "#D9BF86", "mask": { "of": "zone", "smooth": [10, 4] } },
+    { "note": "a darker belt either side of the equator", "color": "#C9A870", "mask": [ { "of": "zone", "smooth": [7, 9] }, { "of": "zone", "smooth": [16, 13] } ] },
+    { "note": "a pale zone", "color": "#EBDDB8", "mask": [ { "of": "zone", "smooth": [16, 18] }, { "of": "zone", "smooth": [26, 23] } ] },
+    { "note": "a golden-brown belt", "color": "#CBA871", "mask": [ { "of": "zone", "smooth": [27, 29] }, { "of": "zone", "smooth": [37, 34] } ] },
+    { "note": "a faint high belt", "color": "#D8C08E", "mask": [ { "of": "zone", "smooth": [41, 43] }, { "of": "zone", "smooth": [52, 49] } ] },
+    { "note": "the polar haze, grey-green", "color": "#B7B79E", "mask": { "of": "zone", "smooth": [58, 72] } },
+    { "note": "the cool blue-grey cap in the north", "color": "#9AA6A8", "mask": [ { "of": "zone", "smooth": [62, 78] }, { "of": "north" } ] },
+    { "note": "turbulence", "color": "#B79A66", "mask": [ { "of": "swirl", "smooth": [0.2, 0.8], "scale": 0.45 }, { "of": "zone", "smooth": [62, 52] } ] },
+    { "note": "bright wisps", "color": "#F4EBCF", "mask": [ { "of": "streaks", "smooth": [0.2, 0.75], "scale": 0.6 }, { "of": "zone", "smooth": [75, 60] } ] },
+    { "note": "the White Storm", "color": "#FAF4E2", "mask": { "of": "storm" } }
+  ],
+  "shading": { "noise": { "type": "fbm", "seed": 31, "frequency": 70, "octaves": 4 }, "amount": 0.05, "slopeDarkening": 0 },
+  "biomes": [
+    { "id": "whiteStorm", "name": "White Storm", "color": "#FFFFFF", "material": 0, "when": { "of": "storm", "atLeast": 0.5 } },
+    { "id": "northernCap", "name": "Northern Cap", "color": "#7F95A0", "material": 0, "when": [ { "of": "zone", "atLeast": 62 }, { "of": "north" } ] },
+    { "id": "polarHaze", "name": "Polar Haze", "color": "#A9A98E", "material": 0, "when": { "of": "zone", "atLeast": 58 } },
+    { "id": "equatorialBand", "name": "Equatorial Band", "color": "#E0C27C", "material": 0, "when": { "of": "zone", "below": 16 } },
+    { "id": "temperateBands", "name": "Temperate Bands", "color": "#CDAF78", "material": 0 }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "description": "Maris: Magnus's ocean moon. Open sea almost everywhere, chains of green-brown islands, reef lagoons, one small continent with highlands, and ice at the poles, under a jade sky.",
+  "seed": 9400,
+  "minHeight": -3900,
+  "maxHeight": 3900,
+  "fields": [
+    { "id": "base", "note": "the broad sea: mostly below 0", "noise": { "type": "fbm", "seed": 31, "frequency": 2.0, "octaves": 6 }, "scale": 0.9, "add": -0.5 },
+    { "id": "chains", "note": "island chains: ridged ground", "noise": { "type": "ridged", "seed": 32, "frequency": 5, "offset": [7.7, 3.1, 1.9], "octaves": 4 } },
+    {
+      "id": "continent", "note": "land where positive, sea where negative",
+      "sum": [ { "of": "base" }, { "of": "chains", "weight": 0.38 } ],
+      "spots": [ { "note": "the small continent", "lat": 14, "lon": 35, "radius": 130000, "amount": 1 } ]
+    },
+    { "id": "lush", "note": "0 = bare, 1 = green: the climate over large regions", "noise": { "type": "fbm", "seed": 33, "frequency": 3.3, "octaves": 3 }, "scale": 1.6, "add": 0.5, "smooth": [0.25, 0.75] },
+    {
+      "id": "polar", "note": "the polar ice, with ragged edges",
+      "term": { "of": "absLatitude", "smooth": [70, 75], "jitter": { "type": "fbm", "seed": 34, "frequency": 11, "octaves": 3, "amount": 4 } }
+    }
+  ],
+  "layers": [
+    { "note": "sea floor", "from": "continent", "smooth": [0, -0.5], "amplitude": -3400, "mask": { "of": "continent", "below": 0 } },
+    { "note": "the step off the shore", "from": "continent", "smooth": [0, -0.02], "amplitude": -30, "mask": { "of": "continent", "below": 0 } },
+    { "note": "islands and lowlands rising", "from": "continent", "amplitude": 1400, "add": 8, "mask": { "of": "continent", "atLeast": 0 } },
+    {
+      "note": "highlands of the continent and the biggest islands",
+      "noise": { "type": "ridged", "seed": 35, "frequency": 9, "offset": [2.1, 6.2, 4.4], "octaves": 5 },
+      "power": 1.4, "amplitude": 1800, "mask": { "of": "continent", "smooth": [0.35, 0.9] }
+    },
+    { "note": "rolling hills", "noise": { "type": "fbm", "seed": 36, "frequency": 30, "octaves": 4 }, "amplitude": 90, "mask": { "of": "continent", "smooth": [0, 0.05] } },
+    { "note": "ice shelves over the polar seas", "constant": 30, "blend": "max", "mask": { "of": "polar" } },
+    { "note": "ground detail", "noise": { "type": "fbm", "seed": 37, "frequency": 2800, "octaves": 3 }, "amplitude": 6, "detail": true },
+    { "noise": { "type": "perlin", "seed": 37, "frequency": 22000 }, "amplitude": 0.8, "detail": true }
+  ],
+  "shore": { "field": "continent" },
+  "colors": [
+    { "note": "island scrub", "color": "#76874F" },
+    { "note": "bare rock and dry grass", "color": "#9A8B63", "mask": { "of": "lush", "invert": true } },
+    { "note": "highland rock", "color": "#7C7266", "mask": { "of": "height", "smooth": [900, 1900] } },
+    { "note": "rock on slopes", "color": "#6A6258", "mask": { "of": "slope", "smooth": [22, 34] } },
+    { "note": "pale beaches", "color": "#E6DDB8", "mask": { "of": "height", "linear": [28, 10] } },
+    { "note": "snow on the highest ground", "color": "#EDF1F5", "mask": [ { "of": "height", "smooth": [2800, 3400] }, { "of": "slope", "smooth": [28, 35], "invert": true } ] },
+    { "note": "polar ice", "color": "#E6EEF3", "mask": { "of": "polar" } },
+    { "note": "shallow lagoon water", "color": "#35BDB0", "mask": { "of": "height", "below": 0 } },
+    { "note": "open ocean", "color": "#1C6C93", "mask": [ { "of": "height", "below": 0 }, { "of": "height", "smooth": [-30, -250] } ] },
+    { "note": "deep ocean", "color": "#0B2F5A", "mask": [ { "of": "height", "below": 0 }, { "of": "height", "smooth": [-300, -1500] } ] }
+  ],
+  "shading": { "noise": { "type": "fbm", "seed": 38, "frequency": 40, "octaves": 2 }, "amount": 0.07, "slopeDarkening": 0.5 },
+  "biomes": [
+    { "id": "iceShelf", "name": "Ice Shelf", "color": "#BFE6FF", "material": 6, "when": { "of": "polar", "atLeast": 0.5 } },
+    { "id": "reefs", "name": "Reefs", "color": "#3FD6C6", "material": 7, "when": [ { "of": "height", "below": 0 }, { "of": "shore", "atLeast": -3500 } ] },
+    { "id": "shallows", "name": "Shallows", "color": "#3FA7D6", "material": 7, "when": [ { "of": "height", "below": 0 }, { "of": "shore", "atLeast": -20000 } ] },
+    { "id": "deepSea", "name": "Deep Sea", "color": "#1B3F8B", "material": 7, "when": { "of": "height", "below": 0 } },
+    { "id": "beaches", "name": "Beaches", "color": "#F2D16B", "material": 3, "when": { "of": "shore", "below": 1800 } },
+    { "id": "highlands", "name": "Highlands", "color": "#7A5C3E", "material": 4, "when": { "of": "continent", "atLeast": 0.35 } },
+    { "id": "islandHills", "name": "Island Hills", "color": "#B08850", "material": 2, "when": { "of": "continent", "atLeast": 0.12 } },
+    { "id": "lowlandIsles", "name": "Lowland Isles", "color": "#7CC05A", "material": 0 }
+  ]
+}

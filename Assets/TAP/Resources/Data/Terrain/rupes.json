@@ -1,0 +1,79 @@
+{
+  "description": "Rupes: the dwarf planet of the belt. A dark, ancient world cut by two enormous rift canyons, with terraced plateaus, worn craters and a handful of startlingly bright salt spots.",
+  "seed": 8300,
+  "minHeight": -5800,
+  "maxHeight": 4600,
+  "fields": [
+    { "id": "uplands", "note": "1 on the terraced plateaus", "noise": { "type": "fbm", "seed": 21, "frequency": 2.4, "octaves": 5 }, "smooth": [-0.1, 0.2] },
+    {
+      "id": "bright", "note": "1 on the bright salt spots",
+      "noise": { "type": "perlin", "seed": 22, "frequency": 0.001 }, "scale": 0,
+      "spots": [
+        { "note": "the Great Spot", "lat": 19, "lon": -120, "radius": 9000, "amount": 1 },
+        { "lat": 21, "lon": -112, "radius": 3800, "amount": 1 },
+        { "lat": -8, "lon": 45, "radius": 6000, "amount": 1 },
+        { "lat": 36, "lon": 160, "radius": 5000, "amount": 1 },
+        { "lat": -40, "lon": -60, "radius": 4500, "amount": 1 }
+      ],
+      "smooth": [0.2, 0.8]
+    },
+    { "id": "relief", "note": "the broad rise and fall of the plains", "noise": { "type": "fbm", "seed": 23, "frequency": 3, "octaves": 2 } },
+    { "id": "canyons", "note": "1 on the floors of either rift", "sum": [ { "of": "rift" }, { "of": "rima" } ] }
+  ],
+  "layers": [
+    { "note": "rolling ground", "noise": { "type": "fbm", "seed": 23, "frequency": 3, "octaves": 6 }, "amplitude": 900 },
+    { "note": "plateaus", "from": "uplands", "amplitude": 1100 },
+    { "note": "terraced plateau sides", "terraces": { "step": 220, "sharpness": 0.7 }, "mask": { "of": "uplands", "smooth": [-0.02, 0.08] } },
+    {
+      "note": "Rima Magna, the great rift",
+      "rift": {
+        "path": [ [-20, -70], [0, -20], [15, 40], [5, 100] ],
+        "width": 26000, "depth": 3200, "floor": 0.3, "shoulders": 0.1,
+        "wobble": { "type": "fbm", "seed": 4, "frequency": 20, "octaves": 3, "amount": 3000 },
+        "field": "rift"
+      }
+    },
+    {
+      "note": "Rima Minor, a smaller rift",
+      "rift": {
+        "path": [ [30, -150], [35, -100], [25, -60] ],
+        "width": 14000, "depth": 1800, "floor": 0.35, "shoulders": 0.08,
+        "wobble": { "type": "fbm", "seed": 5, "frequency": 25, "octaves": 3, "amount": 1500 },
+        "field": "rima"
+      }
+    },
+    { "note": "canyons cut into the plateaus", "canyons": { "noise": { "type": "fbm", "seed": 6, "frequency": 7, "octaves": 4 }, "width": 0.02, "depth": 700, "sharpness": 1.8 }, "mask": { "of": "uplands", "smooth": [-0.02, 0.08] } },
+    {
+      "note": "old, worn craters",
+      "craters": {
+        "seed": 27,
+        "sizes": [
+          { "cell": 30000, "chance": 0.28, "depth": 0.08 },
+          { "cell": 9000, "chance": 0.38, "depth": 0.12 },
+          { "cell": 2800, "chance": 0.45, "depth": 0.17 },
+          { "cell": 900, "chance": 0.45, "depth": 0.18 },
+          { "cell": 280, "chance": 0.4, "depth": 0.18 }
+        ],
+        "erosion": 0.6, "fresh": 0.08, "floorField": "craterFloor", "floorMinRadius": 4500
+      }
+    },
+    { "note": "ground detail", "noise": { "type": "fbm", "seed": 13, "frequency": 2300, "octaves": 3 }, "amplitude": 4, "detail": true }
+  ],
+  "colors": [
+    { "note": "dark grey-brown regolith", "color": "#6C655E" },
+    { "note": "plateau tops, a shade lighter", "color": "#8A8178", "mask": { "of": "uplands", "smooth": [0.02, 0.12] } },
+    { "note": "dark rift floors", "color": "#4D4640", "mask": { "of": "canyons", "smooth": [0.2, 0.8] } },
+    { "note": "crater floors", "color": "#5D5750", "mask": { "of": "craterFloor" } },
+    { "note": "cliffs", "color": "#4E4842", "mask": { "of": "slope", "smooth": [20, 34] } },
+    { "note": "bright salt spots", "color": "#F2F1EA", "mask": { "of": "bright" } }
+  ],
+  "shading": { "noise": { "type": "billow", "seed": 21, "frequency": 55, "octaves": 3 }, "amount": 0.08, "slopeDarkening": 0.55 },
+  "biomes": [
+    { "id": "brightSpots", "name": "Bright Spots", "color": "#FFFFFF", "material": 5, "when": { "of": "bright", "atLeast": 0.4 } },
+    { "id": "riftFloors", "name": "Rift Floors", "color": "#6B3FA0", "material": 5, "when": { "of": "canyons", "atLeast": 0.5 } },
+    { "id": "craterFloors", "name": "Crater Floors", "color": "#8FA3B0", "material": 5, "when": { "of": "craterFloor", "atLeast": 0.5 } },
+    { "id": "scarps", "name": "Scarps", "color": "#A33A3A", "material": 5, "when": { "of": "slope", "atLeast": 18 } },
+    { "id": "terracedPlateaus", "name": "Terraced Plateaus", "color": "#C0703A", "material": 5, "when": { "of": "uplands", "atLeast": 0.5 } },
+    { "id": "plains", "name": "Dark Plains", "color": "#7F8C6E", "material": 5 }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "description": "Ignis: the scorched inner world. Cracked dark highlands, vast glassy lava plains, long cliffs where the crust shrank, and bright frost hidden in the polar craters that never see the sun.",
+  "seed": 5401,
+  "minHeight": -4600,
+  "maxHeight": 5200,
+  "fields": [
+    {
+      "id": "plains", "note": "1 on the dark glassy lava plains",
+      "noise": { "type": "fbm", "seed": 11, "frequency": 1.05, "offset": [3.3, 1.9, 6.1], "octaves": 4 },
+      "smooth": [0.1, 0.27]
+    },
+    { "id": "relief", "note": "the broad rise and fall of the highlands", "noise": { "type": "fbm", "seed": 3, "frequency": 2.1, "octaves": 2 } },
+    {
+      "id": "coldTrap", "note": "the polar caps, with ragged edges",
+      "term": { "of": "absLatitude", "smooth": [76, 82], "jitter": { "type": "fbm", "seed": 19, "frequency": 14, "octaves": 3, "amount": 3 } }
+    },
+    { "id": "shade", "note": "above 0 bright ray, below 0 dark plain (worked out after the craters)", "sum": [ { "of": "rays" }, { "of": "plains", "weight": -1 } ] }
+  ],
+  "layers": [
+    { "note": "rolling highlands, flattened on the plains", "noise": { "type": "fbm", "seed": 3, "frequency": 2.1, "octaves": 6 }, "amplitude": 1500, "mask": { "of": "plains", "remap": [1, 0.15] } },
+    { "note": "hills", "noise": { "type": "fbm", "seed": 4, "frequency": 15, "offset": [9, 1, 4], "octaves": 4 }, "amplitude": 240, "mask": { "of": "plains", "remap": [1, 0.2] } },
+    { "note": "the plains lie low", "constant": -1250, "mask": { "of": "plains" } },
+    {
+      "note": "long cliffs where the crust shrank",
+      "noise": { "type": "ridged", "seed": 41, "frequency": 3.4, "offset": [2.2, 6.6, 1.4], "octaves": 3 },
+      "power": 4, "amplitude": 800, "mask": { "of": "plains", "remap": [1, 0.35] }
+    },
+    {
+      "note": "cracks across the highlands",
+      "canyons": { "noise": { "type": "fbm", "seed": 23, "frequency": 7.5, "octaves": 3 }, "width": 0.011, "depth": 95, "sharpness": 2.5 },
+      "mask": { "of": "plains", "invert": true }
+    },
+    {
+      "note": "impact craters, from 20 km basins down to 20 m pits",
+      "craters": {
+        "seed": 61,
+        "sizes": [
+          { "cell": 52000, "chance": 0.2, "depth": 0.07 },
+          { "cell": 17000, "chance": 0.3, "depth": 0.08 },
+          { "cell": 5600, "chance": 0.42, "depth": 0.17 },
+          { "cell": 1800, "chance": 0.5, "depth": 0.18 },
+          { "cell": 560, "chance": 0.5, "depth": 0.18 },
+          { "cell": 170, "chance": 0.45, "depth": 0.18 }
+        ],
+        "radius": [0.14, 0.44], "rim": 0.28, "rimInside": 0.2, "rimOutside": 0.28, "floor": 0.85, "reach": 2.0,
+        "fresh": 0.1, "rays": 0.7, "raysFrom": 0.6, "erosion": 0.2,
+        "raysField": "rays", "floorField": "craterFloor", "floorMinRadius": 6000, "freshField": "freshCrater", "freshMinRadius": 3500
+      }
+    },
+    { "note": "ground detail", "noise": { "type": "fbm", "seed": 29, "frequency": 2200, "octaves": 3 }, "amplitude": 4, "detail": true },
+    { "noise": { "type": "perlin", "seed": 29, "frequency": 18000 }, "amplitude": 0.5, "detail": true }
+  ],
+  "colors": [
+    { "note": "scorched regolith", "color": "#7C5B45" },
+    { "note": "highland rock, a little paler", "color": "#9C7C60", "mask": { "of": "plains", "invert": true } },
+    { "note": "glassy lava plains", "color": "#2F2B31", "mask": { "of": "plains" } },
+    { "note": "bright ejecta", "color": "#C8A988", "mask": { "of": "shade", "linear": [0, 1] } },
+    { "note": "slumped slopes show fresh rock", "color": "#5A3F33", "mask": { "of": "slope", "smooth": [18, 32] } },
+    { "note": "frost in the cold traps of the poles", "color": "#DCE8F1", "mask": [ { "of": "coldTrap" }, { "of": "height", "smooth": [200, -300] } ] }
+  ],
+  "shading": { "noise": { "type": "fbm", "seed": 29, "frequency": 40, "octaves": 2 }, "amount": 0.12, "slopeDarkening": 0.75 },
+  "biomes": [
+    { "id": "coldTraps", "name": "Cold Traps", "color": "#CFE8FF", "material": 5, "when": [ { "of": "coldTrap", "atLeast": 0.5 }, { "of": "height", "below": 200 } ] },
+    { "id": "glassPlains", "name": "Glass Plains", "color": "#3D4F7A", "material": 1, "when": { "of": "plains", "atLeast": 0.5 } },
+    { "id": "rayedCraters", "name": "Rayed Craters", "color": "#FFF27A", "material": 4, "when": { "of": "freshCrater", "atLeast": 0.5 } },
+    { "id": "greatBasins", "name": "Great Basins", "color": "#E0703A", "material": 3, "when": { "of": "craterFloor", "atLeast": 0.5 } },
+    { "id": "scarps", "name": "Scarps", "color": "#A33A3A", "material": 3, "when": { "of": "slope", "atLeast": 16 } },
+    { "id": "crackedHighlands", "name": "Cracked Highlands", "color": "#C9C1B2", "material": 0, "when": { "of": "relief", "atLeast": 0.05 } },
+    { "id": "foothills", "name": "Foothills", "color": "#7F8C6E", "material": 0 }
+  ]
+}

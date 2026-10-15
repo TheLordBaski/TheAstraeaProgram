@@ -48,6 +48,8 @@ namespace TAP.Simulation
         public readonly Dictionary<CelestialBody, PlanetTerrain> Terrains = new Dictionary<CelestialBody, PlanetTerrain>();
         public readonly List<SurfaceObject> SurfaceObjects = new List<SurfaceObject>();
         public readonly List<AtmosphereShell> Atmospheres = new List<AtmosphereShell>();
+        /// <summary>The rings of the bodies that have them, drawn by the flight camera while their body is near.</summary>
+        public readonly List<PlanetRing> Rings = new List<PlanetRing>();
 
         private readonly Dictionary<(int, int, int), ColliderChunk> _colliders = new Dictionary<(int, int, int), ColliderChunk>();
         private readonly ConcurrentQueue<(ColliderChunk chunk, ChunkData data, int gen)> _colliderDone = new ConcurrentQueue<(ColliderChunk, ChunkData, int)>();
@@ -103,6 +105,8 @@ namespace TAP.Simulation
                     var shell = AtmosphereShell.Create(b, transform);
                     if (shell != null) Atmospheres.Add(shell);
                 }
+                var rings = PlanetRing.Create(b, transform);
+                if (rings != null) Rings.Add(rings);
             }
             _colliderRoot = new GameObject("TerrainColliders");
             _colliderRoot.transform.SetParent(transform, false);
@@ -118,6 +122,8 @@ namespace TAP.Simulation
             if (Terrains.TryGetValue(body, out var t) && t.Hidden == local) t.SetHidden(!local);
             foreach (var a in Atmospheres)
                 if (a.Body == body) a.Local = local;
+            foreach (var r in Rings)
+                if (r.Body == body) r.Local = local;
         }
 
         private void OnDestroy()

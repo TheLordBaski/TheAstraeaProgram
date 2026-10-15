@@ -1,0 +1,57 @@
+{
+  "description": "Pruina: Tellus's small icy moon. Pale mint-white ice, very flat frozen lowlands that make landing easy, frosted hills, soft old craters and bright poles.",
+  "seed": 8100,
+  "minHeight": -1800,
+  "maxHeight": 2400,
+  "fields": [
+    { "id": "flats", "note": "1 on the great frozen flats", "noise": { "type": "fbm", "seed": 14, "frequency": 1.3, "octaves": 3 }, "smooth": [-0.3, -0.08] },
+    { "id": "lesser", "note": "1 on the lesser flats, a rougher floor in places", "noise": { "type": "fbm", "seed": 16, "frequency": 5, "octaves": 2 }, "smooth": [0.1, 0.3] },
+    { "id": "frost", "note": "frosted hills: ridged ground", "noise": { "type": "ridged", "seed": 15, "frequency": 12, "octaves": 3 } },
+    { "id": "relief", "note": "the broad rise and fall of the highlands", "noise": { "type": "fbm", "seed": 17, "frequency": 3, "octaves": 2 } },
+    {
+      "id": "polar", "note": "the bright polar caps, with ragged edges",
+      "term": { "of": "absLatitude", "smooth": [72, 78], "jitter": { "type": "fbm", "seed": 19, "frequency": 12, "octaves": 3, "amount": 3 } }
+    }
+  ],
+  "layers": [
+    { "note": "rolling highlands, nearly flat on the flats", "noise": { "type": "fbm", "seed": 17, "frequency": 3, "octaves": 5 }, "amplitude": 520, "mask": { "of": "flats", "remap": [1, 0.025] } },
+    { "note": "frosted hills", "from": "frost", "power": 1.4, "amplitude": 200, "mask": { "of": "flats", "remap": [1, 0.05] } },
+    { "note": "the flats lie low", "constant": -260, "mask": { "of": "flats" } },
+    {
+      "note": "soft old craters",
+      "craters": {
+        "seed": 45,
+        "sizes": [
+          { "cell": 16000, "chance": 0.22, "depth": 0.06 },
+          { "cell": 5200, "chance": 0.3, "depth": 0.08 },
+          { "cell": 1700, "chance": 0.36, "depth": 0.1 },
+          { "cell": 520, "chance": 0.4, "depth": 0.12 }
+        ],
+        "erosion": 0.85, "fresh": 0.05, "floorField": "craterFloor", "floorMinRadius": 1800
+      },
+      "mask": { "of": "flats", "remap": [1, 0.5] }
+    },
+    { "note": "ground detail", "noise": { "type": "fbm", "seed": 29, "frequency": 1400, "octaves": 3 }, "amplitude": 2.5, "detail": true },
+    { "noise": { "type": "perlin", "seed": 29, "frequency": 12000 }, "amplitude": 0.35, "detail": true }
+  ],
+  "colors": [
+    { "note": "pale mint ice", "color": "#CFE6DF" },
+    { "note": "bright flats", "color": "#E6F2EE", "mask": { "of": "flats" } },
+    { "note": "the lesser flats, a shade cooler", "color": "#D2E8E4", "mask": [ { "of": "flats" }, { "of": "lesser" } ] },
+    { "note": "frosted hills, bluish", "color": "#B9D5D6", "mask": { "of": "frost", "smooth": [0.3, 0.8] } },
+    { "note": "highland ice, darker", "color": "#9CBFC0", "mask": { "of": "height", "smooth": [500, 1400] } },
+    { "note": "crater floors", "color": "#BCD0CA", "mask": { "of": "craterFloor" } },
+    { "note": "slopes show older ice", "color": "#7FA09F", "mask": { "of": "slope", "smooth": [12, 26] } },
+    { "note": "polar frost", "color": "#F4FAFF", "mask": { "of": "polar" } }
+  ],
+  "shading": { "noise": { "type": "fbm", "seed": 29, "frequency": 40, "octaves": 2 }, "amount": 0.06, "slopeDarkening": 0.5 },
+  "biomes": [
+    { "id": "poles", "name": "Poles", "color": "#BFE6FF", "material": 6, "when": { "of": "polar", "atLeast": 0.5 } },
+    { "id": "lesserFlats", "name": "Lesser Flats", "color": "#6FA8DC", "material": 6, "when": [ { "of": "flats", "atLeast": 0.5 }, { "of": "lesser", "atLeast": 0.5 } ] },
+    { "id": "greatFlats", "name": "Great Flats", "color": "#3D6FB6", "material": 6, "when": { "of": "flats", "atLeast": 0.5 } },
+    { "id": "frostHills", "name": "Frost Hills", "color": "#9FD5C4", "material": 6, "when": { "of": "frost", "atLeast": 0.55 } },
+    { "id": "slopes", "name": "Slopes", "color": "#A33A3A", "material": 3, "when": { "of": "slope", "atLeast": 14 } },
+    { "id": "highlands", "name": "Highlands", "color": "#C9C1B2", "material": 3, "when": { "of": "relief", "atLeast": 0.12 } },
+    { "id": "midlands", "name": "Midlands", "color": "#7F8C6E", "material": 3 }
+  ]
+}

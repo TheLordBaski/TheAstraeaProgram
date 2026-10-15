@@ -35,8 +35,8 @@ namespace TAP.Game
     public sealed class MapView : MonoBehaviour
     {
         public const double Scale = 1000.0; // metres per map unit
-        /// <summary>The farthest the map camera zooms out: 100 Gm (map units).</summary>
-        public const float MaxDistance = 1e8f;
+        /// <summary>The farthest the map camera zooms out: 1 Tm (map units), where the whole planetary system fits in view.</summary>
+        public const float MaxDistance = 1e9f;
         public FlightSim Sim;
         public TrajectoryService Trajectory;
         public Camera MapCamera;
@@ -80,6 +80,8 @@ namespace TAP.Game
 
         private const int RuntimeMapWidth = 1024, RuntimeMapHeight = 512;
         private readonly Dictionary<CelestialBody, Material> _haloMats = new Dictionary<CelestialBody, Material>();
+        /// <summary>The rings of the bodies that have them, at map scale.</summary>
+        public readonly Dictionary<CelestialBody, PlanetRing> Rings = new Dictionary<CelestialBody, PlanetRing>();
         private readonly List<OrbitLine> _currentLines = new List<OrbitLine>();
         private readonly List<OrbitLine> _plannedLines = new List<OrbitLine>();
         private readonly Dictionary<string, OrbitLine> _vesselLines = new Dictionary<string, OrbitLine>();
@@ -144,9 +146,7 @@ namespace TAP.Game
             var go = new GameObject("Map " + b.Name);
             go.layer = Layers.Map;
             go.transform.SetParent(_root, false);
-            var bodyMesh = PlanetSphereMesh(b);
-            go.AddComponent<MeshFilter>().sharedMesh = bodyMesh;
-            if (!b.IsStar) _ownedBodyMeshes.Add(bodyMesh);
+            go.AddComponent<MeshFilter>().sharedMesh = PlanetSphereMesh(b); // the plain sphere; the relief follows once the map is opened
             var mr = go.AddComponent<MeshRenderer>();
             var mat = Resources.Load<Material>("Materials/Map_" + b.Id);
             var mapColor = new Color(b.Def.mapColor[0], b.Def.mapColor[1], b.Def.mapColor[2]);
@@ -169,15 +169,16 @@ namespace TAP.Game
                 if (sharedMap) mat = new Material(mat);
                 mr.sharedMaterial = mat;
                 var maps = new BodyMaps { Material = mat, Surface = baked ? mat.GetTexture("_BaseMap") : null };
-                if (!baked)
-                {
-                    var terrain = b.Terrain;
-                    maps.SurfaceTask = System.Threading.Tasks.Task.Run(() => PlanetMaps.Surface(terrain, RuntimeMapWidth, RuntimeMapHeight));
-                }
+                // Neither the relief mesh nor the generated surface map is made now: a system of two dozen worlds would stall
+                // the scene's start, and most flights never open the map. They are made one body at a time once it opens.
+                if (!baked) _surfaceWanted.Add(b);
+                if (b.Terrain.MaxHeight - b.Terrain.MinHeight > b.Radius * 1e-4) _reliefWanted.Add(b);
                 _maps[b] = maps;
             }
             mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             _bodyObjects[b] = go;
+            var rings = PlanetRing.Create(b, _root, Layers.Map);
+            if (rings != null) Rings[b] = rings;
             if (b.Atmosphere != null)
             {
                 var sh = Resources.Load<Material>("Materials/AtmosphereShell");
@@ -202,12 +203,37 @@ namespace TAP.Game
         }
 
         private static Mesh _sphere;
-        /// <summary>UV sphere whose texture mapping matches the equirectangular planet maps (lon 0 at +X, east towards -Z).</summary>
-        private static Mesh PlanetSphereMesh(CelestialBody body)
+        private const int ReliefSegments = 256;
+
+        /// <summary>The height of the ground at every vertex of a body's relief mesh (m). Safe on any thread.</summary>
+        private static double[] ReliefHeights(CelestialBody body)
         {
-            bool relief = !body.IsStar && body.Terrain != null;
+            int seg = ReliefSegments, rings = seg / 2;
+            var terrain = body.Terrain;
+            bool ocean = body.HasOcean;
+            var heights = new double[(rings + 1) * (seg + 1)];
+            System.Threading.Tasks.Parallel.For(0, rings + 1, j =>
+            {
+                double lat = -90.0 + 180.0 * j / rings;
+                for (int i = 0; i <= seg; i++)
+                {
+                    double lon = -180.0 + 360.0 * i / seg;
+                    double h = terrain.Height(TerrainGenerator.DirectionFromLatLon(lat, lon));
+                    heights[j * (seg + 1) + i] = ocean ? Math.Max(0, h) : h;
+                }
+            });
+            return heights;
+        }
+
+        /// <summary>
+        /// UV sphere whose texture mapping matches the equirectangular planet maps (lon 0 at +X, east towards -Z): the plain
+        /// shared sphere, or with <paramref name="heights"/> (<see cref="ReliefHeights"/>) the body's own relief.
+        /// </summary>
+        private static Mesh PlanetSphereMesh(CelestialBody body, double[] heights = null)
+        {
+            bool relief = heights != null;
             if (!relief && _sphere != null) return _sphere;
-            int seg = relief ? 256 : 96, rings = seg / 2;
+            int seg = relief ? ReliefSegments : 96, rings = seg / 2;
             var verts = new List<Vector3>();
             var norms = new List<Vector3>();
             var uvs = new List<Vector2>();
@@ -219,8 +245,7 @@ namespace TAP.Game
                 {
                     double lon = -180.0 + 360.0 * i / seg;
                     var d = (Vector3)TerrainGenerator.DirectionFromLatLon(lat, lon);
-                    double height = relief ? body.Terrain.Height((Vector3d)d) : 0;
-                    if (body.HasOcean) height = Math.Max(0, height);
+                    double height = relief ? heights[j * (seg + 1) + i] : 0;
                     verts.Add(d * (float)(1 + height / body.Radius));
                     norms.Add(d);
                     uvs.Add(new Vector2((float)i / seg, (float)j / rings));
@@ -279,6 +304,9 @@ namespace TAP.Game
             _targetDistance = (float)(b.Radius / Scale * 6);
         }
 
+        /// <summary>Zooms the map camera to a distance from its focus (map units, so metres / 1000), within its range.</summary>
+        public void ZoomTo(float mapUnits) => _targetDistance = mapUnits;
+
         public void FocusOn(VesselHandle h)
         {
             FocusVessel = h;
@@ -316,6 +344,7 @@ namespace TAP.Game
             double ut = Sim.UT;
             Vector3d focus = FocusAbsolute(ut);
             HandleCamera();
+            PumpBackgroundWork(focus);
             UpdateMapTextures();
 
             foreach (var kv in _bodyObjects)
@@ -331,6 +360,16 @@ namespace TAP.Game
                     hm.SetFloat("_AtmoRadius", (float)((b.Radius + b.Atmosphere.Height) / Scale));
                     hm.SetVector("_SunDir", (Vector3)Sim.System.SunDirectionFrom(b.GetPositionAtUT(ut)));
                 }
+                if (Rings.TryGetValue(b, out var ring))
+                {
+                    var star = Sim.System.Star;
+                    var sun = Sim.System.Def.sun;
+                    Vector3d bp = b.GetPositionAtUT(ut);
+                    double sunDist = star != null ? Math.Max((star.GetPositionAtUT(ut) - bp).magnitude, star.Radius) : 1e11;
+                    var light = new Color(sun.color[0], sun.color[1], sun.color[2]).linear * sun.intensity;
+                    ring.Place(kv.Value.transform.position, Scale, (Vector3)Sim.System.SunDirectionFrom(bp), light,
+                        star != null ? (float)(star.Radius / sunDist) : 0.002f);
+                }
             }
             foreach (var kv in _bodyLines)
                 PlaceLine(kv.Value, kv.Key.Parent.GetPositionAtUT(ut), focus);
@@ -339,6 +378,55 @@ namespace TAP.Game
             PositionTrajectoryLines(focus, ut);
             UpdateVesselLines(focus, ut);
             BuildMarkers(focus, ut);
+        }
+
+        // Relief meshes and generated surface maps, made one at a time in the background, nearest the focus first.
+        private readonly List<CelestialBody> _reliefWanted = new List<CelestialBody>();
+        private readonly List<CelestialBody> _surfaceWanted = new List<CelestialBody>();
+        private readonly Dictionary<CelestialBody, System.Threading.Tasks.Task<double[]>> _reliefTasks = new Dictionary<CelestialBody, System.Threading.Tasks.Task<double[]>>();
+
+        private void PumpBackgroundWork(Vector3d focus)
+        {
+            // Finished relief: the mesh is built here, on the main thread.
+            foreach (var kv in new List<KeyValuePair<CelestialBody, System.Threading.Tasks.Task<double[]>>>(_reliefTasks))
+            {
+                if (!kv.Value.IsCompleted) continue;
+                _reliefTasks.Remove(kv.Key);
+                if (kv.Value.Status != System.Threading.Tasks.TaskStatus.RanToCompletion || !_bodyObjects.TryGetValue(kv.Key, out var go)) continue;
+                var mesh = PlanetSphereMesh(kv.Key, kv.Value.Result);
+                _ownedBodyMeshes.Add(mesh);
+                go.GetComponent<MeshFilter>().sharedMesh = mesh;
+            }
+            bool busy = _reliefTasks.Count > 0;
+            foreach (var m in _maps.Values) busy |= m.SurfaceTask != null;
+            if (busy) return;
+            double ut = Sim.UT;
+            // The next body: the one nearest the focus that still wants its relief, else its generated surface map.
+            CelestialBody Nearest(List<CelestialBody> list)
+            {
+                CelestialBody best = null;
+                double bestD = double.MaxValue;
+                foreach (var b in list)
+                {
+                    double d = (b.GetPositionAtUT(ut) - focus).sqrMagnitude;
+                    if (d < bestD) { bestD = d; best = b; }
+                }
+                return best;
+            }
+            var next = Nearest(_reliefWanted);
+            if (next != null)
+            {
+                _reliefWanted.Remove(next);
+                _reliefTasks[next] = System.Threading.Tasks.Task.Run(() => ReliefHeights(next));
+                return;
+            }
+            next = Nearest(_surfaceWanted);
+            if (next != null)
+            {
+                _surfaceWanted.Remove(next);
+                var terrain = next.Terrain;
+                _maps[next].SurfaceTask = System.Threading.Tasks.Task.Run(() => PlanetMaps.Surface(terrain, RuntimeMapWidth, RuntimeMapHeight));
+            }
         }
 
         /// <summary>Puts finished map textures in place and switches between surface and biome maps.</summary>
@@ -403,7 +491,7 @@ namespace TAP.Game
                 if (Controls.Down("Map/CycleFocus")) CycleFocus();
                 if (Controls.Down("Map/FocusActive")) FocusOn(Sim.ActiveHandle);
             }
-            // Down to just above the focused body's surface, or to ~10 m from a focused vessel; out to 100 Gm, where
+            // Down to just above the focused body's surface, or to ~10 m from a focused vessel; out to 1 Tm, where
             // the whole home system fits in view (FND-03).
             float minDist = FocusBody != null ? (float)(FocusBody.Radius / Scale * 1.02) : 0.01f;
             _targetDistance = Mathf.Clamp(_targetDistance, minDist, MaxDistance);

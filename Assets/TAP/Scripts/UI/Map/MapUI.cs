@@ -597,9 +597,11 @@ namespace TAP.UI
                 sb.AppendLine($"<b>{b.Name}</b>");
                 sb.AppendLine($"Radius {b.Radius / 1000:N0} km   Mass {b.Mass:0.000e+00} kg");
                 sb.AppendLine($"Surface gravity {b.SurfaceGravity:0.00} m/s²   GM {b.GM:0.000e+00}");
-                sb.AppendLine($"Rotation {MathD.FormatDuration(b.RotationPeriod)}{(b.Def.tidallyLocked ? " (tidally locked)" : "")}" +
+                sb.AppendLine($"Rotation {MathD.FormatDuration(Math.Abs(b.RotationPeriod))}{(b.RotationPeriod < 0 ? " retrograde" : "")}{(b.Def.tidallyLocked ? " (tidally locked)" : "")}" +
                               (b.IsStar ? "" : $", day {MathD.FormatDuration(b.SolarDay)}"));
-                if (b.Atmosphere != null) sb.AppendLine($"Atmosphere {b.Atmosphere.Height / 1000:0} km, {b.Atmosphere.SeaLevelPressure / 1000:0.0} kPa at sea level");
+                if (b.IsGasGiant) sb.AppendLine($"No surface: air {b.Atmosphere.Height / 1000:0} km deep, {b.Atmosphere.SeaLevelPressure / 1e5:0.#} bar at the datum, crushing from {b.CrushPressure / 1e5:0.#} bar");
+                else if (b.Atmosphere != null) sb.AppendLine($"Atmosphere {b.Atmosphere.Height / 1000:0} km, {b.Atmosphere.SeaLevelPressure / 1000:0.0} kPa at sea level");
+                if (b.Rings.Count > 0) sb.AppendLine($"Rings {b.Rings[0].inner / 1000:N0} to {b.Rings[b.Rings.Count - 1].outer / 1000:N0} km");
                 if (b.Parent != null) sb.AppendLine($"Orbit {b.Orbit.SemiMajorAxis / 1000:N0} km, period {MathD.FormatDuration(b.Orbit.Period)}\nSphere of influence {b.SOIRadius / 1000:N0} km");
                 sb.Append($"<size=12><color=#{UIKit.Hex(UIKit.TextDim)}>{Loc.Data(b.Def.description)}</color></size>");
             }

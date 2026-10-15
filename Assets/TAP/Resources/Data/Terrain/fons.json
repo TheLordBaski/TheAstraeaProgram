@@ -1,0 +1,66 @@
+{
+  "description": "Fons: the bright spring moon of Anulus. Dazzling white ice, smooth plains in the south broken by four long blue-grey fractures, the tiger stripes, where plumes of vapour rise, and old cratered terrain in the north.",
+  "seed": 9900,
+  "minHeight": -1800,
+  "maxHeight": 2200,
+  "fields": [
+    { "id": "cratered", "note": "1 over the old cratered north", "term": { "of": "latitude", "smooth": [-25, 20], "jitter": { "type": "fbm", "seed": 81, "frequency": 4, "octaves": 3, "amount": 10 } } },
+    { "id": "stripes", "note": "1 on the floors of the tiger stripes", "sum": [ { "of": "stripe1" }, { "of": "stripe2" }, { "of": "stripe3" }, { "of": "stripe4" } ] },
+    {
+      "id": "polar", "note": "the north polar frost, with ragged edges",
+      "term": { "of": "latitude", "smooth": [72, 78], "jitter": { "type": "fbm", "seed": 83, "frequency": 10, "octaves": 3, "amount": 4 } }
+    }
+  ],
+  "layers": [
+    { "note": "gentle undulation", "noise": { "type": "fbm", "seed": 84, "frequency": 2.5, "octaves": 5 }, "amplitude": 330, "mask": { "of": "cratered", "remap": [0.45, 1] } },
+    { "note": "ridged hills in the north", "noise": { "type": "ridged", "seed": 85, "frequency": 10, "octaves": 3 }, "power": 1.5, "amplitude": 260, "mask": { "of": "cratered" } },
+    {
+      "note": "tiger stripe 1",
+      "rift": { "path": [ [-60, 10], [-72, 35], [-82, 70] ], "width": 3500, "depth": 430, "floor": 0.3, "shoulders": 0.15, "wobble": { "type": "fbm", "seed": 86, "frequency": 40, "octaves": 2, "amount": 300 }, "field": "stripe1" }
+    },
+    {
+      "note": "tiger stripe 2",
+      "rift": { "path": [ [-58, 60], [-70, 90], [-80, 125] ], "width": 3500, "depth": 430, "floor": 0.3, "shoulders": 0.15, "wobble": { "type": "fbm", "seed": 87, "frequency": 40, "octaves": 2, "amount": 300 }, "field": "stripe2" }
+    },
+    {
+      "note": "tiger stripe 3",
+      "rift": { "path": [ [-62, 110], [-72, 140], [-83, 170] ], "width": 3500, "depth": 430, "floor": 0.3, "shoulders": 0.15, "wobble": { "type": "fbm", "seed": 88, "frequency": 40, "octaves": 2, "amount": 300 }, "field": "stripe3" }
+    },
+    {
+      "note": "tiger stripe 4",
+      "rift": { "path": [ [-60, -40], [-70, -15], [-80, 15] ], "width": 3500, "depth": 430, "floor": 0.3, "shoulders": 0.15, "wobble": { "type": "fbm", "seed": 89, "frequency": 40, "octaves": 2, "amount": 300 }, "field": "stripe4" }
+    },
+    {
+      "note": "craters, mostly in the north",
+      "craters": {
+        "seed": 90,
+        "sizes": [
+          { "cell": 26000, "chance": 0.25, "depth": 0.06 },
+          { "cell": 8000, "chance": 0.32, "depth": 0.08 },
+          { "cell": 2500, "chance": 0.38, "depth": 0.12 },
+          { "cell": 780, "chance": 0.4, "depth": 0.14 },
+          { "cell": 240, "chance": 0.4, "depth": 0.14 }
+        ],
+        "erosion": 0.6, "fresh": 0.1, "floorField": "craterFloor", "floorMinRadius": 3000
+      },
+      "mask": { "of": "cratered", "remap": [0.15, 1] }
+    },
+    { "note": "ground detail", "noise": { "type": "fbm", "seed": 91, "frequency": 1800, "octaves": 3 }, "amplitude": 3, "detail": true }
+  ],
+  "colors": [
+    { "note": "dazzling white ice", "color": "#F1F6F9" },
+    { "note": "older terrain, a touch greyer", "color": "#D9E2E8", "mask": { "of": "cratered" } },
+    { "note": "crater floors", "color": "#C9D6DE", "mask": { "of": "craterFloor" } },
+    { "note": "the tiger stripes", "color": "#8FB0C8", "mask": { "of": "stripes", "smooth": [0.15, 0.7] } },
+    { "note": "slopes show older ice", "color": "#B2C2CD", "mask": { "of": "slope", "smooth": [14, 28] } },
+    { "note": "north polar frost", "color": "#FAFDFF", "mask": { "of": "polar" } }
+  ],
+  "shading": { "noise": { "type": "fbm", "seed": 92, "frequency": 40, "octaves": 2 }, "amount": 0.04, "slopeDarkening": 0.5 },
+  "biomes": [
+    { "id": "tigerStripes", "name": "Tiger Stripes", "color": "#4F8FD0", "material": 6, "when": { "of": "stripes", "atLeast": 0.35 } },
+    { "id": "northernFrost", "name": "Northern Frost", "color": "#BFE6FF", "material": 6, "when": { "of": "polar", "atLeast": 0.5 } },
+    { "id": "southPolarTerrain", "name": "South Polar Terrain", "color": "#9FD5C4", "material": 6, "when": { "of": "latitude", "below": -55 } },
+    { "id": "crateredNorth", "name": "Cratered North", "color": "#C9C1B2", "material": 6, "when": { "of": "cratered", "atLeast": 0.5 } },
+    { "id": "smoothPlains", "name": "Smooth Plains", "color": "#E3ECF1", "material": 6 }
+  ]
+}

@@ -28,7 +28,20 @@ namespace TAP.EditorTools
                 "warpAltitudeLimits|Altitude thresholds in metres for each rails-warp level, in the game's warp-level order.",
                 "mapColor|RGB colour used for the body's map marker and star preview. Channels range from zero to one.",
                 "luminosity|Stars: radiated power in watts, controlling solar flux at other bodies.",
-                "surfaceTemperature|Stars: surface temperature in Kelvin, stored for star colour/glare.");
+                "surfaceTemperature|Stars: surface temperature in Kelvin, stored for star colour/glare.",
+                "oceanDensity|Density of the sea in kg/m³ (water is 1000): a denser sea floats heavier things and pushes harder.",
+                "crushPressure|Gas giants: air pressure in pascals above which a vessel is crushed. Must be below the pressure at the datum, so vessels are lost in the clouds.",
+                "rings|Rings in the body's equatorial plane, listed from the body outwards. Each is a coloured band of opacity zero to one; gaps are bands left out.",
+                "ringTiltDeg|Tilts the ring plane away from the equator, in degrees. Bodies spin about one axis only, so this gives rings their seasons.",
+                "ringTiltAzimuthDeg|Compass direction of the ring tilt in the equatorial plane, in degrees: zero tilts the ring up towards +X, 90 towards +Z.");
+            Add<RingDefinition>(
+                "note|Author note with no effect on rendering.",
+                "inner|Inner edge of the band in metres from the body's centre. Must clear the body's radius.",
+                "outer|Outer edge of the band in metres from the body's centre.",
+                "opacity|Opacity at normal incidence: zero is a gap, one is solid. Seen edge-on or at a slant the ring looks denser.",
+                "color|RGB colour of the ring material, each channel zero to one.",
+                "ringlets|How much narrow ringlets vary the band's opacity and brightness, zero to one.",
+                "softEdge|Share of the band's width, zero to one half, over which each edge fades out.");
             Add<OrbitDefinition>(
                 "semiMajorAxis|Size of the ellipse in metres from the parent's centre. Periapsis = a(1−e), apoapsis = a(1+e).",
                 "eccentricity|Ellipse shape: zero is circular; values approaching one are stretched. Body orbits require 0 ≤ e < 1.",

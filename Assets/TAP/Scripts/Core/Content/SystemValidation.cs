@@ -270,6 +270,9 @@ namespace TAP.Core
             if (b.warpAltitudeLimits != null)
                 for (int i = 0; i < b.warpAltitudeLimits.Length; i++) e.NotNegative(b.warpAltitudeLimits[i], $"warpAltitudeLimits[{i}]");
             if (b.atmosphere != null) CheckAtmosphere(e, b.atmosphere);
+            e.Positive(b.oceanDensity, "oceanDensity", "kg/m³; water is 1000");
+            CheckGasGiant(e, b);
+            CheckRings(e, b);
             if (b.type == "star")
             {
                 e.Positive(b.luminosity, "luminosity", "a star's radiated power, W");
@@ -277,6 +280,45 @@ namespace TAP.Core
                 return;
             }
             CheckTerrain(e, b.terrain ?? new TerrainDefinition(), b.radius);
+        }
+
+        /// <summary>A gas giant is all air: it needs one, and a pressure at which vessels are crushed above the datum.</summary>
+        private static void CheckGasGiant(ContentEntry e, BodyDefinition b)
+        {
+            if (b.type != "gasgiant")
+            {
+                e.NotNegative(b.crushPressure, "crushPressure", "Pa");
+                return;
+            }
+            e.Check(b.atmosphere != null, "atmosphere", "an atmosphere (a gas giant is all air)");
+            e.Check(!b.hasOcean, "hasOcean", "false (a gas giant has no sea)");
+            if (!e.Positive(b.crushPressure, "crushPressure", "Pa, the pressure that destroys a vessel") || b.atmosphere == null) return;
+            e.Check(b.crushPressure < b.atmosphere.seaLevelPressure, "crushPressure",
+                "less than the pressure at the datum (" + ContentEntry.Number(b.atmosphere.seaLevelPressure) + " Pa)",
+                found: ContentEntry.Number(b.crushPressure), hint: "so a vessel is lost in the clouds, never on the datum's \"ground\"");
+        }
+
+        /// <summary>Rings: inside the body's reach, in order from the body outwards, each a coloured band of opacity 0 to 1.</summary>
+        private static void CheckRings(ContentEntry e, BodyDefinition b)
+        {
+            if (b.rings == null) return;
+            e.InRange(b.ringTiltDeg, -90, 90, "ringTiltDeg", unit: "degrees from the equator");
+            e.InRange(b.ringTiltAzimuthDeg, -360, 360, "ringTiltAzimuthDeg", unit: "degrees round the equator");
+            double previousInner = 0;
+            for (int i = 0; i < b.rings.Count; i++)
+            {
+                var r = b.rings[i];
+                string p = $"rings[{i}]";
+                if (r == null) { e.Error(p, "an object describing a ring"); continue; }
+                e.Check(r.inner > b.radius, p + ".inner", "a radius above the body's own (" + ContentEntry.Number(b.radius) + " m)", found: ContentEntry.Number(r.inner));
+                e.Check(r.outer > r.inner, p + ".outer", "a radius above the ring's inner edge (" + ContentEntry.Number(r.inner) + " m)", found: ContentEntry.Number(r.outer));
+                e.Check(r.inner >= previousInner, p + ".inner", "rings listed from the body outwards", found: ContentEntry.Number(r.inner) + " after " + ContentEntry.Number(previousInner));
+                previousInner = r.inner;
+                e.InRange(r.opacity, 0, 1, p + ".opacity");
+                e.InRange(r.ringlets, 0, 1, p + ".ringlets");
+                e.InRange(r.softEdge, 0, 0.5, p + ".softEdge");
+                e.Color(r.color, p + ".color");
+            }
         }
 
         private static void CheckAtmosphere(ContentEntry e, AtmosphereDefinition a)

@@ -1,0 +1,41 @@
+{
+  "description": "Mica: Caligo's pebble, a dark carbonaceous rock barely 13 km across. Lumpy and elongated, with a few hollows and pale patches where fresh ice shows.",
+  "seed": 8200,
+  "minHeight": -4300,
+  "maxHeight": 5300,
+  "fields": [
+    { "id": "lumps", "note": "the broad lumps of the rock", "noise": { "type": "fbm", "seed": 4, "frequency": 2.6, "octaves": 5 } },
+    { "id": "pale", "note": "1 on the pale patches", "noise": { "type": "fbm", "seed": 6, "frequency": 6, "octaves": 3 }, "smooth": [0.25, 0.55] }
+  ],
+  "layers": [
+    { "note": "an elongated body", "ellipsoid": [16000, 11500, 12500] },
+    { "note": "lumps", "from": "lumps", "amplitude": 1600 },
+    {
+      "note": "a few big craters",
+      "craters": {
+        "seed": 19,
+        "sizes": [
+          { "cell": 7000, "chance": 0.5, "depth": 0.12 },
+          { "cell": 2400, "chance": 0.5, "depth": 0.15 },
+          { "cell": 800, "chance": 0.5, "depth": 0.18 }
+        ],
+        "erosion": 0.3, "floorField": "craterFloor", "floorMinRadius": 1100
+      }
+    },
+    { "note": "ground detail", "noise": { "type": "fbm", "seed": 29, "frequency": 700, "octaves": 3 }, "amplitude": 3, "detail": true }
+  ],
+  "colors": [
+    { "note": "carbonaceous dust", "color": "#3C3834" },
+    { "note": "pale patches", "color": "#7D756C", "mask": { "of": "pale" } },
+    { "note": "crater floors", "color": "#58514B", "mask": { "of": "craterFloor" } },
+    { "note": "the tips of the long axis", "color": "#4A443E", "mask": { "of": "height", "smooth": [2200, 3600] } }
+  ],
+  "shading": { "noise": { "type": "fbm", "seed": 29, "frequency": 18, "octaves": 2 }, "amount": 0.12, "slopeDarkening": 0.8 },
+  "biomes": [
+    { "id": "tips", "name": "Tips", "color": "#E0703A", "material": 5, "when": { "of": "height", "atLeast": 2200 } },
+    { "id": "hollows", "name": "Hollows", "color": "#3D4F7A", "material": 5, "when": { "of": "height", "below": -1400 } },
+    { "id": "craters", "name": "Craters", "color": "#8FA3B0", "material": 5, "when": { "of": "craterFloor", "atLeast": 0.5 } },
+    { "id": "pale", "name": "Pale Patches", "color": "#FFF27A", "material": 5, "when": { "of": "pale", "atLeast": 0.5 } },
+    { "id": "flanks", "name": "Flanks", "color": "#7F8C6E", "material": 5 }
+  ]
+}

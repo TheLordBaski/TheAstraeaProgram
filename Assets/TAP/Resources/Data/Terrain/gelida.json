@@ -1,0 +1,53 @@
+{
+  "description": "Gelida: Magnus's cracked ice moon. A bright, smooth shell of water ice laced with long double ridges and fine crack networks, with patches of rusty-brown dust where the ice has been stained.",
+  "seed": 9500,
+  "minHeight": -1900,
+  "maxHeight": 2300,
+  "fields": [
+    { "id": "ridges", "note": "double ridges: ridged ground", "noise": { "type": "ridged", "seed": 41, "frequency": 4.2, "offset": [3.3, 5.1, 7.2], "octaves": 3 } },
+    { "id": "crackNoise", "note": "zero lines of this noise are the main cracks", "noise": { "type": "fbm", "seed": 42, "frequency": 5, "octaves": 4 } },
+    { "id": "stained", "note": "1 where rusty dust stains the ice", "noise": { "type": "fbm", "seed": 43, "frequency": 2.1, "octaves": 3 }, "smooth": [0.1, 0.4] },
+    { "id": "smoothIce", "note": "1 on the smoothest, brightest plains", "noise": { "type": "fbm", "seed": 44, "frequency": 1.7, "octaves": 3 }, "smooth": [0.15, 0.45] },
+    {
+      "id": "polar", "note": "the bright polar frost, with ragged edges",
+      "term": { "of": "absLatitude", "smooth": [70, 76], "jitter": { "type": "fbm", "seed": 45, "frequency": 10, "octaves": 3, "amount": 4 } }
+    }
+  ],
+  "layers": [
+    { "note": "gentle undulation of the shell", "noise": { "type": "fbm", "seed": 46, "frequency": 2, "octaves": 4 }, "amplitude": 450 },
+    { "note": "long double ridges", "from": "ridges", "power": 2, "amplitude": 850, "mask": { "of": "smoothIce", "remap": [1, 0.3] } },
+    { "note": "the main cracks", "canyons": { "noise": { "type": "fbm", "seed": 42, "frequency": 5, "octaves": 4 }, "width": 0.014, "depth": 230, "sharpness": 2.5 } },
+    { "note": "fine crack network", "canyons": { "noise": { "type": "fbm", "seed": 47, "frequency": 14, "octaves": 3 }, "width": 0.02, "depth": 55, "sharpness": 2 } },
+    {
+      "note": "a few soft, old craters",
+      "craters": {
+        "seed": 48,
+        "sizes": [
+          { "cell": 36000, "chance": 0.12, "depth": 0.05 },
+          { "cell": 11000, "chance": 0.18, "depth": 0.07 },
+          { "cell": 3400, "chance": 0.24, "depth": 0.1 },
+          { "cell": 1000, "chance": 0.28, "depth": 0.12 }
+        ],
+        "erosion": 0.8, "fresh": 0.08, "floorField": "craterFloor", "floorMinRadius": 4000
+      }
+    },
+    { "note": "ground detail", "noise": { "type": "fbm", "seed": 49, "frequency": 1700, "octaves": 3 }, "amplitude": 3, "detail": true }
+  ],
+  "colors": [
+    { "note": "bright ice", "color": "#E3ECF1" },
+    { "note": "bluish ridges", "color": "#CBDEEA", "mask": { "of": "ridges", "smooth": [0.35, 0.85] } },
+    { "note": "rusty stains", "color": "#A98E7C", "mask": { "of": "stained" } },
+    { "note": "the cracks, dark with dust", "color": "#A6B6C3", "mask": { "of": "crackNoise", "range": [-0.02, 0.02] } },
+    { "note": "crater floors", "color": "#C2D1DA", "mask": { "of": "craterFloor" } },
+    { "note": "polar frost", "color": "#F6FBFF", "mask": { "of": "polar" } }
+  ],
+  "shading": { "noise": { "type": "fbm", "seed": 50, "frequency": 40, "octaves": 2 }, "amount": 0.05, "slopeDarkening": 0.5 },
+  "biomes": [
+    { "id": "frostPoles", "name": "Frost Poles", "color": "#BFE6FF", "material": 6, "when": { "of": "polar", "atLeast": 0.5 } },
+    { "id": "crackFields", "name": "Crack Fields", "color": "#5B6C8A", "material": 6, "when": { "of": "crackNoise", "range": [-0.05, 0.05] } },
+    { "id": "stainedTerrain", "name": "Stained Terrain", "color": "#B07A52", "material": 6, "when": { "of": "stained", "atLeast": 0.5 } },
+    { "id": "ridgedPlains", "name": "Ridged Plains", "color": "#9FD5C4", "material": 6, "when": { "of": "ridges", "atLeast": 0.45 } },
+    { "id": "craterFloors", "name": "Crater Floors", "color": "#8FA3B0", "material": 6, "when": { "of": "craterFloor", "atLeast": 0.5 } },
+    { "id": "smoothIce", "name": "Smooth Ice", "color": "#E3ECF1", "material": 6 }
+  ]
+}

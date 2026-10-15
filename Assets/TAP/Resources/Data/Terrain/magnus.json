@@ -1,0 +1,60 @@
+{
+  "description": "Magnus: the gas giant. No ground, only banded cloud tops: pale zones and rust-brown belts that wander with the wind, white ovals, a polar hood and the Great Storm, a rust-red vortex that has raged for ages. The datum sits deep in the clouds; vessels are crushed above it.",
+  "seed": 9100,
+  "minHeight": -10,
+  "maxHeight": 10,
+  "fields": [
+    {
+      "id": "zone", "note": "distance from the equator in degrees, bent by the wind: the bands wander",
+      "term": { "of": "absLatitude", "jitter": { "type": "fbm", "seed": 3, "frequency": 7, "octaves": 6, "amount": 4.2 } }
+    },
+    { "id": "swirl", "note": "turbulence along the belts", "noise": { "type": "fbm", "seed": 8, "frequency": 26, "offset": [1.3, 7.7, 2.9], "octaves": 5 } },
+    { "id": "streaks", "note": "fine streaks that follow the bands", "noise": { "type": "fbm", "seed": 12, "frequency": 210, "offset": [4.4, 2.2, 9.1], "octaves": 5 } },
+    {
+      "id": "storm", "note": "1 inside the Great Storm and the smaller red storm",
+      "noise": { "type": "perlin", "seed": 5, "frequency": 0.001 }, "scale": 0,
+      "spots": [
+        { "note": "the Great Storm", "lat": -21, "lon": 48, "radius": 1150000, "amount": 1.1 },
+        { "note": "its smaller companion", "lat": -30, "lon": -20, "radius": 330000, "amount": 0.9 },
+        { "note": "an old red oval in the north", "lat": 32, "lon": -110, "radius": 420000, "amount": 0.85 }
+      ],
+      "smooth": [0.15, 0.7]
+    },
+    {
+      "id": "ovals", "note": "white ovals",
+      "noise": { "type": "perlin", "seed": 6, "frequency": 0.001 }, "scale": 0,
+      "spots": [
+        { "lat": -33, "lon": 105, "radius": 280000, "amount": 1 },
+        { "lat": -33, "lon": 120, "radius": 230000, "amount": 1 },
+        { "lat": 28, "lon": 20, "radius": 340000, "amount": 1 },
+        { "lat": 41, "lon": 160, "radius": 250000, "amount": 1 }
+      ],
+      "smooth": [0.2, 0.8]
+    }
+  ],
+  "colors": [
+    { "note": "zones: pale cream cloud", "color": "#DCC8A1" },
+    { "note": "the equatorial belts", "color": "#B27A52", "mask": [ { "of": "zone", "smooth": [5.5, 7.5] }, { "of": "zone", "smooth": [15.5, 13.5] } ] },
+    { "note": "darkest core of the equatorial belt", "color": "#8A5538", "mask": [ { "of": "zone", "smooth": [8, 9.5] }, { "of": "zone", "smooth": [12, 10.5] } ] },
+    { "note": "the tropical zone", "color": "#E8D8B2", "mask": [ { "of": "zone", "smooth": [15, 17] }, { "of": "zone", "smooth": [22, 20.5] } ] },
+    { "note": "the temperate belts", "color": "#A8694A", "mask": [ { "of": "zone", "smooth": [23, 25] }, { "of": "zone", "smooth": [31, 29] } ] },
+    { "note": "the temperate zones", "color": "#E2D0A8", "mask": [ { "of": "zone", "smooth": [31, 33] }, { "of": "zone", "smooth": [38, 36] } ] },
+    { "note": "the high belts, thin and rust", "color": "#9C6044", "mask": [ { "of": "zone", "smooth": [39, 41] }, { "of": "zone", "smooth": [46, 44] } ] },
+    { "note": "the high zones, paler", "color": "#D9CBB0", "mask": [ { "of": "zone", "smooth": [46, 48] }, { "of": "zone", "smooth": [55, 53] } ] },
+    { "note": "the polar hood: muted grey-brown haze", "color": "#8D8274", "mask": { "of": "zone", "smooth": [57, 66] } },
+    { "note": "the deep polar cap", "color": "#6F7381", "mask": { "of": "zone", "smooth": [74, 84] } },
+    { "note": "turbulence lightens and darkens the belts", "color": "#6C4630", "mask": [ { "of": "swirl", "smooth": [0.05, 0.6], "scale": 0.45 }, { "of": "zone", "smooth": [5, 7] }, { "of": "zone", "smooth": [47, 44] } ] },
+    { "note": "bright wisps along the zones", "color": "#F2E6C8", "mask": [ { "of": "streaks", "smooth": [0.15, 0.7] }, { "of": "zone", "smooth": [57, 50], "scale": 0.75 } ] },
+    { "note": "the Great Storm and the red ovals", "color": "#BF5A38", "mask": { "of": "storm" } },
+    { "note": "the white ovals", "color": "#F6EEDC", "mask": { "of": "ovals" } }
+  ],
+  "shading": { "noise": { "type": "fbm", "seed": 29, "frequency": 80, "octaves": 4 }, "amount": 0.07, "slopeDarkening": 0 },
+  "biomes": [
+    { "id": "greatStorm", "name": "Great Storm", "color": "#C0392B", "material": 0, "when": { "of": "storm", "atLeast": 0.5 } },
+    { "id": "polarHood", "name": "Polar Hood", "color": "#7F8C9B", "material": 0, "when": { "of": "zone", "atLeast": 57 } },
+    { "id": "equatorialZone", "name": "Equatorial Zone", "color": "#F2E3B5", "material": 0, "when": { "of": "zone", "below": 5.5 } },
+    { "id": "equatorialBelts", "name": "Equatorial Belts", "color": "#A0522D", "material": 0, "when": { "of": "zone", "below": 15.5 } },
+    { "id": "tropicalZone", "name": "Tropical Zone", "color": "#E6D59E", "material": 0, "when": { "of": "zone", "below": 23 } },
+    { "id": "temperateBands", "name": "Temperate Bands", "color": "#B9774E", "material": 0 }
+  ]
+}

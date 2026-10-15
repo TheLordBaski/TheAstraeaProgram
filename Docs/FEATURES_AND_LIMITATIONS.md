@@ -51,6 +51,10 @@ made during development; the standalone column is the release check of the shipp
 | Feature | Status | Evidence / notes |
 |---|---|---|
 | Sandbox with launch site, assembly building, flight view, map view | Verified | Main menu → assembly → launch → flight exercised; all autotests start from the launch pad |
+| The rest of the home system: Ignis, Caligo (with Mica), Pruina, Rubra (with Vigil), Rupes, the gas giant Magnus (Maris, Gelida, Gravis, Lapis, Granum), the ringed giant Anulus (Fons, Pica), the ice giant Glacies (Vagus, retrograde) and Remota, each a data file ([PLANETARY_SYSTEM.md](PLANETARY_SYSTEM.md)) | Verified (data, rendering) | `PlanetarySystemTests` (orbits, spheres of influence, locks, warp limits, biomes found on every world); the `tour` autotest photographs every body and the map (editor); all 222 EditMode tests pass |
+| Gas giants: no ground, banded cloud tops and storms from terrain colour rules, a crush pressure above the datum | Verified (editor) | `giant` autotest: a capsule diving into Magnus is crushed at 6.0 bar, 13.8 km up |
+| Rings: lit from either side, shadowed by the planet, shading the planet, tilted for seasons; in the flight view, the far view and the map | Verified (pictures) | `tour` pictures of Anulus (`tour_anulus_rings_*.png`) |
+| Orbiting the star: dev-window teleport to Astraea, rails warp allowed from 20 Mm up, map orbit line | Verified (editor) | `star` autotest: circular orbits 60 Mm and 400 Mm up follow Kepler to the metre in physics and at 50×/1,000× |
 | Tellus (atmosphere, ocean, rotation) and airless tidally locked Luma, data-driven | Verified | `system.json`; reference values in `PLANETARY_SYSTEM.md`; orbit and lunar autotests |
 | The star Astraea at the root of the home system: Tellus orbits it (a year of 439.87 Tellus days); sunlight, eclipses and solar flux come from its position | Verified | `escape` autotest; unit tests (sunlight direction, a solar orbit returning after one period, SOI transitions to and from the star within 0.1 m and 10⁻⁴ m/s); map screenshots half a year apart (`Screenshots/sun_direction_day1.png`, `sun_direction_halfyear.png`) |
 | Star systems: `galaxy.json` lists them; body ids belong to a system (`home/tellus`); vessels carry their system id; a debug system (a star, Testworld and Testmoon) can replace the home system (`-system debug`) | Verified | Unit tests (galaxy, qualified ids, old saves load into the home system, no literal body ids in gameplay code); the debug system played from the menu through assembly, launch, map and quicksave/quickload (`Screenshots/debug_system_*.png`); in the standalone build with `-system debug`: orbit 9/9 and persistence 10/10, the saves holding the vessel as `debug/testworld` ([build_debug_orbit.md](TestReports/build_debug_orbit.md), [build_debug_persistence.md](TestReports/build_debug_persistence.md)) |
@@ -168,7 +172,11 @@ made during development; the standalone column is the release check of the shipp
 * Vessels are single rigid bodies with analytic joint loads: parts do not flex or wobble; failures happen at joints.
 * Aerodynamics are per-part approximations (no CFD). A flat end face counts as fully exposed unless a part at least
   ~88% as wide covers it (use a tapered adapter under a narrower stack).
-* The home system has only the star, one planet and one moon so far. Bodies cast no shadows on each other (an
+* The home system has a star, seven planets, two dwarf planets and twelve moons ([PLANETARY_SYSTEM.md](PLANETARY_SYSTEM.md)).
+  Only Tellus and Luma have baked visuals; the other worlds are drawn from their terrain colours with a generated sky,
+  and their ground has no photographed detail textures. The giants have no animated clouds, and no world has an axial
+  tilt (bodies spin about one axis; the rings are tilted on their own). The asteroid belt is only Rupes. Nothing but
+  Tellus and Luma has a landing mission in the autotests. Bodies cast no shadows on each other (an
   eclipse doesn't darken Luma or Tellus) and there is no planetshine; eclipses of nearby objects are decided for the
   camera position (one shadow test for all of them). Distant bodies show their six coarsest terrain chunks.
   Every atmospheric body has physically based scattering with multiple scattering on all presets (custom bodies get

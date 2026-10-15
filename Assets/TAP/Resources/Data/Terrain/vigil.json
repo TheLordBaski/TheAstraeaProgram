@@ -1,0 +1,63 @@
+{
+  "description": "Vigil: Rubra's tidally locked moon. Grey-brown cratered highlands on the far side, a smooth dark plain facing Rubra, and one huge old impact basin.",
+  "seed": 7400,
+  "minHeight": -4200,
+  "maxHeight": 3800,
+  "fields": [
+    {
+      "id": "plains", "note": "1 on the smooth dark plain that always faces Rubra (the north-south line of longitude 0)",
+      "noise": { "type": "fbm", "seed": 11, "frequency": 2.2, "octaves": 3 }, "scale": 0.5, "add": -0.1,
+      "spots": [ { "lat": 6, "lon": 0, "radius": 75000, "amount": 1 } ],
+      "smooth": [0.25, 0.7]
+    },
+    {
+      "id": "basin", "note": "the great basin on the far side",
+      "noise": { "type": "perlin", "seed": 12, "frequency": 0.001 }, "scale": 0,
+      "spots": [ { "lat": -18, "lon": 150, "radius": 36000, "amount": 1 } ]
+    },
+    { "id": "relief", "note": "the broad rise and fall of the highlands", "noise": { "type": "fbm", "seed": 2, "frequency": 2.4, "octaves": 2 } },
+    { "id": "shade", "note": "above 0 bright ray (worked out after the craters)", "from": "rays" }
+  ],
+  "layers": [
+    { "note": "rolling highlands, flattened on the plain", "noise": { "type": "fbm", "seed": 2, "frequency": 2.4, "octaves": 6 }, "amplitude": 1100, "mask": { "of": "plains", "remap": [1, 0.15] } },
+    { "note": "hills", "noise": { "type": "fbm", "seed": 3, "frequency": 14, "offset": [2, 8, 5], "octaves": 4 }, "amplitude": 200, "mask": { "of": "plains", "remap": [1, 0.2] } },
+    { "note": "the plain lies low", "constant": -800, "mask": { "of": "plains" } },
+    { "note": "the great basin", "from": "basin", "amplitude": -2800 },
+    { "note": "its raised rim", "from": "basin", "smooth": [0.05, 0.12], "amplitude": 500, "blend": "add", "mask": { "of": "basin", "smooth": [0.4, 0.15] } },
+    {
+      "note": "impact craters, from 14 km basins down to 15 m pits",
+      "craters": {
+        "seed": 33,
+        "sizes": [
+          { "cell": 32000, "chance": 0.24, "depth": 0.07 },
+          { "cell": 11000, "chance": 0.34, "depth": 0.08 },
+          { "cell": 3600, "chance": 0.42, "depth": 0.17 },
+          { "cell": 1200, "chance": 0.5, "depth": 0.18 },
+          { "cell": 380, "chance": 0.5, "depth": 0.18 },
+          { "cell": 120, "chance": 0.45, "depth": 0.18 }
+        ],
+        "fresh": 0.22, "rays": 0.75, "erosion": 0.25,
+        "raysField": "rays", "floorField": "craterFloor", "floorMinRadius": 5000, "freshField": "freshCrater", "freshMinRadius": 3000
+      }
+    },
+    { "note": "ground detail", "noise": { "type": "fbm", "seed": 29, "frequency": 2800, "octaves": 3 }, "amplitude": 4, "detail": true },
+    { "noise": { "type": "perlin", "seed": 29, "frequency": 22000 }, "amplitude": 0.5, "detail": true }
+  ],
+  "colors": [
+    { "note": "grey-brown highland dust", "color": "#8B8178" },
+    { "note": "the dark plain", "color": "#5B544F", "mask": { "of": "plains" } },
+    { "note": "bright ejecta", "color": "#C2B8AB", "mask": { "of": "shade", "linear": [0, 1] } },
+    { "note": "basin floor", "color": "#6F665F", "mask": { "of": "basin", "smooth": [0.3, 0.7] } },
+    { "note": "fresh rock on slopes", "color": "#5A5149", "mask": { "of": "slope", "smooth": [16, 30] } }
+  ],
+  "shading": { "noise": { "type": "fbm", "seed": 29, "frequency": 40, "octaves": 2 }, "amount": 0.11, "slopeDarkening": 0.75 },
+  "biomes": [
+    { "id": "rubraPlain", "name": "Rubra Plain", "color": "#3D4F7A", "material": 1, "when": { "of": "plains", "atLeast": 0.5 } },
+    { "id": "greatBasin", "name": "Great Basin", "color": "#E0703A", "material": 3, "when": { "of": "basin", "atLeast": 0.35 } },
+    { "id": "freshCraters", "name": "Fresh Craters", "color": "#FFF27A", "material": 4, "when": { "of": "freshCrater", "atLeast": 0.5 } },
+    { "id": "craterFloors", "name": "Crater Floors", "color": "#8FA3B0", "material": 3, "when": { "of": "craterFloor", "atLeast": 0.5 } },
+    { "id": "slopes", "name": "Slopes", "color": "#A33A3A", "material": 3, "when": { "of": "slope", "atLeast": 16 } },
+    { "id": "farHighlands", "name": "Far Highlands", "color": "#C9C1B2", "material": 0, "when": { "of": "relief", "atLeast": 0.06 } },
+    { "id": "foothills", "name": "Foothills", "color": "#7F8C6E", "material": 0 }
+  ]
+}

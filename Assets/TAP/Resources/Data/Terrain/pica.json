@@ -1,0 +1,62 @@
+{
+  "description": "Pica: the two-faced moon. One hemisphere is coal-dark and the other bright ice, with a ragged boundary between them and a ridge of mountains running right round the equator. Bright ice shows on the floors of craters in the dark half.",
+  "seed": 10100,
+  "minHeight": -4600,
+  "maxHeight": 6600,
+  "fields": [
+    {
+      "id": "darkLow", "note": "from the west edge of the dark hemisphere (centred on longitude 90): ragged",
+      "term": { "of": "longitude", "smooth": [8, 34], "jitter": { "type": "fbm", "seed": 101, "frequency": 5, "octaves": 4, "amount": 24 } }
+    },
+    {
+      "id": "darkHigh", "note": "to its east edge: the same ragged noise",
+      "term": { "of": "longitude", "smooth": [172, 146], "jitter": { "type": "fbm", "seed": 101, "frequency": 5, "octaves": 4, "amount": 24 } }
+    },
+    {
+      "id": "darkLat", "note": "the dark material stops short of the poles, unevenly",
+      "term": { "of": "absLatitude", "smooth": [64, 36], "jitter": { "type": "fbm", "seed": 109, "frequency": 4, "octaves": 4, "amount": 14 } }
+    },
+    { "id": "relief", "note": "the broad rise and fall of the plains", "noise": { "type": "fbm", "seed": 102, "frequency": 2.8, "octaves": 2 } }
+  ],
+  "layers": [
+    { "note": "rolling ground", "noise": { "type": "fbm", "seed": 102, "frequency": 2.8, "octaves": 6 }, "amplitude": 1100 },
+    { "note": "hills", "noise": { "type": "fbm", "seed": 104, "frequency": 16, "offset": [5, 3, 8], "octaves": 4 }, "amplitude": 220 },
+    {
+      "note": "the equatorial ridge",
+      "noise": { "type": "ridged", "seed": 105, "frequency": 20, "offset": [2, 9, 6], "octaves": 3 },
+      "power": 1.8, "amplitude": 3600, "mask": { "of": "absLatitude", "smooth": [13, 6] }
+    },
+    {
+      "note": "old craters",
+      "craters": {
+        "seed": 106,
+        "sizes": [
+          { "cell": 55000, "chance": 0.25, "depth": 0.07 },
+          { "cell": 17000, "chance": 0.35, "depth": 0.09 },
+          { "cell": 5000, "chance": 0.45, "depth": 0.16 },
+          { "cell": 1600, "chance": 0.5, "depth": 0.18 },
+          { "cell": 500, "chance": 0.5, "depth": 0.18 },
+          { "cell": 150, "chance": 0.45, "depth": 0.18 }
+        ],
+        "erosion": 0.35, "fresh": 0.12, "floorField": "craterFloor", "floorMinRadius": 6500
+      }
+    },
+    { "note": "ground detail", "noise": { "type": "fbm", "seed": 107, "frequency": 2600, "octaves": 3 }, "amplitude": 4, "detail": true }
+  ],
+  "colors": [
+    { "note": "bright ice", "color": "#E7E5DF" },
+    { "note": "coal-dark material of the leading hemisphere", "color": "#3A302B", "mask": [ { "of": "darkLow" }, { "of": "darkHigh" }, { "of": "darkLat" } ] },
+    { "note": "bright ice on dark crater floors", "color": "#C9C3B8", "mask": [ { "of": "craterFloor" }, { "of": "darkLow" }, { "of": "darkHigh" }, { "of": "darkLat" } ] },
+    { "note": "the ridge, pale and weathered", "color": "#D3CCC1", "mask": [ { "of": "absLatitude", "smooth": [10, 4] }, { "of": "height", "smooth": [1800, 3200] } ] },
+    { "note": "slopes show fresh ice", "color": "#A29A90", "mask": { "of": "slope", "smooth": [18, 32] } }
+  ],
+  "shading": { "noise": { "type": "fbm", "seed": 108, "frequency": 40, "octaves": 2 }, "amount": 0.08, "slopeDarkening": 0.6 },
+  "biomes": [
+    { "id": "polarCaps", "name": "Polar Caps", "color": "#BFE6FF", "material": 6, "when": { "of": "absLatitude", "atLeast": 66 } },
+    { "id": "equatorialRidge", "name": "Equatorial Ridge", "color": "#C0703A", "material": 4, "when": [ { "of": "absLatitude", "below": 9 }, { "of": "height", "atLeast": 1600 } ] },
+    { "id": "brightCraterFloors", "name": "Bright Crater Floors", "color": "#FFF27A", "material": 6, "when": [ { "of": "craterFloor", "atLeast": 0.5 }, { "of": "darkLow", "atLeast": 0.5 }, { "of": "darkHigh", "atLeast": 0.5 }, { "of": "darkLat", "atLeast": 0.5 } ] },
+    { "id": "darkHemisphere", "name": "Dark Hemisphere", "color": "#3D3D4F", "material": 3, "when": [ { "of": "darkLow", "atLeast": 0.5 }, { "of": "darkHigh", "atLeast": 0.5 }, { "of": "darkLat", "atLeast": 0.5 } ] },
+    { "id": "craterFloors", "name": "Crater Floors", "color": "#8FA3B0", "material": 6, "when": { "of": "craterFloor", "atLeast": 0.5 } },
+    { "id": "brightHemisphere", "name": "Bright Hemisphere", "color": "#E7E5DF", "material": 6 }
+  ]
+}

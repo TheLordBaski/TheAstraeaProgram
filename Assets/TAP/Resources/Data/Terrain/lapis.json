@@ -1,0 +1,43 @@
+{
+  "description": "Lapis: a captured rock of deep blue-grey stone, lumpy and elongated, veined with pale mineral and strewn with boulders.",
+  "seed": 9700,
+  "minHeight": -10800,
+  "maxHeight": 14200,
+  "fields": [
+    { "id": "lumps", "note": "the broad lumps of the rock", "noise": { "type": "fbm", "seed": 61, "frequency": 3, "octaves": 5 } },
+    { "id": "veins", "note": "1 along the pale mineral veins", "noise": { "type": "ridged", "seed": 62, "frequency": 7, "offset": [1.2, 4.8, 9.9], "octaves": 3 }, "smooth": [0.7, 0.92] },
+    { "id": "boulders", "note": "1 where boulders lie thick", "noise": { "type": "fbm", "seed": 63, "frequency": 14, "octaves": 3 }, "smooth": [0.25, 0.55] }
+  ],
+  "layers": [
+    { "note": "an elongated, tilted body", "ellipsoid": [78000, 60000, 56000] },
+    { "note": "lumps", "from": "lumps", "amplitude": 2400 },
+    { "note": "boulder fields", "noise": { "type": "billow", "seed": 64, "frequency": 90, "octaves": 3 }, "amplitude": 160, "mask": { "of": "boulders" } },
+    {
+      "note": "craters",
+      "craters": {
+        "seed": 65,
+        "sizes": [
+          { "cell": 24000, "chance": 0.3, "depth": 0.1 },
+          { "cell": 8000, "chance": 0.4, "depth": 0.14 },
+          { "cell": 2600, "chance": 0.45, "depth": 0.17 },
+          { "cell": 850, "chance": 0.45, "depth": 0.18 }
+        ],
+        "erosion": 0.3, "floorField": "craterFloor", "floorMinRadius": 3500
+      }
+    },
+    { "note": "ground detail", "noise": { "type": "fbm", "seed": 66, "frequency": 1500, "octaves": 3 }, "amplitude": 4, "detail": true }
+  ],
+  "colors": [
+    { "note": "deep blue-grey stone", "color": "#46556F" },
+    { "note": "pale mineral veins", "color": "#AEB9C8", "mask": { "of": "veins" } },
+    { "note": "dark boulder fields", "color": "#2F3744", "mask": { "of": "boulders" } },
+    { "note": "crater floors", "color": "#5E6C84", "mask": { "of": "craterFloor" } }
+  ],
+  "shading": { "noise": { "type": "fbm", "seed": 67, "frequency": 25, "octaves": 2 }, "amount": 0.1, "slopeDarkening": 0.7 },
+  "biomes": [
+    { "id": "veinedRidges", "name": "Veined Ridges", "color": "#CFE3FF", "material": 5, "when": { "of": "veins", "atLeast": 0.5 } },
+    { "id": "impactBasins", "name": "Impact Basins", "color": "#8FA3B0", "material": 5, "when": { "of": "craterFloor", "atLeast": 0.5 } },
+    { "id": "boulderFields", "name": "Boulder Fields", "color": "#3D4F7A", "material": 5, "when": { "of": "boulders", "atLeast": 0.5 } },
+    { "id": "bluePlains", "name": "Blue Plains", "color": "#46556F", "material": 5 }
+  ]
+}

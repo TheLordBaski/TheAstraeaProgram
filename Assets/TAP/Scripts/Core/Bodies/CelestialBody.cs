@@ -26,6 +26,26 @@ namespace TAP.Core
         public double[] WarpAltitudeLimits { get; private set; }
         /// <summary>A star: no terrain or surface, lights the system (<see cref="Luminosity"/>).</summary>
         public readonly bool IsStar;
+        /// <summary>
+        /// A gas or ice giant (type "gasgiant"): the datum radius is the level the clouds sit around, not a ground. Vessels
+        /// are crushed once the air pressure passes <see cref="CrushPressure"/>, above the datum.
+        /// </summary>
+        public readonly bool IsGasGiant;
+        /// <summary>Pressure (Pa) that crushes a vessel; 0 when the body has none.</summary>
+        public readonly double CrushPressure;
+        /// <summary>Density of the sea (kg/m³).</summary>
+        public readonly double OceanDensity;
+        /// <summary>Rings around the equator (empty for most bodies).</summary>
+        public IReadOnlyList<RingDefinition> Rings => Def.rings ?? (IReadOnlyList<RingDefinition>)Array.Empty<RingDefinition>();
+        /// <summary>Unit normal of the ring plane in the inertial frame: +Y (the spin axis), tilted by the definition's ring tilt.</summary>
+        public Vector3d RingNormal
+        {
+            get
+            {
+                double t = Def.ringTiltDeg * MathD.Deg2Rad, a = Def.ringTiltAzimuthDeg * MathD.Deg2Rad;
+                return new Vector3d(Math.Sin(t) * Math.Cos(a), Math.Cos(t), Math.Sin(t) * Math.Sin(a));
+            }
+        }
         /// <summary>Radiated power of a star (W); 0 for other bodies.</summary>
         public double Luminosity { get; private set; }
 
@@ -70,6 +90,9 @@ namespace TAP.Core
             InitialRotation = def.initialRotationDeg * MathD.Deg2Rad;
             HasOcean = def.hasOcean;
             IsStar = def.type == "star";
+            IsGasGiant = def.type == "gasgiant";
+            CrushPressure = def.crushPressure;
+            OceanDensity = def.oceanDensity > 0 ? def.oceanDensity : 1000;
             ReadLiveFields();
         }
 
@@ -110,7 +133,9 @@ namespace TAP.Core
                     o.epoch, parent.GM);
                 // Laplace sphere of influence.
                 SOIRadius = o.semiMajorAxis * Math.Pow(GM / parent.GM, 0.4);
-                if (Def.tidallyLocked) RotationPeriod = Orbit.Period;
+                // A locked moon on a retrograde orbit (like Triton) turns the other way: a negative period, which the
+                // angle, angular velocity and solar day all follow.
+                if (Def.tidallyLocked) RotationPeriod = Orbit.W.y < 0 ? -Orbit.Period : Orbit.Period;
             }
             Terrain = IsStar ? null : TerrainGenerator.Create(Def);
         }

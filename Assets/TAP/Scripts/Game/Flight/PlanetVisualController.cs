@@ -93,6 +93,13 @@ namespace TAP.Game
             // Body lighting follows its own phase, independent of the vessel's horizon/eclipse.
             Vector3 d=(Vector3)Scene.Sim.System.SunDirectionFrom(b,Vector3d.zero,ut);
             m.SetVector("_BodySunDir",new Vector4(d.x,d.y,d.z,1)); m.SetVector("_BodySunColor",Scene.Sky.SunColor);
+            if(b.Rings.Count>0) {
+                // Rings throw their shadow over the planet: the shader follows the sun's ray to the equatorial plane.
+                RingProfile.Range(b.Rings,out double ringInner,out double ringOuter);
+                m.SetTexture("_RingProfile",RingTexture.For(b));
+                m.SetVector("_RingRange",new Vector4((float)ringInner,(float)ringOuter,1,1));
+                m.SetVector("_RingNormal",(Vector3)b.RingNormal);
+            }
             m.SetFloat("_SkyAmbient",isMap || m.GetFloat("_DistanceScale")>1?0:(float)Scene.Sky.AtmosphereFactor);
             m.SetColor("_HazeColor",Color.black);m.SetFloat("_Transmittance",1);
         }
@@ -132,7 +139,32 @@ namespace TAP.Game
                 var go=Scene.Map.BodyObject(kv.Key); UpdateMaterial(kv.Value,kv.Key,go.transform.position,sim.UT,true);
                 var halo=go.transform.Find("Halo"); if(halo!=null) halo.gameObject.SetActive(!HasScattering(kv.Key) && !MapView.ShowBiomes);
             }
+            UpdateRings(ut,origin);
             Scene.Effects.VisitPlumeRenderers(bindPlume);
+        }
+        /// <summary>Rings are drawn by the flight camera for a body that is near, by the far view otherwise.</summary>
+        void UpdateRings(double ut,Vector3d origin)
+        {
+            var sim=Scene.Sim;
+            foreach(var ring in Scene.Planets.Rings) {
+                if(!ring.Local) { ring.Hide(); continue; }
+                RingLight(ring.Body,ut,out var dir,out var colour,out float angular);
+                ring.Place((Vector3)(sim.Frame.BodyPosition(ring.Body,ut)-origin),1,dir,colour,angular);
+            }
+            foreach(var fb in Scene.FarView.Bodies) {
+                if(fb.Ring==null) continue;
+                if(fb.Local) { fb.Ring.Hide(); continue; }
+                RingLight(fb.Body,ut,out var dir,out var colour,out float angular);
+                fb.Ring.Place(ScaledSpace.ToFar(fb.Relative),ScaledSpace.Scale,dir,colour,angular);
+            }
+        }
+        void RingLight(CelestialBody b,double ut,out Vector3 dir,out Color colour,out float angular)
+        {
+            var sim=Scene.Sim;
+            dir=(Vector3)sim.System.SunDirectionFrom(b,Vector3d.zero,ut);
+            colour=Scene.Sky.SunColor;
+            var star=sim.System.Star;
+            angular=star!=null?(float)(star.Radius/Math.Max((star.GetPositionAtUT(ut)-b.GetPositionAtUT(ut)).magnitude,star.Radius)):.002f;
         }
         void BindPlume(MeshRenderer renderer)
         {

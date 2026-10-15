@@ -18,7 +18,8 @@ namespace TAP.Game
         {
             var h = sim.ActiveHandle;
             if (h == null) return "No active vessel";
-            double minAlt = (body.Atmosphere != null ? body.Atmosphere.Height : Math.Max(0, body.Terrain != null ? body.Terrain.MaxHeight : 0)) + 1000;
+            // A star has no air or ground, but nothing should hover in its corona: 10 Mm up at the least.
+            double minAlt = body.IsStar ? 10e6 : (body.Atmosphere != null ? body.Atmosphere.Height : Math.Max(0, body.Terrain != null ? body.Terrain.MaxHeight : 0)) + 1000;
             if (altitude < minAlt) return $"The orbit must be above {minAlt / 1000:F0} km at {body.Name}";
             if (body.Radius + altitude > body.SOIRadius * 0.9) return $"That is outside {body.Name}'s sphere of influence";
             // Start above the vessel's current position when it is at that body (projected onto the equator).
@@ -50,6 +51,7 @@ namespace TAP.Game
         {
             var h = sim.ActiveHandle;
             if (h == null) return "No active vessel";
+            if (body.IsStar || body.IsGasGiant) return $"{body.Name} has no surface to stand on";
             if (latDeg < -90 || latDeg > 90) return "The latitude must be between -90° and 90°";
             float below = 1f, radius = 1f;
             if (h.Loaded != null)

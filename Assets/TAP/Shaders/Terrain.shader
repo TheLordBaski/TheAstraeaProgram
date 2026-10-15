@@ -46,6 +46,10 @@ Shader "TAP/Terrain"
         _BodySunColor ("Body Sun Colour (linear, not converted)", Vector) = (1, 1, 1, 1)
         _HazeColor ("Haze (added)", Color) = (0, 0, 0, 0)
         _Transmittance ("Transmittance", Range(0, 1)) = 1
+        // Rings (planets that have them): the radial profile, and the inner and outer radius (m) with w = 1 to use them.
+        _RingProfile ("Ring profile", 2D) = "white" {}
+        _RingRange ("Ring inner, outer, 1, enabled", Vector) = (0, 0, 0, 0)
+        _RingNormal ("Ring plane normal (world)", Vector) = (0, 1, 0, 0)
     }
     SubShader
     {
@@ -101,6 +105,7 @@ Shader "TAP/Terrain"
             TEXTURE2D_ARRAY(_GroundNormal); SAMPLER(sampler_GroundNormal);
             TEXTURE2D_ARRAY(_GroundMaterial); SAMPLER(sampler_GroundMaterial);
             TEXTURE2D_ARRAY(_SatelliteDetail); SAMPLER(sampler_SatelliteDetail);
+            TEXTURE2D(_RingProfile); SAMPLER(sampler_RingProfile);
 
             CBUFFER_START(UnityPerMaterial)
                 float4 _DetailTex_ST;
@@ -126,6 +131,8 @@ Shader "TAP/Terrain"
                 float _TextureBias;
                 float4 _BodyCenter;
                 float4x4 _WorldToBody;
+                float4 _RingRange;
+                float4 _RingNormal;
             CBUFFER_END
 
             Varyings vert(Attributes v)
@@ -313,6 +320,28 @@ Shader "TAP/Terrain"
                     uint weatherWidth,weatherHeight;_Weather.GetDimensions(weatherWidth,weatherHeight);
                     float weatherLod=WeatherMip(length(ddx(bodyPos))+length(ddy(bodyPos)),_Radius,weatherWidth);
                     if(hit.y>0) shadow*=1-WeatherCoverage(_Weather,sampler_Weather,bodyPos+sunBF*hit.y,_CloudParams.w,_CloudParams.y,weatherLod)*_CloudParams.z;
+                }
+                if(_RingRange.w>.5 && ndl>.001 && _BiomeMode<.5)
+                {
+                    // The planet's rings shade it: follow the star's ray to the ring plane (through the centre, with the
+                    // ring's normal) and dim the light by the ring's optical depth there, seen at the star's slant.
+                    float3 ringN=normalize(_RingNormal.xyz);
+                    float3 fromCentre=(i.positionWS-_BodyCenter.xyz)*_DistanceScale;
+                    float cosSun=dot(lightDir,ringN);
+                    if(abs(cosSun)>1e-3)
+                    {
+                        float tRing=-dot(fromCentre,ringN)/cosSun;
+                        if(tRing>0)
+                        {
+                            float rRing=length(fromCentre+lightDir*tRing);
+                            if(rRing>_RingRange.x && rRing<_RingRange.y)
+                            {
+                                float opacity=SAMPLE_TEXTURE2D_LOD(_RingProfile,sampler_RingProfile,float2((rRing-_RingRange.x)/(_RingRange.y-_RingRange.x),.25),0).a;
+                                float tau=-log(max(1-opacity,1e-3));
+                                shadow*=exp(-tau/max(abs(cosSun),.04));
+                            }
+                        }
+                    }
                 }
                 float3 ambient = lerp(_SpaceAmbient.rgb, SampleSH(n), _SkyAmbient) * _AmbientBoost;
                 float3 lit = albedo * (lightColor * ndl * shadow + ambient);

@@ -298,6 +298,7 @@ namespace TAP.Simulation
     /// <summary>Simple per-part buoyancy and water drag on bodies with oceans, plus splashdown impact damage.</summary>
     public static class Buoyancy
     {
+        /// <summary>Density of the sea of a body without a definition (water).</summary>
         public const float WaterDensity = 1000f;
 
         public static void Apply(Vessel v, double ut)
@@ -305,6 +306,7 @@ namespace TAP.Simulation
             var body = v.MainBody;
             if (!body.HasOcean) return;
             if (v.Altitude > 200) return;
+            float density = (float)body.OceanDensity;
             var frame = v.Sim.Frame;
             Vector3 up = -v.GravityAccel.normalized;
             float g = v.GravityAccel.magnitude;
@@ -331,8 +333,8 @@ namespace TAP.Simulation
                     }
                 }
                 else if (frac <= 0) _submerged.Remove(p);
-                Vector3 fb = up * WaterDensity * g * vol * frac;
-                Vector3 fd = -vel * (0.5f * WaterDensity * vel.magnitude * 0.6f * D * H * frac);
+                Vector3 fb = up * density * g * vol * frac;
+                Vector3 fd = -vel * (0.5f * density * vel.magnitude * 0.6f * D * H * frac);
                 v.AddForceAtPosition(p, fb + fd, pos);
                 v.AddContactFlag();
             }

@@ -21,6 +21,8 @@ namespace TAP.Tests
         private const string Home = "Assets/TAP/Resources/Data/system.json";
         private static string Preset(string name) => File.ReadAllText("Assets/TAP/Resources/Data/Terrain/" + name + ".json");
         private static BodyLabDocument Doc(string id = "tellus") => new BodyLabDocument(File.ReadAllText(Home), id, Preset);
+        /// <summary>Where a body stands in the home system file's list.</summary>
+        private static int At(string id) => Array.FindIndex(JObject.Parse(File.ReadAllText(Home))["bodies"].ToArray(), b => (string)b["id"] == id);
 
         [Test]
         public void UndoRedo_IsInMemoryAndANewEditClearsRedo()
@@ -32,7 +34,7 @@ namespace TAP.Tests
             d.Redo(); Assert.AreEqual(radius + 100, (double)d.Body["radius"]);
             d.Set("description", new JValue("New description")); Assert.IsFalse(d.CanRedo);
             var saved = JObject.Parse(d.SaveJson(File.ReadAllText(Home)));
-            Assert.AreEqual("New description", (string)saved["bodies"][1]["description"]);
+            Assert.AreEqual("New description", (string)saved["bodies"][At("tellus")]["description"]);
             Assert.IsFalse(saved.Descendants().OfType<JProperty>().Any(x => new[] { "undo", "redo", "history" }.Contains(x.Name)));
         }
 
@@ -98,21 +100,21 @@ namespace TAP.Tests
         [Test]
         public void SavePreservesOtherBodiesUnknownPropertiesAndConcurrentUnrelatedEdits()
         {
-            var latest = JObject.Parse(File.ReadAllText(Home)); var moon = latest["bodies"][2].DeepClone();
-            latest["futureSystemSetting"] = "keep"; latest["bodies"][2]["futureBodySetting"] = 17;
+            var latest = JObject.Parse(File.ReadAllText(Home)); var moon = latest["bodies"][At("luma")].DeepClone();
+            latest["futureSystemSetting"] = "keep"; latest["bodies"][At("luma")]["futureBodySetting"] = 17;
             var d = Doc(); d.Set("terrain.seed", new JValue(345));
             var output = JObject.Parse(d.SaveJson(latest.ToString()));
             Assert.AreEqual("keep", (string)output["futureSystemSetting"]);
-            Assert.AreEqual(17, (int)output["bodies"][2]["futureBodySetting"]);
-            latest["bodies"][2] = moon;
-            Assert.IsTrue(JToken.DeepEquals(latest["bodies"][2], JObject.Parse(File.ReadAllText(Home))["bodies"][2]));
-            Assert.AreEqual("tellus", (string)output["bodies"][1]["terrain"]["preset"]);
+            Assert.AreEqual(17, (int)output["bodies"][At("luma")]["futureBodySetting"]);
+            latest["bodies"][At("luma")] = moon;
+            Assert.IsTrue(JToken.DeepEquals(latest["bodies"][At("luma")], JObject.Parse(File.ReadAllText(Home))["bodies"][At("luma")]));
+            Assert.AreEqual("tellus", (string)output["bodies"][At("tellus")]["terrain"]["preset"]);
         }
 
         [Test]
         public void SaveRefusesToOverwriteExternalChangesToThisBody()
         {
-            var latest = JObject.Parse(File.ReadAllText(Home)); latest["bodies"][1]["radius"] = 700000;
+            var latest = JObject.Parse(File.ReadAllText(Home)); latest["bodies"][At("tellus")]["radius"] = 700000;
             var d = Doc(); d.Set("description", new JValue("Edited"));
             StringAssert.Contains("changed on disk", Assert.Throws<FormatException>(() => d.SaveJson(latest.ToString())).Message);
         }
@@ -122,7 +124,7 @@ namespace TAP.Tests
         {
             var d = Doc(); d.Set("id", new JValue("newTellus"));
             string saved = d.SaveJson(File.ReadAllText(Home)); var json = JObject.Parse(saved);
-            Assert.AreEqual("newTellus", (string)json["bodies"][2]["parent"]);
+            Assert.AreEqual("newTellus", (string)json["bodies"][At("luma")]["parent"]);
             Assert.AreEqual("newTellus", (string)json["launchSite"]["body"]);
             d.MarkSaved(saved); Assert.IsFalse(d.Dirty); d.Undo(); Assert.IsTrue(d.Dirty);
             var restored = JObject.Parse(d.SaveJson(saved)); Assert.AreEqual("tellus", (string)restored["launchSite"]["body"]);

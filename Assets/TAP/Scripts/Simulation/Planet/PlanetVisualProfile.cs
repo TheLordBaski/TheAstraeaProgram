@@ -86,6 +86,8 @@ namespace TAP.Simulation
             p.name = "Generated visuals " + body.Id;
             p.BodyId = body.Id;
             p.Lunar = !body.HasOcean && !body.HasAtmosphere;
+            // Cloud tops are painted by the terrain's colour rules: no rocky detail texture on top of them.
+            if (body.IsGasGiant) p.GroundDetail = 0;
             if (body.Atmosphere != null)
             {
                 p.RayleighHeight = (float)body.Def.atmosphere.scaleHeight;
@@ -93,6 +95,10 @@ namespace TAP.Simulation
                 // over 8 km gives blue 0.265), tinted by the authored sky colour, so a thin dusty-red world keeps a
                 // thin reddish sky instead of an Earth-blue one.
                 double column = body.Atmosphere.SeaLevelDensity * Mathf.Max(1, p.RayleighHeight) / (1.225 * 8000);
+                // The clouds of a gas giant are its surface: only a thin haze sits above them, not the whole air column.
+                if (body.IsGasGiant) column *= 0.12;
+                // A thick atmosphere (Caligo: five of them) hazes the view only so far: past about one and a quarter air columns the sky is simply opaque.
+                column = System.Math.Min(column, 1.3);
                 var sky = body.Def.atmosphere.skyColor;
                 float r = sky != null && sky.Length >= 3 ? sky[0] : .32f, g = sky != null && sky.Length >= 3 ? sky[1] : .56f, b = sky != null && sky.Length >= 3 ? sky[2] : .95f;
                 float peak = Mathf.Max(.05f, Mathf.Max(r, Mathf.Max(g, b)));
