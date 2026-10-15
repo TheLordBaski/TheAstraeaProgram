@@ -1,5 +1,5 @@
-/* Smaller flight screens: mission guide, pause menu (+ confirm, control guide),
-   part action window, developer window and body labels. */
+/* Smaller flight screens, built as Flight Deck units (FlightDeck.uss): mission guide, pause menu (+ confirm, control
+   guide), part action window, developer window, and the body labels. */
 
 /* mission guide (Flight Deck unit; HudLayout places it, under the clock by default) */
 #guide {
@@ -31,41 +31,59 @@
     font-size: 14px;
 }
 
-/* pause menu */
+/* pause menu: three groups of keys under a strip of glass */
 .pause-panel {
-    width: 420px;
-    padding: 20px;
+    width: 560px;
+}
+
+.pause-head {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    height: 40px;
+    padding: 0 12px;
 }
 
 .pause-title {
-    height: 44px;
-    margin-bottom: 8px;
-    -unity-text-align: middle-center;
-    -unity-font-style: bold;
-    font-size: 30px;
-    color: var(--c-accent);
+    font-size: 20px;
+    letter-spacing: 4px;
+}
+
+.pause-keys {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
 }
 
 .pause-btn {
-    height: 42px;
-    margin-bottom: 8px;
-    font-size: 18px;
+    width: 49%;
+    height: 38px;
+    margin-bottom: 6px;
+    font-size: 14px;
 }
 
+.pause-btn--wide {
+    width: 100%;
+}
+
+/* yes / no over the pause menu */
 .confirm {
     background-color: rgba(0, 0, 0, 0.6);
 }
 
 .confirm-panel {
     width: 520px;
-    height: 200px;
-    padding: 20px;
-    justify-content: space-between;
+}
+
+.confirm-glass {
+    min-height: 80px;
+    justify-content: center;
+    margin-bottom: 12px;
 }
 
 .confirm-text {
-    -unity-text-align: upper-center;
-    font-size: 19px;
+    -unity-text-align: middle-center;
+    font-size: 17px;
 }
 
 .confirm-buttons {
@@ -75,37 +93,51 @@
 
 .confirm-btn {
     width: 150px;
-    height: 40px;
-    margin: 0 15px;
-    font-size: 18px;
+    height: 38px;
+    margin: 0 10px;
+    font-size: 15px;
 }
 
-.help-panel {
+/* the F1 control guide */
+.fd-unit.help-panel {
     position: absolute;
     left: 50%;
     top: 50%;
     width: 1180px;
     height: 760px;
     translate: -50% -50%;
-    padding: 20px 26px 12px;
-    background-color: rgba(10, 13, 18, 0.95);
+}
+
+.help-head {
+    height: 34px;
+    margin-bottom: 8px;
+}
+
+.help-title {
+    font-size: 16px;
+}
+
+.help-note {
+    flex-grow: 1;
+    margin-left: 14px;
+}
+
+.help-close {
+    width: 130px;
+    height: 28px;
+    font-size: 13px;
 }
 
 .help-body {
     flex-grow: 1;
 }
 
-.help-title {
-    margin-bottom: 10px;
-    -unity-font-style: bold;
-    color: var(--c-accent);
-    font-size: 26px;
+.help-body .unity-scroll-view__content-container {
+    padding: 4px 14px 10px;
 }
 
 .help-section {
-    margin: 10px 0 4px;
-    -unity-font-style: bold;
-    font-size: 16px;
+    margin: 12px 0 6px;
 }
 
 .help-grid {
@@ -116,6 +148,7 @@
 .help-cell {
     flex-direction: row;
     width: 100%;
+    padding: 3px 0;
 }
 
 .help-cell--half {
@@ -123,171 +156,283 @@
 }
 
 .help-key {
-    width: 170px;
-    color: var(--c-accent);
-    font-size: 15px;
+    width: 180px;
+    margin: 0;
+    padding: 0;
+    color: rgb(94, 230, 242);
+    font-size: 14px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
 }
 
 .help-action {
     flex-shrink: 1;
-    font-size: 15px;
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
     white-space: normal;
 }
 
 .help-tips {
-    margin-top: 12px;
-    font-size: 15px;
-}
-
-.help-close {
-    align-self: center;
-    width: 160px;
-    height: 34px;
+    margin-top: 14px;
+    font-size: 14px;
 }
 
 /* part action window (placed at the pointer) */
 #part-window {
     position: absolute;
-    width: 300px;
-    padding: 6px 10px 10px;
+    width: 330px;
+    padding: 12px;
 }
 
 .part-head {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px;
+    height: 30px;
+    margin-bottom: 0;
 }
 
 .part-title {
-    -unity-font-style: bold;
-    color: var(--c-accent);
-    font-size: 16px;
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
-.part-close {
-    width: 26px;
-    height: 24px;
-    padding: 0;
-    font-size: 18px;
+.part-glass {
+    margin-bottom: 8px;
 }
 
 .part-info {
     font-size: 13px;
-    margin-bottom: 4px;
+    color: rgb(218, 225, 229);
+}
+
+.part-info--empty {
+    display: none;
+}
+
+.part-res {
+    flex-direction: row;
+    align-items: center;
+    height: 22px;
+}
+
+.part-res__name {
+    width: 118px;
+    margin: 0;
+    padding: 0;
+    -unity-text-align: middle-left;
+    font-size: 11px;
+    color: rgb(127, 140, 149);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.bar.part-res__bar {
+    flex-grow: 1;
+    height: 10px;
+    margin: 0 8px;
+}
+
+.part-res__val {
+    width: 104px;
+    margin: 0;
+    padding: 0;
+    -unity-text-align: middle-right;
+    font-size: 11px;
+    color: rgb(238, 243, 245);
+}
+
+.part-sep {
+    height: 1px;
+    margin: 4px 0;
+    background-color: rgb(28, 39, 45);
 }
 
 .part-action {
-    height: 28px;
-    margin-top: 4px;
-    font-size: 14px;
+    height: 30px;
+    margin-top: 5px;
+    font-size: 13px;
 }
 
-/* developer window */
+/* developer window: a resizable console, tabs down the left, the pages on the glass (built in DevWindow.cs) */
 #dev-window {
     position: absolute;
-    width: 430px;
-    padding: 14px;
-    background-color: rgba(13, 15, 20, 0.96);
+    width: 680px;
+    height: 600px;
+    padding: 10px 12px 8px 12px;
+}
+
+.dev-head {
+    height: 32px;
+    flex-shrink: 0;
+    margin-bottom: 8px;
 }
 
 .dev-title {
-    height: 24px;
-    -unity-font-style: bold;
-    color: var(--c-accent);
-    font-size: 17px;
+    flex-grow: 1;
+    font-size: 14px;
 }
 
-.dev-hint {
-    height: 16px;
+.dev-cheats {
+    margin-right: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background-color: rgb(255, 181, 71);
+    color: rgb(28, 18, 4);
+    font-size: 11px;
+    letter-spacing: 1px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
+}
+
+.dev-search {
+    width: 200px;
+    height: 26px;
+}
+
+.dev-search > .unity-base-text-field__input {
+    font-size: 13px;
+}
+
+.dev-body {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-direction: row;
+}
+
+.dev-tabs {
+    width: 118px;
+    flex-shrink: 0;
+    margin-right: 8px;
+}
+
+.btn.dev-tab {
+    height: 32px;
+    margin-bottom: 5px;
+    font-size: 11px;
+}
+
+.dev-tabs--searching {
+    opacity: 0.4;
+}
+
+.dev-pages {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.dev-pages .unity-scroll-view__content-container {
+    padding: 4px 10px 10px 10px;
+}
+
+.dev-page-title {
+    display: none;
+    margin: 10px 0 2px 0;
+}
+
+.dev-pages--searching .dev-page-title {
+    display: flex;
+}
+
+.dev-sec__title {
+    margin: 10px 0 5px 0;
+}
+
+.dev-sec__note {
+    margin: -2px 0 6px 0;
+    font-size: 12px;
+    color: rgb(127, 140, 149);
+}
+
+.dev-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.dev-key {
+    width: 49%;
+    height: 28px;
     margin-bottom: 5px;
     font-size: 12px;
 }
 
-.dev-section {
-    height: 22px;
-    margin-top: 5px;
-    -unity-font-style: bold;
-    color: var(--c-accent);
-    font-size: 14px;
+.dev-key--small {
+    width: 24%;
+    height: 24px;
+    margin-bottom: 4px;
+    font-size: 11px;
 }
 
-.dev-row {
+/* a row of small keys keeps its own spacing (the grid would spread a short last row) */
+.dev-grid--tight {
+    justify-content: flex-start;
+}
+
+.dev-grid--tight > .dev-key--small {
+    margin-right: 1.33%;
+}
+
+.dev-watch {
+    width: 49%;
+    border-bottom-width: 1px;
+    border-color: rgb(20, 28, 33);
+}
+
+.dev-watch--wide {
+    width: 100%;
+}
+
+.dev-field-row {
     flex-direction: row;
     align-items: center;
-    height: 28px;
-    margin-top: 5px;
-}
-
-.dev-btn {
-    flex-grow: 1;
-    flex-basis: 0;
-    height: 28px;
-    margin-right: 6px;
-    font-size: 14px;
-}
-
-.dev-bodies {
-    flex-wrap: wrap;
-    height: auto;
-}
-
-.dev-bodies > .dev-btn {
-    flex-grow: 0;
-    flex-basis: auto;
-    min-width: 96px;
-    margin-bottom: 4px;
-}
-
-.dev-btn--last {
-    margin-right: 0;
-}
-
-.dev-action {
+    width: 49%;
     height: 30px;
-    margin-top: 5px;
-    font-size: 14px;
+    margin-bottom: 5px;
 }
 
-.dev-label {
-    width: 104px;
-    font-size: 14px;
-    color: var(--c-text-dim);
+.dev-field-row__label {
+    flex-grow: 1;
+    font-size: 12px;
+    color: rgb(127, 140, 149);
 }
 
 .dev-field {
-    width: 88px;
-    height: 28px;
-    margin-right: 6px;
+    width: 110px;
+    height: 26px;
 }
 
 .dev-field > .unity-base-text-field__input {
-    font-size: 15px;
-}
-
-.dev-zoom-label {
-    width: 190px;
-    font-size: 14px;
-    color: var(--c-text-dim);
-}
-
-.dev-step {
-    width: 40px;
-    height: 28px;
-    font-size: 16px;
-}
-
-.dev-zoom {
-    width: 64px;
-    -unity-text-align: middle-center;
-    font-size: 15px;
-}
-
-.dev-info {
-    min-height: 36px;
-    margin-top: 5px;
+    -unity-text-align: middle-right;
     font-size: 13px;
-    color: var(--c-text-dim);
+}
+
+.dev-status {
+    height: 20px;
+    flex-shrink: 0;
+    margin: 6px 20px 0 2px;
+    font-size: 12px;
+    color: rgb(94, 230, 242);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.dev-grip {
+    position: absolute;
+    right: 3px;
+    bottom: 3px;
+    width: 14px;
+    height: 14px;
+    border-right-width: 3px;
+    border-bottom-width: 3px;
+    border-color: rgb(94, 230, 242);
+    border-bottom-right-radius: 4px;
+    opacity: 0.6;
+}
+
+.dev-grip:hover {
+    opacity: 1;
 }
 
 /* names beside distant bodies */

@@ -14,10 +14,13 @@ namespace TAP.UI
     public sealed class PartActionMenu : MonoBehaviour
     {
         public FlightSceneController Scene;
-        private VisualElement _panel, _buttons;
+        private VisualElement _panel, _buttons, _resources, _stats;
         private Label _title, _info;
         private Part _part;
         private int _actionSig;
+        // bar rows: one per resource, then skin, internal and joint load
+        private readonly List<(VisualElement bar, Label val)> _resRows = new List<(VisualElement, Label)>(), _statRows = new List<(VisualElement, Label)>();
+        private Label _mass;
 
         public static PartActionMenu Create(FlightSceneController scene)
         {
@@ -29,6 +32,14 @@ namespace TAP.UI
             m._title = root.Q<Label>("part-title");
             m._info = root.Q<Label>("part-info");
             m._buttons = root.Q("part-actions");
+            m._resources = root.Q("part-resources");
+            m._stats = root.Q("part-stats");
+            foreach (var name in new[] { "SKIN", "INTERNAL", "JOINT LOAD" }) m._statRows.Add(Row(m._stats, name));
+            var mass = UIKit.Element("fd-kv");
+            mass.Add(UIKit.Label("MASS", "fd-kv__key"));
+            m._mass = UIKit.Label("", "fd-kv__val no-loc");
+            mass.Add(m._mass);
+            m._stats.Add(mass);
             root.Q<Button>("part-close").clicked += m.Close;
             UIKit.Show(m._panel, false);
             return m;
@@ -80,8 +91,31 @@ namespace TAP.UI
             UIKit.Show(_panel, true);
             UIKit.Place(_panel, UIKit.ScreenToPanel(screen) + new Vector2(18, 10));
             _actionSig = -1;
+            _resources.Clear();
+            _resRows.Clear();
             Refresh();
         }
+
+        private static (VisualElement bar, Label val) Row(VisualElement parent, string name)
+        {
+            var row = UIKit.Element("part-res");
+            row.Add(UIKit.Label(name, "part-res__name"));
+            var bar = UIKit.Bar(false, "part-res__bar");
+            row.Add(bar);
+            var val = UIKit.Label("", "part-res__val no-loc");
+            row.Add(val);
+            parent.Add(row);
+            return (bar, val);
+        }
+
+        private static void SetRow((VisualElement bar, Label val) row, double value, double max, string text, Color color)
+        {
+            UIKit.SetBar(row.bar, max > 0 ? (float)(value / max) : 0, color);
+            row.val.text = text;
+        }
+
+        /// <summary>Green while there is plenty, amber when low; temperatures and loads the other way round.</summary>
+        private static Color Level(double f, bool high) => (high ? f > 0.85 : f < 0.15) ? FlightHud.Red : (high ? f > 0.6 : f < 0.35) ? FlightHud.Amber : high ? FlightHud.Cyan : FlightHud.Green;
 
         private void Refresh()
         {
@@ -91,10 +125,24 @@ namespace TAP.UI
             var info = new List<string>();
             foreach (var m in p.Modules) m.CollectInfo(info);
             foreach (var s in info) sb.AppendLine(s);
-            foreach (var r in p.Resources) sb.AppendLine($"{Loc.Data(r.Def.name)}: {r.Amount:N1}/{r.Max:N0} {r.Def.unit}");
-            sb.AppendLine($"<color=#{UIKit.Hex(UIKit.TextDim)}>Skin {p.SkinTemp:N0}/{p.Def.skinMaxTemp:N0} K   Internal {p.InternalTemp:N0}/{p.Def.maxTemp:N0} K</color>");
-            sb.Append($"<color=#{UIKit.Hex(UIKit.TextDim)}>Mass {p.Mass:N0} kg   Joint load {p.SmoothedJointLoad:P0}</color>");
-            _info.text = sb.ToString();
+            _info.text = sb.ToString().TrimEnd();
+            _info.EnableInClassList("part-info--empty", info.Count == 0);
+
+            if (_resRows.Count != p.Resources.Count)
+            {
+                _resources.Clear();
+                _resRows.Clear();
+                foreach (var r in p.Resources) _resRows.Add(Row(_resources, Loc.Data(r.Def.name).ToUpperInvariant()));
+            }
+            for (int i = 0; i < _resRows.Count; i++)
+            {
+                var r = p.Resources[i];
+                SetRow(_resRows[i], r.Amount, r.Max, $"{r.Amount:N1} / {r.Max:N0} {r.Def.unit}", Level(r.Max > 0 ? r.Amount / r.Max : 0, false));
+            }
+            SetRow(_statRows[0], p.SkinTemp, p.Def.skinMaxTemp, $"{p.SkinTemp:N0} / {p.Def.skinMaxTemp:N0} K", Level(p.SkinTemp / p.Def.skinMaxTemp, true));
+            SetRow(_statRows[1], p.InternalTemp, p.Def.maxTemp, $"{p.InternalTemp:N0} / {p.Def.maxTemp:N0} K", Level(p.InternalTemp / p.Def.maxTemp, true));
+            SetRow(_statRows[2], p.SmoothedJointLoad, 1, $"{p.SmoothedJointLoad:P0}", Level(p.SmoothedJointLoad, true));
+            _mass.text = $"{p.Mass:N0} kg";
 
             var actions = new List<PartAction>();
             if (p.Vessel == Scene.Sim.ActiveVessel || p.Vessel.IsEva == false)

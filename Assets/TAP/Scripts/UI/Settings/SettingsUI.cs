@@ -254,9 +254,9 @@ namespace TAP.UI
             var box = UIKit.Element("set-control");
             var value = UIKit.Label("", "set-value");
             void Step(int d) { int n = options.Length; set(((get() + d) % n + n) % n); }
-            box.Add(UIKit.Button("◀", () => Step(-1), "set-step"));
+            box.Add(UIKit.Button("‹", () => Step(-1), "set-step"));
             box.Add(value);
-            box.Add(UIKit.Button("▶", () => Step(1), "set-step"));
+            box.Add(UIKit.Button("›", () => Step(1), "set-step"));
             _refresh.Add(() => value.text = options[Mathf.Clamp(get(), 0, options.Length - 1)]);
             AddRow(label, box);
         }

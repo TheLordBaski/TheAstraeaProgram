@@ -12,20 +12,20 @@ namespace TAP.UI
 {
     /// <summary>
     /// UI Toolkit kit for the game screens. Every screen is a UIDocument on one shared panel (1920×1080 reference,
-    /// scaled like the old canvases), styled by Resources/UI/Theme.uss. The colours below match the theme tokens and
+    /// scaled like the old canvases), styled by Resources/UI/Theme.uss (the Flight Deck look). The colours below match the theme tokens and
     /// are used where code writes rich text.
     /// </summary>
     public static class UIKit
     {
-        public static readonly Color PanelColor = new Color(0.055f, 0.07f, 0.095f, 0.88f);
-        public static readonly Color PanelLight = new Color(0.11f, 0.14f, 0.19f, 0.92f);
-        public static readonly Color Accent = new Color(0.32f, 0.78f, 1f, 1f);
-        public static readonly Color AccentDim = new Color(0.2f, 0.45f, 0.62f, 1f);
-        public static readonly Color TextColor = new Color(0.9f, 0.93f, 0.97f, 1f);
-        public static readonly Color TextDim = new Color(0.58f, 0.65f, 0.74f, 1f);
-        public static readonly Color Good = new Color(0.4f, 0.9f, 0.5f, 1f);
-        public static readonly Color Warn = new Color(1f, 0.75f, 0.25f, 1f);
-        public static readonly Color Bad = new Color(1f, 0.35f, 0.3f, 1f);
+        public static readonly Color PanelColor = new Color32(29, 33, 38, 255);
+        public static readonly Color PanelLight = new Color32(12, 16, 19, 255);
+        public static readonly Color Accent = new Color32(94, 230, 242, 255);
+        public static readonly Color AccentDim = new Color32(46, 118, 126, 255);
+        public static readonly Color TextColor = new Color32(218, 225, 229, 255);
+        public static readonly Color TextDim = new Color32(127, 140, 149, 255);
+        public static readonly Color Good = new Color32(72, 226, 124, 255);
+        public static readonly Color Warn = new Color32(255, 181, 71, 255);
+        public static readonly Color Bad = new Color32(255, 74, 61, 255);
 
         /// <summary>Every screen made with <see cref="CreateDocument"/>; the localizer walks their text.</summary>
         public static readonly List<UIDocument> Documents = new List<UIDocument>();
@@ -132,8 +132,28 @@ namespace TAP.UI
                 else root.styleSheets.Add(sheet);
             }
             Prepare(root);
+            // Flight Deck hardware: bezel screws on every unit, a light bar on every key
+            root.Query(className: "fd-unit").ForEach(AddScrews);
+            root.Query<Button>(className: "fd-key").ForEach(AddBar);
             if (_panel == null || _panel != root.panel) _panel = root.panel;
             return doc;
+        }
+
+        public static void AddScrews(VisualElement unit)
+        {
+            foreach (var corner in new[] { "tl", "tr", "bl", "br" })
+            {
+                var s = Element("fd-screw fd-screw--" + corner);
+                s.pickingMode = PickingMode.Ignore;
+                unit.Insert(0, s);
+            }
+        }
+
+        public static void AddBar(Button key)
+        {
+            var bar = Element("fd-key__bar");
+            bar.pickingMode = PickingMode.Ignore;
+            key.Insert(0, bar);
         }
 
         /// <summary>
@@ -374,6 +394,63 @@ namespace TAP.UI
             if (pos.x + size.x > screen.x - 4) pos.x = screen.x - size.x - 4;
             if (pos.y + size.y > screen.y - 4) pos.y = mouse.y - size.y - 8;
             UIKit.Place(_box, pos);
+        }
+    }
+
+    /// <summary>
+    /// Resize handle for a window (put it on a corner grip): dragging sets the window's width and height, at least
+    /// <see cref="Min"/> and at most the screen; <see cref="Resized"/> reports the size when the drag ends.
+    /// </summary>
+    public sealed class WindowResize : PointerManipulator
+    {
+        private readonly VisualElement _window;
+        public Vector2 Min = new Vector2(320, 240);
+        public Action<Vector2> Resized;
+        private bool _dragging;
+        private Vector2 _start, _size;
+
+        public WindowResize(VisualElement window) { _window = window; activators.Add(new ManipulatorActivationFilter { button = MouseButton.LeftMouse }); }
+
+        protected override void RegisterCallbacksOnTarget()
+        {
+            target.RegisterCallback<PointerDownEvent>(OnDown);
+            target.RegisterCallback<PointerMoveEvent>(OnMove);
+            target.RegisterCallback<PointerUpEvent>(OnUp);
+        }
+
+        protected override void UnregisterCallbacksFromTarget()
+        {
+            target.UnregisterCallback<PointerDownEvent>(OnDown);
+            target.UnregisterCallback<PointerMoveEvent>(OnMove);
+            target.UnregisterCallback<PointerUpEvent>(OnUp);
+        }
+
+        private void OnDown(PointerDownEvent e)
+        {
+            if (!CanStartManipulation(e)) return;
+            _dragging = true;
+            _start = e.position;
+            _size = _window.layout.size;
+            target.CapturePointer(e.pointerId);
+            e.StopPropagation();
+        }
+
+        private void OnMove(PointerMoveEvent e)
+        {
+            if (!_dragging || !target.HasPointerCapture(e.pointerId)) return;
+            Vector2 screen = UIKit.PanelSize(_window);
+            Vector2 s = _size + ((Vector2)e.position - _start);
+            _window.style.width = Mathf.Clamp(s.x, Min.x, Mathf.Max(Min.x, screen.x - _window.resolvedStyle.left));
+            _window.style.height = Mathf.Clamp(s.y, Min.y, Mathf.Max(Min.y, screen.y - _window.resolvedStyle.top));
+        }
+
+        private void OnUp(PointerUpEvent e)
+        {
+            if (!_dragging || !CanStopManipulation(e)) return;
+            _dragging = false;
+            target.ReleasePointer(e.pointerId);
+            Resized?.Invoke(_window.layout.size);
+            e.StopPropagation();
         }
     }
 

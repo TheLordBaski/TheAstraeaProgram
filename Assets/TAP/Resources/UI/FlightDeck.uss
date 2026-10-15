@@ -86,6 +86,8 @@
 }
 
 .btn.fd-key.on {
+    border-top-width: 1px;
+    border-top-color: rgb(70, 79, 89);
     background-color: rgb(42, 48, 55);
     color: rgb(233, 255, 240);
 }
@@ -203,4 +205,57 @@
 .hud-close--left {
     right: auto;
     left: -4px;
+}
+
+/* ------------------------------------------------------------------ windows and dialogs built as units (in the normal flow) */
+.fd-unit.fd-window {
+    position: relative;
+    padding: 14px;
+}
+
+.fd-glass.fd-glass--flow {
+    position: relative;
+    padding: 6px 10px 8px 10px;
+}
+
+.fd-section {
+    margin: 10px 2px 5px 2px;
+}
+
+.btn.fd-x {
+    width: 24px;
+    height: 22px;
+    margin-left: 6px;
+    padding: 0;
+    font-size: 15px;
+}
+
+/* a labelled value on the glass, the label left and the value right */
+.fd-kv {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    height: 22px;
+}
+
+.fd-kv > .unity-label {
+    margin: 0;
+    padding: 0;
+}
+
+.fd-kv__key {
+    flex-shrink: 1;
+    overflow: hidden;
+    margin-right: 8px;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    color: rgb(127, 140, 149);
+}
+
+.fd-kv__val {
+    flex-shrink: 0;
+    -unity-text-align: middle-right;
+    font-size: 13px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
+    color: rgb(238, 243, 245);
 }

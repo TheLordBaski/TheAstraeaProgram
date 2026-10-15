@@ -1,5 +1,5 @@
-/* Map view overlay: markers and node handles placed from code; the orbit panel bottom left,
-   the maneuver node editor bottom right, a click menu at the pointer. */
+/* Map view overlay: markers and node handles placed from code; the info unit bottom left, the maneuver node unit
+   bottom right (both Flight Deck units that HudLayout moves), a click menu at the pointer. */
 .map-marker {
     position: absolute;
     width: 26px;
@@ -39,7 +39,7 @@
     translate: -50% -50%;
 }
 
-.node-delete {
+.btn.node-delete {
     position: absolute;
     width: 26px;
     height: 26px;
@@ -51,111 +51,129 @@
 .map-hint {
     position: absolute;
     left: 50%;
-    top: 112px;
+    top: 142px;
     width: 1400px;
     translate: -50% 0;
     -unity-text-align: middle-center;
     font-size: 14px;
 }
 
+/* the info and node units: HudLayout places them (bottom left and bottom right by default) */
+.fd-unit.map-unit {
+    padding: 12px;
+}
+
 #orbit-panel {
-    position: absolute;
-    left: 8px;
-    bottom: 8px;
-    width: 360px;
-    padding: 8px 10px 8px 12px;
-    font-size: 14px;
+    width: 380px;
+}
+
+.map-info {
+    font-size: 13px;
 }
 
 #node-panel {
-    position: absolute;
-    right: 8px;
-    bottom: 8px;
-    width: 420px;
-    padding: 8px 12px 12px;
+    width: 450px;
 }
 
-.node-title {
+.node-head {
     margin-bottom: 8px;
 }
 
 .node-row {
     flex-direction: row;
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: 7px;
 }
 
 .node-label {
-    width: 58px;
-    font-size: 14px;
+    width: 52px;
 }
 
 .node-component {
-    width: 90px;
-    font-size: 15px;
+    width: 92px;
+    font-size: 13px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
 }
 
 .node-step {
-    width: 36px;
-    height: 30px;
+    width: 34px;
+    height: 28px;
     padding: 0;
-    font-size: 18px;
+    font-size: 17px;
 }
 
 .node-field {
     width: 130px;
-    height: 30px;
+    height: 28px;
     margin: 0 4px;
+}
+
+.node-field > .unity-base-text-field__input {
+    -unity-text-align: middle-right;
+    font-size: 14px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
 }
 
 .node-unit {
     margin-left: 6px;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .node-stepbtn {
     width: 50px;
-    height: 26px;
+    height: 24px;
     margin-right: 4px;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .node-step-text {
     margin-left: 6px;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .node-timebtn {
-    width: 40px;
-    height: 26px;
+    width: 44px;
+    height: 24px;
     margin-right: 3px;
     padding: 0;
-    font-size: 12px;
+    font-size: 11px;
 }
 
 .node-action {
     flex-grow: 1;
+    flex-basis: 0;
     height: 28px;
     margin-right: 6px;
-    font-size: 14px;
+    font-size: 12px;
+}
+
+.node-action--last {
+    margin-right: 0;
 }
 
 .node-text {
-    font-size: 14px;
+    font-size: 13px;
 }
 
-.map-context {
-    position: absolute;
-    width: 220px;
-    padding: 6px 8px 8px;
+/* the click menu at the pointer */
+.fd-unit.map-context {
+    width: 240px;
+    padding: 10px;
+}
+
+.context-head {
+    margin-bottom: 6px;
 }
 
 .context-title {
-    margin: 0 2px 6px;
+    flex-shrink: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .context-btn {
     height: 28px;
     margin-bottom: 4px;
-    font-size: 14px;
+    font-size: 13px;
 }

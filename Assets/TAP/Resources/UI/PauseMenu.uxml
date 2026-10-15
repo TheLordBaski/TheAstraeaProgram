@@ -1,38 +1,57 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="FlightDeck.uss" />
     <ui:Style src="FlightPanels.uss" />
     <ui:VisualElement name="pause-root" class="screen" picking-mode="Ignore">
         <ui:VisualElement name="pause" class="screen dialog hidden">
-            <ui:VisualElement class="panel pause-panel">
-                <ui:Label class="pause-title" text="PAUSED" />
-                <ui:Button name="resume" class="btn pause-btn" text="Resume  [Esc]" />
-                <ui:Button name="quicksave" class="btn pause-btn" text="Quicksave  [F5]" />
-                <ui:Button name="quickload" class="btn pause-btn" text="Quickload  [hold F9]" />
-                <ui:Button name="revert-launch" class="btn pause-btn" text="Restart flight (revert to launch)" />
-                <ui:Button name="revert-editor" class="btn pause-btn" text="Revert to assembly building" />
-                <ui:Button name="leave" class="btn pause-btn" text="Space center (keep vessels in play)" />
-                <ui:Button name="recover" class="btn pause-btn" text="Recover vessel" />
-                <ui:Button name="controls-guide" class="btn pause-btn" text="Control guide  [F1]" />
-                <ui:Button name="settings" class="btn pause-btn" text="Settings" />
-                <ui:Button name="report" class="btn pause-btn" text="Report a problem" />
-                <ui:Button name="dev" class="btn pause-btn" text="Developer tools  [Alt+F12]" />
-                <ui:Button name="main-menu" class="btn pause-btn" text="Main menu" />
-                <ui:Button name="quit" class="btn pause-btn" text="Quit to desktop" />
+            <ui:VisualElement class="fd-unit fd-window pause-panel">
+                <ui:VisualElement class="fd-glass fd-glass--flow pause-head">
+                    <ui:Label class="fd-head-title pause-title" text="PAUSED" />
+                    <ui:Label class="fd-head-note" text="The flight waits for you." />
+                </ui:VisualElement>
+                <ui:Label class="fd-lbl fd-section" text="FLIGHT" />
+                <ui:VisualElement class="pause-keys">
+                    <ui:Button name="resume" class="btn btn--go pause-btn pause-btn--wide" text="Resume  [Esc]" />
+                    <ui:Button name="quicksave" class="btn pause-btn" text="Quicksave  [F5]" />
+                    <ui:Button name="quickload" class="btn pause-btn" text="Quickload  [hold F9]" />
+                    <ui:Button name="revert-launch" class="btn pause-btn" text="Revert to launch" />
+                    <ui:Button name="revert-editor" class="btn pause-btn" text="Revert to assembly" />
+                    <ui:Button name="recover" class="btn pause-btn pause-btn--wide" text="Recover vessel" />
+                </ui:VisualElement>
+                <ui:Label class="fd-lbl fd-section" text="HELP AND TOOLS" />
+                <ui:VisualElement class="pause-keys">
+                    <ui:Button name="controls-guide" class="btn pause-btn" text="Control guide  [F1]" />
+                    <ui:Button name="settings" class="btn pause-btn" text="Settings" />
+                    <ui:Button name="report" class="btn pause-btn" text="Report a problem" />
+                    <ui:Button name="dev" class="btn pause-btn" text="Developer tools" />
+                </ui:VisualElement>
+                <ui:Label class="fd-lbl fd-section" text="LEAVE" />
+                <ui:VisualElement class="pause-keys">
+                    <ui:Button name="leave" class="btn pause-btn pause-btn--wide" text="Space center (the vessel stays in flight)" />
+                    <ui:Button name="main-menu" class="btn pause-btn" text="Main menu" />
+                    <ui:Button name="quit" class="btn pause-btn" text="Quit to desktop" />
+                </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
 
         <ui:VisualElement name="confirm" class="screen dialog confirm hidden">
-            <ui:VisualElement class="panel confirm-panel">
-                <ui:Label name="confirm-text" class="confirm-text wrap" />
+            <ui:VisualElement class="fd-unit fd-window confirm-panel">
+                <ui:VisualElement class="fd-glass fd-glass--flow confirm-glass">
+                    <ui:Label name="confirm-text" class="confirm-text wrap" />
+                </ui:VisualElement>
                 <ui:VisualElement class="confirm-buttons">
-                    <ui:Button name="confirm-yes" class="btn confirm-btn" text="Yes" />
+                    <ui:Button name="confirm-yes" class="btn btn--go confirm-btn" text="Yes" />
                     <ui:Button name="confirm-no" class="btn confirm-btn" text="Cancel" />
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <ui:VisualElement name="help" class="panel help-panel hidden">
+        <ui:VisualElement name="help" class="fd-unit fd-window help-panel hidden">
+            <ui:VisualElement class="fd-row fd-page-head help-head">
+                <ui:Label class="fd-head-title help-title" text="CONTROL GUIDE" />
+                <ui:Label class="fd-head-note help-note" text="Keys as they are bound now (Settings, Controls)" />
+                <ui:Button name="help-close" class="btn help-close" text="Close  [F1]" />
+            </ui:VisualElement>
             <ui:ScrollView name="help-body" class="list help-body" />
-            <ui:Button name="help-close" class="btn help-close" text="Close  [F1]" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

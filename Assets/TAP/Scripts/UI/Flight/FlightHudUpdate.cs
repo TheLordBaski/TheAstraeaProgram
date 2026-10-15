@@ -111,6 +111,20 @@ namespace TAP.UI
 
         // ------------------------------------------------------------------ primary flight display
 
+        /// <summary>A speed under a readout: km/s once m/s would need more than six digits.</summary>
+        private static string SubSpeed(double mps, int decimals) =>
+            mps < 1e5 ? mps.ToString("N" + decimals) + " m/s" : (mps / 1000).ToString("N0") + " km/s";
+
+        /// <summary>At most about ten characters from the pad to the edge of the system; the box shrinks the text to fit the rest.</summary>
+        internal static string PfdAltitude(double m)
+        {
+            double a = Math.Abs(m);
+            if (a < 1e5) return $"{m:N0} m";
+            if (a < 1e6) return $"{m / 1e3:N1} km";
+            if (a < 1e9) return $"{m / 1e3:N0} km";
+            return $"{m / 1e9:N2} Gm";
+        }
+
         private void UpdatePfd(Vessel v)
         {
             var c = v.Ctrl;
@@ -121,13 +135,13 @@ namespace TAP.UI
                 case SpeedMode.Orbit: _speedMode.text = "SPD ORB"; spd = v.OrbitalSpeed; break;
                 default: _speedMode.text = "SPD TGT"; spd = v.SpeedModeVelocity.magnitude; break;
             }
-            _speed.text = $"{spd:N1}";
+            _speed.text = Math.Abs(spd) < 10000 ? $"{spd:N1}" : $"{spd:N0}";
             double vs = v.VerticalSpeed;
-            _hspeed.text = $"H {Math.Sqrt(Math.Max(0, v.SurfaceSpeed * v.SurfaceSpeed - vs * vs)):N0} m/s";
+            _hspeed.text = "H " + SubSpeed(Math.Sqrt(Math.Max(0, v.SurfaceSpeed * v.SurfaceSpeed - vs * vs)), 0);
             double alt = _altTerrain ? v.AltitudeAGL : v.Altitude;
             _altMode.text = _altTerrain ? "ALT AGL" : "ALT ASL";
-            _altitude.text = alt < 100000 ? $"{alt:N0}" : $"{alt / 1000:N1} km";
-            _vspeed.text = $"{(vs > 0.05 ? "▲" : vs < -0.05 ? "▼" : "•")} {Math.Abs(vs):N1} m/s";
+            _altitude.text = PfdAltitude(alt);
+            _vspeed.text = $"{(vs > 0.05 ? "▲" : vs < -0.05 ? "▼" : "•")} " + SubSpeed(Math.Abs(vs), 1);
 
             UIKit.SetBar(_throttle, c.Throttle, Green);
             _throttleText.text = $"{c.Throttle * 100:0}";

@@ -74,10 +74,9 @@ namespace TAP.UI
         /// <summary>The F1 control guide: flight keys in two columns, then EVA, map and tips.</summary>
         public static void BuildHelp(VisualElement into)
         {
-            into.Add(UIKit.Label("CONTROL GUIDE", "help-title"));
             void Section(string title, string section, bool twoColumns)
             {
-                into.Add(UIKit.Label(title, "help-section"));
+                into.Add(UIKit.Label(title, "fd-head-title help-section"));
                 var grid = UIKit.Element("help-grid");
                 foreach (var (k, a) in Controls.GuideRows(section))
                 {

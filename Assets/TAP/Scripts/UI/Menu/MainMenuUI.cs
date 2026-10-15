@@ -49,7 +49,14 @@ namespace TAP.UI
             camGo.transform.position = new Vector3(0, 0, -30);
             camGo.transform.rotation = Quaternion.identity;
             var sky = Resources.Load<Material>("Materials/Sky");
-            if (sky != null) RenderSettings.skybox = sky;
+            if (sky != null)
+            {
+                // Black space with stars, as the map view shows it (the material's own air is the launch site's daytime sky).
+                var space = new Material(sky);
+                space.SetFloat("_Atmosphere", 0);
+                space.SetFloat("_StarBrightness", 0.9f);
+                RenderSettings.skybox = space;
+            }
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
             RenderSettings.ambientLight = new Color(0.03f, 0.035f, 0.05f);
 
@@ -71,7 +78,13 @@ namespace TAP.UI
                 Destroy(shell.GetComponent<Collider>());
                 shell.transform.SetParent(_planet, false);
                 shell.transform.localScale = Vector3.one * 1.03f;
-                shell.GetComponent<Renderer>().sharedMaterial = shellMat;
+                // The flight material is sized for the real planet; this one is 22 m across.
+                var rim = new Material(shellMat);
+                rim.SetVector("_PlanetCenter", _planet.position);
+                rim.SetFloat("_PlanetRadius", 11f);
+                rim.SetFloat("_AtmoRadius", 11f * 1.03f);
+                rim.SetVector("_SunDir", -sun.transform.forward);
+                shell.GetComponent<Renderer>().sharedMaterial = rim;
             }
         }
 

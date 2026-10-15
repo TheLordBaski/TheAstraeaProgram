@@ -11,7 +11,7 @@
 }
 
 .hub-title {
-    -unity-font-style: bold;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
     font-size: 24px;
     color: var(--c-accent);
     letter-spacing: 4px;
@@ -29,26 +29,24 @@
     font-size: 16px;
 }
 
-.hub-marker {
+.btn.hub-marker {
     position: absolute;
     translate: -50% -50%;
     min-width: 230px;
     height: 62px;
     padding: 0 16px;
-    background-color: var(--c-panel);
-    border-width: 2px;
-    border-color: var(--c-border);
     border-radius: 8px;
-    font-size: 18px;
+    font-size: 17px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Regular.ttf");
 }
 
-.hub-marker:hover,
-.hub-marker.on {
-    background-color: var(--c-button-active);
-    border-color: var(--c-accent);
+.btn.hub-marker:hover,
+.btn.hub-marker.on {
+    border-top-color: var(--c-accent);
+    background-color: var(--c-button-hover);
 }
 
-.hub-marker:disabled {
+.btn.hub-marker:disabled {
     background-color: var(--c-panel);
 }
 

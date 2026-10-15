@@ -131,6 +131,12 @@ namespace TAP.UI
             UIKit.Show(_nodePanel, false);
 
             _orbitInfo = _root.Q<Label>("orbit-info");
+
+            // Both units move, scale and hide like the HUD's; the layout key lists them.
+            var layout = HudLayout.Instance;
+            layout?.Add("map-info", "Map: info", _root.Q("orbit-panel"), new HudPanelState { ax = 0, ay = 2, x = 16, y = 16 });
+            layout?.Add("map-node", "Map: maneuver node", _nodePanel, new HudPanelState { ax = 2, ay = 2, x = 16, y = 16 });
+            layout?.Want("map-node", false);
         }
 
         private static string HandleName(string k) => k switch
@@ -551,7 +557,8 @@ namespace TAP.UI
         {
             var n = Selected;
             var v = Sim.ActiveVessel;
-            UIKit.Show(_nodePanel, n != null);
+            if (HudLayout.Instance != null) HudLayout.Instance.Want("map-node", n != null);
+            else UIKit.Show(_nodePanel, n != null);
             if (n == null) return;
             RefreshFields(n);
             _stepText.text = $"±{_step:0.#} m/s";

@@ -1,12 +1,18 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="FlightDeck.uss" />
     <ui:Style src="FlightPanels.uss" />
     <ui:VisualElement class="screen" picking-mode="Ignore">
-        <ui:VisualElement name="part-window" class="panel hidden">
-            <ui:VisualElement class="part-head">
-                <ui:Label name="part-title" class="part-title" />
-                <ui:Button name="part-close" class="btn part-close" text="×" />
+        <ui:VisualElement name="part-window" class="fd-unit hidden">
+            <ui:VisualElement class="fd-glass fd-glass--flow part-glass">
+                <ui:VisualElement class="fd-row fd-page-head part-head">
+                    <ui:Label name="part-title" class="fd-head-title part-title" />
+                    <ui:Button name="part-close" class="btn fd-x" text="×" />
+                </ui:VisualElement>
+                <ui:Label name="part-info" class="part-info wrap" picking-mode="Ignore" />
+                <ui:VisualElement name="part-resources" picking-mode="Ignore" />
+                <ui:VisualElement class="part-sep" picking-mode="Ignore" />
+                <ui:VisualElement name="part-stats" picking-mode="Ignore" />
             </ui:VisualElement>
-            <ui:Label name="part-info" class="part-info wrap" picking-mode="Ignore" />
             <ui:VisualElement name="part-actions" />
         </ui:VisualElement>
     </ui:VisualElement>

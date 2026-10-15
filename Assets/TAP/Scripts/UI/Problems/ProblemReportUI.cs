@@ -58,7 +58,7 @@ namespace TAP.UI
 
             // the dialog
             _dialog = UIKit.Element("screen dialog");
-            var panel = UIKit.Element("panel panel--deep dialog__panel problem-panel");
+            var panel = UIKit.Element("panel dialog__panel problem-panel");
             var head = UIKit.Element("dialog__head");
             head.Add(UIKit.Label("REPORT A PROBLEM", "dialog__title"));
             head.Add(UIKit.Button("Close", Close, "dialog__close"));

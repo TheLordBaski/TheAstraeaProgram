@@ -1,14 +1,14 @@
-/* Main menu: title and buttons on the left over the turning planet; dialogs centred over a dimmed screen. */
+/* Main menu: the title and a unit of keys on the left over the turning planet; dialogs centred over a dimmed screen. */
 .menu-title {
     position: absolute;
     left: 110px;
     top: 98px;
     height: 110px;
     -unity-text-align: lower-left;
-    -unity-font-style: bold;
-    font-size: 86px;
-    color: rgb(255, 255, 255);
-    letter-spacing: 10px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
+    font-size: 80px;
+    color: rgb(238, 243, 245);
+    letter-spacing: 8px;
     white-space: nowrap;
 }
 
@@ -20,25 +20,26 @@
     color: var(--c-accent);
 }
 
-.menu-buttons {
-    position: absolute;
+.fd-unit.menu-buttons {
     left: 110px;
     top: 300px;
     width: 420px;
+    padding: 16px 16px 6px;
 }
 
 .menu-btn {
-    height: 58px;
+    height: 50px;
     margin-bottom: 10px;
     padding-left: 18px;
-    font-size: 24px;
+    font-size: 18px;
+    letter-spacing: 1px;
     -unity-text-align: middle-left;
 }
 
 .menu-notice {
     position: absolute;
     left: 110px;
-    top: 732px;
+    top: 780px;
     width: 560px;
     height: 40px;
 }
@@ -132,21 +133,23 @@
 }
 
 .controls-key {
-    width: 230px;
-    -unity-font-style: bold;
-    font-size: 16px;
+    width: 250px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
+    color: var(--c-accent);
+    font-size: 15px;
 }
 
 .controls-action {
     flex-grow: 1;
     flex-shrink: 1;
-    font-size: 16px;
+    font-size: 15px;
     white-space: normal;
 }
 
 .controls-head {
-    margin: 12px 0 4px;
-    -unity-font-style: bold;
+    margin: 14px 0 6px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
     color: var(--c-accent);
-    font-size: 16px;
+    font-size: 14px;
+    letter-spacing: 1px;
 }

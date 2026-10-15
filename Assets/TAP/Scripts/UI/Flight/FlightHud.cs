@@ -80,9 +80,6 @@ namespace TAP.UI
 
         private void Build()
         {
-            // bezel screws, and the light bar on every key
-            _root.Query(className: "fd-unit").ForEach(AddScrews);
-            _root.Query<Button>(className: "fd-key").ForEach(AddBar);
             BuildClock();
             BuildKeys();
             BuildPfd();
@@ -91,28 +88,11 @@ namespace TAP.UI
             BuildLayout();
         }
 
-        internal static void AddScrews(VisualElement unit)
-        {
-            foreach (var corner in new[] { "tl", "tr", "bl", "br" })
-            {
-                var s = UIKit.Element("fd-screw fd-screw--" + corner);
-                s.pickingMode = PickingMode.Ignore;
-                unit.Insert(0, s);
-            }
-        }
-
-        internal static void AddBar(Button key)
-        {
-            var bar = UIKit.Element("fd-key__bar");
-            bar.pickingMode = PickingMode.Ignore;
-            key.Insert(0, bar);
-        }
-
         /// <summary>A hardware key made in code: a light bar and an icon or a label.</summary>
         private static Button Key(string text, Action onClick, string classes, string icon = null, Color? tint = null)
         {
             var b = UIKit.Button(text, onClick, "fd-key " + classes);
-            AddBar(b);
+            UIKit.AddBar(b);
             if (icon != null) b.Add(UIKit.Image(UIKit.Icon(icon), tint ?? White, "fd-key__icon"));
             return b;
         }

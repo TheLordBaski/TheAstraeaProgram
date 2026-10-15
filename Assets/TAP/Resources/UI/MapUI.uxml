@@ -1,4 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="FlightDeck.uss" />
     <ui:Style src="MapUI.uss" />
     <ui:VisualElement name="map" class="screen" picking-mode="Ignore">
         <ui:VisualElement name="markers" class="screen" picking-mode="Ignore" />
@@ -7,32 +8,43 @@
         <ui:Button name="node-delete" class="btn map-gizmo node-delete" text="×" />
         <ui:Label name="hint" class="map-hint text-dim" picking-mode="Ignore" text="MAP  —  click your orbit: add node / warp here · drag a node along the orbit · right-click a node or Del: delete · click a body or vessel for actions · right-drag rotate · scroll zoom · Tab focus · M back" />
 
-        <ui:VisualElement name="orbit-panel" class="panel">
-            <ui:Label name="orbit-info" class="wrap" picking-mode="Ignore" />
+        <ui:VisualElement name="orbit-panel" class="fd-unit map-unit">
+            <ui:VisualElement class="fd-glass fd-glass--flow">
+                <ui:VisualElement class="fd-row fd-page-head">
+                    <ui:Label class="fd-head-title" text="INFO" />
+                </ui:VisualElement>
+                <ui:Label name="orbit-info" class="wrap map-info" picking-mode="Ignore" />
+            </ui:VisualElement>
         </ui:VisualElement>
 
-        <ui:VisualElement name="node-panel" class="panel">
-            <ui:Label class="title node-title" text="MANEUVER NODE" />
+        <ui:VisualElement name="node-panel" class="fd-unit map-unit">
+            <ui:VisualElement class="fd-row fd-page-head node-head">
+                <ui:Label class="fd-head-title" text="MANEUVER NODE" />
+            </ui:VisualElement>
             <ui:VisualElement name="node-rows" />
             <ui:VisualElement class="node-row">
-                <ui:Label class="node-label text-dim" text="Step" />
+                <ui:Label class="fd-lbl node-label" text="STEP" />
                 <ui:VisualElement name="steps" class="row" />
-                <ui:Label name="step-text" class="text-accent node-step-text" />
+                <ui:Label name="step-text" class="text-accent node-step-text no-loc" />
             </ui:VisualElement>
             <ui:VisualElement class="node-row">
-                <ui:Label class="node-label text-dim" text="Time" />
+                <ui:Label class="fd-lbl node-label" text="TIME" />
                 <ui:VisualElement name="time-steps" class="row" />
             </ui:VisualElement>
             <ui:VisualElement class="node-row">
                 <ui:Button name="node-del" class="btn node-action" text="Delete node" />
                 <ui:Button name="node-warp" class="btn node-action" text="Warp to burn" />
-                <ui:Button name="node-sas" class="btn node-action" text="SAS → node" />
+                <ui:Button name="node-sas" class="btn node-action node-action--last" text="SAS → node" />
             </ui:VisualElement>
-            <ui:Label name="node-text" class="wrap node-text" picking-mode="Ignore" />
+            <ui:VisualElement class="fd-glass fd-glass--flow">
+                <ui:Label name="node-text" class="wrap node-text" picking-mode="Ignore" />
+            </ui:VisualElement>
         </ui:VisualElement>
 
-        <ui:VisualElement name="context" class="panel map-context hidden">
-            <ui:Label name="context-title" class="title context-title" />
+        <ui:VisualElement name="context" class="fd-unit map-context hidden">
+            <ui:VisualElement class="fd-row fd-page-head context-head">
+                <ui:Label name="context-title" class="fd-head-title context-title" />
+            </ui:VisualElement>
             <ui:VisualElement name="context-buttons" />
         </ui:VisualElement>
     </ui:VisualElement>

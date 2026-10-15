@@ -1,5 +1,5 @@
-/* Assembly building: top bar, parts palette on the left, engineer's report + warnings + staging down the right,
-   hint bar at the bottom, toasts under the top bar. */
+/* Assembly building (Flight Deck look): top bar, parts palette on the left, engineer's report + warnings + staging
+   down the right, hint bar at the bottom, toasts under the top bar. */
 
 /* top bar */
 #top-bar {
@@ -34,7 +34,7 @@
     padding: 0 8px;
     height: 38px;
     margin-right: 6px;
-    font-size: 16px;
+    font-size: 14px;
 }
 
 .bar-gap {
@@ -72,10 +72,11 @@
 }
 
 .bar-launch {
-    min-width: 120px;
+    min-width: 130px;
+    letter-spacing: 2px;
     padding: 0 8px;
     margin-right: 0;
-    -unity-font-style: bold;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
 }
 
 /* parts palette */
@@ -102,7 +103,7 @@
     width: 32%;
     height: 32px;
     margin: 0 1% 4px 0;
-    font-size: 15px;
+    font-size: 13px;
 }
 
 .palette-search {
@@ -123,13 +124,23 @@
     flex-wrap: wrap;
 }
 
-.tile {
+.btn.tile {
     width: 32%;
     height: 124px;
     margin: 0 1% 4px 0;
     padding: 4px 3px 3px;
     align-items: center;
     justify-content: space-between;
+    background-color: var(--c-row);
+    border-width: 1px;
+    border-color: var(--c-row-edge);
+    border-radius: 4px;
+    translate: 0 0;
+}
+
+.btn.tile:hover {
+    background-color: rgb(18, 27, 31);
+    border-color: var(--c-accent-dim);
 }
 
 .tile__thumb {
@@ -141,7 +152,8 @@
     height: 32px;
     width: 100px;
     -unity-text-align: upper-center;
-    font-size: 12px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Regular.ttf");
+    font-size: 11px;
     white-space: normal;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -157,34 +169,36 @@
 }
 
 #engineer {
-    height: 212px;
+    flex-shrink: 0;
     margin-bottom: 6px;
-    padding: 6px 10px 8px 12px;
+    padding: 6px 8px 8px 8px;
 }
 
 #engineer > .title {
-    height: 20px;
-    margin: 0;
+    height: 22px;
+    margin: 0 0 0 4px;
     padding: 0;
+    -unity-text-align: middle-left;
 }
 
 .stats {
-    margin: 4px 0 0 0;
+    margin: 0;
     padding: 0;
-    font-size: 15px;
+    font-size: 14px;
 }
 
 #warnings {
-    max-height: 220px;
+    flex-shrink: 0;
+    max-height: 230px;
     margin-bottom: 6px;
-    padding: 8px 10px 6px 12px;
+    padding: 8px;
     overflow: hidden;
 }
 
 .warnings-text {
     margin: 0;
     padding: 0;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 #staging {
@@ -216,6 +230,11 @@
     flex-grow: 1;
 }
 
+.list .text-dim {
+    margin: 6px 4px;
+    font-size: 13px;
+}
+
 .staging-hint {
     height: 34px;
     margin-top: 2px;
@@ -237,7 +256,7 @@
     margin: 0 0 2px 0;
     padding: 0;
     -unity-text-align: middle-left;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .stage-icons {
@@ -249,8 +268,10 @@
     width: 44px;
     height: 44px;
     margin: 0 4px 4px 0;
-    border-radius: 6px;
-    background-color: rgb(41, 51, 69);
+    border-width: 1px;
+    border-color: var(--c-glass-edge);
+    border-radius: 4px;
+    background-color: rgb(24, 30, 35);
 }
 
 .stage-icon__glyph {
@@ -265,7 +286,7 @@
     position: absolute;
     right: 3px;
     bottom: 1px;
-    -unity-font-style: bold;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
     font-size: 12px;
 }
 
@@ -276,7 +297,7 @@
 }
 
 .stage-insert.drop-target {
-    background-color: rgba(82, 199, 255, 0.6);
+    background-color: rgba(94, 230, 242, 0.6);
 }
 
 .stage-ghost {
@@ -286,21 +307,21 @@
 }
 
 /* hint bar and toast */
+/* between the palette and the right column */
 #hint-bar {
     position: absolute;
-    left: 50%;
+    left: 366px;
+    right: 410px;
     bottom: 8px;
-    width: 1100px;
     height: 34px;
-    margin-left: -16px;
-    translate: -50% 0;
+    padding: 0 8px;
     justify-content: center;
-    background-color: rgba(8, 10, 15, 0.75);
 }
 
 .hint {
     -unity-text-align: middle-center;
-    font-size: 15px;
+    font-size: 13px;
+    -unity-text-auto-size: best-fit 9px 13px;
 }
 
 .toast {
@@ -320,12 +341,14 @@
     position: absolute;
     width: 360px;
     padding: 10px 12px 8px;
-    background-color: rgba(10, 14, 20, 0.97);
+}
+
+.part-menu-glass {
+    margin-bottom: 8px;
 }
 
 .part-menu-text {
-    font-size: 14px;
-    margin-bottom: 8px;
+    font-size: 13px;
 }
 
 .part-menu-row {
@@ -381,7 +404,7 @@
 .list-section {
     height: 26px;
     margin-bottom: 6px;
-    -unity-font-style: bold;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
     color: var(--c-accent);
     font-size: 15px;
     -unity-text-align: middle-left;
@@ -395,7 +418,9 @@
 }
 
 .list-row--craft {
-    height: 74px;
+    min-height: 74px;
+    padding-top: 6px;
+    padding-bottom: 6px;
 }
 
 .list-row--flight {
@@ -405,7 +430,7 @@
 .list-row__text {
     flex-grow: 1;
     flex-shrink: 1;
-    font-size: 15px;
+    font-size: 14px;
     white-space: normal;
     overflow: hidden;
 }
@@ -417,6 +442,7 @@
     font-size: 15px;
 }
 
-.list-row__btn--armed {
-    background-color: rgb(128, 38, 31);
+.btn.list-row__btn--armed {
+    background-color: rgb(110, 34, 28);
+    border-top-color: rgb(160, 60, 50);
 }

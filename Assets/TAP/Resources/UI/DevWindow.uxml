@@ -1,62 +1,20 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="FlightDeck.uss" />
     <ui:Style src="FlightPanels.uss" />
     <ui:VisualElement class="screen" picking-mode="Ignore">
-        <ui:VisualElement name="dev-window" class="panel">
-            <ui:Label name="dev-title" class="dev-title" text="DEVELOPER TOOLS" />
-            <ui:Label class="dev-hint text-dim" text="Drag the title to move the window · Alt+F12 or ` closes it" />
-
-            <ui:Label class="dev-section" text="Cheats (until the game is closed)" />
-            <ui:VisualElement class="dev-row">
-                <ui:Button name="cheat-prop" class="btn dev-btn" text="Infinite propellant" />
-                <ui:Button name="cheat-ec" class="btn dev-btn dev-btn--last" text="Infinite electricity" />
+        <ui:VisualElement name="dev-window" class="fd-unit">
+            <ui:VisualElement class="fd-row dev-head">
+                <ui:Label name="dev-title" class="fd-head-title dev-title" text="DEVELOPER TOOLS" />
+                <ui:Label name="dev-cheats" class="dev-cheats" picking-mode="Ignore" text="CHEATS ON" />
+                <ui:TextField name="dev-search" class="field dev-search" />
+                <ui:Button name="dev-close" class="btn fd-x" text="×" />
             </ui:VisualElement>
-            <ui:VisualElement class="dev-row">
-                <ui:Button name="cheat-crash" class="btn dev-btn" text="No crash damage" />
-                <ui:Button name="cheat-heat" class="btn dev-btn dev-btn--last" text="Ignore heat" />
+            <ui:VisualElement class="dev-body">
+                <ui:ScrollView name="dev-tabs" class="dev-tabs" />
+                <ui:ScrollView name="dev-pages" class="list dev-pages" />
             </ui:VisualElement>
-            <ui:VisualElement class="dev-row">
-                <ui:Button name="cheat-joints" class="btn dev-btn" text="Unbreakable joints" />
-                <ui:Button name="refill" class="btn dev-btn dev-btn--last" text="Refill all tanks" />
-            </ui:VisualElement>
-
-            <ui:Label class="dev-section" text="Teleport the active vessel" />
-            <ui:VisualElement name="bodies" class="dev-row dev-bodies" />
-            <ui:VisualElement class="dev-row">
-                <ui:Label class="dev-label" text="Altitude (km)" />
-                <ui:TextField name="alt" class="field dev-field" value="100" />
-                <ui:Label class="dev-label" text="Inclination (°)" />
-                <ui:TextField name="inc" class="field dev-field" value="0" />
-            </ui:VisualElement>
-            <ui:Button name="set-orbit" class="btn dev-action" text="Set circular orbit" />
-            <ui:VisualElement class="dev-row">
-                <ui:Label class="dev-label" text="Latitude (°)" />
-                <ui:TextField name="lat" class="field dev-field" value="0" />
-                <ui:Label class="dev-label" text="Longitude (°)" />
-                <ui:TextField name="lon" class="field dev-field" value="0" />
-            </ui:VisualElement>
-            <ui:Button name="put-down" class="btn dev-action" text="Land there (legs down, at rest)" />
-
-            <ui:Label class="dev-section" text="Terrain" />
-            <ui:VisualElement class="dev-row">
-                <ui:Button name="biomes" class="btn dev-btn" text="Biome map" />
-                <ui:Button name="where" class="btn dev-btn dev-btn--last" text="Where am I?" />
-            </ui:VisualElement>
-            <ui:VisualElement class="dev-row">
-                <ui:Button name="flatten" class="btn dev-btn" text="Flatten ground for a base" />
-                <ui:Button name="unflatten" class="btn dev-btn dev-btn--last" text="Remove it" />
-            </ui:VisualElement>
-
-            <ui:Label class="dev-section" text="Camera" />
-            <ui:VisualElement class="dev-row">
-                <ui:Label class="dev-zoom-label" text="Mouse-wheel zoom speed" />
-                <ui:Button name="zoom-minus" class="btn dev-step" text="−" />
-                <ui:Label name="zoom" class="dev-zoom" />
-                <ui:Button name="zoom-plus" class="btn dev-step" text="+" />
-            </ui:VisualElement>
-
-            <ui:Button name="throw" class="btn dev-action" text="Throw a test exception" />
-            <ui:Label name="info" class="dev-info wrap" picking-mode="Ignore" />
-            <ui:Button name="close" class="btn dev-action" text="Close" />
+            <ui:Label name="dev-status" class="dev-status no-loc" picking-mode="Ignore" />
+            <ui:VisualElement name="dev-grip" class="dev-grip" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

@@ -40,8 +40,6 @@ namespace TAP.UI
             g.Scene = scene;
             g._panel = root.Q("guide");
             Panel = g._panel;
-            FlightHud.AddScrews(g._panel);
-            root.Query<Button>(className: "fd-key").ForEach(FlightHud.AddBar);
             HudLayout.Instance?.Add("guide", "Mission guide", g._panel, new HudPanelState { ax = 0, ay = 0, x = 16, y = 142 });
             g._text = root.Q<Label>("guide-text");
             g._title = root.Q<Label>("guide-title");

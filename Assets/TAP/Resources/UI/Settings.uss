@@ -20,9 +20,10 @@
 
 .settings-tab {
     width: 150px;
-    height: 38px;
+    height: 36px;
     margin-right: 6px;
-    font-size: 17px;
+    font-size: 14px;
+    letter-spacing: 1px;
 }
 
 .set-row {
@@ -38,7 +39,7 @@
 
 .set-label {
     width: 330px;
-    font-size: 18px;
+    font-size: 16px;
 }
 
 .set-control {
@@ -50,13 +51,17 @@
 .set-step {
     width: 36px;
     height: 32px;
-    font-size: 15px;
+    font-size: 22px;
+    padding-bottom: 3px;
 }
 
 .set-value {
     width: 190px;
     -unity-text-align: middle-center;
-    font-size: 18px;
+    font-size: 16px;
+    -unity-text-auto-size: best-fit 10px 16px;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
+    color: rgb(238, 243, 245);
 }
 
 .set-value--narrow {
@@ -69,8 +74,9 @@
 }
 
 .set-slider .unity-base-slider__tracker {
-    background-color: rgba(0, 0, 0, 0.5);
-    border-width: 0;
+    background-color: var(--c-glass);
+    border-width: 1px;
+    border-color: var(--c-glass-edge);
     border-radius: 3px;
     height: 6px;
 }
@@ -85,7 +91,7 @@
 
 .set-label--wide {
     width: 450px;
-    font-size: 17px;
+    font-size: 15px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -95,7 +101,7 @@
     width: 230px;
     height: 32px;
     margin-right: 8px;
-    font-size: 16px;
+    font-size: 14px;
 }
 
 .set-reset {
@@ -105,9 +111,10 @@
 
 .set-heading {
     margin: 14px 0 4px 8px;
-    -unity-font-style: bold;
+    -unity-font-definition: url("/Assets/TAP/Fonts/B612-Bold.ttf");
     color: var(--c-accent);
-    font-size: 16px;
+    font-size: 14px;
+    letter-spacing: 1px;
 }
 
 .set-wide {
@@ -119,7 +126,7 @@
 .set-toggle {
     width: 120px;
     height: 32px;
-    font-size: 17px;
+    font-size: 14px;
 }
 
 .settings-note {
