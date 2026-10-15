@@ -93,10 +93,29 @@ namespace TAP.Parts
             }
         }
 
-        public IReadOnlyList<PartDefinition> Parts => Catalog.parts;
+        /// <summary>Tools and tests that need every part of the catalogue, released or not, set this.</summary>
+        public static bool ShowUnreleased;
+
+        /// <summary>Whether the part's milestone is out yet (<see cref="PartTemplates.Released"/>); the player only sees released parts.</summary>
+        public static bool IsReleased(PartDefinition p) => ShowUnreleased || PartTemplates.Instance.Released(p.milestone);
+
+        /// <summary>The parts the player can build with: released ones.</summary>
+        public IReadOnlyList<PartDefinition> Parts => Catalog.parts.Where(IsReleased).ToList();
+
+        /// <summary>Every part of the catalogue, with the ones of releases to come.</summary>
+        public IReadOnlyList<PartDefinition> AllParts => Catalog.parts;
+
         public IReadOnlyList<ResourceDefinition> ResourceDefinitions => Catalog.resources;
 
+        /// <summary>A released part by id; null for an unknown or unreleased one.</summary>
         public PartDefinition Get(string id)
+        {
+            if (id != null && _parts.TryGetValue(id, out var p) && IsReleased(p)) return p;
+            return null;
+        }
+
+        /// <summary>A part by id whether or not its release is out.</summary>
+        public PartDefinition GetAny(string id)
         {
             if (id != null && _parts.TryGetValue(id, out var p)) return p;
             return null;
@@ -152,6 +171,8 @@ namespace TAP.Parts
                 string name = string.IsNullOrWhiteSpace(b.title) ? id : $"{b.title} ({id})";
                 return b.problem == null ? name + " has errors in its data" : $"{name} has an error in {b.problem.Place}: {b.problem.What}";
             }
+            var unreleased = GetAny(id);
+            if (unreleased != null && !IsReleased(unreleased)) return $"\"{unreleased.title}\" ({id}) arrives with {unreleased.milestone}";
             return $"there is no part \"{id}\"";
         }
 

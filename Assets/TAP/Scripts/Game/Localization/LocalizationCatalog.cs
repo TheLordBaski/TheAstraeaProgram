@@ -38,7 +38,7 @@ namespace TAP.Game
             foreach (var c in ControlTable.All.Select(c => c.Section).Distinct()) Add(c);
             foreach (var m in ControlTable.MouseRows) { Add(m.keys); Add(m.action); }
             var db = PartDatabase.Instance;
-            foreach (var p in db.Parts) { Add(p.title); Add(p.description); Add(p.category); }
+            foreach (var p in db.AllParts) { Add(p.title); Add(p.description); Add(p.category); }
             foreach (var r in db.ResourceDefinitions) Add(r.name);
             foreach (var m in db.Mixes) Add(m.name);
             var system = CelestialSystem.Default;

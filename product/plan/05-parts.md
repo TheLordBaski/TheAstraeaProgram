@@ -65,7 +65,7 @@ plain codes for structure. The final names come with PRT-01.
 | tank_radial | Saddle Radial Tank | radial | side tank | EA2 |
 | mono_s2 | MP-600 Monoprop Toroid | S2 | monopropellant | EA2 |
 | xenon_s0, xenon_radial | XG-40 / XG-20 Xenon Tank | S0 / radial | ion propellant | EA2 |
-| hydro_s1, hydro_s2 | HY-600 / HY-2400 Hydrogen Tank | S1 / S2 | nuclear propellant | EA2 |
+| hydro_s1, hydro_s2 | HY-140 / HY-1100 Hydrogen Tank | S1 / S2 | nuclear propellant (the number is the kg it holds) | EA2 |
 | coupler_quad_s3 | Quad Coupler | S3→4×S1 | clusters | EA3 |
 
 **Engines and boosters**
@@ -233,8 +233,18 @@ plain codes for structure. The final names come with PRT-01.
 - Final names (D-02).
 
 **Done when**
-- [ ] Every catalogue entry exists in data with a milestone flag, hidden until its milestone.
-- [ ] A test checks every part against its role template (for example, no lifter below TWR 1.2 at sea level).
+- [x] Every catalogue entry exists in data with a milestone flag, hidden until its milestone. (170 entries: the 168 parts of the plan by milestone, 36 / 40 / 63 / 9 / 20, and the rocketeer and the flag. `PartCatalogueTests`)
+- [x] A test checks every part against its role template (for example, no lifter below TWR 1.2 at sea level). (The lifter's band is a TWR of 8 to 30 at sea level, well above 1.2: `PartCatalogueTests`)
+
+Built ([Docs/PART_CATALOGUE.md](../../Docs/PART_CATALOGUE.md)): `PartDefinition` gained `milestone`, `size`, `role` and `cost`; `Data/part_templates.json` holds the
+milestones and the one that is out (`release`, now `M0`), the size classes, six manufacturers with their personalities and 51 roles with their stat bands;
+`PartTemplates.Check` measures every part; `PartDatabase.Get` hides the parts of unreleased milestones. `tools/catalogue/build_catalogue.py` made the first
+catalogue and is not meant to be run again over the project's files.
+
+Left for others: **final names** wait for D-02 (the plan's working names are in the data); **entry costs** for career are not set, because the science and
+tech rework decides how a part is unlocked; the models of the new parts are placeholders until PRT-02 and PRT-08; modules that don't exist yet
+(solar panels, antennas, wheels, drills, ladders…) come with their systems, and their part entries carry the mass and size only. The costs and bands are
+placeholders for CAR-10 and PRT-11.
 
 ### PRT-02 · Procedural models for the EA1 shapes
 **Milestone** EA1 · **Claude** 4 d · **You** 1 d · **Needs** PRT-03

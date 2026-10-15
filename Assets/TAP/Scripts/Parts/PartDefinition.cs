@@ -62,7 +62,7 @@ namespace TAP.Parts
         public string id;
         public float[] pos = { 0, 0, 0 };
         public float[] dir = { 0, 1, 0 };
-        /// <summary>0 = 0.625 m, 1 = 1.25 m, 2 = 2.5 m.</summary>
+        /// <summary>0 = 0.625 m, 1 = 1.25 m, 2 = 2.5 m, 3 = 3.75 m.</summary>
         public int size = 1;
         public Vector3 Position => new Vector3(pos[0], pos[1], pos[2]);
         public Vector3 Direction => new Vector3(dir[0], dir[1], dir[2]).normalized;
@@ -296,8 +296,22 @@ namespace TAP.Parts
     {
         public string id;
         public string title;
+        /// <summary>One of the manufacturers of Data/part_templates.json.</summary>
         public string manufacturer = "Astraea Works";
         public string category = "Structural";
+        /// <summary>
+        /// The release that adds the part: "M0" (the vertical slice) or "EA1" to "EA4". It is hidden until then
+        /// (<see cref="PartDatabase.Get"/>, <see cref="PartTemplates.Released"/>).
+        /// </summary>
+        public string milestone = "M0";
+        /// <summary>
+        /// Size class: S0 to S3 (0.625 to 3.75 m), "radial" (attaches to a surface), "none", or the sizes of an adapter, "S1/S2".
+        /// </summary>
+        public string size = "";
+        /// <summary>The role whose template the part's stats are checked against (Data/part_templates.json), such as "engine.lifter".</summary>
+        public string role = "";
+        /// <summary>Price in funds without propellant (career, CAR-02): the dry mass at the role's rate per kg.</summary>
+        public double cost;
         public string description;
         public double dryMass;
         /// <summary>Bounding cylinder used for aero/thermal areas and inertia: diameter, height (m).</summary>
