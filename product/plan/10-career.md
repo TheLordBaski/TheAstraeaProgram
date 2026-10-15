@@ -66,7 +66,8 @@ Sandbox and science mode have every facility at level 3.
 
 - Costs:
   - every part has a cost and every resource a unit price;
-  - a launch costs the craft's value, and you can't launch without the funds.
+  - a launch costs the craft's value, and you can't launch without the funds;
+  - the propellant a launch draws from the site's stock is paid at the resource's unit price (unlimited stock, FLT-01).
 - **Recovery**:
   - a refund of the vessel's value × a distance factor from the launch complex (100% on the pad, falling with
     distance around Tellus);

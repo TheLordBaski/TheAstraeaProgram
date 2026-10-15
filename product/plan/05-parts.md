@@ -43,7 +43,7 @@ plain codes for structure. The final names come with PRT-01.
 | cupola_lookout | Lookout Cupola | S2 | 1 seat, control, windows | EA4 |
 | lab_quill | Quill Research Lab | S2 | 2 seats, science lab (SCI-08) | EA4 |
 
-**Propellant and tanks** (the propellant model is decision D-01)
+**Propellant and tanks** (the propellant model is decided, D-01: a tank holds a mix or one resource, as a volume; the rows below say which)
 
 | Id | Working name | Size | Role | EA |
 |---|---|---|---|---|
@@ -90,7 +90,7 @@ plain codes for structure. The final names come with PRT-01.
 | srb_behemoth | Behemoth Heavy Booster | S2 | heavy solid | EA2 |
 | eng_leviathan | Leviathan VX-1500 | S3 | heavy vacuum | EA3 |
 | eng_wedge | Wedge Aerospike | S1 | altitude-compensating | EA3 |
-| eng_vernier | Vernier Thruster | radial | Propellant attitude thruster | EA3 |
+| eng_vernier | Vernier Thruster | radial | chemical-mix attitude thruster | EA3 |
 
 **Control**
 
@@ -149,7 +149,7 @@ plain codes for structure. The final names come with PRT-01.
 | ladder_tele | Telescopic Ladder | radial | extends | EA2 |
 | solar_tracker | Sunfield Array | radial | huge, tracking | EA3 |
 | rtg | Hearth RTG | radial | constant power, heavy | EA3 |
-| fuelcell | FC-1 Fuel Cell | radial | Propellant → electricity | EA3 |
+| fuelcell | FC-1 Fuel Cell | radial | chemical mix → electricity | EA3 |
 | fuelcell_array | FC-8 Fuel Cell Array | S1 | fuel cell | EA4 |
 | radiator_large | RL-10 Active Radiator | radial | active radiator | EA4 |
 
@@ -223,7 +223,8 @@ plain codes for structure. The final names come with PRT-01.
   - the naming pattern.
 - **Stat templates per role**, the reference that PRT-11 balances against:
   - engine families: TWR and Isp bands;
-  - tanks: dry-to-wet ratio per size;
+  - tanks: volume capacity and dry-to-wet ratio per size, for the chemical mix and for each single resource
+    (Hydrogen, Xenon, Ore) from the resource list of FLT-01;
   - structural strength by size;
   - cost per mass for each category;
   - entry costs for career.

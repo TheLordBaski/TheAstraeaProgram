@@ -83,7 +83,6 @@ Open decisions, each with a recommendation, are in [19-decisions.md](19-decision
 
 | Decision | Needed by |
 |---|---|
-| D-01 propellant model | M1 |
 | D-02 names | M1 |
 | D-11 scripting backend | M1 |
 | D-23 name and trademark filing | M1 |
@@ -94,7 +93,7 @@ Open decisions, each with a recommendation, are in [19-decisions.md](19-decision
 | Milestone | Goal | Headline content | Tasks | Claude d | You d |
 |---|---|---|---|---|---|
 | **M1 Foundations** (internal) | A base for many worlds, modes and platforms | star-centred and multi-system architecture, data terrain and biomes, saves v2, game modes, hub scene flow, settings, rebinding, Linux build and CI, performance budgets, design system, style guide, audio architecture, legal and name check | 24 | 54 | 23 |
-| **EA1 "First Light"** (Early Access launch) | A complete science game in the home neighbourhood, with a first planet | sandbox and **science** modes; research tree; 8 experiments with biomes (12 by EA5); the star, **Pruina**, **Rubra** and **Vigil**; 76 parts; electricity, solar power, antennas, fairings, ladders, action groups, tweakables; hub and tracking station; map at solar scale with rendezvous aids; audio and music; tutorials 1–7, handbook, settings; HUD clarity and visual clarity passes; 12 hand-made parts; Steam page, trailer, Windows and Linux | 95 | 214 | 106 |
+| **EA1 "First Light"** (Early Access launch) | A complete science game in the home neighbourhood, with a first planet | sandbox and **science** modes; research tree; 8 experiments with biomes (12 by EA5); the star, **Pruina**, **Rubra** and **Vigil**; 76 parts; electricity, solar power, antennas, fairings, ladders, action groups, tweakables; hub and tracking station; map at solar scale with rendezvous aids; audio and music; tutorials 1–7, handbook, settings; HUD clarity and visual clarity passes; 12 hand-made parts; Steam page, trailer, Windows and Linux | 95 | 216 | 106 |
 | **EA2 "Worlds"** | The whole home system | the other 11 worlds (Ignis, Caligo, Mica, Rupes and the belt, Magnus with rings, Maris, Gelida, Gravis, Lapis, Granum, Remota); rovers; heat v2 and radiators; nuclear and ion engines; control fins and airbrakes; S3 parts (139 total); transfer planner, alarms; docking sizes; autotests to every world | 35 | 88 | 54 |
 | **EA3 "Agency"** | Career mode | funds, reputation, facility levels, contracts (8 types), world firsts, strategies, difficulty, economy balance; crew traits, levels, hiring, rescue and tourists; waypoints; buildings art | 24 | 55 | 40 |
 | **EA4 "Frontier"** | Living off the land | ore, scanners, drills, converters; asteroids and the grabbing unit; stations and outposts (lab, cabins, cupola), struts and fuel lines; the last parts (168 total); station, outpost, resource and asteroid contracts | 15 | 36 | 24 |

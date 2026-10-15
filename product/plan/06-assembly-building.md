@@ -50,7 +50,7 @@
 **Milestone** EA1 · **Claude** 2 d · **You** 0.5 d · **Needs** —
 
 - The part menu gains sliders and toggles from FLT-15:
-  - fill levels per resource;
+  - fill levels per resource or mix (default full: tanks fill from the launch site's stock, FLT-01);
   - thrust limiter, gimbal;
   - chute deploy pressure and altitude;
   - crossfeed;

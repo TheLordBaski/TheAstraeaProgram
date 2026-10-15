@@ -49,7 +49,7 @@ CRW-01,Crew data model v2,07-crew-eva.md,EA1,EA1,2.0,0.5,False,FND-05
 CRW-06,Ladders and climbing,07-crew-eva.md,EA1,EA1,3.0,1.0,False,PRT-02
 CRW-08,EVA science,07-crew-eva.md,EA1,EA1,2.0,0.5,False,SCI-03
 CRW-13,Names,07-crew-eva.md,EA1,EA1,1.0,0.5,False,
-FLT-01,Propellant model,04-flight-systems.md,EA1,EA1,3.0,1.0,False,D-01
+FLT-01,Propellant model,04-flight-systems.md,EA1,EA1,5.0,1.0,False,D-01
 FLT-02,"Electric system: generation, consumption, starvation",04-flight-systems.md,EA1,EA1,5.0,1.0,False,SYS-02 PRT-03
 FLT-03,"Command, control and probe rules",04-flight-systems.md,EA1,EA1,2.0,0.5,False,FLT-02
 FLT-05,"Aerodynamics for rockets: fairings, bays, other atmospheres",04-flight-systems.md,EA1,EA1,4.0,1.0,False,PRT-04

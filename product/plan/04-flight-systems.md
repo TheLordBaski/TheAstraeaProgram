@@ -32,25 +32,35 @@ The design pillar stays: one rigid body per vessel, no wobble (D-14).
 ---
 
 ### FLT-01 · Propellant model
-**Milestone** EA1 · **Claude** 3 d · **You** 1 d · **Needs** D-01
+**Milestone** EA1 · **Claude** 5 d · **You** 1 d · **Needs** D-01
 
-Today there is one `LiquidFuel` for every liquid engine. Nuclear-thermal and ion engines need their own propellants.
-Pick the model in D-01. The recommendation is to keep one chemical **Propellant** (renamed from `LiquidFuel`) and add:
+Today there is one `LiquidFuel` for every liquid engine, and a tank holds kg. D-01 is decided: an open resource
+framework with propellant mixes, in [19-decisions.md](19-decisions.md).
 
-- **Hydrogen** for nuclear-thermal engines: light, bulky, it boils off slowly unless insulated (boil-off optional);
-- **Xenon** for ion engines;
-- **Ore** for ISRU (RES).
-
-The work:
-- Resource definitions (density, unit volume, cost for career).
-- Tank contents per part, the engines' propellant mix, and flow rules per resource (xenon and ore flow everywhere,
-  like electricity; stack propellants flow down stacks).
-- A migration of craft files and saves (`LiquidFuel` → `Propellant`), and the part stats and descriptions updated.
+- **Resources** are data: density (kg per unit), unit volume, flow rule, unit price, and a boil-off rate that nothing
+  uses yet (default 0). EA1 ships Fuel, Oxidiser, Monopropellant, Solid propellant, Hydrogen, Xenon, Ore, Electric
+  charge and Ablator.
+- **Mixes**: a named recipe of resources by mass ratio. An engine, tank or converter names a mix or a single resource.
+  `chemical` is Fuel + Oxidiser in a fixed ratio. A combined tank holds the mix and the HUD and part menus show one
+  bar per mix, with the components in the part menu. Mixes are data, so mods add their own.
+- **Volume**: a tank has a capacity in volume units (not mesh size). A resource unit takes `unitVolume` of it and has
+  mass `density`. A hydrogen tank therefore holds fewer kg than a fuel tank of the same part. The current tanks
+  migrate one to one.
+- **Flow** per resource: stack propellants flow down stacks, Xenon, Ore and electricity flow everywhere (FLT-06 adds
+  transfer and locks). An engine draws its mix at the mix ratio and stops when any component runs out.
+- **Supply at the launch site** (an interface with one implementation now): tanks fill from the site's stock when
+  the vessel launches, with the fill levels of ASM-02 (default full). Sandbox and science mode: every resource,
+  unlimited and free. Career: unlimited at the unit price (CAR-02). Bases elsewhere will hold what they produce or
+  receive (RES, HUB-04).
+- A migration of craft files and saves (`LiquidFuel` → the `chemical` mix, with Fuel and Oxidiser split so the mass
+  and Δv stay the same), and the part stats and descriptions updated. Δv and burn-time code handle mixes.
 
 **Done when**
 - [ ] Every starter craft and save loads with an unchanged Δv (within 0.5%).
-- [ ] A nuclear engine burns Hydrogen only.
-- [ ] Unit tests cover the new flow rules.
+- [ ] A nuclear engine burns Hydrogen only, and a Hydrogen tank holds fewer kg than a Fuel tank of the same part.
+- [ ] A mod can define a new resource and a new mix in data and fly it with no code.
+- [ ] A new vessel's tanks fill from the site's stock, and a half-full launch has half the propellant mass.
+- [ ] Unit tests cover the mix flow, the supply and the migration.
 
 ### FLT-02 · Electric system: generation, consumption, starvation
 **Milestone** EA1 · **Claude** 5 d · **You** 1 d · **Needs** SYS-02, PRT-03
@@ -59,7 +69,7 @@ The work:
   - Solar panels scale with sun angle and 1/r² flux. Tracking panels rotate towards the star. Bodies eclipse them
     and the vessel's own parts shade them (a few raycasts, updated at a low rate).
   - RTGs produce a constant output.
-  - Fuel cells turn Propellant into electricity.
+  - Fuel cells turn the chemical mix (Fuel and Oxidiser) into electricity.
   - Launch clamps supply power on the pad.
 - **Consumption**:
   - probe cores;
@@ -288,7 +298,7 @@ along the tree path it spans, up to its own strength, and it can break.
 - **Nuclear thermal**: Hydrogen, high Isp, low thrust, lots of heat, a slow spool.
 - **Ion**: Xenon plus electricity, tiny thrust. It can't thrust on rails, so physics warp only, with a "burn
   duration" readout and a rails-safe completion.
-- **Cluster and radial engines**; **verniers** (small attitude-control thrusters on Propellant).
+- **Cluster and radial engines**; **verniers** (small attitude-control thrusters on the chemical mix).
 - Thrust curves for solid boosters (tunable per booster).
 
 **Done when**

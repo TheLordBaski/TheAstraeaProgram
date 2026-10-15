@@ -55,7 +55,8 @@ stations and systems ([20-multi-system-and-trade.md](20-multi-system-and-trade.m
 ### RES-04 · Converters
 **Milestone** EA4 · **Claude** 2 d · **You** 0.5 d · **Needs** RES-03, FLT-01
 
-- Recipes: ore → Propellant, ore → Monopropellant, and ore → Hydrogen if D-01 adds Hydrogen.
+- Recipes (data, from the resources and mixes of FLT-01): ore → Fuel, ore → Oxidiser (so a base can make one component and
+  not the other), ore → Monopropellant, ore → Hydrogen. A converter's output fills the base's stock, which launches draw from.
 - Uses electricity, makes heat, and an engineer bonus applies. Converters run on rails.
 - Recipes are data, ready for new goods later.
 
