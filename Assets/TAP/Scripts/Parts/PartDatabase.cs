@@ -202,7 +202,7 @@ namespace TAP.Parts
 
         /// <summary>A part's modules: adding or removing one reaches vessels built afterwards.</summary>
         private static readonly string[] Modules =
-            { "engine", "decoupler", "parachute", "landingLeg", "heatShield", "reactionWheel", "rcs", "crew", "command", "dockingPort", "fin" };
+            { "engine", "decoupler", "parachute", "landingLeg", "heatShield", "reactionWheel", "rcs", "crew", "command", "dockingPort", "fin", "deployable" };
 
         /// <summary>
         /// Applies a new version of the catalog file (F8 hot reload). Every definition is updated in place, so parts

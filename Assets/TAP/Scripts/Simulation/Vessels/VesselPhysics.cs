@@ -424,7 +424,7 @@ namespace TAP.Simulation
                 }
                 if ((enter || vn > 3f) && !ImpactProtected && !DevCheats.NoCrashDamage)
                 {
-                    double tol = part.Def.impactTolerance;
+                    double tol = part.ImpactTolerance;
                     if (vn > tol)
                     {
                         // Name the part actually touched (Collision.collider is just one collider of a compound body).

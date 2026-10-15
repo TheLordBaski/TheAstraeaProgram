@@ -37,6 +37,8 @@ Tested with Blender 5.2: import, edit, export with the default FBX settings, the
        (deployed). In the exported rest pose the strut points straight down.
      - `LegPivot/Piston`: slides along its local Y axis as the suspension compresses.
      - `Foot`: optional.
+   - **Deployable pieces** (panels, dishes, doors, ladders, drills…): keep the names listed in the part's `deployable.motions` in `parts.json`, with the
+     pivot at the hinge and the model in its **retracted** pose. The game moves them ([DEPLOYABLES.md](DEPLOYABLES.md)).
    - **New pieces** go under `Model`. Select the piece, then `Model`, and press **Ctrl+P → Object**; the piece stays
      where you placed it.
    - **Materials.** Name a material after one of the game's shared materials and it will look and light like the rest

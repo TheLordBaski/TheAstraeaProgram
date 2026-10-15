@@ -287,8 +287,14 @@ placeholders for CAR-10 and PRT-11.
   Hand-made models work if they keep the transform names (PART_MODELS rules).
 
 **Done when**
-- [ ] A folding panel deploys and retracts, and breaks if deployed at 20 kPa.
-- [ ] The same module drives an antenna and a bay door without code changes.
+- [x] A folding panel deploys and retracts, and breaks if deployed at 20 kPa. (`DeployableTests`, and the `deploy` mission in a real vessel: torn off at 24 kPa against its 15 kPa limit)
+- [x] The same module drives an antenna and a bay door without code changes. (`DeployableTests`, `deploy`: a dish, a bay, a telescopic ladder and an inflatable shield are data)
+
+Built ([Docs/DEPLOYABLES.md](../../Docs/DEPLOYABLES.md)): `DeployableDefinition` in `parts.json` (labels, times, `breakPressure`, `breakImpact`, `ecPerSecond`, motions of
+named transforms with kind, from/to, curve or keys, and a window of the deployment), `DeployableLogic` (the five states), `DeployableModule` (the model, the part menu, saves,
+`Part.ImpactTolerance`). 16 parts of the catalogue carry deployable data: folding panels, wing and tracker, dish and high-gain dish, folding radiator, telescopic ladder, both bays,
+airbrake, shielded port, inflatable shield, two drills, two scanners. The transform names in their data are what PRT-02's models have to provide. The action-group hooks
+(`Extend`, `Retract`, `Toggle`) are there for FLT-07.
 
 ### PRT-04 · Procedural fairings
 **Milestone** EA1 · **Claude** 5 d · **You** 1 d · **Needs** PRT-03

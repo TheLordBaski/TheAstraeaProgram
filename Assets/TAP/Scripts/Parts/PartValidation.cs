@@ -257,6 +257,7 @@ namespace TAP.Parts
                 e.Positive(c.canopyDiameter, "parachute.canopyDiameter", "metres");
                 e.Color(c.canopyColor, "parachute.canopyColor", error: false);
             }
+            if (p.deployable != null) CheckDeployable(e, p.deployable);
             if (p.landingLeg != null)
             {
                 var l = p.landingLeg;
@@ -332,6 +333,44 @@ namespace TAP.Parts
                 e.Vector(n.pos, 3, f + ".pos");
                 e.Vector(n.dir, 3, f + ".dir", direction: true);
                 e.Check(n.size >= 0, f + ".size", "0 or more (0 = 0.625 m, 1 = 1.25 m, 2 = 2.5 m)", error: false);
+            }
+        }
+
+        private static readonly string[] DeployStartStates = { "retracted", "extended" };
+
+        private static void CheckDeployable(ContentEntry e, DeployableDefinition d)
+        {
+            e.Positive(d.extendTime, "deployable.extendTime", "seconds");
+            e.NotNegative(d.retractTime, "deployable.retractTime", "seconds; 0 means it can't be taken in");
+            e.OneOf(d.startState, "deployable.startState", DeployStartStates);
+            e.NotNegative(d.breakPressure, "deployable.breakPressure", "pascals; 0 means it never tears off");
+            e.NotNegative(d.breakImpact, "deployable.breakImpact", "metres per second; 0 means the part's own tolerance");
+            e.NotNegative(d.ecPerSecond, "deployable.ecPerSecond", "electric charge per second");
+            if (!e.Check(d.motions != null && d.motions.Count > 0, "deployable.motions", "a list of the transforms it moves")) return;
+            for (int i = 0; i < d.motions.Count; i++)
+            {
+                var m = d.motions[i];
+                string f = $"deployable.motions[{i}]";
+                if (m == null) { e.Error(f, "a motion: transform, kind, from, to"); continue; }
+                e.Text(m.transform, f + ".transform", "the name of a transform of the part's model");
+                e.OneOf(m.kind, f + ".kind", DeployableMotion.Kinds);
+                e.OneOf(m.curve, f + ".curve", DeployableMotion.Curves);
+                e.Vector(m.to, 3, f + ".to");
+                if (m.from != null) e.Vector(m.from, 3, f + ".from");
+                e.InRange(m.start, 0, 1, f + ".start");
+                e.InRange(m.end, 0, 1, f + ".end");
+                e.Check(m.end > m.start, f + ".end", "above start (" + ContentEntry.Number(m.start) + ")");
+                if (m.keys != null)
+                {
+                    bool ok = m.keys.Length > 0;
+                    float last = -1;
+                    foreach (var k in m.keys)
+                    {
+                        ok &= k != null && k.Length == 2 && k[0] >= 0 && k[0] <= 1 && k[0] >= last;
+                        if (k != null && k.Length == 2) last = k[0];
+                    }
+                    e.Check(ok, f + ".keys", "a list of [progress, value] pairs, progress from 0 to 1 in order");
+                }
             }
         }
 

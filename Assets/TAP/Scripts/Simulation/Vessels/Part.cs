@@ -64,6 +64,17 @@ namespace TAP.Simulation
 
         public double DryMass => Def.dryMass;
 
+        /// <summary>The impact speed (m/s) the part survives now: its own, lowered by modules such as a deployable that is out.</summary>
+        public double ImpactTolerance
+        {
+            get
+            {
+                double t = Def.impactTolerance;
+                for (int i = 0; i < Modules.Count; i++) t = Modules[i].ImpactTolerance(t);
+                return t;
+            }
+        }
+
         public double Mass
         {
             get
@@ -181,6 +192,8 @@ namespace TAP.Simulation
         /// <summary>Vessel structure changed (split/merge/part lost).</summary>
         public virtual void OnVesselChanged() { }
         public virtual void OnPartDestroyed() { }
+        /// <summary>The impact speed (m/s) the part survives; a module may lower the part's own tolerance (a deployable that is out).</summary>
+        public virtual double ImpactTolerance(double baseTolerance) => baseTolerance;
         public virtual void Save(Dictionary<string, string> state) { }
         public virtual void Load(Dictionary<string, string> state) { }
         public virtual void CollectActions(List<PartAction> actions) { }

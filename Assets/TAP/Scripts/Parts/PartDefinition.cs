@@ -351,6 +351,7 @@ namespace TAP.Parts
         public CommandDefinition command;
         public DockingPortDefinition dockingPort;
         public FinDefinition fin;
+        public DeployableDefinition deployable;
 
         /// <summary>True if the part participates in staging by default.</summary>
         public bool IsStageable => engine != null || decoupler != null || parachute != null;

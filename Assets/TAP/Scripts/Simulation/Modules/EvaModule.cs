@@ -229,6 +229,7 @@ namespace TAP.Simulation
             if (d.rcs != null) Add(new RcsModule());
             if (d.dockingPort != null) Add(new DockingPortModule());
             if (d.fin != null) Add(new FinModule());
+            if (d.deployable != null) Add(new DeployableModule());
             if (d.model?.type == "eva") Add(new EvaModule());
             if (d.model?.type == "flag") Add(new FlagModule());
         }

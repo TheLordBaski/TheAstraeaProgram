@@ -115,6 +115,7 @@ namespace TAP.Game
                 case "star": body = StarMission(); break;
                 case "tour": body = TourMission(); break;
                 case "giant": body = GiantMission(); break;
+                case "deploy": body = DeployMission(); break;
                 case "persistence": body = PersistenceMission(); break;
                 case "ascent": body = AscentOnlyMission(); break;
                 case "lunar-surface": body = LunarSurfaceMission(); break;

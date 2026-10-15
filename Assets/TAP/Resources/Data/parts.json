@@ -2388,7 +2388,8 @@
       "impactTolerance": 9,
       "breakingForce": 180000,
       "breakingTorque": 149400,
-      "drag": {"cdTop": 0.9, "cdBottom": 0.9, "cdSide": 0.9}
+      "drag": {"cdTop": 0.9, "cdBottom": 0.9, "cdSide": 0.9},
+      "deployable": {"extendLabel": "Open bay", "retractLabel": "Close bay", "extendTime": 2.5, "retractTime": 2.5, "breakPressure": 30000, "breakImpact": 8, "motions": [{"transform": "DoorL", "kind": "rotate", "to": [0, 0, -110], "curve": "easeOut", "start": 0.0, "end": 1.0}, {"transform": "DoorR", "kind": "rotate", "to": [0, 0, 110], "curve": "easeOut", "start": 0.0, "end": 1.0}]}
     },
     {
       "id": "bay_s2",
@@ -2411,7 +2412,8 @@
       "impactTolerance": 9,
       "breakingForce": 600000,
       "breakingTorque": 498000,
-      "drag": {"cdTop": 0.9, "cdBottom": 0.9, "cdSide": 0.9}
+      "drag": {"cdTop": 0.9, "cdBottom": 0.9, "cdSide": 0.9},
+      "deployable": {"extendLabel": "Open bay", "retractLabel": "Close bay", "extendTime": 3.5, "retractTime": 3.5, "breakPressure": 30000, "breakImpact": 8, "motions": [{"transform": "DoorL", "kind": "rotate", "to": [0, 0, -110], "curve": "easeOut", "start": 0.0, "end": 1.0}, {"transform": "DoorR", "kind": "rotate", "to": [0, 0, 110], "curve": "easeOut", "start": 0.0, "end": 1.0}]}
     },
     {
       "id": "dock_s1_inline",
@@ -2434,7 +2436,8 @@
       "breakingForce": 180000,
       "breakingTorque": 149400,
       "drag": {"cdTop": 0.9, "cdBottom": 0.9, "cdSide": 0.9},
-      "dockingPort": {"nodeId": "top", "captureRange": 0.6, "captureSpeed": 1.0, "captureAngleDeg": 15, "undockImpulse": 150}
+      "dockingPort": {"nodeId": "top", "captureRange": 0.6, "captureSpeed": 1.0, "captureAngleDeg": 15, "undockImpulse": 150},
+      "deployable": {"extendLabel": "Open cover", "retractLabel": "Close cover", "extendTime": 2, "retractTime": 2, "breakPressure": 40000, "motions": [{"transform": "Cover", "kind": "rotate", "to": [0, 0, -120], "curve": "smooth", "start": 0.0, "end": 1.0}]}
     },
     {
       "id": "strut",
@@ -2704,7 +2707,8 @@
       "breakingForce": 180000,
       "breakingTorque": 149400,
       "drag": {"cdTop": 0.9, "cdBottom": 1.2, "cdSide": 0.8},
-      "heatShield": {"ablationStartTemp": 550, "ablationHeat": 16000000.0, "maxAblationRate": 1.8, "insulation": 3.0}
+      "heatShield": {"ablationStartTemp": 550, "ablationHeat": 16000000.0, "maxAblationRate": 1.8, "insulation": 3.0},
+      "deployable": {"extendLabel": "Inflate", "retractLabel": "Deflate", "extendTime": 4, "retractTime": 0, "breakPressure": 40000, "motions": [{"transform": "Bloom", "kind": "scale", "from": [0.35, 0.2, 0.35], "to": [1, 1, 1], "curve": "easeOut", "start": 0.0, "end": 1.0}]}
     },
     {
       "id": "mono_s0",
@@ -2868,7 +2872,8 @@
       "impactTolerance": 8,
       "breakingForce": 30000,
       "breakingTorque": 24900,
-      "drag": {"cdTop": 0.5, "cdBottom": 0.5, "cdSide": 0.6}
+      "drag": {"cdTop": 0.5, "cdBottom": 0.5, "cdSide": 0.6},
+      "deployable": {"extendLabel": "Deploy panel", "retractLabel": "Retract panel", "extendTime": 6, "retractTime": 5, "breakPressure": 15000, "breakImpact": 6, "motions": [{"transform": "WingA", "kind": "rotate", "to": [0, 0, -90], "curve": "smooth", "start": 0.0, "end": 0.6}, {"transform": "WingB", "kind": "rotate", "to": [0, 0, 90], "curve": "smooth", "start": 0.4, "end": 1.0}]}
     },
     {
       "id": "antenna_whip",
@@ -2914,7 +2919,8 @@
       "impactTolerance": 8,
       "breakingForce": 30000,
       "breakingTorque": 24900,
-      "drag": {"cdTop": 0.5, "cdBottom": 0.5, "cdSide": 0.6}
+      "drag": {"cdTop": 0.5, "cdBottom": 0.5, "cdSide": 0.6},
+      "deployable": {"extendLabel": "Extend dish", "retractLabel": "Retract dish", "extendTime": 5, "retractTime": 4, "breakPressure": 20000, "breakImpact": 6, "motions": [{"transform": "Boom", "kind": "translate", "to": [0, 0.35, 0], "curve": "smooth", "start": 0.0, "end": 0.5}, {"transform": "Dish", "kind": "rotate", "to": [-90, 0, 0], "curve": "smooth", "start": 0.4, "end": 1.0}]}
     },
     {
       "id": "light_spot",
@@ -3077,7 +3083,8 @@
       "impactTolerance": 8,
       "breakingForce": 30000,
       "breakingTorque": 24900,
-      "drag": {"cdTop": 0.5, "cdBottom": 0.5, "cdSide": 0.6}
+      "drag": {"cdTop": 0.5, "cdBottom": 0.5, "cdSide": 0.6},
+      "deployable": {"extendLabel": "Deploy wing", "retractLabel": "Retract wing", "extendTime": 10, "retractTime": 8, "breakPressure": 10000, "breakImpact": 5, "motions": [{"transform": "Arm", "kind": "rotate", "to": [0, 0, -90], "curve": "smooth", "start": 0.0, "end": 0.4}, {"transform": "WingA", "kind": "rotate", "to": [0, 0, -180], "curve": "smooth", "start": 0.3, "end": 0.7}, {"transform": "WingB", "kind": "rotate", "to": [0, 0, 180], "curve": "smooth", "start": 0.6, "end": 1.0}]}
     },
     {
       "id": "radiator_panel",
@@ -3123,7 +3130,8 @@
       "impactTolerance": 8,
       "breakingForce": 30000,
       "breakingTorque": 24900,
-      "drag": {"cdTop": 0.5, "cdBottom": 0.5, "cdSide": 0.6}
+      "drag": {"cdTop": 0.5, "cdBottom": 0.5, "cdSide": 0.6},
+      "deployable": {"extendLabel": "Deploy radiator", "retractLabel": "Retract radiator", "extendTime": 6, "retractTime": 5, "breakPressure": 12000, "breakImpact": 6, "motions": [{"transform": "PanelA", "kind": "rotate", "to": [0, 0, -90], "curve": "smooth", "start": 0.0, "end": 0.7}, {"transform": "PanelB", "kind": "rotate", "to": [0, 0, 90], "curve": "smooth", "start": 0.3, "end": 1.0}]}
     },
     {
       "id": "antenna_highgain",
@@ -3146,7 +3154,8 @@
       "impactTolerance": 8,
       "breakingForce": 30000,
       "breakingTorque": 24900,
-      "drag": {"cdTop": 0.5, "cdBottom": 0.5, "cdSide": 0.6}
+      "drag": {"cdTop": 0.5, "cdBottom": 0.5, "cdSide": 0.6},
+      "deployable": {"extendLabel": "Extend dish", "retractLabel": "Retract dish", "extendTime": 12, "retractTime": 10, "breakPressure": 8000, "breakImpact": 5, "motions": [{"transform": "Mast", "kind": "translate", "to": [0, 0.6, 0], "curve": "smooth", "start": 0.0, "end": 0.5}, {"transform": "Dish", "kind": "scale", "from": [0.1, 0.1, 0.1], "to": [1, 1, 1], "curve": "smooth", "start": 0.4, "end": 1.0}]}
     },
     {
       "id": "light_flood",
@@ -3192,7 +3201,8 @@
       "impactTolerance": 8,
       "breakingForce": 30000,
       "breakingTorque": 24900,
-      "drag": {"cdTop": 0.5, "cdBottom": 0.5, "cdSide": 0.6}
+      "drag": {"cdTop": 0.5, "cdBottom": 0.5, "cdSide": 0.6},
+      "deployable": {"extendLabel": "Extend ladder", "retractLabel": "Retract ladder", "extendTime": 3, "retractTime": 3, "breakPressure": 25000, "breakImpact": 8, "motions": [{"transform": "Ladder", "kind": "scale", "from": [1, 0.2, 1], "to": [1, 1, 1], "curve": "linear", "start": 0.0, "end": 1.0}]}
     },
     {
       "id": "solar_tracker",
@@ -3215,7 +3225,8 @@
       "impactTolerance": 8,
       "breakingForce": 30000,
       "breakingTorque": 24900,
-      "drag": {"cdTop": 0.5, "cdBottom": 0.5, "cdSide": 0.6}
+      "drag": {"cdTop": 0.5, "cdBottom": 0.5, "cdSide": 0.6},
+      "deployable": {"extendLabel": "Deploy array", "retractLabel": "Retract array", "extendTime": 14, "retractTime": 12, "breakPressure": 6000, "breakImpact": 4, "motions": [{"transform": "Mast", "kind": "translate", "to": [0, 1.2, 0], "curve": "smooth", "start": 0.0, "end": 0.4}, {"transform": "ArrayA", "kind": "rotate", "to": [0, 0, -90], "curve": "smooth", "start": 0.3, "end": 1.0}, {"transform": "ArrayB", "kind": "rotate", "to": [0, 0, 90], "curve": "smooth", "start": 0.3, "end": 1.0}]}
     },
     {
       "id": "rtg",
@@ -3561,7 +3572,8 @@
       "breakingForce": 78000,
       "breakingTorque": 64740,
       "drag": {"cdTop": 0.1, "cdBottom": 0.1, "cdSide": 0.05},
-      "fin": {"area": 0.8, "liftSlope": 1.0, "normal": [1, 0, 0], "stallDeg": 22}
+      "fin": {"area": 0.8, "liftSlope": 1.0, "normal": [1, 0, 0], "stallDeg": 22},
+      "deployable": {"extendLabel": "Open brake", "retractLabel": "Close brake", "extendTime": 1.5, "retractTime": 1.5, "breakPressure": 80000, "breakImpact": 8, "motions": [{"transform": "Flap", "kind": "rotate", "to": [0, 0, -80], "curve": "easeOut", "start": 0.0, "end": 1.0}]}
     },
     {
       "id": "gridfin",
@@ -3861,7 +3873,8 @@
       "impactTolerance": 8,
       "breakingForce": 30000,
       "breakingTorque": 24900,
-      "drag": {"cdTop": 0.5, "cdBottom": 0.5, "cdSide": 0.6}
+      "drag": {"cdTop": 0.5, "cdBottom": 0.5, "cdSide": 0.6},
+      "deployable": {"extendLabel": "Lower drill", "retractLabel": "Raise drill", "extendTime": 6, "retractTime": 5, "breakPressure": 15000, "breakImpact": 6, "ecPerSecond": 0.3, "motions": [{"transform": "Arm", "kind": "rotate", "to": [0, 0, -100], "curve": "smooth", "start": 0.0, "end": 0.5}, {"transform": "Bit", "kind": "translate", "to": [0, -0.4, 0], "curve": "smooth", "start": 0.5, "end": 1.0}]}
     },
     {
       "id": "drill_l",
@@ -3884,7 +3897,8 @@
       "impactTolerance": 8,
       "breakingForce": 30000,
       "breakingTorque": 24900,
-      "drag": {"cdTop": 0.5, "cdBottom": 0.5, "cdSide": 0.6}
+      "drag": {"cdTop": 0.5, "cdBottom": 0.5, "cdSide": 0.6},
+      "deployable": {"extendLabel": "Lower drill", "retractLabel": "Raise drill", "extendTime": 9, "retractTime": 8, "breakPressure": 15000, "breakImpact": 6, "ecPerSecond": 0.6, "motions": [{"transform": "Arm", "kind": "rotate", "to": [0, 0, -100], "curve": "smooth", "start": 0.0, "end": 0.5}, {"transform": "Bit", "kind": "translate", "to": [0, -0.7, 0], "curve": "smooth", "start": 0.5, "end": 1.0}]}
     },
     {
       "id": "isru_s",
@@ -3953,7 +3967,8 @@
       "impactTolerance": 8,
       "breakingForce": 30000,
       "breakingTorque": 24900,
-      "drag": {"cdTop": 0.5, "cdBottom": 0.5, "cdSide": 0.6}
+      "drag": {"cdTop": 0.5, "cdBottom": 0.5, "cdSide": 0.6},
+      "deployable": {"extendLabel": "Extend scanner", "retractLabel": "Retract scanner", "extendTime": 6, "retractTime": 5, "breakPressure": 20000, "breakImpact": 6, "motions": [{"transform": "Boom", "kind": "translate", "to": [0, 0.6, 0], "curve": "smooth", "start": 0.0, "end": 0.6}, {"transform": "Head", "kind": "rotate", "to": [-90, 0, 0], "curve": "smooth", "start": 0.5, "end": 1.0}]}
     },
     {
       "id": "scanner_narrow",
@@ -3976,7 +3991,8 @@
       "impactTolerance": 8,
       "breakingForce": 30000,
       "breakingTorque": 24900,
-      "drag": {"cdTop": 0.5, "cdBottom": 0.5, "cdSide": 0.6}
+      "drag": {"cdTop": 0.5, "cdBottom": 0.5, "cdSide": 0.6},
+      "deployable": {"extendLabel": "Open cover", "retractLabel": "Close cover", "extendTime": 2, "retractTime": 2, "breakPressure": 20000, "breakImpact": 6, "motions": [{"transform": "Cover", "kind": "rotate", "to": [0, 0, -100], "curve": "smooth", "start": 0.0, "end": 1.0}]}
     },
     {
       "id": "sensor_surface",
