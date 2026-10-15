@@ -118,8 +118,8 @@ namespace TAP.Game
                     settings = pn.settings != null ? new Dictionary<string, double>(pn.settings) : null,
                     skinTemp = 288, internalTemp = 288,
                 };
-                if (def != null)
-                    foreach (var r in def.resources) pr.resources.Add(new ResourceRecord { id = r.id, amount = r.amount, max = r.Max });
+                // The tanks fill from the launch site's stock, full unless the craft says otherwise.
+                if (def != null) pr.resources.AddRange(LaunchSupply.Fill(def, LaunchSupply.FillOf(pn), db));
                 if (def?.crew != null && def.crew.seats > 0)
                     pr.crew.AddRange(GameSession.TakeAvailableCrew(def.crew.seats, rec.id));
                 rec.parts.Add(pr);

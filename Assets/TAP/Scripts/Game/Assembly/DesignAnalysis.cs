@@ -62,7 +62,8 @@ namespace TAP.Game
     {
         public double WetMass, DryMass;
         public int PartCount, CrewSeats, CrewAvailable;
-        public double ElectricCharge, Monoprop, LiquidFuel, SolidFuel, Ablator;
+        /// <summary>Liquid propellant of every kind (mass, kg).</summary>
+        public double ElectricCharge, Monoprop, Liquid, SolidFuel, Ablator;
         public float Height, Width;
         public EditorEnvironment Environment;
         public double Gravity, PressureAtm;
@@ -117,7 +118,8 @@ namespace TAP.Game
             s.CrewSeats = asm.CrewCapacity();
             asm.ResourceTotals("Electric", out s.ElectricCharge);
             asm.ResourceTotals("Monoprop", out s.Monoprop);
-            asm.ResourceTotals("LiquidFuel", out s.LiquidFuel);
+            foreach (var rd in db.ResourceDefinitions)
+                if (rd.flow == ResourceFlow.Stack) { asm.ResourceTotals(rd.id, out double units); s.Liquid += units * rd.density; }
             asm.ResourceTotals("SolidFuel", out s.SolidFuel);
             asm.ResourceTotals("Ablator", out s.Ablator);
             s.CoM = asm.CenterOfMass();
@@ -314,8 +316,7 @@ namespace TAP.Game
                 var e = model[i].Def?.engine;
                 if (e == null || e.type == "solid") continue;
                 var group = PartTree.CrossfeedGroup(model, i, null);
-                double fuel = 0;
-                foreach (int j in group) if (model[j].Resources.TryGetValue(e.propellant, out double a)) fuel += a;
+                double fuel = DeltaVCalculator.PropellantMass(model, group, e.propellant, db);
                 if (fuel <= 0) Add($"{model[i].Def.title} has no propellant it can reach (fuel doesn't flow through decouplers).");
             }
             if (stageableUnstaged > 0) Add($"{stageableUnstaged} stageable part(s) are not in the staging sequence (activate them from their part menu).", info: true);

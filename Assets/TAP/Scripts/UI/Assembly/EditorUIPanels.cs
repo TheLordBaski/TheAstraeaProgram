@@ -56,7 +56,7 @@ namespace TAP.UI
             sb.Append($"Mass <b>{PartInfoText.Mass(s.WetMass)}</b> <color=#{dim}>(dry {PartInfoText.Mass(s.DryMass)})</color>\n");
             sb.Append($"Parts {s.PartCount} · Height {s.Height:0.0} m · Width {s.Width:0.0} m\n");
             sb.Append($"Crew seats {s.CrewSeats} <color=#{dim}>({s.CrewAvailable} available)</color> · EC {s.ElectricCharge:0}\n");
-            sb.Append($"Monoprop {s.Monoprop:0} kg · Liquid {s.LiquidFuel:0} kg · Solid {s.SolidFuel:0} kg\n");
+            sb.Append($"Monoprop {s.Monoprop:0} kg · Liquid {s.Liquid:0} kg · Solid {s.SolidFuel:0} kg\n");
             if (s.HasCoP)
             {
                 string stab = s.StabilityMargin < -0.3f ? $"<color=#{UIKit.Hex(UIKit.Good)}>stable</color>" :

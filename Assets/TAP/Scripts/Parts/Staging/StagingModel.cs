@@ -279,10 +279,10 @@ namespace TAP.Parts
                     {
                         if (!attached.Contains(i)) continue;
                         var e = parts[i].Def.engine;
-                        HashSet<int> group = e.type == "solid" || db.GetResource(e.propellant)?.flow == ResourceFlow.Part
+                        HashSet<int> group = e.type == "solid" || db.GetPropellant(e.propellant)?.Flow == ResourceFlow.Part
                             ? new HashSet<int> { i }
                             : PartTree.CrossfeedGroup(parts, i, attached);
-                        if (GroupAmount(parts, group, e.propellant) <= 1e-6) continue;
+                        if (PropellantMass(parts, group, e.propellant, db) <= 1e-6) continue;
                         double limit = parts[i].ThrustLimit;
                         double mdot = e.thrustVac / (e.ispVac * MathD.G0) * limit;
                         runs.Add(new EngineRun { Part = i, Def = e, MdotFull = mdot, Group = group });
@@ -316,7 +316,7 @@ namespace TAP.Parts
                     double dt = double.MaxValue;
                     foreach (var kv in groupRates)
                     {
-                        double amount = GroupAmount(parts, kv.Key, kv.Value.res) * (db.ResourceDensity(kv.Value.res));
+                        double amount = PropellantMass(parts, kv.Key, kv.Value.res, db);
                         if (kv.Value.rate > 0) dt = Math.Min(dt, amount / kv.Value.rate);
                     }
                     if (dt == double.MaxValue || dt <= 0) break;
@@ -332,7 +332,7 @@ namespace TAP.Parts
 
                     // Drain proportionally within each group.
                     foreach (var kv in groupRates)
-                        Drain(parts, kv.Key, kv.Value.res, kv.Value.rate * dt / Math.Max(db.ResourceDensity(kv.Value.res), 1e-9));
+                        DrainPropellant(parts, kv.Key, kv.Value.res, kv.Value.rate * dt, db);
                 }
                 info.DeltaVVac = dvVac;
                 info.DeltaVAsl = dvAsl;
@@ -352,7 +352,22 @@ namespace TAP.Parts
             return false;
         }
 
-        private static double GroupAmount(List<StageSimPart> parts, HashSet<int> group, string res)
+        /// <summary>The mass (kg) of a propellant (a mix or one resource) the parts can burn: the scarcest component of a mix decides.</summary>
+        public static double PropellantMass(IList<StageSimPart> parts, IEnumerable<int> group, string propellant, PartDatabase db)
+        {
+            var p = db.GetPropellant(propellant);
+            return p == null ? 0 : p.BurnableMass(id => GroupAmount(parts, group, id));
+        }
+
+        /// <summary>Burns this mass of a propellant from the parts, each component in proportion to what the group holds.</summary>
+        private static void DrainPropellant(IList<StageSimPart> parts, IEnumerable<int> group, string propellant, double mass, PartDatabase db)
+        {
+            var p = db.GetPropellant(propellant);
+            if (p == null) return;
+            foreach (var (res, units) in p.UnitsFor(mass)) Drain(parts, group, res.id, units);
+        }
+
+        private static double GroupAmount(IList<StageSimPart> parts, IEnumerable<int> group, string res)
         {
             double a = 0;
             foreach (int i in group)
@@ -360,7 +375,7 @@ namespace TAP.Parts
             return a;
         }
 
-        private static void Drain(List<StageSimPart> parts, HashSet<int> group, string res, double amount)
+        private static void Drain(IList<StageSimPart> parts, IEnumerable<int> group, string res, double amount)
         {
             double total = GroupAmount(parts, group, res);
             if (total <= 0) return;

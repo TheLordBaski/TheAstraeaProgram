@@ -1,10 +1,18 @@
 {
   "resources": [
-    { "id": "LiquidFuel", "name": "Liquid Propellant", "unit": "kg", "density": 1.0, "flow": "Stack", "color": [0.95, 0.72, 0.25] },
+    { "id": "Fuel", "name": "Fuel", "unit": "L", "density": 0.81, "flow": "Stack", "color": [0.95, 0.72, 0.25] },
+    { "id": "Oxidiser", "name": "Oxidiser", "unit": "L", "density": 1.14, "flow": "Stack", "color": [0.55, 0.78, 0.95] },
+    { "id": "Hydrogen", "name": "Hydrogen", "unit": "L", "density": 0.07, "flow": "Stack", "color": [0.78, 0.9, 1.0] },
+    { "id": "Xenon", "name": "Xenon", "unit": "L", "density": 0.1, "flow": "Vessel", "color": [0.7, 0.55, 0.95] },
+    { "id": "Ore", "name": "Ore", "unit": "L", "density": 5.0, "flow": "Vessel", "color": [0.6, 0.5, 0.42] },
     { "id": "SolidFuel", "name": "Solid Propellant", "unit": "kg", "density": 1.0, "flow": "Part", "color": [0.85, 0.4, 0.2] },
     { "id": "Monoprop", "name": "Monopropellant", "unit": "kg", "density": 1.0, "flow": "Vessel", "color": [0.9, 0.9, 0.55] },
     { "id": "Electric", "name": "Electric Charge", "unit": "EC", "density": 0.0, "flow": "Vessel", "color": [0.4, 0.8, 1.0] },
     { "id": "Ablator", "name": "Ablator", "unit": "kg", "density": 1.0, "flow": "Part", "color": [0.6, 0.45, 0.35] }
+  ],
+  "mixes": [
+    { "id": "chemical", "name": "Liquid Propellant", "color": [0.95, 0.72, 0.25],
+      "components": [ { "resource": "Fuel", "ratio": 14 }, { "resource": "Oxidiser", "ratio": 19 } ] }
   ],
   "categories": ["Command", "Propellant", "Engines", "Boosters", "Coupling", "Ground", "Recovery", "Utility", "Aero"],
   "parts": [
@@ -71,7 +79,7 @@
         { "id": "bottom", "pos": [0, -0.55, 0], "dir": [0, -1, 0], "size": 1 }
       ],
       "surfaceAttach": { "allowed": true, "onto": true, "pos": [0, 0, -0.625], "dir": [0, 0, 1] },
-      "resources": [ { "id": "LiquidFuel", "amount": 500 } ],
+      "resources": [ { "id": "chemical", "amount": 500 } ],
       "maxTemp": 1000, "skinMaxTemp": 1300, "impactTolerance": 6, "breakingForce": 180000, "breakingTorque": 150000,
       "drag": { "cdTop": 0.9, "cdBottom": 0.9, "cdSide": 1.0 }
     },
@@ -85,7 +93,7 @@
         { "id": "bottom", "pos": [0, -1.1, 0], "dir": [0, -1, 0], "size": 1 }
       ],
       "surfaceAttach": { "allowed": true, "onto": true, "pos": [0, 0, -0.625], "dir": [0, 0, 1] },
-      "resources": [ { "id": "LiquidFuel", "amount": 1000 } ],
+      "resources": [ { "id": "chemical", "amount": 1000 } ],
       "maxTemp": 1000, "skinMaxTemp": 1300, "impactTolerance": 6, "breakingForce": 180000, "breakingTorque": 150000,
       "drag": { "cdTop": 0.9, "cdBottom": 0.9, "cdSide": 1.0 }
     },
@@ -99,7 +107,7 @@
         { "id": "bottom", "pos": [0, -2.2, 0], "dir": [0, -1, 0], "size": 1 }
       ],
       "surfaceAttach": { "allowed": true, "onto": true, "pos": [0, 0, -0.625], "dir": [0, 0, 1] },
-      "resources": [ { "id": "LiquidFuel", "amount": 2000 } ],
+      "resources": [ { "id": "chemical", "amount": 2000 } ],
       "maxTemp": 1000, "skinMaxTemp": 1300, "impactTolerance": 6, "breakingForce": 180000, "breakingTorque": 150000,
       "drag": { "cdTop": 0.9, "cdBottom": 0.9, "cdSide": 1.0 }
     },
@@ -113,7 +121,7 @@
         { "id": "bottom", "pos": [0, -0.95, 0], "dir": [0, -1, 0], "size": 2 }
       ],
       "surfaceAttach": { "allowed": true, "onto": true, "pos": [0, 0, -1.25], "dir": [0, 0, 1] },
-      "resources": [ { "id": "LiquidFuel", "amount": 4000 } ],
+      "resources": [ { "id": "chemical", "amount": 4000 } ],
       "maxTemp": 1000, "skinMaxTemp": 1300, "impactTolerance": 6, "breakingForce": 600000, "breakingTorque": 600000,
       "drag": { "cdTop": 0.9, "cdBottom": 0.9, "cdSide": 1.0 }
     },
@@ -127,7 +135,7 @@
         { "id": "bottom", "pos": [0, -3.75, 0], "dir": [0, -1, 0], "size": 2 }
       ],
       "surfaceAttach": { "allowed": true, "onto": true, "pos": [0, 0, -1.25], "dir": [0, 0, 1] },
-      "resources": [ { "id": "LiquidFuel", "amount": 16000 } ],
+      "resources": [ { "id": "chemical", "amount": 16000 } ],
       "maxTemp": 1000, "skinMaxTemp": 1300, "impactTolerance": 6, "breakingForce": 600000, "breakingTorque": 600000,
       "drag": { "cdTop": 0.9, "cdBottom": 0.9, "cdSide": 1.0 }
     },
@@ -141,7 +149,7 @@
         { "id": "bottom", "pos": [0, -0.95, 0], "dir": [0, -1, 0], "size": 2 }
       ],
       "surfaceAttach": { "allowed": false, "onto": true },
-      "resources": [ { "id": "LiquidFuel", "amount": 2000 } ],
+      "resources": [ { "id": "chemical", "amount": 2000 } ],
       "maxTemp": 1000, "skinMaxTemp": 1300, "impactTolerance": 6, "breakingForce": 400000, "breakingTorque": 400000,
       "drag": { "cdTop": 0.55, "cdBottom": 0.9, "cdSide": 1.0 }
     },
@@ -155,7 +163,7 @@
         { "id": "bottom", "pos": [0, -0.45, 0], "dir": [0, -1, 0], "size": 0 }
       ],
       "surfaceAttach": { "allowed": true, "onto": true, "pos": [0, 0, -0.3125], "dir": [0, 0, 1] },
-      "resources": [ { "id": "LiquidFuel", "amount": 200 } ],
+      "resources": [ { "id": "chemical", "amount": 200 } ],
       "maxTemp": 1000, "skinMaxTemp": 1300, "impactTolerance": 7, "breakingForce": 60000, "breakingTorque": 40000,
       "drag": { "cdTop": 0.9, "cdBottom": 0.9, "cdSide": 1.0 }
     },
@@ -173,7 +181,7 @@
       "maxTemp": 1800, "skinMaxTemp": 2000, "impactTolerance": 7, "breakingForce": 180000, "breakingTorque": 150000,
       "drag": { "cdTop": 0.9, "cdBottom": 0.6, "cdSide": 0.9 },
       "engine": { "type": "liquid", "thrustVac": 215000, "ispVac": 310, "ispAsl": 260, "gimbalRange": 3.0, "throttleResponse": 2.5,
-                  "propellant": "LiquidFuel", "alternator": 3.0, "nozzlePos": [0, -0.8, 0], "exhaustScale": 1.0, "exhaustColor": [1.0, 0.7, 0.35] }
+                  "propellant": "chemical", "alternator": 3.0, "nozzlePos": [0, -0.8, 0], "exhaustScale": 1.0, "exhaustColor": [1.0, 0.7, 0.35] }
     },
     {
       "id": "eng_ember", "title": "Ember VX-60 Vacuum Engine", "category": "Engines",
@@ -188,7 +196,7 @@
       "maxTemp": 1800, "skinMaxTemp": 2000, "impactTolerance": 7, "breakingForce": 180000, "breakingTorque": 150000,
       "drag": { "cdTop": 0.9, "cdBottom": 0.6, "cdSide": 0.9 },
       "engine": { "type": "liquid", "thrustVac": 60000, "ispVac": 345, "ispAsl": 90, "gimbalRange": 4.0, "throttleResponse": 3.0,
-                  "propellant": "LiquidFuel", "alternator": 1.5, "nozzlePos": [0, -0.6, 0], "exhaustScale": 0.6, "exhaustColor": [0.75, 0.8, 1.0] }
+                  "propellant": "chemical", "alternator": 1.5, "nozzlePos": [0, -0.6, 0], "exhaustScale": 0.6, "exhaustColor": [0.75, 0.8, 1.0] }
     },
     {
       "id": "eng_goliath", "title": "Goliath LV-650 Engine", "category": "Engines",
@@ -203,7 +211,7 @@
       "maxTemp": 1800, "skinMaxTemp": 2000, "impactTolerance": 7, "breakingForce": 600000, "breakingTorque": 600000,
       "drag": { "cdTop": 0.9, "cdBottom": 0.6, "cdSide": 0.9 },
       "engine": { "type": "liquid", "thrustVac": 650000, "ispVac": 320, "ispAsl": 280, "gimbalRange": 2.5, "throttleResponse": 2.0,
-                  "propellant": "LiquidFuel", "alternator": 5.0, "nozzlePos": [0, -1.4, 0], "exhaustScale": 1.9, "exhaustColor": [1.0, 0.68, 0.32] }
+                  "propellant": "chemical", "alternator": 5.0, "nozzlePos": [0, -1.4, 0], "exhaustScale": 1.9, "exhaustColor": [1.0, 0.68, 0.32] }
     },
     {
       "id": "eng_spark", "title": "Spark MX-18 Engine", "category": "Engines",
@@ -218,7 +226,7 @@
       "maxTemp": 1800, "skinMaxTemp": 2000, "impactTolerance": 7, "breakingForce": 60000, "breakingTorque": 40000,
       "drag": { "cdTop": 0.9, "cdBottom": 0.6, "cdSide": 0.9 },
       "engine": { "type": "liquid", "thrustVac": 18000, "ispVac": 315, "ispAsl": 265, "gimbalRange": 3.0, "throttleResponse": 4.0,
-                  "propellant": "LiquidFuel", "alternator": 0.5, "nozzlePos": [0, -0.325, 0], "exhaustScale": 0.35, "exhaustColor": [1.0, 0.72, 0.4] }
+                  "propellant": "chemical", "alternator": 0.5, "nozzlePos": [0, -0.325, 0], "exhaustScale": 0.35, "exhaustColor": [1.0, 0.72, 0.4] }
     },
 
     {

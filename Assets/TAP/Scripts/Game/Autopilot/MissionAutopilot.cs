@@ -577,6 +577,20 @@ namespace TAP.Game
             var orbit = V.Orbit;
             double pe = orbit.PeriapsisRadius - V.MainBody.Radius, apf = orbit.ApoapsisRadius - V.MainBody.Radius;
             Check("stable orbit reached", pe > 70000 && orbit.IsElliptic, $"Pe {pe / 1000:F1} km, Ap {apf / 1000:F1} km, e {orbit.Eccentricity:F4}");
+            // D-01: an engine burns the chemical mix, so a tank's Fuel and Oxidiser leave together, whatever has been burned.
+            int mixed = 0, burned = 0;
+            double apart = 0;
+            foreach (var p in V.Parts)
+            {
+                var fuel = p.GetResource("Fuel");
+                var oxidiser = p.GetResource("Oxidiser");
+                if (fuel == null || oxidiser == null || fuel.Max <= 0 || oxidiser.Max <= 0) continue;
+                mixed++;
+                if (fuel.Amount < fuel.Max * 0.99) burned++;
+                apart = Math.Max(apart, Math.Abs(fuel.Amount / fuel.Max - oxidiser.Amount / oxidiser.Max));
+            }
+            Check("tanks drained Fuel and Oxidiser together", mixed > 0 && burned > 0 && apart < 1e-3,
+                $"{mixed} tanks with both, {burned} partly burned, Fuel and Oxidiser levels differ by at most {apart:E1}");
             yield return WaitSeconds(1);
             var tracker = Scene.Tracker;
             Check("mission guide marks launch, space and orbit", tracker != null && tracker.Has("launch") && tracker.Has("space") && tracker.Has("orbit"),

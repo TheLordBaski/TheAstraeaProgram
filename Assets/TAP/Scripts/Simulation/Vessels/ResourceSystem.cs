@@ -58,8 +58,18 @@ namespace TAP.Simulation
             }
         }
 
+        /// <summary>The propellant mix an id names, or null for a single resource (then amounts are units, for a mix the mass in kg).</summary>
+        private static Propellant MixOf(string id)
+        {
+            var db = PartDatabase.Instance;
+            return db.GetResource(id) == null && db.GetMix(id) != null ? db.GetPropellant(id) : null;
+        }
+
+        /// <summary>The propellant mass (kg) the requester can burn: the scarcest component of a mix decides. For a resource, its units.</summary>
         public double Available(Part requester, string resId)
         {
+            var mix = MixOf(resId);
+            if (mix != null) return mix.BurnableMass(id => Available(requester, id));
             var def = PartDatabase.Instance.GetResource(resId);
             if (def == null) return 0;
             double total = 0;
@@ -74,6 +84,8 @@ namespace TAP.Simulation
 
         public double Capacity(Part requester, string resId)
         {
+            var mix = MixOf(resId);
+            if (mix != null) return mix.BurnableMass(id => Capacity(requester, id));
             var def = PartDatabase.Instance.GetResource(resId);
             if (def == null) return 0;
             double total = 0;
@@ -86,10 +98,28 @@ namespace TAP.Simulation
             return total;
         }
 
-        /// <summary>Removes up to <paramref name="amount"/> units; returns the amount actually drawn.</summary>
+        /// <summary>
+        /// Removes up to <paramref name="amount"/> units; returns the amount actually drawn. A mix is asked for by mass (kg): its
+        /// components are drawn together at its ratio, as much as the scarcest allows.
+        /// </summary>
         public double Request(Part requester, string resId, double amount)
         {
             if (amount <= 0) return 0;
+            var mix = MixOf(resId);
+            if (mix != null)
+            {
+                double share = 1;
+                foreach (var c in mix.Components)
+                {
+                    double want = amount * c.UnitsPerKg;
+                    if (want <= 0) continue;
+                    double have = DevCheats.InfinitePropellant && Capacity(requester, c.Resource.id) > 0 ? want : Available(requester, c.Resource.id);
+                    share = Math.Min(share, have / want);
+                }
+                if (share <= 0) return 0;
+                foreach (var c in mix.Components) Request(requester, c.Resource.id, amount * share * c.UnitsPerKg);
+                return amount * share;
+            }
             var def = PartDatabase.Instance.GetResource(resId);
             if (def == null) return 0;
             var group = GroupFor(requester, def.flow);

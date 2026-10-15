@@ -46,6 +46,7 @@ has its rules:
   - RCS nozzles have 6 numbers each;
   - parachutes, legs, heat shields, wheels and fins have sensible values.
 - **Resources:** unique ids, a density of 0 or more, and a colour of 3 numbers from 0 to 1.
+- **Mixes:** an id no resource or mix has, components that are resources of the catalogue with a density above 0, each once, with a ratio above 0 ([RESOURCES.md](RESOURCES.md)). A part's `resources` and an engine's `propellant` may name a mix.
 - **Systems:**
   - body ids are unique and there is one root;
   - parents exist, with no loops, and every body with a parent has an orbit;

@@ -19,6 +19,8 @@ namespace TAP.Parts
         public readonly PartCatalog Catalog;
         private readonly Dictionary<string, PartDefinition> _parts = new Dictionary<string, PartDefinition>();
         private readonly Dictionary<string, ResourceDefinition> _resources = new Dictionary<string, ResourceDefinition>();
+        private readonly Dictionary<string, MixDefinition> _mixes = new Dictionary<string, MixDefinition>();
+        private readonly Dictionary<string, Propellant> _propellants = new Dictionary<string, Propellant>();
         private readonly Dictionary<string, (string title, ContentProblem problem)> _broken = new Dictionary<string, (string, ContentProblem)>();
 
         /// <summary>What the check found when the catalog was loaded (empty for a catalog made in code).</summary>
@@ -82,6 +84,8 @@ namespace TAP.Parts
         {
             Catalog = catalog;
             foreach (var r in catalog.resources) _resources[r.id] = r;
+            if (catalog.mixes == null) catalog.mixes = new List<MixDefinition>();
+            foreach (var m in catalog.mixes) _mixes[m.id] = m;
             foreach (var p in catalog.parts)
             {
                 if (_parts.ContainsKey(p.id)) Debug.LogWarning("Duplicate part id " + p.id);
@@ -105,6 +109,34 @@ namespace TAP.Parts
         }
 
         public double ResourceDensity(string id) => GetResource(id)?.density ?? 0;
+
+        public IReadOnlyList<MixDefinition> Mixes => Catalog.mixes;
+
+        public MixDefinition GetMix(string id)
+        {
+            if (id != null && _mixes.TryGetValue(id, out var m)) return m;
+            return null;
+        }
+
+        /// <summary>The first mix that has this resource as a component (the one a readout groups it under), or null.</summary>
+        public MixDefinition MixOf(string resourceId)
+        {
+            foreach (var m in Catalog.mixes)
+                foreach (var c in m.components) if (c.resource == resourceId) return m;
+            return null;
+        }
+
+        /// <summary>What an engine with this propellant id burns: a mix or a single resource. Null when there is no such thing.</summary>
+        public Propellant GetPropellant(string id)
+        {
+            if (id == null) return null;
+            if (_propellants.TryGetValue(id, out var cached)) return cached;
+            Propellant made = null;
+            if (_mixes.TryGetValue(id, out var mix)) made = Propellant.Of(mix, GetResource);
+            else if (_resources.TryGetValue(id, out var res)) made = Propellant.Of(res);
+            if (made != null) _propellants[id] = made;
+            return made;
+        }
 
         /// <summary>Whether a part was left out because of errors in its data (rather than not existing).</summary>
         public bool IsBroken(string id) => id != null && _broken.ContainsKey(id);
@@ -176,6 +208,15 @@ namespace TAP.Parts
                     r.Added.Add("resource " + res.id);
                 }
             }
+            // Mixes are read again whole; the engines and parts below see them from their next step.
+            foreach (var m in check.Catalog.mixes)
+                if (!_mixes.TryGetValue(m.id, out var oldMix)) r.Added.Add("mix " + m.id);
+                else foreach (var c in ContentUpdate.Differences(oldMix, m)) r.Changes.Add($"mix {m.id}: {c}");
+            Catalog.mixes.Clear();
+            Catalog.mixes.AddRange(check.Catalog.mixes);
+            _mixes.Clear();
+            foreach (var m in Catalog.mixes) _mixes[m.id] = m;
+            _propellants.Clear();
             foreach (var p in check.Catalog.parts)
             {
                 if (_parts.TryGetValue(p.id, out var old)) Apply(old, p, p.title, r);

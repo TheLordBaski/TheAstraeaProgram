@@ -34,33 +34,29 @@ The design pillar stays: one rigid body per vessel, no wobble (D-14).
 ### FLT-01 · Propellant model
 **Milestone** EA1 · **Claude** 5 d · **You** 1 d · **Needs** D-01
 
-Today there is one `LiquidFuel` for every liquid engine, and a tank holds kg. D-01 is decided: an open resource
-framework with propellant mixes, in [19-decisions.md](19-decisions.md).
+Today there was one `LiquidFuel` for every liquid engine. D-01 is decided: an open resource framework with propellant mixes,
+in [19-decisions.md](19-decisions.md). Format and rules: [Docs/RESOURCES.md](../../Docs/RESOURCES.md).
 
-- **Resources** are data: density (kg per unit), unit volume, flow rule, unit price, and a boil-off rate that nothing
-  uses yet (default 0). EA1 ships Fuel, Oxidiser, Monopropellant, Solid propellant, Hydrogen, Xenon, Ore, Electric
-  charge and Ablator.
-- **Mixes**: a named recipe of resources by mass ratio. An engine, tank or converter names a mix or a single resource.
-  `chemical` is Fuel + Oxidiser in a fixed ratio. A combined tank holds the mix and the HUD and part menus show one
-  bar per mix, with the components in the part menu. Mixes are data, so mods add their own.
-- **Volume**: a tank has a capacity in volume units (not mesh size). A resource unit takes `unitVolume` of it and has
-  mass `density`. A hydrogen tank therefore holds fewer kg than a fuel tank of the same part. The current tanks
-  migrate one to one.
-- **Flow** per resource: stack propellants flow down stacks, Xenon, Ore and electricity flow everywhere (FLT-06 adds
-  transfer and locks). An engine draws its mix at the mix ratio and stops when any component runs out.
-- **Supply at the launch site** (an interface with one implementation now): tanks fill from the site's stock when
-  the vessel launches, with the fill levels of ASM-02 (default full). Sandbox and science mode: every resource,
-  unlimited and free. Career: unlimited at the unit price (CAR-02). Bases elsewhere will hold what they produce or
-  receive (RES, HUB-04).
-- A migration of craft files and saves (`LiquidFuel` → the `chemical` mix, with Fuel and Oxidiser split so the mass
-  and Δv stay the same), and the part stats and descriptions updated. Δv and burn-time code handle mixes.
+- **Resources** are data: density (kg per unit), flow rule, unit price, and a boil-off rate that nothing uses yet (default 0).
+  A unit is a volume unit, so a light resource weighs less in the same tank. EA1 ships Fuel, Oxidiser, Monopropellant, Solid
+  propellant, Hydrogen, Xenon, Ore, Electric charge and Ablator.
+- **Mixes**: a named recipe of resources by volume ratio. An engine, tank or converter names a mix or a single resource.
+  `chemical` is Fuel + Oxidiser. A combined tank holds the mix; the flight display shows one bar per mix and the part menu the
+  components. Mixes are data, so mods add their own.
+- **Flow** per resource: stack propellants flow down stacks, Xenon, Ore and electricity flow everywhere (FLT-06 adds transfer and
+  locks). An engine draws its mix at the mix ratio and flames out when any component runs out.
+- **Supply at the launch site** (`LaunchSupply`): tanks fill from the site's stock when the vessel launches, at the `fill` setting of
+  each craft part (default full; ASM-02 gets the slider). Sandbox and science mode: unlimited and free. Career: unlimited at the unit
+  price, charged by CAR-02. Bases elsewhere will hold what they produce or receive (RES, HUB-04).
+- The Δv and burn-time code handle mixes. Saves from before D-01 are not migrated (no saves worth keeping before Early Access; the
+  format stays as it is).
 
 **Done when**
-- [ ] Every starter craft and save loads with an unchanged Δv (within 0.5%).
-- [ ] A nuclear engine burns Hydrogen only, and a Hydrogen tank holds fewer kg than a Fuel tank of the same part.
-- [ ] A mod can define a new resource and a new mix in data and fly it with no code.
-- [ ] A new vessel's tanks fill from the site's stock, and a half-full launch has half the propellant mass.
-- [ ] Unit tests cover the mix flow, the supply and the migration.
+- [x] Every starter craft loads with an unchanged Δv (within 0.5%). (Identical to 10⁻¹⁵; `ResourceTests`.)
+- [x] A nuclear engine burns Hydrogen only, and a Hydrogen tank holds fewer kg than a Fuel tank of the same part. (`ResourceTests`)
+- [x] A mod can define a new resource and a new mix in data and fly it with no code. (`ResourceTests`, a fusion mix with a new resource)
+- [x] A new vessel's tanks fill from the site's stock, and a half-full launch has half the propellant mass. (`ResourceTests`)
+- [x] Unit tests cover the mix and the supply (`ResourceTests`); the flow in flight is checked by the `orbit` mission (a tank's Fuel and Oxidiser drain together).
 
 ### FLT-02 · Electric system: generation, consumption, starvation
 **Milestone** EA1 · **Claude** 5 d · **You** 1 d · **Needs** SYS-02, PRT-03

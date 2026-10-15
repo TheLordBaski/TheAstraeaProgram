@@ -81,6 +81,13 @@ namespace TAP.Simulation
             }
         }
 
+        /// <summary>What to ask the resource system for to draw this mass of propellant: kg for a mix, units for one resource.</summary>
+        private double PropellantUnits(double mass)
+        {
+            var p = PartDatabase.Instance.GetPropellant(Def.propellant);
+            return p == null || p.IsMix || p.Components[0].Resource.density <= 0 ? mass : mass * p.Components[0].UnitsPerKg;
+        }
+
         public double MaxMassFlow => Def.thrustVac / (Def.ispVac * MathD.G0);
 
         public double IspAtPressure(double pressureAtm) => Math.Max(Def.ispVac + (Def.ispAsl - Def.ispVac) * pressureAtm, Def.ispVac * 0.05);
@@ -105,14 +112,13 @@ namespace TAP.Simulation
             double pAtm = v.StaticPressure / 101325.0;
             double isp = IspAtPressure(pAtm);
             double mdot = MaxMassFlow * CurrentThrottle;
-            var res = PartDatabase.Instance.GetResource(Def.propellant);
-            double density = res != null && res.density > 0 ? res.density : 1;
-            double wantUnits = mdot * dt / density;
-            double got = v.Resources.Request(Part, Def.propellant, wantUnits);
-            double ratio = wantUnits > 0 ? got / wantUnits : 0;
+            // A propellant is drawn by mass: a mix takes its components together at its ratio.
+            double wantMass = mdot * dt;
+            double got = v.Resources.Request(Part, Def.propellant, PropellantUnits(wantMass));
+            double ratio = wantMass > 0 ? got / PropellantUnits(wantMass) : 0;
             if (ratio < 0.02)
             {
-                if (!Flameout) Sim.Log($"{Part.Def.title}: flameout (out of {res?.name ?? Def.propellant})");
+                if (!Flameout) Sim.Log($"{Part.Def.title}: flameout (out of {PartDatabase.Instance.GetPropellant(Def.propellant)?.Name ?? Def.propellant})");
                 Flameout = true;
                 CurrentThrottle = 0;
                 if (IsSolid) Ignited = true;

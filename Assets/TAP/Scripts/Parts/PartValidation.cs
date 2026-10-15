@@ -59,6 +59,21 @@ namespace TAP.Parts
                 }
             else top.Error("resources", "a list of resources");
 
+            // Propellant mixes (optional): recipes of the resources above.
+            var mixes = new Dictionary<string, MixDefinition>();
+            if (root["mixes"] is JArray ms)
+                for (int i = 0; i < ms.Count; i++)
+                {
+                    string id = Id(ms[i]);
+                    var e = new ContentEntry(report, file, id != null ? "mix " + id : $"mix #{i + 1}", ms[i]);
+                    var m = Read<MixDefinition>(ms[i], e);
+                    if (m != null) CheckMix(e, m, resources, brokenResources, mixes);
+                    if (m == null || e.HasErrors) continue;
+                    mixes[m.id] = m;
+                    result.Catalog.mixes.Add(m);
+                }
+            else if (root["mixes"] != null) top.Error("mixes", "a list of propellant mixes");
+
             var ids = new HashSet<string>();
             if (root["parts"] is JArray ps)
                 for (int i = 0; i < ps.Count; i++)
@@ -66,13 +81,14 @@ namespace TAP.Parts
                     string id = Id(ps[i]);
                     var e = new ContentEntry(report, file, id != null ? "part " + id : $"part #{i + 1}", ps[i]);
                     var p = Read<PartDefinition>(ps[i], e);
-                    if (p != null) CheckPart(e, p, resources, brokenResources, result.Catalog.categories, ids);
+                    if (p != null) CheckPart(e, p, resources, mixes, brokenResources, result.Catalog.categories, ids);
                     if (p == null || e.HasErrors)
                     {
                         if (id != null && !result.Broken.ContainsKey(id) && result.Catalog.parts.All(x => x.id != id))
                             result.Broken[id] = (p?.title, e.FirstError);
                         continue;
                     }
+                    SplitMixes(p, resources, mixes);
                     result.Catalog.parts.Add(p);
                 }
             else top.Error("parts", "a list of parts");
@@ -112,10 +128,59 @@ namespace TAP.Parts
             e.Error(field, "the id of a resource (" + List(resources.Keys) + ")", hint: id != null && broken.Contains(id) ? "that resource has errors" : null);
         }
 
+        /// <summary>A resource or a propellant mix of the catalog.</summary>
+        private static void ResourceOrMix(ContentEntry e, string id, string field, Dictionary<string, ResourceDefinition> resources,
+            Dictionary<string, MixDefinition> mixes, HashSet<string> broken)
+        {
+            if (id != null && (resources.ContainsKey(id) || mixes.ContainsKey(id))) return;
+            e.Error(field, "the id of a resource or a mix (" + List(resources.Keys.Concat(mixes.Keys)) + ")",
+                hint: id != null && broken.Contains(id) ? "that resource has errors" : null);
+        }
+
+        private static void CheckMix(ContentEntry e, MixDefinition m, Dictionary<string, ResourceDefinition> resources, HashSet<string> broken,
+            Dictionary<string, MixDefinition> known)
+        {
+            if (e.Text(m.id, "id", "an id")) e.Check(!known.ContainsKey(m.id) && !resources.ContainsKey(m.id), "id", "an id no other mix or resource has");
+            e.Check(!string.IsNullOrWhiteSpace(m.name), "name", "the name players see", error: false);
+            e.Color(m.color, "color");
+            if (!e.Check(m.components != null && m.components.Count > 0, "components", "a list of the resources the mix is made of")) return;
+            var seen = new HashSet<string>();
+            for (int i = 0; i < m.components.Count; i++)
+            {
+                var c = m.components[i];
+                string f = $"components[{i}]";
+                if (c == null) { e.Error(f, "a component: resource and ratio"); continue; }
+                Resource(e, c.resource, f + ".resource", resources, broken);
+                if (c.resource != null) e.Check(seen.Add(c.resource), f + ".resource", "a resource the mix doesn't have yet");
+                e.Positive(c.ratio, f + ".ratio", "the share of the mix by volume");
+                if (c.resource != null && resources.TryGetValue(c.resource, out var r))
+                    e.Check(r.density > 0, f + ".resource", "a resource with a density above 0", hint: "a mix is drawn by mass");
+            }
+        }
+
+        /// <summary>
+        /// A part that carries a mix holds its components: the amount (units, a volume) is split by the mix's ratio. Everything
+        /// that reads a part's resources then sees plain resources.
+        /// </summary>
+        private static void SplitMixes(PartDefinition p, Dictionary<string, ResourceDefinition> resources, Dictionary<string, MixDefinition> mixes)
+        {
+            if (p.resources == null || !p.resources.Exists(r => r != null && mixes.ContainsKey(r.id))) return;
+            var split = new List<ResourceAmount>();
+            foreach (var r in p.resources)
+            {
+                if (!mixes.TryGetValue(r.id, out var mix)) { split.Add(r); continue; }
+                double sum = 0;
+                foreach (var c in mix.components) sum += c.ratio;
+                foreach (var c in mix.components)
+                    split.Add(new ResourceAmount { id = c.resource, amount = r.amount * c.ratio / sum, max = r.max < 0 ? -1 : r.max * c.ratio / sum });
+            }
+            p.resources = split;
+        }
+
         // ------------------------------------------------------------------ parts
 
         private static void CheckPart(ContentEntry e, PartDefinition p, Dictionary<string, ResourceDefinition> resources,
-            HashSet<string> brokenResources, List<string> categories, HashSet<string> ids)
+            Dictionary<string, MixDefinition> mixes, HashSet<string> brokenResources, List<string> categories, HashSet<string> ids)
         {
             if (e.Text(p.id, "id", "an id"))
                 e.Check(ids.Add(p.id), "id", "an id no other part has", hint: "the first part with this id is kept");
@@ -151,7 +216,7 @@ namespace TAP.Parts
                         e.Error(f, "a resource amount: id, amount and max");
                         continue;
                     }
-                    Resource(e, r.id, f + ".id", resources, brokenResources);
+                    ResourceOrMix(e, r.id, f + ".id", resources, mixes, brokenResources);
                     e.NotNegative(r.amount, f + ".amount");
                     if (r.max >= 0) e.Check(r.max >= r.amount, f + ".max", "a number of at least amount (" + ContentEntry.Number(r.amount) + ")",
                         hint: "leave it out to fill the part");
@@ -170,7 +235,7 @@ namespace TAP.Parts
                 e.NotNegative(p.drag.cdBottom, "drag.cdBottom");
                 e.NotNegative(p.drag.cdSide, "drag.cdSide");
             }
-            if (p.engine != null) CheckEngine(e, p, resources, brokenResources);
+            if (p.engine != null) CheckEngine(e, p, resources, mixes, brokenResources);
             if (p.decoupler != null)
             {
                 var d = p.decoupler;
@@ -270,7 +335,8 @@ namespace TAP.Parts
             }
         }
 
-        private static void CheckEngine(ContentEntry e, PartDefinition p, Dictionary<string, ResourceDefinition> resources, HashSet<string> brokenResources)
+        private static void CheckEngine(ContentEntry e, PartDefinition p, Dictionary<string, ResourceDefinition> resources,
+            Dictionary<string, MixDefinition> mixes, HashSet<string> brokenResources)
         {
             var g = p.engine;
             e.OneOf(g.type, "engine.type", EngineTypes);
@@ -280,7 +346,7 @@ namespace TAP.Parts
             if (g.ispVac > 0 && g.ispAsl > 0)
                 e.Check(g.ispAsl <= g.ispVac, "engine.ispAsl", "at most ispVac (" + ContentEntry.Number(g.ispVac) + ")", error: false,
                     hint: "an engine is less efficient in air than in vacuum");
-            Resource(e, g.propellant, "engine.propellant", resources, brokenResources);
+            ResourceOrMix(e, g.propellant, "engine.propellant", resources, mixes, brokenResources);
             if (g.type == "solid" && g.propellant != null && resources.ContainsKey(g.propellant))
                 e.Check(p.resources != null && p.resources.Exists(r => r?.id == g.propellant), "resources", g.propellant + " for the solid motor",
                     error: false, hint: "a solid motor burns only what its own part carries");

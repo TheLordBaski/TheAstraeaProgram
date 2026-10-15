@@ -289,8 +289,25 @@ namespace TAP.UI
                 break;
             }
             if (sMax > 0) lines.Add(("stage", "STAGE PROPELLANT", sAmt, sMax, "kg", Amber));
-            foreach (var rd in PartDatabase.Instance.ResourceDefinitions)
+            var db = PartDatabase.Instance;
+            var barsDone = new HashSet<string>();
+            foreach (var rd in db.ResourceDefinitions)
             {
+                // A propellant mix is one bar, in kg, whatever its components.
+                var mix = db.MixOf(rd.id);
+                if (mix != null)
+                {
+                    if (!barsDone.Add(mix.id)) continue;
+                    double mixAmount = 0, mixMax = 0;
+                    foreach (var c in mix.components)
+                    {
+                        v.Resources.Totals(c.resource, out double ca, out double cm);
+                        mixAmount += ca * db.ResourceDensity(c.resource);
+                        mixMax += cm * db.ResourceDensity(c.resource);
+                    }
+                    if (mixMax > 0) lines.Add(("mix:" + mix.id, Loc.Data(mix.name).ToUpperInvariant(), mixAmount, mixMax, "kg", mix.Color));
+                    continue;
+                }
                 v.Resources.Totals(rd.id, out double a, out double m);
                 if (m > 0) lines.Add((rd.id, Loc.Data(rd.name).ToUpperInvariant(), a, m, rd.unit, rd.Color));
             }

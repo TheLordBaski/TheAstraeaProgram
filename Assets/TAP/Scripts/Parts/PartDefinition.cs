@@ -20,10 +20,39 @@ namespace TAP.Parts
         public string id;
         public string name;
         public string unit = "kg";
-        /// <summary>Mass per unit (kg). Electric charge has zero density.</summary>
+        /// <summary>
+        /// Mass per unit (kg). A unit is a volume unit: a tank holds a number of units, so a light resource (hydrogen) weighs
+        /// less than a dense one in the same tank. Electric charge has zero density.
+        /// </summary>
         public double density = 1.0;
         public ResourceFlow flow = ResourceFlow.Stack;
+        /// <summary>Funds per unit when a launch draws it from the site's stock (career, CAR-02). 0 is free.</summary>
+        public double price;
+        /// <summary>Fraction of a tank's content lost per day to boil-off. A hook: nothing reads it yet.</summary>
+        public double boilOffPerDay;
         public float[] color = { 1, 1, 1 };
+        public Color Color => new Color(color[0], color[1], color[2]);
+    }
+
+    /// <summary>One resource of a <see cref="MixDefinition"/> and its share by volume (units).</summary>
+    [Serializable]
+    public class MixComponent
+    {
+        public string resource;
+        public double ratio = 1;
+    }
+
+    /// <summary>
+    /// A propellant mix: a named recipe of resources by volume ratio. Engines name a mix (or one resource) as their
+    /// propellant, and a part that carries a mix holds its components in this ratio (the catalogue check splits it).
+    /// </summary>
+    [Serializable]
+    public class MixDefinition
+    {
+        public string id;
+        public string name;
+        public List<MixComponent> components = new List<MixComponent>();
+        public float[] color = { 0.95f, 0.72f, 0.25f };
         public Color Color => new Color(color[0], color[1], color[2]);
     }
 
@@ -109,7 +138,8 @@ namespace TAP.Parts
         public float minThrottle = 0f;
         /// <summary>Throttle response (fraction per second); 0 = instant.</summary>
         public float throttleResponse = 3f;
-        public string propellant = "LiquidFuel";
+        /// <summary>A resource or a propellant mix (<see cref="MixDefinition"/>).</summary>
+        public string propellant = "chemical";
         /// <summary>Electric charge generated at full thrust (EC/s).</summary>
         public double alternator;
         /// <summary>Heat generated at full thrust into the engine (W).</summary>
@@ -335,6 +365,7 @@ namespace TAP.Parts
     public class PartCatalog
     {
         public List<ResourceDefinition> resources = new List<ResourceDefinition>();
+        public List<MixDefinition> mixes = new List<MixDefinition>();
         public List<string> categories = new List<string>();
         public List<PartDefinition> parts = new List<PartDefinition>();
     }
