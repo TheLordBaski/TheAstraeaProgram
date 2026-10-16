@@ -12,9 +12,22 @@
             <ui:VisualElement class="fd-glass fd-glass--flow">
                 <ui:VisualElement class="fd-row fd-page-head">
                     <ui:Label class="fd-head-title" text="INFO" />
+                    <ui:Button name="track-toggle" class="btn track-toggle" text="GROUND TRACK" />
                 </ui:VisualElement>
                 <ui:Label name="orbit-info" class="wrap map-info" picking-mode="Ignore" />
             </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="track-panel" class="fd-unit map-unit">
+            <ui:VisualElement class="fd-row fd-page-head">
+                <ui:Label class="fd-head-title" text="GROUND TRACK" />
+            </ui:VisualElement>
+            <ui:VisualElement name="track-view" />
+            <ui:VisualElement class="node-row track-row">
+                <ui:Label class="fd-lbl node-label" text="ORBITS" />
+                <ui:VisualElement name="track-orbits" class="row" />
+            </ui:VisualElement>
+            <ui:Label name="track-info" class="wrap map-info" picking-mode="Ignore" />
         </ui:VisualElement>
 
         <ui:VisualElement name="node-panel" class="fd-unit map-unit">

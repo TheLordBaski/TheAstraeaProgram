@@ -71,6 +71,35 @@
     font-size: 13px;
 }
 
+.btn.track-toggle {
+    margin-left: auto;
+    height: 20px;
+    padding: 0 8px;
+    font-size: 11px;
+}
+
+/* the ground-track unit: wide enough for the 520x260 picture (GroundTrackView) inside its padding and border */
+#track-panel {
+    width: 546px;
+}
+
+.track-row {
+    margin-top: 7px;
+}
+
+.track-orbitbtn {
+    width: 40px;
+    height: 24px;
+    margin-right: 4px;
+    padding: 0;
+    font-size: 12px;
+}
+
+.gt-mark {
+    position: absolute;
+    translate: -50% -50%;
+}
+
 #node-panel {
     width: 450px;
 }

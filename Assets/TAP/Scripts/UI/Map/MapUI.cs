@@ -45,6 +45,14 @@ namespace TAP.UI
         private int _rmbNode = -1;
         private Vector2 _rmbStart;
         private bool _wasActive = true;
+        private VisualElement _trackPanel;
+        private Button _trackToggle;
+        private GroundTrackView _trackView;
+        private Label _trackInfo;
+        private readonly Dictionary<int, Button> _trackOrbitBtns = new Dictionary<int, Button>();
+        private bool _trackOn, _trackDirty = true;
+        private int _trackOrbits = 3;
+        private float _trackTime;
 
         private sealed class MarkerWidget
         {
@@ -137,6 +145,35 @@ namespace TAP.UI
             layout?.Add("map-info", "Map: info", _root.Q("orbit-panel"), new HudPanelState { ax = 0, ay = 2, x = 16, y = 16 });
             layout?.Add("map-node", "Map: maneuver node", _nodePanel, new HudPanelState { ax = 2, ay = 2, x = 16, y = 16 });
             layout?.Want("map-node", false);
+
+            // Ground track: the orbit over the body's flat map, shown by the key in the info unit (so the unit can't be hidden itself).
+            _trackPanel = _root.Q("track-panel");
+            _trackView = new GroundTrackView();
+            _root.Q("track-view").Add(_trackView);
+            _trackInfo = _root.Q<Label>("track-info");
+            var orbitRow = _root.Q("track-orbits");
+            foreach (int n in new[] { 1, 2, 4, 8 })
+            {
+                int orbits = n;
+                var b = UIKit.Button(n.ToString(), () => SetTrackOrbits(orbits), "track-orbitbtn");
+                _trackOrbitBtns[n] = b;
+                orbitRow.Add(b);
+            }
+            SetTrackOrbits(_trackOrbits);
+            UIKit.Tooltip(orbitRow, () => "How many orbits ahead the track is drawn.");
+            _trackToggle = _root.Q<Button>("track-toggle");
+            _trackToggle.clicked += () => { _trackOn = !_trackOn; UIKit.SetOn(_trackToggle, _trackOn); };
+            UIKit.Tooltip(_trackToggle, () => "Show the ground track: the path of the orbit over the body's surface, for planning observations.");
+            layout?.Add("map-track", "Map: ground track", _trackPanel, new HudPanelState { ax = 2, ay = 0, x = 16, y = 80 }, false);
+            layout?.Want("map-track", false);
+            UIKit.Show(_trackPanel, false);
+        }
+
+        private void SetTrackOrbits(int orbits)
+        {
+            _trackOrbits = orbits;
+            _trackDirty = true;
+            foreach (var kv in _trackOrbitBtns) UIKit.SetOn(kv.Value, kv.Key == orbits);
         }
 
         private static string HandleName(string k) => k switch
@@ -260,6 +297,7 @@ namespace TAP.UI
             UpdateNodeGizmo();
             UpdateNodePanel();
             UpdateOrbitPanel();
+            UpdateGroundTrack();
         }
 
         private void ShowMarker(MapMarker m)
@@ -630,6 +668,71 @@ namespace TAP.UI
                 else sb.AppendLine("Landed");
             }
             _orbitInfo.text = sb.ToString().TrimEnd('\n', '\r');
+        }
+
+        // ------------------------------------------------------------------ ground track
+
+        private void UpdateGroundTrack()
+        {
+            if (HudLayout.Instance != null) HudLayout.Instance.Want("map-track", _trackOn);
+            else UIKit.Show(_trackPanel, _trackOn);
+            var h = Map.FocusVessel ?? Sim.ActiveHandle;
+            if (!_trackOn || h == null) return;
+            var body = h.Body;
+            double ut = Sim.UT;
+            var o = h.CurrentOrbit;
+            // The lines and apsides are worked out a few times a second; the vessel's own icon follows every frame.
+            if (_trackDirty || Time.unscaledTime - _trackTime > 0.3f)
+            {
+                _trackDirty = false;
+                _trackTime = Time.unscaledTime;
+                _trackView.SetMap(Map.SurfaceMap(body));
+                RebuildTrack(h, body, o, ut);
+            }
+            Vector3d rel = h.PositionRelBody(ut);
+            GroundTrack.LatLon(body, rel, ut, out double lat, out double lon);
+            GroundTrackView.Place(_trackView.Vessel, true, lat, lon);
+
+            var sb = new StringBuilder();
+            sb.AppendLine($"<b>{Loc.Name(h.Name)}</b>  <size=12>({body.Name})</size>");
+            sb.Append($"Lat {lat:0.0}°   Lon {lon:0.0}°   Alt {MathD.FormatDistance(rel.magnitude - body.Radius)}");
+            string dim = UIKit.Hex(UIKit.TextDim);
+            if (_trackView.Pointer(out double plat, out double plon))
+            {
+                var biome = body.BiomeAt(plat, plon);
+                sb.Append($"\n<color=#{dim}>Pointer  lat {plat:0.0}°   lon {plon:0.0}°{(biome != null ? "   " + Loc.Data(biome.Name) : "")}</color>");
+            }
+            else sb.Append($"\n<color=#{dim}>Point at the map to read a position and its biome.</color>");
+            _trackInfo.text = sb.ToString();
+        }
+
+        private void RebuildTrack(VesselHandle h, CelestialBody body, Orbit o, double ut)
+        {
+            bool ellipse = o != null && o.IsElliptic;
+            if (o == null || o.SemiLatusRectum <= 0)
+            {
+                _trackView.SetTrack(null); // landed, or falling straight down
+                GroundTrackView.Place(_trackView.Apoapsis, false, 0, 0);
+                GroundTrackView.Place(_trackView.Periapsis, false, 0, 0);
+                return;
+            }
+            // Ahead by the chosen number of orbits (an escape path: six hours), up to where the predicted path leaves this body or hits it.
+            double end = ut + (ellipse ? _trackOrbits * o.Period : 6 * 3600);
+            var traj = Scene.Trajectory;
+            if (h == Sim.ActiveHandle && traj.Current.Count > 0 && traj.Current[0].Body == body) end = Math.Min(end, traj.Current[0].EndUT);
+            end = Math.Max(end, ut + 1);
+            int steps = ellipse ? Mathf.Clamp((int)((end - ut) / o.Period * 180), 180, 1440) : 180;
+            _trackView.SetTrack(GroundTrack.Sample(o, body, ut, end, steps));
+            PlaceApsis(_trackView.Apoapsis, ellipse ? ut + o.TimeToApoapsis(ut) : double.NaN, o, body, end);
+            PlaceApsis(_trackView.Periapsis, ellipse ? ut + o.TimeToPeriapsis(ut) : double.NaN, o, body, end);
+        }
+
+        private static void PlaceApsis(Image icon, double t, Orbit o, CelestialBody body, double end)
+        {
+            bool on = !double.IsNaN(t) && t <= end;
+            double lat = 0, lon = 0;
+            if (on) GroundTrack.LatLon(body, o.GetPositionAtUT(t), t, out lat, out lon);
+            GroundTrackView.Place(icon, on, lat, lon);
         }
     }
 }

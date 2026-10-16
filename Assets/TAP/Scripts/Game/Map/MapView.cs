@@ -63,6 +63,8 @@ namespace TAP.Game
             if (surface != null) Paint(maps, surface);
         }
         private readonly Dictionary<CelestialBody, BodyMaps> _maps = new Dictionary<CelestialBody, BodyMaps>();
+        /// <summary>A body's flat surface map (geographic north in the first row), or null while it is still being made or the body has no surface.</summary>
+        public Texture SurfaceMap(CelestialBody body) => _maps.TryGetValue(body, out var m) ? m.Surface : null;
         private readonly List<Mesh> _ownedBodyMeshes = new List<Mesh>();
 
         /// <summary>Paints every body with its biomes instead of its surface (a developer view, FND-02).</summary>
