@@ -215,7 +215,8 @@ Both are in `parts.json` (hidden until their milestone) and in [05-parts.md](../
 
 ## 9. Still open
 
-1. **Does a test pay science too?** Default: no, the unlock is the reward.
+1. **Does a test pay science too?** Leaning yes, a little (2026-10-16, not final): a passed test pays a small bonus,
+   about 10% of its node's cost, set per group in data. TEC-04 confirms or removes it after playtests.
 2. **Depth levels** (better instruments reopening old subjects, options doc option 1) are not part of this design. A
    later addition if the mid-game runs dry.
 

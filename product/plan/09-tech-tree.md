@@ -115,6 +115,7 @@ objectives and texts.
 - Tune costs with the science pacing (SCI-11) so that each tier opens roughly at the intended point of a campaign,
   and no tier leaves a dead end (you can always earn the next science).
 - The test missions fit the pacing: a group's test can be flown with the parts available when it is researched.
+- The science bonus for a passed test (tentative, about 10% of the node's cost): keep it, tune it or set it to 0.
 
 **Done when**
 - [ ] The pacing simulation and a full science playthrough to Rubra (you) match the targets within ±25%.
@@ -134,6 +135,7 @@ objectives and texts.
   - trajectory: escaping a body or the star, reaching another body's sphere of influence;
   - total velocity change by the prototype in a region (beyond a body's orbit).
 - Totals that grow over days (ion thrust) add up on rails as well.
+- Certification pays a small science bonus, set per group in data (tentative, about 10% of the node's cost; TEC-04).
 - A toast for each objective met and for the certification; progress is saved. Several tests can finish on one
   flight.
 
