@@ -61,6 +61,25 @@ the bands). The numbers (`PartTemplates.Metrics`):
 and the bands are placeholders for the economy of CAR-10. Entry costs for the research tree are not set here: the science and tech rework decides
 them.
 
+## Shapes
+
+Every part is drawn by a procedural shape (`model.type`, `PartModelFactory`); the catalogue's parts of releases to come use the nearest shape until their own is made (PRT-08).
+The shapes of the first Early Access release (`PartModelFactory.Shapes.cs`):
+
+| Shape | Parts | Notes |
+|---|---|---|
+| `solarpanel` | `solar_fixed`, `solar_fold` | the folding one has pieces `WingA` and `WingB` that swing out to either side |
+| `antenna` | `antenna_whip`, `antenna_dish` | the dish has `Boom` and `Boom/Dish`: the boom slides up, the bowl tips from facing down to facing out |
+| `spotlight`, `ladder`, `clamp` | `light_spot`, `ladder_fixed`, `clamp` | the clamp has a foot, a tower and two arms |
+| `fairingbase` | `fairing_s1` to `fairing_s3` | a ring with the root of the shell |
+| `instrument` | `sci_thermo` (boom), `sci_baro` (box), `sci_bio` (canister), `sci_matrack` (rack) | `model.style` picks the look |
+| `landercan`, `radialprobe` | `pod_mayfly1`, `probe_sparrow` | |
+| `separator`, `sepmotor` | `sep_s0` to `sep_s3`, `srb_spit` | |
+
+A radial shape faces outward along +Z with its back at z = -0.15 × diameter, the part's `surfaceAttach` point. Pieces that move are children of `Model` in their retracted pose, with
+the names of the part's `deployable.motions` ([DEPLOYABLES.md](DEPLOYABLES.md)); a piece that must follow another is its child (`Boom/Dish`). *TAP → Part Models → Export All* writes every
+part, released or not, for editing in Blender ([PART_MODELS.md](PART_MODELS.md)).
+
 ## Adding a part
 
 Copy a part of the same role, give it an id with the role's prefix, a `milestone`, a `size`, a `role` and a `manufacturer` from the list, and set its

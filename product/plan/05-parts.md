@@ -264,8 +264,13 @@ placeholders for CAR-10 and PRT-11.
   - the separation motor.
 
 **Done when**
-- [ ] All 40 EA1 parts have a readable procedural model and an icon.
-- [ ] *Export All* includes them.
+- [x] All 40 EA1 parts have a readable procedural model and an icon. (`PartShapeTests`: every part of the slice and EA1 has a mesh, a collider, a size that matches its data, radial parts sit with their back on the hull; the 40 icons rendered and looked at in a contact sheet.)
+- [x] *Export All* includes them. (170 FBX, the unreleased parts too; `PARTS.md` lists the moving pieces of the panel and the dish.)
+
+Built (`PartModelFactory.Shapes.cs`, [Docs/PART_CATALOGUE.md](../../Docs/PART_CATALOGUE.md)): the shapes `solarpanel` (fixed, and a folding one with `WingA` and `WingB`), `antenna` (whip, and a dish with
+`Boom` and `Boom/Dish`), `spotlight`, `ladder`, `clamp` (foot, tower and two arms), `fairingbase`, `instrument` (boom, box, canister, rack), `landercan`, `radialprobe`, `separator` and `sepmotor`.
+`set_ea1_models.py` pointed the 24 parts at them. The folding panel and the dish move with the deployable data of PRT-03: unfolded, the wings swing out to both sides and the dish tips to face outward.
+The same pass gave the later releases' deployables a hierarchy (`Boom/Dish`, `Arm/WingA`, `Mast/Dish`…) so PRT-08 builds their models to it.
 
 ### PRT-03 · Deployables framework
 **Milestone** EA1 · **Claude** 3 d · **You** 0.5 d · **Needs** —

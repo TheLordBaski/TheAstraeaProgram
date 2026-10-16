@@ -18,8 +18,9 @@ namespace TAP.Parts
     ///   "CanopyAnchor"     parachute attachment point
     ///   "RcsNozzle{i}"     RCS nozzle exits (forward = exhaust direction)
     ///   "Hatch"            crew hatch (forward = outward normal)
+    ///   "WingA"/"WingB", "Boom"/"Boom/Dish"   folding solar panel and dish antenna (a deployable's pieces, Docs/DEPLOYABLES.md)
     /// </summary>
-    public static class PartModelFactory
+    public static partial class PartModelFactory
     {
         private class CachedModel
         {
@@ -40,6 +41,8 @@ namespace TAP.Parts
         {
             "tank", "adapter", "capsule", "probe", "engine", "srb", "decoupler", "radialdecoupler", "leg", "chute", "radialchute",
             "heatshield", "battery", "disc", "rcs", "radialtank", "dockingport", "nosecone", "fin", "eva", "flag",
+            // the Early Access shapes (PartModelFactory.Shapes.cs)
+            "solarpanel", "antenna", "spotlight", "ladder", "clamp", "fairingbase", "separator", "sepmotor", "radialprobe", "landercan", "instrument",
         };
 
         /// <summary>Resources folder of hand-made part models, one per part id.</summary>
@@ -95,7 +98,8 @@ namespace TAP.Parts
 
         private static CachedModel GetModel(PartDefinition def)
         {
-            if (Cache.TryGetValue(def.id, out var cm)) return cm;
+            // A mesh made in play mode is destroyed when it ends: with the domain kept, the cache must not hand it out again.
+            if (Cache.TryGetValue(def.id, out var cm) && cm.visual != null) return cm;
             cm = new CachedModel();
             var mb = new MeshBuilder();
             var col = new MeshBuilder();
@@ -123,6 +127,17 @@ namespace TAP.Parts
                 case "fin": Fin(mb, col, m); break;
                 case "eva": Astronaut(mb, col); break;
                 case "flag": Flag(mb, col, cm); break;
+                case "solarpanel": SolarPanel(mb, col, m, cm, def); break;
+                case "antenna": Antenna(mb, col, m, cm, def); break;
+                case "spotlight": Spotlight(mb, col, m); break;
+                case "ladder": Ladder(mb, col, m); break;
+                case "clamp": Clamp(mb, col, m); break;
+                case "fairingbase": FairingBase(mb, col, m); break;
+                case "separator": Separator(mb, col, m); break;
+                case "sepmotor": SeparationMotor(mb, col, m); break;
+                case "radialprobe": RadialProbe(mb, col, m); break;
+                case "landercan": LanderCan(mb, col, m, def); break;
+                case "instrument": Instrument(mb, col, m); break;
                 default: Tank(mb, col, m); break;
             }
             cm.visual = mb.ToMesh(def.id + "_vis", out cm.slots);

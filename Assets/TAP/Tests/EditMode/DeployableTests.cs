@@ -221,12 +221,12 @@ namespace TAP.Tests
         [Test]
         public void TheSameModule_DrivesAnAntennaAndABayDoor_WithNoCodeChange()
         {
-            // An antenna: the boom slides out, the dish tips up.
-            var (antennaPart, antenna) = Build("antenna_dish", "Boom", "Dish");
+            // An antenna: the boom slides out, the dish on it tips up.
+            var (antennaPart, antenna) = Build("antenna_dish", "Boom/Dish");
             antenna.Extend();
             Run(antenna, 6);
-            Assert.AreEqual(0.35f, antennaPart.ModelRoot.Find("Boom").localPosition.y, 1e-3f, "the boom slides 0.35 m");
-            Assert.AreEqual(-90, Mathf.DeltaAngle(0, antennaPart.ModelRoot.Find("Dish").localEulerAngles.x), 0.1f);
+            Assert.AreEqual(0.12f, antennaPart.ModelRoot.Find("Boom").localPosition.y, 1e-3f, "the boom slides 0.12 m");
+            Assert.AreEqual(-90, Mathf.DeltaAngle(0, antennaPart.ModelRoot.Find("Boom/Dish").localEulerAngles.x), 0.1f);
 
             // A bay: two doors swing apart.
             var (bayPart, bay) = Build("bay_s1", "DoorL", "DoorR");

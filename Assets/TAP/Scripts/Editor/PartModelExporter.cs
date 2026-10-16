@@ -61,7 +61,7 @@ namespace TAP.EditorTools
             doc.AppendLine("are placed from the part data. Workflow: [Docs/PART_MODELS.md](../../../Docs/PART_MODELS.md).");
             doc.AppendLine();
             int fbx = 0, obj = 0;
-            foreach (var def in db.Parts)
+            foreach (var def in db.AllParts) // the parts of releases to come too: they are hand-made from these
             {
                 var go = PartModelFactory.Build(def, 0, generated: true);
                 try
