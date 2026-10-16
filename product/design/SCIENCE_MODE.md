@@ -166,25 +166,29 @@ should cost a retry or a margin, rarely a mission:
 - A failure never counts against the test: if the conditions still hold, try again.
 - Certified and normal parts never fail. This is the only failure system in the game.
 
-### 6.4 Test missions (drafts)
+### 6.4 Test missions (chosen 2026-10-16)
 
-Examples to set the tone. The full draft list of 15 groups is in [09-tech-tree.md](../plan/09-tech-tree.md); TEC-06
-writes the final tests:
+TEC-06 writes each line as objectives and texts:
 
-| Group (lead part) | Test mission |
-|---|---|
-| Vacuum Propulsion (eng_ember) | Burn for 30 s above the atmosphere of Tellus |
-| Recovery (shield_s1) | Re-enter Tellus from orbit and land |
-| Landing I (leg_ls2) | Land on Luma |
-| Docking I (dock_s1) | Dock two vessels in orbit |
-| Nuclear Propulsion (eng_lantern) | Burn for 90 s in Luma orbit, with 2 restarts |
-| Rovers (wheel_m) | Drive 2 km on another body |
-| Ion Propulsion (eng_glimmer) | Thrust for 10 days in total beyond Rubra's orbit |
-| Resource Utilisation (isru_s) | Make fuel from ore on another body |
-| Field Lab (lab_nib) | Analyse a sample in orbit of another body |
-| Experimental Propulsion (eng_wedge) | Fire while on an escape trajectory from Astraea |
+| Group | Lead part | Test mission | Tier |
+|---|---|---|---|
+| Vacuum Propulsion | eng_ember | Ignite the Ember twice above Tellus's atmosphere | 2 |
+| Recovery | shield_s1 | Re-enter Tellus faster than 1,800 m/s from a suborbital arc, and land | 2 |
+| Landing I | leg_ls2 | Land on Tellus under 3 m/s on engines, with no parachutes | 3 |
+| Heavy Rocketry | eng_goliath | Put a 15 t payload into Tellus orbit | 4 |
+| Heavy Recovery | shield_s2 | Coming back from Luma, aerobrake into Tellus orbit with no engine burn, then land | 4 |
+| Docking I | dock_s1 | Dock two vessels in Tellus orbit | 4 |
+| Comms I | antenna_relay | Relay a probe's signal home while it is behind Luma | 4 |
+| Field Lab | lab_nib | Analyse a sample while landed on another body | 5 |
+| Rovers | wheel_m | Drive 2 km on another body | 6 |
+| Nuclear Propulsion | eng_lantern | Leave Tellus orbit on the Lantern and reach another planet's sphere of influence | 6 |
+| Ion Propulsion | eng_glimmer | Change velocity by 1,000 m/s in total beyond Rubra's orbit (ion thrusts only in physics warp, FLT-18) | 7 |
+| Deep Space Comms | antenna_relay_deep | Relay a signal home from Magnus | 7 |
+| Resource Utilisation | isru_s | Refuel a lander on another body with fuel made there, and fly it to orbit | 8 |
+| Experimental Propulsion | eng_wedge | Fire the Wedge while on an escape trajectory from Astraea | 9 |
+| Experimental Aerodynamics | shield_inflatable | Aerocapture at Rubra | 9 |
 
-The draft tree has 15 prototype groups (engines, shields, legs, docking, wheels, ISRU, the field lab and the relay
+The tree has 15 prototype groups (engines, shields, legs, docking, wheels, ISRU, the field lab and the relay
 antennas). Struts, tanks, fins and structures never have tests.
 
 ## 7. Science mode itself
@@ -206,12 +210,13 @@ antennas). Struts, tanks, fins and structures never have tests.
 
 Both are in `parts.json` (hidden until their milestone) and in [05-parts.md](../plan/05-parts.md).
 
+3. **The 15 prototype groups and their tests** (6.4), gone through one by one. No other node becomes a group for
+   now. The Wedge keeps the escape-from-Astraea test; a future interstellar drive (era 7) can get its own.
+
 ## 9. Still open
 
-1. **Which nodes are prototype groups.** The 15 in [09-tech-tree.md](../plan/09-tech-tree.md) are a draft. You choose
-   the final list (TEC-06).
-2. **Does a test pay science too?** Default: no, the unlock is the reward.
-3. **Depth levels** (better instruments reopening old subjects, options doc option 1) are not part of this design. A
+1. **Does a test pay science too?** Default: no, the unlock is the reward.
+2. **Depth levels** (better instruments reopening old subjects, options doc option 1) are not part of this design. A
    later addition if the mid-game runs dry.
 
 ## 10. In the plan

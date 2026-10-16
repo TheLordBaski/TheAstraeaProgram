@@ -33,30 +33,31 @@ lead part first.
 | 8 (1000) | **Research Outposts**: lab_quill · ★ **Resource Utilisation**: isru_s, isru_l, drill_s, drill_l, scanner_orbital, scanner_narrow, sensor_surface, ore_s1, ore_s2 · **Asteroid Handling**: grabber · **Heat Management II**: radiator_large, fuelcell_array · **Radioisotope Power**: rtg |
 | 9 (1600) | ★ **Experimental Propulsion**: eng_wedge, eng_vernier · ★ **Experimental Aerodynamics**: shield_inflatable, gridfin |
 
-51 nodes, 15 of them prototype groups. Every catalogue part appears exactly once (checked by script against
+51 nodes, 15 of them prototype groups (the list below, chosen with you). Every catalogue part appears exactly once (checked by script against
 `parts.json`). Ground Network levels are nodes or parts of nodes with no part of their own. Tier 9 is optional "late"
 content for long games.
 
-## Prototype groups and their test missions (drafts; TEC-06 writes the final ones, you choose the final list)
+## Prototype groups and their test missions (chosen with you, 2026-10-16)
 
-The prototype (the lead part) must do the test itself. Tests can be bundled on one flight.
+The prototype (the lead part) must do the test itself. Tests can be bundled on one flight. TEC-06 turns each line into
+objectives and texts.
 
 | Group | Lead part | Test mission | Tier |
 |---|---|---|---|
-| Vacuum Propulsion | eng_ember | Burn for 30 s above Tellus's atmosphere | 2 |
-| Recovery | shield_s1 | Re-enter Tellus from orbit and land | 2 |
-| Landing I | leg_ls2 | Land on Luma | 3 |
+| Vacuum Propulsion | eng_ember | Ignite the Ember twice above Tellus's atmosphere | 2 |
+| Recovery | shield_s1 | Re-enter Tellus faster than 1,800 m/s from a suborbital arc, and land | 2 |
+| Landing I | leg_ls2 | Land on Tellus under 3 m/s on engines, with no parachutes | 3 |
 | Heavy Rocketry | eng_goliath | Put a 15 t payload into Tellus orbit | 4 |
-| Heavy Recovery | shield_s2 | Re-enter Tellus on the way back from Luma | 4 |
-| Docking I | dock_s1 | Dock two vessels in orbit | 4 |
-| Comms I | antenna_relay | Relay a probe's signal home from behind Luma | 4 |
-| Field Lab | lab_nib | Analyse a sample in orbit of another body | 5 |
+| Heavy Recovery | shield_s2 | Coming back from Luma, aerobrake into Tellus orbit with no engine burn, then land | 4 |
+| Docking I | dock_s1 | Dock two vessels in Tellus orbit | 4 |
+| Comms I | antenna_relay | Relay a probe's signal home while it is behind Luma | 4 |
+| Field Lab | lab_nib | Analyse a sample while landed on another body | 5 |
 | Rovers | wheel_m | Drive 2 km on another body | 6 |
-| Nuclear Propulsion | eng_lantern | Burn for 90 s in Luma orbit, with 2 restarts | 6 |
-| Ion Propulsion | eng_glimmer | Thrust for 10 days in total beyond Rubra's orbit | 7 |
+| Nuclear Propulsion | eng_lantern | Leave Tellus orbit on the Lantern and reach another planet's sphere of influence | 6 |
+| Ion Propulsion | eng_glimmer | Change velocity by 1,000 m/s in total beyond Rubra's orbit (ion thrusts only in physics warp, FLT-18) | 7 |
 | Deep Space Comms | antenna_relay_deep | Relay a signal home from Magnus | 7 |
-| Resource Utilisation | isru_s | Make fuel from ore on another body | 8 |
-| Experimental Propulsion | eng_wedge | Fire while on an escape trajectory from Astraea | 9 |
+| Resource Utilisation | isru_s | Refuel a lander on another body with fuel made there, and fly it to orbit | 8 |
+| Experimental Propulsion | eng_wedge | Fire the Wedge while on an escape trajectory from Astraea | 9 |
 | Experimental Aerodynamics | shield_inflatable | Aerocapture at Rubra | 9 |
 
 ---
@@ -126,25 +127,26 @@ The prototype (the lead part) must do the test itself. Tests can be bundled on o
 - New conditions, each usable by later contracts too (CAR-04):
   - **by the prototype**: the condition counts only for the group's lead part on that vessel;
   - engine burn time (continuous or in total), ignitions and restarts;
-  - re-entry and aerocapture (survived, from which orbit or body);
+  - re-entry and aerocapture (survived, speed at entry, from which orbit or body, no engine burn in between);
   - landed or splashed speed, distance driven;
   - docked; payload mass in orbit;
   - a relay carrying another vessel's signal (SCI-13); a sample analysed (SCI-08); a resource produced (RES-04);
-  - trajectory: escaping a body or the star.
+  - trajectory: escaping a body or the star, reaching another body's sphere of influence;
+  - total velocity change by the prototype in a region (beyond a body's orbit).
 - Totals that grow over days (ion thrust) add up on rails as well.
 - A toast for each objective met and for the certification; progress is saved. Several tests can finish on one
   flight.
 
 **Done when**
 - [ ] Unit tests for each new condition.
-- [ ] The Lantern test passes in a scripted Luma-orbit flight and certifies Nuclear Propulsion.
+- [ ] The Ember test (two ignitions above the atmosphere) passes in a scripted flight and certifies Vacuum Propulsion.
 - [ ] One flight finishes two tests (an engine on the way out, a shield on the way back).
 
 ### TEC-06 · Test missions for every prototype group
 **Milestone** EA1 → EA4 · **Claude** 2 d · **You** 3 d · **Needs** TEC-05, TEC-01, ASM-11
 
 - One test per group, hand-written: objectives, a title, a one-line brief and a certification text, in the string
-  tables. Start from the draft table above; you choose the final list of groups.
+  tables, from the table above (groups and tests chosen with you on 2026-10-16).
 - Each milestone ships the tests of its groups.
 - A validator proves each test can be done with the parts available when its group can be researched (reference
   craft from ASM-11), so no group can lock the tree.
