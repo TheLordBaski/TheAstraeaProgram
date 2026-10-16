@@ -1,13 +1,14 @@
 # The part catalogue
 
-PRT-01 (2026-10-16). `Assets/TAP/Resources/Data/parts.json` holds every part of the plan, 168 in all
+PRT-01 (2026-10-16). `Assets/TAP/Resources/Data/parts.json` holds every part of the plan, 171 in all
 ([product/plan/05-parts.md](../product/plan/05-parts.md)). `Data/part_templates.json` holds the conventions they follow, and
 `PartTemplates.Check` measures every part against them (`PartCatalogueTests`). The rocketeer and the flag are two more entries that are
 never in the parts list.
 
 ## Releases
 
-Each part has a `milestone`: `M0` is the vertical slice (36 parts), then `EA1` to `EA4` add 40, 63, 9 and 20.
+Each part has a `milestone`: `M0` is the vertical slice (36 parts), then `EA1` to `EA4` add 41, 65, 9 and 20 (three of them, two relay dishes and a small lab, came with the
+science design of 2026-10-16).
 
 `part_templates.json` says which milestone is out (`"release"`, now `M0`). A part of a later milestone is **hidden**: it is not in the
 parts list, `PartDatabase.Get` doesn't find it and a craft that names it says "arrives with EA1". Parts of later milestones have

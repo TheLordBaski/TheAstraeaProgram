@@ -5,7 +5,7 @@ boosters, 4 coupling parts, 2 landing legs, 5 recovery parts, 7 utility parts an
 `parts.json` with procedural models, and any of them can be replaced by a hand-made FBX
 ([Docs/PART_MODELS.md](../../Docs/PART_MODELS.md)).
 
-**Goal for 1.0:** about 168 parts, a rocket catalogue as broad as KSP 1.0's, with 4 size classes:
+**Goal for 1.0:** about 171 parts, a rocket catalogue as broad as KSP 1.0's, with 4 size classes:
 
 | Class | Diameter |
 |---|---|
@@ -41,7 +41,8 @@ plain codes for structure. The final names come with PRT-01.
 | cabin_bunk | Bunk Crew Cabin | S1 | 2 seats, no control | EA4 |
 | cabin_hitch | Hitch Crew Module | S2 | 4 seats, no control | EA4 |
 | cupola_lookout | Lookout Cupola | S2 | 1 seat, control, windows | EA4 |
-| lab_quill | Quill Research Lab | S2 | 2 seats, science lab (SCI-08) | EA4 |
+| lab_nib | Nib Field Lab | S1 | 1 seat, lab: one sample at a time (SCI-08) | EA2 |
+| lab_quill | Quill Research Lab | S2 | 2 seats, lab: two samples at once (SCI-08) | EA4 |
 
 **Propellant and tanks** (the propellant model is decided, D-01: a tank holds a mix or one resource, as a volume; the rows below say which)
 
@@ -139,12 +140,14 @@ plain codes for structure. The final names come with PRT-01.
 | solar_fold | SP-2 Folding Panel | radial | deployable solar | EA1 |
 | antenna_whip | Whip Antenna | radial | fast, low power, short | EA1 |
 | antenna_dish | DS-1 Dish | radial | medium | EA1 |
+| antenna_relay | RA-2 Relay Dish | radial | relay, inner system (SCI-14) | EA1 |
 | light_spot | Spotlight | radial | light | EA1 |
 | ladder_fixed | Fixed Ladder | radial | EVA climbing | EA1 |
 | battery_s2 | Cell-1600 Bank | S2 | battery | EA2 |
 | solar_wing | SP-8 Solar Wing | radial | large deployable | EA2 |
 | radiator_panel, radiator_fold | RP-1 Radiator, RF-3 Folding Radiator | radial | heat (FLT-04) | EA2 |
 | antenna_highgain | HG-5 High-Gain Dish | radial | long range, slow deploy | EA2 |
+| antenna_relay_deep | RA-15 Deep Relay | radial | relay, outer system (SCI-14) | EA2 |
 | light_flood | Floodlight | radial | light | EA2 |
 | ladder_tele | Telescopic Ladder | radial | extends | EA2 |
 | solar_tracker | Sunfield Array | radial | huge, tracking | EA3 |
@@ -206,10 +209,13 @@ plain codes for structure. The final names come with PRT-01.
 | Milestone | New parts | Total |
 |---|---|---|
 | Have | — | 36 |
-| EA1 | +40 | 76 |
-| EA2 | +63 | 139 |
-| EA3 | +9 | 148 |
-| EA4 | +20 | 168 |
+| EA1 | +41 | 77 |
+| EA2 | +65 | 142 |
+| EA3 | +9 | 151 |
+| EA4 | +20 | 171 |
+
+The science design (2026-10-16, [SCIENCE_MODE.md](../design/SCIENCE_MODE.md)) added three: antenna_relay (EA1),
+antenna_relay_deep and lab_nib (EA2).
 
 ---
 
@@ -340,8 +346,8 @@ airbrake, shielded port, inflatable shield, two drills, two scanners. The transf
 ### PRT-07 · Science instrument parts
 **Milestone** EA1 · **Claude** 1 d · **You** 0.5 d · **Needs** SCI-03, PRT-02
 
-- Part definitions and configuration of the experiment module for each instrument: which situations it works in,
-  electricity use, whether it can be rerun, its size.
+- Part definitions and configuration of the instrument module (SCI-03) for each instrument: which situations it
+  works in, electricity use, single use or not, reading or sample, its size or mass.
 
 **Done when**
 - [ ] Every EA1 instrument can run in its valid situations and refuses the others with a reason.
@@ -413,7 +419,7 @@ airbrake, shielded port, inflatable shield, two drills, two scanners. The transf
 - [ ] Every reference craft reaches its target (orbit, Luma, Rubra…) with a 5 to 15% Δv margin.
 - [ ] No engine is strictly worse than another in its size and role (checked by a script).
 
-### PRT-12a · Content batch EA1 (40 parts)
+### PRT-12a · Content batch EA1 (41 parts)
 **Milestone** EA1 · **Claude** 3 d · **You** 2 d · **Needs** PRT-01, PRT-02, PRT-07
 
 - Data, stats, models, icons, descriptions and tech placement (TEC-01) for the EA1 rows. Each new part is used in
@@ -422,7 +428,7 @@ airbrake, shielded port, inflatable shield, two drills, two scanners. The transf
 **Done when**
 - [ ] All EA1 parts are visible, researchable in science mode and flown by at least one test.
 
-### PRT-12b · Content batch EA2 (63 parts)
+### PRT-12b · Content batch EA2 (65 parts)
 **Milestone** EA2 · **Claude** 4 d · **You** 3 d · **Needs** PRT-12a, PRT-08
 
 - Same for the EA2 rows: S3, rovers, nuclear and ion, radiators, control fins, docking sizes, structure.
@@ -437,4 +443,4 @@ airbrake, shielded port, inflatable shield, two drills, two scanners. The transf
   unit, struts and fuel lines.
 
 **Done when**
-- [ ] The catalogue is complete: 168 parts, all tested.
+- [ ] The catalogue is complete: 171 parts, all tested.

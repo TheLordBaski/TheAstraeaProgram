@@ -2,7 +2,7 @@
 
 **Status:** agreed with you on 2026-10-16. It replaces the open choice in
 [SCIENCE_AND_TECH_OPTIONS.md](SCIENCE_AND_TECH_OPTIONS.md) for the research half of the game. Plan files
-[08-science](../plan/08-science.md) and [09-tech-tree](../plan/09-tech-tree.md) are not rewritten yet (section 9).
+[08-science](../plan/08-science.md) and [09-tech-tree](../plan/09-tech-tree.md) carry it as tasks (section 10).
 
 ## 1. In one paragraph
 
@@ -73,7 +73,8 @@ Every finding is one of two kinds:
 
 ### 4.4 Labs
 
-A lab does two things, and only these two:
+There are two labs: lab_nib (S1, one seat, one sample at a time, tier 5) and lab_quill (S2, two seats, two at
+once, tier 8). A lab does two things, and only these two:
 
 - **Analyses samples.** A sample put into the lab becomes a reading of the same subject at full value, which can then
   be transmitted. Each sample takes lab time (hours, faster with more crew aboard) and electricity. The lab works on
@@ -167,7 +168,8 @@ should cost a retry or a margin, rarely a mission:
 
 ### 6.4 Test missions (drafts)
 
-Examples to set the tone. The final list is written per group in TEC-01:
+Examples to set the tone. The full draft list of 15 groups is in [09-tech-tree.md](../plan/09-tech-tree.md); TEC-06
+writes the final tests:
 
 | Group (lead part) | Test mission |
 |---|---|
@@ -179,11 +181,11 @@ Examples to set the tone. The final list is written per group in TEC-01:
 | Rovers (wheel_m) | Drive 2 km on another body |
 | Ion Propulsion (eng_glimmer) | Thrust for 10 days in total beyond Rubra's orbit |
 | Resource Utilisation (isru_s) | Make fuel from ore on another body |
-| Research Outposts (lab_quill) | Analyse a sample in orbit of another body |
+| Field Lab (lab_nib) | Analyse a sample in orbit of another body |
 | Experimental Propulsion (eng_wedge) | Fire while on an escape trajectory from Astraea |
 
-Rough count: 12–16 prototype groups in the draft tree (engines, shields, legs, docking, wheels, ISRU, lab, high-gain
-and relay antennas). Struts, tanks, fins and structures never have tests.
+The draft tree has 15 prototype groups (engines, shields, legs, docking, wheels, ISRU, the field lab and the relay
+antennas). Struts, tanks, fins and structures never have tests.
 
 ## 7. Science mode itself
 
@@ -195,30 +197,25 @@ and relay antennas). Struts, tanks, fins and structures never have tests.
   CommNet is a new-game switch there, on by default.
 - **Career** later uses all of this and adds funds, contracts and facility levels. That is designed separately.
 
-## 8. Still open
+## 8. Decided after the first pass (2026-10-16)
 
-1. **Lab tier.** lab_quill sits in tier 8. Analysing samples at a Rubra station (era 3) needs a smaller lab around
-   tier 5. Suggest: a small lab part in tier 5, the big one stays in tier 8.
-2. **Relay antennas.** The catalogue has whip, dish and high-gain, none of them relays. Suggest: two new relay parts
-   (short and long range) in the Comms branch, or a relay flag on the dish and the high-gain.
-3. **Which nodes are prototype groups.** The list in 6.4 is a draft. You choose the final 12–16.
-4. **Does a test pay science too?** Default: no, the unlock is the reward.
-5. **Depth levels** (better instruments reopening old subjects, options doc option 1) are not part of this design. A
+1. **Two labs.** A small lab, **lab_nib** (Nib Field Lab, S1, one seat, one sample at a time, EA2), sits in tier 5
+   so a station at Rubra can analyse samples. The big **lab_quill** (two seats, two samples at once) stays in tier 8.
+2. **Two relay parts.** **antenna_relay** (RA-2 Relay Dish, inner system, EA1, tier 4) and **antenna_relay_deep**
+   (RA-15 Deep Relay, outer system, EA2, tier 7). The whip, dish and high-gain stay direct.
+
+Both are in `parts.json` (hidden until their milestone) and in [05-parts.md](../plan/05-parts.md).
+
+## 9. Still open
+
+1. **Which nodes are prototype groups.** The 15 in [09-tech-tree.md](../plan/09-tech-tree.md) are a draft. You choose
+   the final list (TEC-06).
+2. **Does a test pay science too?** Default: no, the unlock is the reward.
+3. **Depth levels** (better instruments reopening old subjects, options doc option 1) are not part of this design. A
    later addition if the mid-game runs dry.
 
-## 9. Impact on the plan
+## 10. In the plan
 
-| Task | Change |
-|---|---|
-| D-22 (decisions) | Comms network moves before 1.0: full CommNet, no delay until interstellar |
-| FND-14 events | Needed by auto-recording and test objectives |
-| SCI-01 data model | First findings only, no diminishing returns or caps; reading or sample kind |
-| SCI-03 module | Auto-recording with toasts instead of the results dialog; EVA "Take sample" |
-| SCI-05 transmission | Replaced by CommNet: ground stations, antennas, relays, occlusion, bandwidth, partial control, map overlay |
-| SCI-07 storing data | Samples move between parts and docked vessels |
-| SCI-08 lab | Analyse samples and reset instruments only; no points over time; smaller lab earlier |
-| SCI-10 Science mode | As section 7 |
-| TEC-01…03 tree | Prototype groups, lead parts, test missions, Ground Network nodes, relay antennas |
-| New | Prototype failure system (6.3); test-mission tracking; CommNet |
-
-Estimates and new task IDs come with the plan rewrite.
+The plan was rewritten on 2026-10-16: [08-science.md](../plan/08-science.md) (SCI-01…16, with the comms network in
+SCI-13…16) and [09-tech-tree.md](../plan/09-tech-tree.md) (TEC-01…07, with test missions in TEC-05/06 and failures in
+TEC-07). D-22 in [19-decisions.md](../plan/19-decisions.md) moved the comms network before 1.0.

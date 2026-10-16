@@ -117,9 +117,10 @@ Crew personality is TAP's own. KSP's kerbals have courage and stupidity; TAP's r
 ### CRW-08 · EVA science
 **Milestone** EA1 · **Claude** 2 d · **You** 0.5 d · **Needs** SCI-03
 
-- **Crew Observation** (from inside) and **EVA Field Notes** (outside), **Surface Sample** (on the ground; in
-  career it needs the research facility at level 2).
-- **Carrying data**: take data from instruments on EVA, store it in any crewed pod or the lab, and carry it back.
+- **Crew Observation** (from inside) and **EVA Field Notes** (outside), both readings; **Surface Sample** (a "Take
+  sample" action on the ground; in career it needs the research facility at level 2).
+- **Carrying data**: take readings and samples from instruments on EVA, store them in any crewed pod or a lab, and
+  carry them back (SCI-07).
 
 **Done when**
 - [ ] A rocketeer collects a sample on Luma, stores it in the pod, and it is credited on recovery.

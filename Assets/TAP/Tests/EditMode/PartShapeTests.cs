@@ -89,7 +89,7 @@ namespace TAP.Tests
                 Assert.IsEmpty(def.nodes, def.id + " is radial");
                 n++;
             }
-            Assert.AreEqual(12, n, "panels, antennas, the light, the ladder, the instruments, the probe and the separation motor");
+            Assert.AreEqual(13, n, "panels, antennas, the light, the ladder, the instruments, the probe and the separation motor");
         }
 
         [Test]
@@ -105,7 +105,7 @@ namespace TAP.Tests
                     Assert.IsNotNull(model.Find(m.transform), $"{def.id}: the model has no piece \"{m.transform}\"");
                 n++;
             }
-            Assert.AreEqual(2, n, "the folding panel and the dish");
+            Assert.AreEqual(3, n, "the folding panel, the dish and the relay dish");
         }
 
         [Test]

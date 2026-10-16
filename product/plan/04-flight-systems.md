@@ -94,6 +94,7 @@ in [19-decisions.md](19-decisions.md). Format and rules: [Docs/RESOURCES.md](../
 - A vessel is **controllable** when it has a crewed pod, an external seat with a rocketeer, or a probe core with
   charge. Otherwise it is **uncontrolled**: no SAS, throttle, steering or staging.
 - SAS modes come from the best probe-core level on board or the best pilot level (CRW-03). Sandbox allows all.
+- A probe with no signal home has partial control (SCI-15).
 
 **Done when**
 - [ ] Uncrewed debris can't be flown.

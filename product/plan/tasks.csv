@@ -75,7 +75,7 @@ PRT-04,Procedural fairings,05-parts.md,EA1,EA1,5.0,1.0,False,PRT-03
 PRT-07,Science instrument parts,05-parts.md,EA1,EA1,1.0,0.5,False,SCI-03 PRT-02
 PRT-09,Part information and comparison,05-parts.md,EA1,EA1,2.0,0.5,False,
 PRT-10,Descriptions and manufacturer lore,05-parts.md,EA1,EA1,2.0,1.0,False,PRT-01
-PRT-12a,Content batch EA1 (40 parts),05-parts.md,EA1,EA1,3.0,2.0,False,PRT-01 PRT-02 PRT-07
+PRT-12a,Content batch EA1 (41 parts),05-parts.md,EA1,EA1,3.0,2.0,False,PRT-01 PRT-02 PRT-07
 QA-02,Autotest framework v2,17-quality.md,EA1,EA1,3.0,0.5,False,FND-11
 QA-03,Save compatibility suite,17-quality.md,EA1,EA1,1.0,0.0,False,FND-05
 QA-04,Playtesting program,17-quality.md,EA1,EA1 → R1,1.0,12.0,False,REL-05
@@ -88,15 +88,19 @@ REL-07,Linux and Steam Deck,18-release.md,EA1,EA1,2.0,1.0,False,FND-11
 REL-08,Demo (optional),18-release.md,EA1,EA1,1.0,1.0,False,REL-04
 SCI-01,Science data model,08-science.md,EA1,EA1,3.0,1.0,False,FND-05 FND-02
 SCI-02,Situations and biome detection,08-science.md,EA1,EA1,2.0,0.5,False,FND-02 SCI-01
-SCI-03,Experiment module and results dialog,08-science.md,EA1,EA1,4.0,1.0,False,SCI-02
+SCI-03,Instrument module and automatic recording,08-science.md,EA1,EA1,4.0,1.0,False,SCI-02 FND-14
 SCI-04,Result texts,08-science.md,EA1,EA1,3.0,2.0,False,SCI-03 FND-10
-SCI-05,Transmission and antennas,08-science.md,EA1,EA1,3.0,0.5,False,FLT-02 PRT-02
+SCI-05,Transmission queue and background processes,08-science.md,EA1,EA1,3.0,0.5,False,SCI-01 SCI-13 FLT-02
 SCI-06,Recovery science and the recovery dialog,08-science.md,EA1,EA1,2.0,0.5,False,SCI-01
-SCI-07,Storing and carrying data,08-science.md,EA1,EA1,2.0,0.5,False,SCI-03 CRW-08
+SCI-07,Storing and carrying data and samples,08-science.md,EA1,EA1,2.0,0.5,False,SCI-03 CRW-08
 SCI-09,Science archive in R&D,08-science.md,EA1,EA1,2.0,0.5,False,SCI-01 HUB-02
-SCI-10,Science mode,08-science.md,EA1,EA1,2.0,1.0,False,FND-06 TEC-02 SCI-01
+SCI-10,Science mode,08-science.md,EA1,EA1,2.0,1.0,False,FND-06 TEC-02 SCI-01 SCI-13
 SCI-11,Science balance,08-science.md,EA1,EA1,2.0,3.0,False,SCI-10 TEC-01
-SCI-12,Science autotests,08-science.md,EA1,EA1,2.0,0.0,False,SCI-03 QA-02
+SCI-12,Science and comms autotests,08-science.md,EA1,EA1,3.0,0.0,False,SCI-03 SCI-15 QA-02
+SCI-13,Comms network: links and paths,08-science.md,EA1,EA1,5.0,0.5,False,FND-01 PRT-03
+SCI-14,Antenna and relay parts,08-science.md,EA1,EA1 → EA2,1.5,1.0,False,SCI-13 SYS-01 PRT-02
+SCI-15,Probe control without signal,08-science.md,EA1,EA1,2.0,0.5,False,SCI-13 FLT-03
+SCI-16,Comms overlay and signal readout,08-science.md,EA1,EA1,2.0,1.0,False,SCI-13 NAV-01 NAV-06
 SYS-02,"The star: light, heat and danger",02-solar-system.md,EA1,EA1,2.0,0.5,False,FND-01 FND-03
 SYS-03,"Pruina, the icy moon",02-solar-system.md,EA1,EA1,2.0,1.0,False,FND-02
 SYS-04,"Rubra, the red desert",02-solar-system.md,EA1,EA1,3.0,1.5,False,FND-02 FLT-05
@@ -104,9 +108,12 @@ SYS-05,"Vigil, Rubra's moon",02-solar-system.md,EA1,EA1,1.5,0.5,False,SYS-04
 SYS-16,Body data tests,02-solar-system.md,EA1,EA1,1.0,0.0,False,FND-02
 SYS-18,Δv map and body pages,02-solar-system.md,EA1,EA1,1.0,0.5,False,SYS-01 UX-07
 TEC-01,Research tree design,09-tech-tree.md,EA1,EA1,2.0,2.0,False,PRT-01 SYS-01
-TEC-02,Tech state and unlocking,09-tech-tree.md,EA1,EA1,2.0,0.5,False,TEC-01 FND-06
+TEC-02,Tech state and unlocking,09-tech-tree.md,EA1,EA1,2.5,0.5,False,TEC-01 FND-06
 TEC-03,R&D facility screen,09-tech-tree.md,EA1,EA1,3.0,1.0,False,TEC-02 HUB-02
 TEC-04,Tree balance,09-tech-tree.md,EA1,EA1,1.0,2.0,False,TEC-01 SCI-11
+TEC-05,Prototype test missions,09-tech-tree.md,EA1,EA1,4.0,1.0,False,TEC-02 FND-14
+TEC-06,Test missions for every prototype group,09-tech-tree.md,EA1,EA1 → EA4,2.0,3.0,False,TEC-05 TEC-01 ASM-11
+TEC-07,Prototype failures,09-tech-tree.md,EA1,EA1,3.0,0.5,False,TEC-02 FLT-18
 UX-02,Main menu and new-game flow,13-ui-ux.md,EA1,EA1,2.0,0.5,False,FND-05 FND-06
 UX-03,Settings screen,13-ui-ux.md,EA1,EA1,2.0,0.5,False,FND-08 FND-09
 UX-04,Flight HUD readability pass,13-ui-ux.md,EA1,EA1,3.0,2.0,False,UX-01
@@ -139,7 +146,8 @@ NAV-10,Alarm clock,03-navigation.md,EA2,EA2,2.0,0.5,False,NAV-02
 PRT-06,Crew parts and crew transfer,05-parts.md,EA2,EA2,3.0,0.5,False,CRW-01
 PRT-08,Procedural models for the EA2–EA4 shapes,05-parts.md,EA2,EA2,5.0,1.0,False,PRT-02
 PRT-11,Part balance,05-parts.md,EA2,EA2,2.0,3.0,False,PRT-01 SYS-17
-PRT-12b,Content batch EA2 (63 parts),05-parts.md,EA2,EA2,4.0,3.0,False,PRT-12a PRT-08
+PRT-12b,Content batch EA2 (65 parts),05-parts.md,EA2,EA2,4.0,3.0,False,PRT-12a PRT-08
+SCI-08,Labs,08-science.md,EA2,EA2,3.0,1.0,False,SCI-05 SCI-07 PRT-06
 SYS-06,"Ignis, the scorched inner planet",02-solar-system.md,EA2,EA2,2.0,1.0,False,FND-02 SYS-02
 SYS-07,"Caligo, the hazy sea world",02-solar-system.md,EA2,EA2,3.0,1.5,False,FND-02 FLT-04 FLT-05
 SYS-08,"Mica, Caligo's pebble",02-solar-system.md,EA2,EA2,1.0,0.5,False,FND-02
@@ -185,7 +193,6 @@ RES-04,Converters,12-resources-asteroids.md,EA4,EA4,2.0,0.5,False,RES-03 FLT-01
 RES-05,Asteroids,12-resources-asteroids.md,EA4,EA4,4.0,1.0,False,NAV-06 SYS-09
 RES-06,Capturing and moving asteroids,12-resources-asteroids.md,EA4,EA4,3.0,1.0,False,RES-05 FLT-11
 RES-07,ISRU and asteroid autotests,12-resources-asteroids.md,EA4,EA4,2.0,0.0,False,RES-04 RES-06 QA-02
-SCI-08,Research lab,08-science.md,EA4,EA4,3.0,1.0,False,SCI-07 PRT-06
 ART-03e,"Hero parts, batch 5",15-art.md,EA5,EA5,0.5,5.0,False,ART-03d
 ART-05,Rocketeers (characters),15-art.md,EA5,EA5,2.0,6.0,False,D-05
 CRW-07,"Swimming, falling and ragdoll",07-crew-eva.md,EA5,EA5,3.0,1.0,False,ART-05

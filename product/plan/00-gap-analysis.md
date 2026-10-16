@@ -11,7 +11,7 @@ What KSP had at its 1.0 release (April 2015), what TAP's vertical slice has (ver
 | KSP 1.0 | TAP now | Status | Tasks |
 |---|---|---|---|
 | Sandbox mode | sandbox game with saves | Have | — |
-| Science mode | — | Missing | FND-06, SCI-01…12, TEC-01…04 |
+| Science mode | — | Missing | FND-06, SCI-01…16, TEC-01…07 |
 | Career mode (funds, reputation, contracts, facilities, strategies) | the Luma mission guide only | Missing | CAR-01…12, HUB-04, CRW-02…05 |
 | Difficulty options | — | Missing | CAR-09 |
 | Training (tutorials) and scenarios | a mission guide with hints for the Luma mission | Partial | UX-05, UX-06 |
@@ -52,11 +52,11 @@ What KSP had at its 1.0 release (April 2015), what TAP's vertical slice has (ver
 
 | KSP 1.0 | TAP now | Status | Tasks |
 |---|---|---|---|
-| A broad rocket catalogue in 4 sizes | 36 parts, 3 sizes | Partial | PRT-01, PRT-12a/b/c (168 at 1.0) |
+| A broad rocket catalogue in 4 sizes | 36 parts, 3 sizes | Partial | PRT-01, PRT-12a/b/c (171 at 1.0) |
 | Liquid engines by role, solid boosters, RCS | have (4 engines, 2 solid, 1 RCS) | Partial | PRT-12a/b |
 | Nuclear, ion and aerospike engines | — | Missing | FLT-18, PRT-12b/c |
 | Solar panels, RTG, fuel cells | batteries only | Missing | FLT-02, PRT-12a/b/c |
-| Antennas and transmitting | — | Missing | SCI-05 |
+| Antennas and transmitting (TAP: a comms network with relays, which KSP added after 1.0) | — | Missing | SCI-05, SCI-13…16 |
 | Science instruments | — | Missing | SCI-03, PRT-07 |
 | Docking ports in several sizes | one size | Partial | FLT-10 |
 | Landing legs, parachutes, heat shields | have | Have | more sizes in PRT-12a/b |
@@ -120,10 +120,10 @@ What KSP had at its 1.0 release (April 2015), what TAP's vertical slice has (ver
 
 | KSP 1.0 | TAP now | Status | Tasks |
 |---|---|---|---|
-| Experiments × situations × biomes, diminishing returns | — | Missing | SCI-01…03 |
-| Transmit vs recover | — | Missing | SCI-05, SCI-06 |
-| Science lab | — | Missing | SCI-08 |
-| Research tree | — | Missing | TEC-01…04 |
+| Experiments × situations × biomes (TAP: automatic, first findings only, no diminishing returns) | — | Missing | SCI-01…03 |
+| Transmit vs recover (TAP: readings at full value over a link, samples carried) | — | Missing | SCI-05, SCI-06, SCI-13 |
+| Science lab (TAP: analyses samples, resets instruments) | — | Missing | SCI-08 |
+| Research tree (TAP: with prototype groups and test missions) | — | Missing | TEC-01…07 |
 
 ## Presentation
 

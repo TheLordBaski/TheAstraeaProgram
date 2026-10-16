@@ -9,7 +9,7 @@ It adds TAP's own additions:
 - planned expansions for more star systems and trade routes.
 
 **What it contains:**
-- 209 tasks in 18 workstreams;
+- 216 tasks in 18 workstreams;
 - milestones from the first internal foundations to 1.0;
 - estimates for a solo developer working with Claude;
 - the decisions still open.
@@ -25,7 +25,7 @@ Written 2026-09-27, after the vertical slice (M0).
 | [02-solar-system.md](02-solar-system.md) | **SYS**: the 17-body home system (table of worlds) and one task per world, with body tests and autotests |
 | [03-navigation.md](03-navigation.md) | **NAV**: solar-scale map, multi-SOI conics, rendezvous aids, node editor, transfer planner, tracking station, vessel types, waypoints, body info, alarms |
 | [04-flight-systems.md](04-flight-systems.md) | **FLT**: propellants, electricity, control rules, heat, rocket aero, resource transfer, action groups, rovers, clamps, docking, grabbing unit, performance |
-| [05-parts.md](05-parts.md) | **PRT**: the catalogue from 36 to 168 parts (full table), procedural shapes, deployables, fairings, struts, crew parts |
+| [05-parts.md](05-parts.md) | **PRT**: the catalogue from 36 to 171 parts (full table), procedural shapes, deployables, fairings, struts, crew parts |
 | [06-assembly-building.md](06-assembly-building.md) | **ASM**: part browser, tweakables, action groups, subassemblies, craft browser, gizmos, crew assignment, Engineer's Report, stock craft |
 | [07-crew-eva.md](07-crew-eva.md) | **CRW**: traits, levels, hiring, rescue and tourists, ladders, swimming, EVA science, seats, portraits, interiors |
 | [08-science.md](08-science.md) | **SCI**: experiments (table), situations, biomes, transmission, recovery, lab, archive, science mode |
@@ -93,10 +93,10 @@ Open decisions, each with a recommendation, are in [19-decisions.md](19-decision
 | Milestone | Goal | Headline content | Tasks | Claude d | You d |
 |---|---|---|---|---|---|
 | **M1 Foundations** (internal) | A base for many worlds, modes and platforms | star-centred and multi-system architecture, data terrain and biomes, saves v2, game modes, hub scene flow, settings, rebinding, Linux build and CI, performance budgets, design system, style guide, audio architecture, legal and name check | 24 | 54 | 23 |
-| **EA1 "First Light"** (Early Access launch) | A complete science game in the home neighbourhood, with a first planet | sandbox and **science** modes; research tree; 8 experiments with biomes (12 by EA5); the star, **Pruina**, **Rubra** and **Vigil**; 76 parts; electricity, solar power, antennas, fairings, ladders, action groups, tweakables; hub and tracking station; map at solar scale with rendezvous aids; audio and music; tutorials 1–7, handbook, settings; HUD clarity and visual clarity passes; 12 hand-made parts; Steam page, trailer, Windows and Linux | 95 | 216 | 106 |
-| **EA2 "Worlds"** | The whole home system | the other 11 worlds (Ignis, Caligo, Mica, Rupes and the belt, Magnus with rings, Maris, Gelida, Gravis, Lapis, Granum, Remota); rovers; heat v2 and radiators; nuclear and ion engines; control fins and airbrakes; S3 parts (139 total); transfer planner, alarms; docking sizes; autotests to every world | 35 | 88 | 54 |
-| **EA3 "Agency"** | Career mode | funds, reputation, facility levels, contracts (8 types), world firsts, strategies, difficulty, economy balance; crew traits, levels, hiring, rescue and tourists; waypoints; buildings art | 24 | 55 | 40 |
-| **EA4 "Frontier"** | Living off the land | ore, scanners, drills, converters; asteroids and the grabbing unit; stations and outposts (lab, cabins, cupola), struts and fuel lines; the last parts (168 total); station, outpost, resource and asteroid contracts | 15 | 36 | 24 |
+| **EA1 "First Light"** (Early Access launch) | A complete science game in the home neighbourhood, with a first planet | sandbox and **science** modes; research tree; 8 experiments with biomes (12 by EA5); the star, **Pruina**, **Rubra** and **Vigil**; 76 parts; electricity, solar power, antennas, fairings, ladders, action groups, tweakables; hub and tracking station; map at solar scale with rendezvous aids; audio and music; tutorials 1–7, handbook, settings; HUD clarity and visual clarity passes; 12 hand-made parts; Steam page, trailer, Windows and Linux | 102 | 235 | 110 |
+| **EA2 "Worlds"** | The whole home system | the other 11 worlds (Ignis, Caligo, Mica, Rupes and the belt, Magnus with rings, Maris, Gelida, Gravis, Lapis, Granum, Remota); rovers; heat v2 and radiators; nuclear and ion engines; control fins and airbrakes; S3 parts (139 total); transfer planner, alarms; docking sizes; autotests to every world | 38 | 93 | 56 |
+| **EA3 "Agency"** | Career mode | funds, reputation, facility levels, contracts (8 types), world firsts, strategies, difficulty, economy balance; crew traits, levels, hiring, rescue and tourists; waypoints; buildings art | 25 | 55 | 40 |
+| **EA4 "Frontier"** | Living off the land | ore, scanners, drills, converters; asteroids and the grabbing unit; stations and outposts (lab, cabins, cupola), struts and fuel lines; the last parts (168 total); station, outpost, resource and asteroid contracts | 15 | 33 | 23 |
 | **EA5 "Faces"** | Character and polish | rocketeer art and animation, portraits, interiors, swimming and ragdoll; landmarks; scenarios; destructible facilities; modding (content packs and plugins) | 14 | 33 | 28 |
 | **R1 1.0** | Launch | balance and bug fixing across modes, release candidate testing, press and trailer, leaving Early Access | 3 | 1 | 8 |
 | **X1 / X2** (after 1.0) | Expansions | multiple star systems (X1) and trade routes (X2); you define them first ([20](20-multi-system-and-trade.md)) | 9 | TBD | TBD |
@@ -126,10 +126,10 @@ would predict, but it was a greenfield sprint. Content, balance and integration 
 
 | Scenario | Claude lane | M1 + EA1 (first sale) | To 1.0 |
 |---|---|---|---|
-| **Plan pace**: estimates as written | 481 d | about 14 months full-time · 2.3 years at half-time | about 25 months full-time · 4 years half-time |
-| **Slice pace**: Claude lane ~3× faster | ~160 d | about 7 months full-time · 14 months half-time | about 15 months full-time · 2.5 years half-time |
+| **Plan pace**: estimates as written | 505 d | about 15 months full-time · 2.5 years at half-time | about 26 months full-time · 4.4 years half-time |
+| **Slice pace**: Claude lane ~3× faster | ~168 d | about 7 months full-time · 14 months half-time | about 15 months full-time · 2.5 years half-time |
 
-The **You** lane (281 days to 1.0) doesn't speed up with AI. At slice pace it becomes the bottleneck: art, audio
+The **You** lane (289 days to 1.0) doesn't speed up with AI. At slice pace it becomes the bottleneck: art, audio
 choices, playtesting and store work.
 
 Ways to shorten:
@@ -157,8 +157,8 @@ Everything else in EA1 is what a credible science-mode launch needs.
 1. **Foundations first**: FND-15 → FND-01 → FND-03 → NAV-01 → NAV-02. Every world, the map and interplanetary play
    hang on the star-centred, multi-system core. FND-02 (terrain and biomes as data) unlocks every new world and all
    of science.
-2. **Science loop for EA1**: FND-02 → SCI-01 → SCI-02 → SCI-03 → SCI-10 → TEC-02 → TEC-03 → balance (SCI-11,
-   TEC-04).
+2. **Science loop for EA1** ([design](../design/SCIENCE_MODE.md)): FND-02 → SCI-01 → SCI-02 → SCI-03 → SCI-13
+   (comms network) → SCI-05 → SCI-10 → TEC-02 → TEC-05 (test missions) → TEC-03 → balance (SCI-11, TEC-04).
 3. **Hub**: FND-06 → FND-07 → HUB-02 → the R&D, tracking station and launch screens.
 4. **Content**: PRT-01 → PRT-02 → PRT-12a → ASM-01.
 5. **Proof**: FND-11 (CI, Linux) → QA-02 (autotests v2) → mission tests for every new feature → REL-06 releases.

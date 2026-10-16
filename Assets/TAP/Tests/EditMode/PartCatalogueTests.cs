@@ -21,17 +21,17 @@ namespace TAP.Tests
         [Test]
         public void Catalogue_HasEveryPartOfThePlan_ByRelease()
         {
-            // The plan's counts (05-parts.md): 36 in the slice, then +40, +63, +9, +20 = 168. The rocketeer and the flag are not parts you build.
+            // The plan's counts (05-parts.md): 36 in the slice, then +41, +65, +9, +20 = 171. The rocketeer and the flag are not parts you build.
             var built = Db.AllParts.Where(p => p.category != "Hidden").ToList();
             Assert.AreEqual(36, built.Count(p => p.milestone == "M0"));
-            Assert.AreEqual(40, built.Count(p => p.milestone == "EA1"));
-            Assert.AreEqual(63, built.Count(p => p.milestone == "EA2"));
+            Assert.AreEqual(41, built.Count(p => p.milestone == "EA1"));
+            Assert.AreEqual(65, built.Count(p => p.milestone == "EA2"));
             Assert.AreEqual(9, built.Count(p => p.milestone == "EA3"));
             Assert.AreEqual(20, built.Count(p => p.milestone == "EA4"));
-            Assert.AreEqual(168, built.Count);
+            Assert.AreEqual(171, built.Count);
             // Every id of the plan's table is there: the ones named in the catalogue document.
             foreach (string id in new[] { "pod_mayfly1", "eng_wasp", "srb_spit", "tank_s3_long", "coupler_quad_s3", "solar_fold", "antenna_highgain", "sci_gravimeter",
-                                          "wheel_l", "drill_l", "isru_s", "grabber", "fuel_line", "shield_inflatable", "hydro_s2", "xenon_radial", "lab_quill" })
+                                          "wheel_l", "drill_l", "isru_s", "grabber", "fuel_line", "shield_inflatable", "hydro_s2", "xenon_radial", "lab_quill", "lab_nib", "antenna_relay", "antenna_relay_deep" })
                 Assert.IsNotNull(Db.GetAny(id), id);
         }
 
@@ -103,7 +103,7 @@ namespace TAP.Tests
 
             PartDatabase.ShowUnreleased = true;
             Assert.IsNotNull(Db.Get("eng_wasp"), "tools and tests can see everything");
-            Assert.AreEqual(170, Db.Parts.Count);
+            Assert.AreEqual(173, Db.Parts.Count);
         }
 
         [Test]
