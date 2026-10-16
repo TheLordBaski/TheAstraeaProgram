@@ -1,6 +1,7 @@
 # Science, technology and progression: options for career mode
 
-**Status:** options for you to choose from or mix. Written 2026-10-10. Nothing in `product/plan/` has been changed.
+**Status:** superseded for the research half by [SCIENCE_MODE.md](SCIENCE_MODE.md) (agreed 2026-10-16: science points,
+prototype groups with test missions, full CommNet, labs). Kept as background. Written 2026-10-10.
 When you choose, I turn the choice into tasks and rewrite [08-science](../plan/08-science.md),
 [09-tech-tree](../plan/09-tech-tree.md) and the research parts of [10-career](../plan/10-career.md).
 
