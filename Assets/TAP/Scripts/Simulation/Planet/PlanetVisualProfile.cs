@@ -68,10 +68,12 @@ namespace TAP.Simulation
         public bool SatelliteAlbedo;
         [Range(0,1),Tooltip("Satellite landscape detail between orbit and the ground materials. Live.")]
         public float SatelliteDetail = .7f;
+        [Range(0,1),Tooltip("How far each colour rule moves from the terrain palette towards its real landscape's mean colour. 0 keeps an alien palette (violet vegetation) and takes only the texture's light and shade. Requires Bake all.")]
+        public float SatelliteRealism = .55f;
         public const int SatelliteAlbedoWidth = 8192;
         public string TerrainHash;
         public string SurfaceBakeKey,WeatherBakeKey,AtmosphereBakeKey;
-        public string ExpectedSurfaceKey(TAP.Core.CelestialBody body,int width=4096) => Key(3,Version,width,SatelliteAlbedo,body.Radius,body.HasOcean,body.HasAtmosphere,TAP.Core.TerrainFingerprint.Hash(body.Def.terrain));
+        public string ExpectedSurfaceKey(TAP.Core.CelestialBody body,int width=4096) => Key(3,Version,width,SatelliteAlbedo ? (object)("True:"+SatelliteRealism.ToString(System.Globalization.CultureInfo.InvariantCulture)) : false,body.Radius,body.HasOcean,body.HasAtmosphere,TAP.Core.TerrainFingerprint.Hash(body.Def.terrain));
         public string ExpectedWeatherKey() => Key(7,Version,4096,2048,WeatherSeed,CloudCoverage,(int)WeatherMode,Mathf.Max(0,LargeCloudBanks),Mathf.Max(0,SmallCloudPatches),Mathf.Max(0,ThinCloudFronts),WeatherSourceFile??"",WeatherSourceHash??"",CloudRelief);
         public string ExpectedAtmosphereKey(TAP.Core.CelestialBody body) => Key(3,Version,AtmosphereLuts.TransmittanceWidth,AtmosphereLuts.TransmittanceHeight,AtmosphereLuts.MultiSize,body.Radius,body.Atmosphere?.Height??0,Rayleigh.r,Rayleigh.g,Rayleigh.b,RayleighHeight,Mie,MieHeight,Ozone.r,Ozone.g,Ozone.b);
         static string Key(params object[] values)

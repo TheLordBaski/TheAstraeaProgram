@@ -22,7 +22,7 @@ MonoBehaviour:
   WeatherNormal: {fileID: 2800000, guid: eb855b885078f7d4da1236ce8f14db46, type: 3}
   Transmittance: {fileID: 2800000, guid: 7ec3b36c11e6c274c89fd29399f485ad, type: 3}
   MultiScattering: {fileID: 2800000, guid: 9e964a6dbdaa4154d98ebb950d0eee73, type: 3}
-  Rayleigh: {r: 0.0000058, g: 0.0000135, b: 0.0000331, a: 1}
+  Rayleigh: {r: 0.000004, g: 0.0000175, b: 0.000028, a: 1}
   RayleighHeight: 8000
   Mie: 0.000006
   MieHeight: 1200
@@ -50,15 +50,16 @@ MonoBehaviour:
   SurfaceTint: {r: 1, g: 1, b: 1, a: 1}
   SurfaceNormalStrength: 1.6
   OceanColourBlend: 1
-  OceanColour: {r: 0.07, g: 0.19, b: 0.33, a: 1}
-  OceanShallowColour: {r: 0.17, g: 0.52, b: 0.55, a: 1}
+  OceanColour: {r: 0.03, g: 0.4, b: 0.46, a: 1}
+  OceanShallowColour: {r: 0.12, g: 0.85, b: 0.82, a: 1}
   GroundDetail: 0.72
   OceanRoughness: 0.24
   RegionalDetail: 0
   RegionalDetailScale: 18000
   SatelliteAlbedo: 1
   SatelliteDetail: 0.7
-  TerrainHash: cd3795b5de6d5872
-  SurfaceBakeKey: 5ac1661ef791a6b9d40fda9404dc5460
+  SatelliteRealism: 0
+  TerrainHash: 7d4025dde689dd4a
+  SurfaceBakeKey: c6066c47a02aee95f1b57d0f653305cc
   WeatherBakeKey: f60cc039645f5562b39d753db990f525
-  AtmosphereBakeKey: 7a1cbc66a35cec9e9193619c5e1e8526
+  AtmosphereBakeKey: 9d700da7a9471fbfa7658d1e25d5aa31

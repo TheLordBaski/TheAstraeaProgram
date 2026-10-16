@@ -19,6 +19,7 @@ namespace TAP.Editor
         static CelestialSystem system;
         static int bodyIndex;
         static bool weatherOnly;
+        static string onlyBody;
         sealed class Settings
         {
             public int Seed; public float Coverage;
@@ -27,17 +28,19 @@ namespace TAP.Editor
             public WeatherSourceMode WeatherMode;
             public Color32[] Source; public int SourceWidth,SourceHeight; public float CloudRelief;
             public string SurfaceKey,WeatherKey,AtmosphereKey;
-            public SurfaceAlbedoSynth.Set Exemplars; public int AlbedoWidth;
+            public SurfaceAlbedoSynth.Set Exemplars; public int AlbedoWidth; public float Realism;
         }
         sealed class Bake { public CelestialBody Body; public Color32[] Color, Normal, Mask, Weather, WeatherNormal; public Color[] Lut, MultiScatter; public int Width, AlbedoWidth; public Settings Settings; }
 
         [MenuItem("TAP/Planet visuals/Bake all")]
-        public static void Start()
+        public static void Start() => Start(null);
+        /// <summary>Bakes one body (id) or all (null). A single body leaves the shared material library alone.</summary>
+        public static void Start(string only)
         {
             if (pending != null) throw new InvalidOperationException("A planet bake is already running.");
             Directory.CreateDirectory(Root);
             AssetDatabase.Refresh();
-            weatherOnly=false;BuildLibrary();
+            onlyBody=only;weatherOnly=false;if(only==null) BuildLibrary();
             system = CelestialSystem.LoadFromResources(); bodyIndex = 0;
             EditorApplication.update -= Poll;
             EditorApplication.update += Poll;
@@ -47,12 +50,12 @@ namespace TAP.Editor
         public static void StartWeatherOnly()
         {
             if(pending!=null) throw new InvalidOperationException("A planet bake is already running.");
-            weatherOnly=true;system=CelestialSystem.LoadFromResources();bodyIndex=0;
+            onlyBody=null;weatherOnly=true;system=CelestialSystem.LoadFromResources();bodyIndex=0;
             EditorApplication.update-=Poll;EditorApplication.update+=Poll;Next();
         }
         static void Next()
         {
-            while (bodyIndex < system.Bodies.Count && (system.Bodies[bodyIndex].IsStar || (weatherOnly && !system.Bodies[bodyIndex].HasAtmosphere))) bodyIndex++;
+            while (bodyIndex < system.Bodies.Count && (system.Bodies[bodyIndex].IsStar || (onlyBody != null && system.Bodies[bodyIndex].Id != onlyBody) || (weatherOnly && !system.Bodies[bodyIndex].HasAtmosphere))) bodyIndex++;
             if (bodyIndex >= system.Bodies.Count) { Status = "Complete"; EditorApplication.update -= Poll; AssetDatabase.SaveAssets(); return; }
             var b = system.Bodies[bodyIndex++];
             var path=Root+b.Id+".asset";var profile=AssetDatabase.LoadAssetAtPath<PlanetVisualProfile>(path);
@@ -63,7 +66,7 @@ namespace TAP.Editor
             // Snapshot authoring values on the main thread. A mid-bake edit cannot bless stale worker output.
             var settings=new Settings { Seed=profile.WeatherSeed,Coverage=profile.CloudCoverage,Sky=AtmosphereLuts.Params.Of(b,profile),WeatherMode=profile.WeatherMode,
                 LargeCloudBanks=Math.Max(0,profile.LargeCloudBanks),SmallCloudPatches=Math.Max(0,profile.SmallCloudPatches),ThinCloudFronts=Math.Max(0,profile.ThinCloudFronts),
-                CloudRelief=profile.CloudRelief,SurfaceKey=profile.ExpectedSurfaceKey(b),AtmosphereKey=profile.ExpectedAtmosphereKey(b) };
+                CloudRelief=profile.CloudRelief,Realism=profile.SatelliteRealism,SurfaceKey=profile.ExpectedSurfaceKey(b),AtmosphereKey=profile.ExpectedAtmosphereKey(b) };
             // Source art stays outside version control (Docs/PLANET_VISUALS_SOURCES.md). Without it a bake would replace
             // the committed maps with procedural weather and flat colours, so it stops instead.
             string missing=b.HasAtmosphere && !string.IsNullOrWhiteSpace(profile.WeatherSourceFile) && !File.Exists(profile.WeatherSourceFile)
@@ -237,7 +240,7 @@ namespace TAP.Editor
                     var p=d*b.Radius;var c=Vector3.zero;double best=0;int bestClass=-1;
                     for(int k=0;k<rules;k++) {
                         if(weights[k]<.002) continue;
-                        c+=SurfaceAlbedoSynth.Paint(set,classes[k],colors[k],p,d,noise,b.Radius)*(float)weights[k];
+                        c+=SurfaceAlbedoSynth.Paint(set,classes[k],colors[k],p,d,noise,b.Radius,r.Settings.Realism)*(float)weights[k];
                         if(classes[k]>=0 && weights[k]>best) { best=weights[k];bestClass=classes[k]; }
                     }
                     c+=new Vector3(.216f,.216f,.216f)*(float)weights[rules];

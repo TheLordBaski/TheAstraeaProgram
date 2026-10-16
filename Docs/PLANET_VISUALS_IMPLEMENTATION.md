@@ -30,6 +30,9 @@ diffuse transmission, filtered to the pixel rather than the ray step.
 
 Surface: `SatelliteAlbedo` profiles bake an 8192x4096 map (`SurfaceAlbedoSynth`). The mask's alpha stores the dominant
 landscape class for the detail octaves. Source data and credits: [PLANET_VISUALS_SOURCES.md](PLANET_VISUALS_SOURCES.md).
+`SatelliteRealism` (0..1) sets how far a colour rule moves towards its real landscape's mean colour; Tellus uses 0, so
+its violet vegetation keeps the terrain palette and takes only the photographs' light and shade. Bake one body with
+`PlanetVisualBaker.Start("tellus")` (the menu bakes all).
 
 Grade: ACES, post exposure +0.25, contrast +6, saturation -3, white balance -9/+3, bloom 0.6.
 
