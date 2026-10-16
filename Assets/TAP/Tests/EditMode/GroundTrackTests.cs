@@ -45,6 +45,22 @@ namespace TAP.Tests
         }
 
         [Test]
+        public void PolarOrbit_StartsANewLineAtEachPoleInsteadOfDrawingAlongTheEdge()
+        {
+            var tellus = Tellus;
+            var o = Orbit.FromElements(tellus.Radius + 300000, 0, 90 * MathD.Deg2Rad, 0.3, 0, 0, 0, tellus.GM);
+            var pts = GroundTrack.Sample(o, tellus, 0, o.Period * 2, 720);
+            int poleStarts = 0;
+            for (int i = 1; i < pts.Count; i++)
+            {
+                if (pts[i].Start) { if (Math.Abs(pts[i].Lat) > 80) poleStarts++; continue; }
+                double d = Math.Abs(pts[i].Lon - pts[i - 1].Lon);
+                Assert.LessOrEqual(Math.Min(d, 360 - d), GroundTrack.PoleJump, "a connected step must not jump across a pole");
+            }
+            Assert.GreaterOrEqual(poleStarts, 3, "two orbits pass over four poles; the first of them may fall before the track begins");
+        }
+
+        [Test]
         public void TrackStartsOverThePointItWasBuiltAbove()
         {
             var tellus = Tellus;

@@ -20,10 +20,14 @@ namespace TAP.Core
         public static void LatLon(CelestialBody body, Vector3d relPos, double ut, out double lat, out double lon) =>
             Geo.ToLatLon(body.InertialToBodyFixed(relPos, ut), out lat, out lon);
 
+        /// <summary>A step that moves the longitude by more than this (degrees, the short way round) passes a pole: the line is cut there, not drawn along the map's edge.</summary>
+        public const double PoleJump = 90;
+
         /// <summary>
         /// The ground track of an orbit from <paramref name="fromUT"/> to <paramref name="toUT"/>, in equal time steps. Where the
         /// track crosses the date line it ends on one edge and starts again on the other at the crossing latitude, so a
-        /// flat map draws it as separate lines. Uniform steps are coarse near the periapsis of a very eccentric orbit.
+        /// flat map draws it as separate lines; over a pole it just starts a new line on the far side. Uniform steps are
+        /// coarse near the periapsis of a very eccentric orbit.
         /// </summary>
         public static List<GroundPoint> Sample(Orbit orbit, CelestialBody body, double fromUT, double toUT, int steps)
         {
@@ -33,7 +37,9 @@ namespace TAP.Core
             {
                 double ut = fromUT + (toUT - fromUT) * i / steps;
                 LatLon(body, orbit.GetPositionAtUT(ut), ut, out double lat, out double lon);
-                if (i > 0 && Math.Abs(lon - prevLon) > 180)
+                double jump = Math.Abs(lon - prevLon);
+                bool pole = i > 0 && Math.Min(jump, 360 - jump) > PoleJump;
+                if (i > 0 && !pole && jump > 180)
                 {
                     bool east = prevLon > 0;
                     double edge = east ? 180 : -180;
@@ -42,7 +48,7 @@ namespace TAP.Core
                     list.Add(new GroundPoint { Lat = crossLat, Lon = edge, UT = crossUT });
                     list.Add(new GroundPoint { Lat = crossLat, Lon = -edge, UT = crossUT, Start = true });
                 }
-                list.Add(new GroundPoint { Lat = lat, Lon = lon, UT = ut, Start = i == 0 });
+                list.Add(new GroundPoint { Lat = lat, Lon = lon, UT = ut, Start = i == 0 || pole });
                 prevLat = lat; prevLon = lon; prevUT = ut;
             }
             return list;

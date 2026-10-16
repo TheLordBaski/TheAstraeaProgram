@@ -51,7 +51,7 @@ namespace TAP.UI
         private Label _trackInfo;
         private readonly Dictionary<int, Button> _trackOrbitBtns = new Dictionary<int, Button>();
         private bool _trackOn, _trackDirty = true;
-        private int _trackOrbits = 3;
+        private int _trackOrbits = 1;
         private float _trackTime;
 
         private sealed class MarkerWidget
