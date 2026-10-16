@@ -50,16 +50,16 @@ MonoBehaviour:
   SurfaceTint: {r: 1, g: 1, b: 1, a: 1}
   SurfaceNormalStrength: 1.6
   OceanColourBlend: 1
-  OceanColour: {r: 0.03, g: 0.4, b: 0.46, a: 1}
-  OceanShallowColour: {r: 0.12, g: 0.85, b: 0.82, a: 1}
+  OceanColour: {r: 0.04, g: 0.5, b: 0.55, a: 1}
+  OceanShallowColour: {r: 0.14, g: 0.92, b: 0.88, a: 1}
   GroundDetail: 0.72
   OceanRoughness: 0.24
   RegionalDetail: 0
   RegionalDetailScale: 18000
   SatelliteAlbedo: 1
-  SatelliteDetail: 0.7
+  SatelliteDetail: 1
   SatelliteRealism: 0
-  TerrainHash: 7d4025dde689dd4a
-  SurfaceBakeKey: c6066c47a02aee95f1b57d0f653305cc
+  TerrainHash: 3b6f69cfd1d323a0
+  SurfaceBakeKey: 4b069919919d78b909695cb6a7d08c11
   WeatherBakeKey: f60cc039645f5562b39d753db990f525
   AtmosphereBakeKey: 9d700da7a9471fbfa7658d1e25d5aa31

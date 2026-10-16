@@ -41,16 +41,18 @@
   ],
   "shore": { "field": "continent" },
   "colors": [
-    { "note": "grass", "color": "#7A3A92" },
-    { "note": "dry grass", "color": "#A5649F", "mask": { "of": "vegetation", "smooth": [0.5, 0.8] } },
-    { "note": "woods, thinning out with height", "color": "#3F2275", "mask": [ { "of": "vegetation", "smooth": [0.45, 0.22] }, { "of": "height", "smooth": [1200, 2000], "invert": true } ] },
-    { "note": "highland scrub", "color": "#6B5A8C", "mask": { "of": "height", "smooth": [900, 2200] } },
+    { "note": "grass", "color": "#8C3AA6" },
+    { "note": "dry grass", "color": "#B85AA8", "mask": { "of": "vegetation", "smooth": [0.5, 0.8] } },
+    { "note": "woods, thinning out with height", "color": "#4A2480", "mask": [ { "of": "vegetation", "smooth": [0.45, 0.22] }, { "of": "height", "smooth": [1200, 2000], "invert": true } ] },
+    { "note": "grass, magenta blooms in local patches", "color": "#C2409E", "mask": { "of": "patches", "smooth": [0.05, 0.45] } },
+    { "note": "grass, indigo stands in local patches", "color": "#582F98", "mask": { "of": "patches", "smooth": [-0.05, -0.45] } },
+    { "note": "highland scrub", "color": "#7B5A9A", "mask": { "of": "height", "smooth": [900, 2200] } },
     { "note": "beaches", "color": "#CFC2E4", "mask": { "of": "height", "linear": [30, 18] } },
     { "note": "rock on slopes and peaks", "color": "#5C5470", "mask": { "sum": [ { "of": "slope", "smooth": [25, 34] }, { "of": "height", "smooth": [2600, 3400], "scale": 0.6 } ] } },
     { "note": "snow, except on cliffs", "color": "#ECF0F6", "mask": [ { "of": "height", "smooth": [3300, 3900] }, { "of": "slope", "smooth": [28, 35], "invert": true } ] },
     { "note": "polar ice", "color": "#DDF3F7", "mask": { "of": "polar" } },
-    { "note": "shallow water", "color": "#1FB5C2", "mask": { "of": "height", "below": 0 } },
-    { "note": "deep water", "color": "#0A5568", "mask": [ { "of": "height", "below": 0 }, { "of": "height", "smooth": [0, -400] } ] }
+    { "note": "shallow water", "color": "#28D0D4", "mask": { "of": "height", "below": 0 } },
+    { "note": "deep water", "color": "#0C6E7E", "mask": [ { "of": "height", "below": 0 }, { "of": "height", "smooth": [0, -400] } ] }
   ],
   "biomes": [
     { "id": "launchComplex", "name": "Astraea Launch Complex", "color": "#FF3EA5", "material": 8, "when": { "near": "launchComplex", "below": 3300 } },
