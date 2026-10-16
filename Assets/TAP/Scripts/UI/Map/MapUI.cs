@@ -719,7 +719,9 @@ namespace TAP.UI
             // Ahead by the chosen number of orbits (an escape path: six hours), up to where the predicted path leaves this body or hits it.
             double end = ut + (ellipse ? _trackOrbits * o.Period : 6 * 3600);
             var traj = Scene.Trajectory;
-            if (h == Sim.ActiveHandle && traj.Current.Count > 0 && traj.Current[0].Body == body) end = Math.Min(end, traj.Current[0].EndUT);
+            // (a closed orbit's patch just ends after one revolution, with EndType None: that is no reason to stop)
+            if (h == Sim.ActiveHandle && traj.Current.Count > 0 && traj.Current[0].Body == body && traj.Current[0].EndType != PatchEnd.None)
+                end = Math.Min(end, traj.Current[0].EndUT);
             end = Math.Max(end, ut + 1);
             int steps = ellipse ? Mathf.Clamp((int)((end - ut) / o.Period * 180), 180, 1440) : 180;
             _trackView.SetTrack(GroundTrack.Sample(o, body, ut, end, steps));
