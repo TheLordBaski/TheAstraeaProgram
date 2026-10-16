@@ -18,7 +18,7 @@ namespace TAP.Editor
         public static readonly string[] Classes = { "forest", "grass", "steppe", "scrub", "sand", "rock" };
         /// <summary>Metres per exemplar texel on the planet (the sources are 500 m per pixel).</summary>
         public const double MetresPerTexel = 420;
-        /// <summary>How far a rule's mean colour moves from the terrain palette towards the real landscape's (default; a profile may override it).</summary>
+        /// <summary>How far a rule's mean colour moves from the terrain palette towards the real landscape's.</summary>
         public const float Realism = .55f;
 
         public sealed class Exemplar { public int Size; public float[] R, G, B; public Vector3 Mean; }
@@ -105,7 +105,7 @@ namespace TAP.Editor
         }
 
         /// <summary>Linear albedo of one colour rule at a body-fixed surface point, before mixing the rules.</summary>
-        public static Vector3 Paint(Set set, int cls, Color32 ruleColor, Vector3d p, Vector3d n, Noise3D noise, double radius, float realism = Realism)
+        public static Vector3 Paint(Set set, int cls, Color32 ruleColor, Vector3d p, Vector3d n, Noise3D noise, double radius)
         {
             var rule = new Vector3(ToLinear(ruleColor.r), ToLinear(ruleColor.g), ToLinear(ruleColor.b));
             if (cls == -1) return rule;
@@ -135,7 +135,7 @@ namespace TAP.Editor
                 mean = variants[0].Mean * wa + variants[1].Mean * wb;
             }
             // Narrow beach bands read as a bright outline from orbit at full sand brightness.
-            var target = Vector3.Lerp(rule, mean, realism) * vary * (cls == 4 ? .82f : 1);
+            var target = Vector3.Lerp(rule, mean, Realism) * vary * (cls == 4 ? .82f : 1);
             return new Vector3(target.x * Mathf.Max(0, ratio.x), target.y * Mathf.Max(0, ratio.y), target.z * Mathf.Max(0, ratio.z));
         }
 

@@ -902,7 +902,7 @@ body home/mica d46d5e3c9d130fe1
 297 c09938d48f7ad13d hollows
 298 c09e9b375a69fbf3 hollows
 299 c09fc1ddd158d7a3 hollows
-body home/tellus 3b6f69cfd1d323a0
+body home/tellus cd3795b5de6d5872
 0 403c692959d008c1 polarIce
 1 4040006bc32a3681 polarIce
 2 40830d023e067625 polarIce
@@ -6320,7 +6320,7 @@ body home/remota 56b7413b9f1b0755
 297 40709b7252c2b3b1 polarCaps
 298 407074ed03264dba polarCaps
 299 406af0b144da60ba polarCaps
-body debug/testworld c193f16bcba09e9f
+body debug/testworld 620cc658377d762d
 0 403d240137e7de8c polarIce
 1 403d407d82744a48 polarIce
 2 403e461d50a2d285 polarIce
