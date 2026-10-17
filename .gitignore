@@ -86,3 +86,6 @@ Desktop.ini
 # Written by the performance test package on every test run
 /Assets/Resources.meta
 /Assets/Resources/PerformanceTestRun*
+
+# website: its own repo (TheLordBaski/TAPWeb)
+/product/website/
