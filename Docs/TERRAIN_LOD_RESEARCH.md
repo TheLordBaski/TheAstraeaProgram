@@ -142,6 +142,9 @@ In order; each step can ship on its own.
 
    Proposed budgets: terrain never takes more than 2 ms of a main-thread frame, and the ground under the camera reaches
    full detail within 1 s.
+
+   Done on 2026-10-18: the first numbers are in `PERFORMANCE.md` ("Baseline: 2026-10-18"). Both budgets hold on both paths;
+   the workers are mostly idle, and the garbage collections triple while streaming.
 2. **Schedule better (small change).**
    - Replace the queue with a priority queue keyed by distance or screen error, re-ranked each frame.
    - Rank chunks in the frustum first, and request chunks around where the camera will be 1 to 2 s ahead.

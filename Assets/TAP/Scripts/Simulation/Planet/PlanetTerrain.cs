@@ -96,7 +96,15 @@ namespace TAP.Simulation
         private double _camDist;
         private double _horizonAngle;
         private int _frame;
+        private int _camFace;
+        private double _camU, _camV;
         public int VisibleChunks => _shownLastFrame.Count;
+        /// <summary>Chunk meshes filled in <see cref="BuildCompleted"/> by every body's terrain since the game started (the benchmark reads it).</summary>
+        public static long MeshUploads;
+        /// <summary>The level of the chunk drawn under the camera, -1 when none is drawn there.</summary>
+        public int LevelUnderCamera { get; private set; } = -1;
+        /// <summary>The chunk under the camera is coarser than the LOD wants: its children are still being made.</summary>
+        public bool DetailBehind { get; private set; }
         public bool Hidden;
         /// <summary>
         /// Everything in view is drawn: every root chunk facing the camera has its mesh. A node only splits once all its
@@ -141,6 +149,9 @@ namespace TAP.Simulation
             _horizonAngle = _camDist > r ? Math.Acos(Math.Min(1, r / _camDist)) : Math.PI;
             BuildCompleted();
             _shownThisFrame.Clear();
+            CubeSphere.FromSphere(_camBF, out _camFace, out _camU, out _camV);
+            LevelUnderCamera = -1;
+            DetailBehind = false;
             bool complete = !Hidden;
             if (!Hidden)
                 foreach (var root in _roots)
@@ -211,7 +222,13 @@ namespace TAP.Simulation
                     return;
                 }
             }
-            if (n.State == 2) _shownThisFrame.Add(n);
+            if (n.State != 2) return;
+            _shownThisFrame.Add(n);
+            if (n.Face == _camFace && _camU >= n.U0 && _camU <= n.U0 + n.Size && _camV >= n.V0 && _camV <= n.V0 + n.Size)
+            {
+                LevelUnderCamera = n.Level;
+                DetailBehind = wantSplit;
+            }
         }
 
         private void Request(TerrainNode n)
@@ -280,6 +297,7 @@ namespace TAP.Simulation
                 }
                 n.State = 2;
                 built++;
+                MeshUploads++;
                 if (Time.realtimeSinceStartup - start > 0.006f) break;
             }
         }

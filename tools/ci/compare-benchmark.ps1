@@ -29,10 +29,13 @@ $out.Add("| Scenario | Metric | Baseline | Now | Change |")
 $out.Add("|---|---|---|---|---|")
 foreach ($name in $cur.Keys | Sort-Object) {
     $c = $cur[$name]
-    $metrics = if ($name -eq "boot" -or $name -eq "startup") { @("seconds") } else { @("avg_ms", "p99_ms", "working_set_mb") }
+    $metrics = if ($name -eq "boot" -or $name -eq "startup") { @("seconds") }
+               elseif ($name -eq "descent" -or $name -eq "low-pass") { @("avg_ms", "p99_ms", "planets_ms", "worker_ms_per_chunk", "detail_lag_s", "working_set_mb") }
+               else { @("avg_ms", "p99_ms", "working_set_mb") }
     foreach ($m in $metrics) {
+        if ([string]::IsNullOrEmpty($c.$m)) { continue } # not measured (an older file, or an empty cell)
         $now = Num $c.$m
-        if ($base.ContainsKey($name) -and $null -ne $base[$name].$m) {
+        if ($base.ContainsKey($name) -and -not [string]::IsNullOrEmpty($base[$name].$m)) {
             $was = Num $base[$name].$m
             $pct = if ($was -gt 0) { ($now - $was) / $was * 100 } else { 0 }
             $mark = if ($pct -gt $Threshold) { "**slower**"; $regressions++ } elseif ($pct -lt -$Threshold) { "faster" } else { "" }

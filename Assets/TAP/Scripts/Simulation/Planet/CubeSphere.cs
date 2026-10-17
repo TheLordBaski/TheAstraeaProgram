@@ -121,6 +121,18 @@ namespace TAP.Simulation
         /// </summary>
         public static ChunkData Generate(TerrainGenerator gen, double radius, int face, double u0, double v0, double size, int n, bool ocean, bool skirts, bool colors = true)
         {
+            long start = System.Diagnostics.Stopwatch.GetTimestamp();
+            var data = Build(gen, radius, face, u0, v0, size, n, ocean, skirts, colors);
+            System.Threading.Interlocked.Add(ref GenerateTicks, System.Diagnostics.Stopwatch.GetTimestamp() - start);
+            System.Threading.Interlocked.Increment(ref Generated);
+            return data;
+        }
+
+        /// <summary>Chunks generated on any thread, and the Stopwatch ticks spent in <see cref="Generate"/> (the benchmark reads them).</summary>
+        public static long Generated, GenerateTicks;
+
+        private static ChunkData Build(TerrainGenerator gen, double radius, int face, double u0, double v0, double size, int n, bool ocean, bool skirts, bool colors)
+        {
             int g = n + 3; // grid with 1-sample border for normals
             int nf = gen.FieldCount;
             var dirs = new Vector3d[g * g];
