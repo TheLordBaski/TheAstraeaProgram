@@ -288,7 +288,7 @@ namespace TAP.Simulation
             int started = 0;
             while (started < 8 && _colliderDone.TryDequeue(out var done))
             {
-                if (!IsCurrent(done.chunk, done.gen)) continue;
+                if (!IsCurrent(done.chunk, done.gen)) { TerrainChunkGenerator.Release(done.data); continue; }
                 var mesh = NewColliderMesh(done.chunk, done.data);
                 var job = new BakeJob { MeshId = mesh.GetEntityId() };
                 _baking.Add(new Baking { Chunk = done.chunk, Data = done.data, Mesh = mesh, Gen = done.gen, Handle = job.Schedule() });
@@ -303,6 +303,7 @@ namespace TAP.Simulation
                 _baking.RemoveAt(i);
                 if (IsCurrent(b.Chunk, b.Gen)) ApplyCollider(b.Chunk, b.Data, b.Mesh);
                 else Destroy(b.Mesh);
+                TerrainChunkGenerator.Release(b.Data);
             }
 
             // Synchronous fallback: a vessel very close to the ground must have its chunk now.
@@ -405,6 +406,7 @@ namespace TAP.Simulation
             c.Generation++; // a background result for it would only repeat this
             var data = Generate(body, c.Key, level);
             ApplyCollider(c, data, NewColliderMesh(c, data));
+            TerrainChunkGenerator.Release(data);
         }
 
         /// <summary>

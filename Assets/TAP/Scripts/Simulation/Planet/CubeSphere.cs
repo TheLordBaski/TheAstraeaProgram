@@ -47,7 +47,10 @@ namespace TAP.Simulation
         public static bool FaceIsRightHanded(int face) => Vector3d.Dot(Vector3d.Cross(AxisA[face], AxisB[face]), Normals[face]) > 0;
     }
 
-    /// <summary>CPU-side chunk geometry produced on worker threads.</summary>
+    /// <summary>
+    /// CPU-side chunk geometry produced on worker threads. Its arrays come from a pool: whoever is done with a chunk may
+    /// give it back with <see cref="TerrainChunkGenerator.Release"/>.
+    /// </summary>
     public sealed class ChunkData
     {
         public Vector3[] Positions;
@@ -59,12 +62,61 @@ namespace TAP.Simulation
         public Vector3d CenterBF;
         public Vector3 BoundsMin, BoundsMax;
         public double MinHeight, MaxHeight;
+        internal (int n, bool skirts, bool colors) Layout;
+        internal bool Pooled;
     }
 
     public static class TerrainChunkGenerator
     {
         public const double DetailPeriod = 4096.0;
         private static readonly System.Collections.Generic.Dictionary<(int, bool, bool), int[]> TriCache = new System.Collections.Generic.Dictionary<(int, bool, bool), int[]>();
+        private static readonly System.Collections.Generic.Dictionary<int, int[]> PerimCache = new System.Collections.Generic.Dictionary<int, int[]>();
+
+        // Spare chunks by layout (resolution, skirts, colours), so streaming terrain makes no garbage. Bounded: a burst of
+        // remakes can't pin memory, and a chunk never given back is simply collected.
+        private const int PoolCap = 64;
+        private static readonly System.Collections.Generic.Dictionary<(int, bool, bool), System.Collections.Generic.Stack<ChunkData>> Pool =
+            new System.Collections.Generic.Dictionary<(int, bool, bool), System.Collections.Generic.Stack<ChunkData>>();
+
+        // Sample scratch per thread (the workers, and the main thread when it builds a chunk right away).
+        [ThreadStatic] private static Vector3d[] _dirs;
+        [ThreadStatic] private static double[] _heights, _fields;
+
+        /// <summary>Gives a chunk's arrays back for reuse. Only once nothing reads the chunk any more; null is ignored.</summary>
+        public static void Release(ChunkData data)
+        {
+            if (data == null) return;
+            lock (Pool)
+            {
+                if (data.Pooled) return;
+                if (!Pool.TryGetValue(data.Layout, out var spare)) Pool[data.Layout] = spare = new System.Collections.Generic.Stack<ChunkData>();
+                if (spare.Count >= PoolCap) return;
+                data.Pooled = true;
+                spare.Push(data);
+            }
+        }
+
+        private static ChunkData Rent(int n, bool skirts, bool colors, int vcount)
+        {
+            lock (Pool)
+                if (Pool.TryGetValue((n, skirts, colors), out var spare) && spare.Count > 0)
+                {
+                    var d = spare.Pop();
+                    d.Pooled = false;
+                    return d;
+                }
+            return new ChunkData
+            {
+                Layout = (n, skirts, colors),
+                Positions = new Vector3[vcount],
+                Normals = new Vector3[vcount],
+                Colors = colors ? new Color32[vcount] : null,
+                UV0 = new Vector2[vcount],
+                UV1 = new Vector2[vcount],
+            };
+        }
+
+        private static T[] Scratch<T>(ref T[] a, int length) => a != null && a.Length >= length ? a : (a = new T[length]);
 
         public static int[] Triangles(int n, bool rightHanded, bool skirts)
         {
@@ -104,15 +156,20 @@ namespace TAP.Simulation
             }
         }
 
+        /// <summary>The perimeter vertices of an n-quad grid, counter-clockwise. Cached and shared: never modify it.</summary>
         public static int[] Perimeter(int n)
         {
-            int row = n + 1;
-            var list = new System.Collections.Generic.List<int>();
-            for (int i = 0; i < n; i++) list.Add(0 * row + i);          // bottom (j=0) left->right
-            for (int j = 0; j < n; j++) list.Add(j * row + n);          // right (i=n) bottom->top
-            for (int i = n; i > 0; i--) list.Add(n * row + i);          // top (j=n) right->left
-            for (int j = n; j > 0; j--) list.Add(j * row + 0);          // left (i=0) top->bottom
-            return list.ToArray();
+            lock (PerimCache)
+            {
+                if (PerimCache.TryGetValue(n, out var p)) return p;
+                int row = n + 1;
+                var list = new System.Collections.Generic.List<int>();
+                for (int i = 0; i < n; i++) list.Add(0 * row + i);          // bottom (j=0) left->right
+                for (int j = 0; j < n; j++) list.Add(j * row + n);          // right (i=n) bottom->top
+                for (int i = n; i > 0; i--) list.Add(n * row + i);          // top (j=n) right->left
+                for (int j = n; j > 0; j--) list.Add(j * row + 0);          // left (i=0) top->bottom
+                return PerimCache[n] = list.ToArray();
+            }
         }
 
         /// <summary>
@@ -135,9 +192,9 @@ namespace TAP.Simulation
         {
             int g = n + 3; // grid with 1-sample border for normals
             int nf = gen.FieldCount;
-            var dirs = new Vector3d[g * g];
-            var heights = new double[g * g];
-            var fields = new double[Math.Max(1, g * g * nf)];
+            var dirs = Scratch(ref _dirs, g * g);
+            var heights = Scratch(ref _heights, g * g);
+            var fields = Scratch(ref _fields, Math.Max(1, g * g * nf));
             for (int j = 0; j < g; j++)
                 for (int i = 0; i < g; i++)
                 {
@@ -157,19 +214,12 @@ namespace TAP.Simulation
             var origin = new Vector3d(Math.Floor(center.x / DetailPeriod) * DetailPeriod, Math.Floor(center.y / DetailPeriod) * DetailPeriod, Math.Floor(center.z / DetailPeriod) * DetailPeriod);
 
             int row = n + 1;
-            var perim = skirts ? Perimeter(n) : new int[0];
+            var perim = skirts ? Perimeter(n) : Array.Empty<int>();
             int vcount = row * row + perim.Length;
-            var data = new ChunkData
-            {
-                Positions = new Vector3[vcount],
-                Normals = new Vector3[vcount],
-                Colors = colors ? new Color32[vcount] : null,
-                UV0 = new Vector2[vcount],
-                UV1 = new Vector2[vcount],
-                CenterBF = center,
-                MinHeight = double.MaxValue,
-                MaxHeight = double.MinValue,
-            };
+            var data = Rent(n, skirts, colors, vcount);
+            data.CenterBF = center;
+            data.MinHeight = double.MaxValue;
+            data.MaxHeight = double.MinValue;
             Vector3d P(int i, int j)
             {
                 int k = (j + 1) * g + (i + 1);

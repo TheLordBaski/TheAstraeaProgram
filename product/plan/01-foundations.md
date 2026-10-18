@@ -563,9 +563,22 @@ While streaming, Mono collects three times as often as on the pad, and every col
 - Collision chunks use the same path.
 
 **Done when**
-- [ ] `descent` and `low-pass` collect garbage no more often than the pad scenarios (within 10%).
-- [ ] The editor's allocation counter shows no managed allocation per chunk made.
-- [ ] The terrain fingerprint and the collision tests are unchanged.
+- [x] `descent` and `low-pass` collect garbage no more often than the pad scenarios (within 10%). (Two player runs: `descent` 7 and 13, `low-pass`
+      6 and 6, against 10 to 16 on the pad; they were 89 and 106.)
+- [x] The editor's allocation counter shows no managed allocation per chunk made. (A chunk made and given back allocates 0 B, against 64 KB
+      without the pool; `descent` allocates 18 MB in the editor instead of 223 MB. What is left per chunk is its quadtree node, mesh object and
+      work item, a few hundred bytes.)
+- [x] The terrain fingerprint and the collision tests are unchanged. (All 222 EditMode and 40 body lab tests pass, the fingerprint among them.)
+
+Built (`CubeSphere.cs`, `PlanetTerrain.cs`, `PlanetManager.cs`, `TerrainTests.ReusedChunk_IsTheSameAsAFreshOne`,
+[Docs/PERFORMANCE.md](../../Docs/PERFORMANCE.md) "after FND-17"):
+- **A pool, not native buffers.** `TerrainChunkGenerator` rents `ChunkData` per layout (resolution, skirts, colours), with at most 64 spare per
+  layout. `Release` gives a chunk back: the terrain does that once the mesh has its copy, the colliders once they are applied, and both do it for a
+  dropped result. Samples, fields and directions are scratch per thread, and the skirt perimeter is cached. Callers that keep their chunk (the far
+  view, the body lab) need no change.
+- **Not done as planned:** meshes are still filled with `SetVertices` and the other array setters, not `Mesh.AllocateWritableMeshData`. The main
+  thread's share did not change (0.35 to 0.42 ms), so the pool was enough. Native buffers come with FND-19, where the Burst job needs them.
+- **Side effects:** worker time per chunk fell from 3.8 to 3.2 ms. The longest frame while streaming fell from 15.6 to 6.2 ms.
 
 ### FND-18 · Terrain LOD morphing
 **Milestone** EA1 · **Claude** 1.5 d · **You** 0.5 d · **Needs** FND-02
@@ -591,6 +604,8 @@ finer chunks and a deeper quadtree.
 - Each body's terrain definition compiles once into a flat list of operations (native arrays of plain structs). The JSON
   format does not change.
 - A Burst job runs each operation over all of a chunk's samples before the next one.
+- Chunk buffers move from FND-17's managed pool to native arrays the job can write, and meshes are filled from them with
+  `Mesh.AllocateWritableMeshData`.
 - `DetMath` and the noise are ported to Burst with `FloatMode.Strict` (no reassociation, no fused multiply-add).
 - The managed path stays as the reference and the fallback. Colliders, altitude queries and map exports use the new
   evaluator too.

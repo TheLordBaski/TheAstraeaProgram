@@ -138,7 +138,7 @@ Each step can ship on its own. The steps are plan tasks:
 |---|---|---|
 | 1. Measure | FND-16, done | M1 |
 | 2. Schedule better | FND-20 | EA2, only once the queue fills up |
-| 3. Remove the garbage | FND-17 | EA1, first |
+| 3. Remove the garbage | FND-17, done | EA1 |
 | 4. Evaluate in Burst | FND-19 | EA1, after FND-17 |
 | 5. Morph between LODs | FND-18 | EA1 |
 | 6. Fill the mid range | part of ART-07a | EA1 |
@@ -166,6 +166,10 @@ collection is the cost that shows, so removing the garbage comes first.
 3. **Remove the garbage.** Pool native buffers per worker. Fill meshes with `Mesh.AllocateWritableMeshData` in the job and
    apply them with `ApplyAndDisposeWritableMeshData` on the main thread. Keep one native index buffer per resolution,
    handedness and skirt setting.
+
+   Done on 2026-10-18 with a smaller change: a pool of managed chunk buffers and per-thread scratch, not native buffers. Streaming now
+   collects garbage no more often than the pad (`descent` 89 → 7 collections in 10 s), and its longest frame fell from 15.6 to 6.2 ms.
+   Native buffers move to FND-19 (`PERFORMANCE.md`, "after FND-17").
 4. **Evaluate in Burst, a chunk at a time.**
    - Compile each body's terrain definition once into a flat list of operations (native arrays of plain structs).
    - In a Burst job, run each operation over all of a chunk's samples before the next one. The JSON format stays as it is.

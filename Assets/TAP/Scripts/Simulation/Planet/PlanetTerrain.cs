@@ -274,7 +274,7 @@ namespace TAP.Simulation
             while (built < MeshBuildBudget && _completed.TryDequeue(out var item))
             {
                 var (n, d, gen) = item;
-                if (d == null || gen != n.Generation || n.State == 0) continue;
+                if (d == null || gen != n.Generation || n.State == 0) { TerrainChunkGenerator.Release(d); continue; }
                 if (n.Mesh == null) n.Mesh = new Mesh { name = $"terrain_{Body.Id}_{n.Face}_{n.Level}" };
                 n.Mesh.Clear();
                 n.Mesh.SetVertices(d.Positions);
@@ -287,6 +287,7 @@ namespace TAP.Simulation
                 n.MeshCenterBF = d.CenterBF;
                 n.MinH = d.MinHeight;
                 n.MaxH = d.MaxHeight;
+                TerrainChunkGenerator.Release(d); // the mesh holds its own copy now
                 if (n.Go == null)
                 {
                     n.Go = _pool.Count > 0 ? _pool.Pop() : CreateChunkObject();

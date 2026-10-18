@@ -341,5 +341,38 @@ namespace TAP.Tests
             Assert.AreEqual(site.padAltitude, tellus.Height(site.UpBF), 1e-6);
             Assert.AreEqual(0, site.latitude, 1e-9, "on the equator, for equatorial orbits");
         }
+
+        [Test]
+        public void ReusedChunk_IsTheSameAsAFreshOne()
+        {
+            // Chunks reuse their arrays (FND-17): a chunk made into arrays another chunk filled must not keep anything of it.
+            foreach (var (key, t) in AllTerrains())
+            {
+                TAP.Simulation.ChunkData Make(double u0) =>
+                    TAP.Simulation.TerrainChunkGenerator.Generate(t, t.Radius, 2, u0, -0.25, 0.125, 16, t.HasOcean, true);
+                var first = Make(-0.25);
+                var positions = (Vector3[])first.Positions.Clone();
+                var normals = (Vector3[])first.Normals.Clone();
+                var colors = (Color32[])first.Colors.Clone();
+                var uv0 = (Vector2[])first.UV0.Clone();
+                var uv1 = (Vector2[])first.UV1.Clone();
+                var (center, min, max) = (first.CenterBF, first.MinHeight, first.MaxHeight);
+                TAP.Simulation.TerrainChunkGenerator.Release(first);
+                var elsewhere = Make(0.5);
+                Assert.AreSame(first, elsewhere, $"{key}: a released chunk is reused");
+                TAP.Simulation.TerrainChunkGenerator.Release(elsewhere);
+                var again = Make(-0.25);
+                CollectionAssert.AreEqual(positions, again.Positions, $"{key}: positions");
+                CollectionAssert.AreEqual(normals, again.Normals, $"{key}: normals");
+                CollectionAssert.AreEqual(colors, again.Colors, $"{key}: colours");
+                CollectionAssert.AreEqual(uv0, again.UV0, $"{key}: uv0");
+                CollectionAssert.AreEqual(uv1, again.UV1, $"{key}: uv1");
+                Assert.AreEqual((center, min, max), (again.CenterBF, again.MinHeight, again.MaxHeight), $"{key}: centre and heights");
+                // Given back twice, it is still handed out only once.
+                TAP.Simulation.TerrainChunkGenerator.Release(again);
+                TAP.Simulation.TerrainChunkGenerator.Release(again);
+                Assert.AreNotSame(Make(0), Make(0), $"{key}: one chunk handed out twice");
+            }
+        }
     }
 }

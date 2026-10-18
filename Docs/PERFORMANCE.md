@@ -84,8 +84,51 @@ job it writes the same table to the job summary (`ci.yml` runs it on Linux with 
 With `-Fail` it exits 1 on a regression. Timing noise between two runs of the same build is 10 to 15% on a laptop, so a single mark is a hint, a repeated one
 is a regression.
 
-Baselines are in `Docs/benchmarks/`: `windows-batch.csv` (the 2026-10-18 run below), and `windows-gpu.csv` and `linux-ci.csv`, which do not exist yet (see
+Baselines are in `Docs/benchmarks/`: `windows-batch.csv` (the FND-17 run below), and `windows-gpu.csv` and `linux-ci.csv`, which do not exist yet (see
 "Not measured").
+
+## Baseline: 2026-10-18, after FND-17 (garbage-free terrain chunks)
+
+The same player set-up as the run below, after FND-17. Terrain and collision chunks now reuse their arrays: workers fill pooled `ChunkData` with
+per-thread sample scratch, and a chunk goes back to the pool once its mesh holds the data.
+
+| Scenario | Parts | Vessels | Frames | Average | 99% under | Longest | Pre-step | Post-step | Planets | Memory | Chunks | GCs |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| launch-50 | 50 | 1 | 6,834 | 1.46 ms | 2.56 ms | 22.0 ms | 0.013 | 0.007 | 0.392 | 323 MB | 228 | 13 |
+| launch-150 | 150 | 1 | 5,567 | 1.80 ms | 4.41 ms | 19.0 ms | 0.032 | 0.032 | 0.447 | 356 MB | 199 | 11 |
+| launch-300 | 300 | 1 | 4,532 | 2.21 ms | 6.84 ms | 65.8 ms | 0.086 | 0.089 | 0.474 | 348 MB | 160 | 16 |
+| base-10 | 90 | 10 | 6,072 | 1.65 ms | 3.18 ms | 5.5 ms | 0.026 | 0.014 | 0.420 | 355 MB | 200 | 10 |
+| map-40 | 360 | 40 | 5,075 | 1.97 ms | 20.59 ms | 164.7 ms | 0.007 | 0.002 | 0.042 | 367 MB | 0 | 54 |
+| warp-max | 90 | 10 | 7,338 | 1.36 ms | 2.12 ms | 5.7 ms | 0.000 | 0.000 | 0.127 | 378 MB | 1,032 | 9 |
+| descent | 9 | 1 | 5,746 | 1.74 ms | 3.40 ms | 6.2 ms | 0.005 | 0.001 | 0.353 | 389 MB | 1,452 | 7 |
+| low-pass | 9 | 1 | 4,221 | 2.37 ms | 4.47 ms | 6.7 ms | 0.007 | 0.002 | 0.416 | 388 MB | 1,764 | 6 |
+
+Start to the main menu 1.05 s, main menu to the space center 0.08 s. A second run of `descent`, `low-pass` and the pad scenarios gave 13 and 6
+collections against 10 to 12 on the pad. In the terrain columns, the worker time per chunk fell from 3.8 to 3.2 ms. The rest is unchanged: the queue,
+uploads (0.25 / 8 and 0.42 / 11), MaxLevel at 4.30 s, and lag 0.00 s.
+
+The editor (play mode, same day):
+
+| Editor | Frames | Average | 99% under | Planets | Chunks | Worker per chunk | Uploads a frame (avg / max) | `max_level_s` | `detail_lag_s` | Allocated | GCs |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| descent | 492 | 20.3 ms | 28.2 ms | 1.49 | 1,392 | 8.59 ms | 2.83 / 12 | 4.35 | 0.06 | 18.2 MB | 0 |
+| low-pass | 409 | 24.4 ms | 32.0 ms | 1.72 | 1,712 | 8.05 ms | 4.17 / 12 | - | 0.00 | 18.8 MB | 0 |
+| launch-150 | 391 | 25.5 ms | 48.7 ms | 1.28 | 8 | 6.94 ms | 0.02 / 4 | - | - | 28.3 MB | 0 |
+
+What changed:
+
+- **Collections while streaming:**
+  - 89 → 7 in `descent`, 106 → 6 in `low-pass`, 72 → 9 in `warp-max`.
+  - The pad scenarios went from 28–31 to 10–16, since they stream chunks too.
+  - Streaming now collects no more often than sitting on the pad.
+- **Allocations:**
+  - The editor's counter fell from 223 to 18 MB in `descent` and from 269 to 19 MB in `low-pass`, less than `launch-150` allocates on the pad.
+  - A chunk made and given back allocates nothing: `GC.GetTotalMemory` over 20 chunks with no collection in between shows 0 B per chunk, against
+    64 KB per chunk without the pool.
+  - What is left per chunk is its quadtree node, mesh object and work item: a few hundred bytes.
+- **Spikes:** the longest frame while streaming fell from 15.6 to 6.2 ms (`descent`) and from 9.7 to 6.7 ms (`low-pass`). 99% of frames are now under
+  3.4 and 4.5 ms (were 5.0 and 6.4).
+- **Unchanged:** `map-40` is still slow: 99% under 20.6 ms, longest 165 ms. It makes no chunks, so the cause is elsewhere (#31).
 
 ## Baseline: 2026-10-18, no window, with terrain streaming
 
