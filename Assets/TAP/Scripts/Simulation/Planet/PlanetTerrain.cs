@@ -79,6 +79,9 @@ namespace TAP.Simulation
         public float SplitFactor = 2.2f;
         /// <summary>The player's terrain detail setting: scales how near the terrain splits into finer chunks (1 = as designed).</summary>
         public static float DetailScale = 1f;
+        /// <summary>LOD morphing between a chunk and its parent (TerrainMorph.hlsl); off only to compare against.</summary>
+        public static bool MorphEnabled = true;
+        private static readonly int MorphSplitId = Shader.PropertyToID("_TerrainMorphSplit");
         public Material Material;
         public void SetVisualMaterial(Material material)
         {
@@ -147,6 +150,7 @@ namespace TAP.Simulation
             _camDist = _camBF.magnitude;
             double r = Body.Radius + Math.Min(Body.Terrain.MinHeight, 0);
             _horizonAngle = _camDist > r ? Math.Acos(Math.Min(1, r / _camDist)) : Math.PI;
+            Shader.SetGlobalFloat(MorphSplitId, MorphEnabled ? SplitFactor * DetailScale : 0); // the split rule of Visit, for TerrainMorph.hlsl
             BuildCompleted();
             _shownThisFrame.Clear();
             CubeSphere.FromSphere(_camBF, out _camFace, out _camU, out _camV);
@@ -282,6 +286,8 @@ namespace TAP.Simulation
                 n.Mesh.SetColors(d.Colors);
                 n.Mesh.SetUVs(0, d.UV0);
                 n.Mesh.SetUVs(1, d.UV1);
+                n.Mesh.SetUVs(2, d.UV2);
+                n.Mesh.SetUVs(3, d.UV3);
                 n.Mesh.SetTriangles(d.Triangles, 0, false);
                 n.Mesh.bounds = new Bounds((d.BoundsMin + d.BoundsMax) * 0.5f, d.BoundsMax - d.BoundsMin);
                 n.MeshCenterBF = d.CenterBF;

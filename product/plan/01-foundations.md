@@ -591,8 +591,28 @@ same mesh, so the coastline jumps too.
 - Collisions are unchanged: they use their own full-detail grid.
 
 **Done when**
-- [ ] You see no popping in a recorded descent from orbit to the launch site, and coastlines do not jump.
-- [ ] `planets_ms` in `descent` and `low-pass` is no more than 10% higher.
+- [ ] You see no popping in a recorded descent from orbit to the launch site, and coastlines do not jump. (Recording ready for review: the
+      benchmark descent at a quarter speed, morphing on and off side by side, levels 9 to 13. A render test through the terrain shader finds a child
+      chunk, at the distance where it replaces its parent, within 1 colour level of the parent; off, it differs by up to 142 levels.)
+- [x] `planets_ms` in `descent` and `low-pass` is no more than 10% higher. (+4% and +5%, FND-17 and FND-18 players run alternately;
+      `PERFORMANCE.md`.)
+
+Built (`CubeSphere.cs`, `TerrainMorph.hlsl`, `Terrain.shader`, `PlanetTerrain.cs`, `TerrainTests.ChunkMorphTarget_IsItsParentsSurface`):
+- **What a vertex carries.**
+  - Its point on the parent's surface: a parent vertex, the middle of a parent edge, or the middle of the parent quad's diagonal (a, c), where the
+    parent splits it.
+  - The parent's normal there (octahedral) and its colour and water flag, in UV2 and UV3, with the parent's arc.
+  - The parent's own normals and colours at its vertices are worked out as the parent does: every second vertex of the chunk, with a 2-sample border.
+- **The shader.** All three passes (lit, depth, depth-normals) move from the parent's surface, normal and colour to the chunk's own over 90% to 60%
+  of the parent's split distance. That distance is the parent's arc × `_TerrainMorphSplit` (a global: SplitFactor × the detail setting). The
+  chunk's own children appear only under 50%, once it has settled. Root chunks and the far view never morph.
+- **Checks.**
+  - A test checks, on every body and for all four children, that the fully morphed position, normal, colour and water flag are the parent's.
+  - `PlanetTerrain.MorphEnabled` switches morphing off, for comparisons only.
+- **Costs:** +4 to 5% main-thread terrain time, +23% worker time per chunk, and about +70 MB for 32 more bytes per vertex. FND-19 can win the memory
+  back with half-precision channels.
+- **Not done:** a chunk that arrives late (its parent kept waiting for it) starts partly morphed and still moves a little. Measured lag is 0.00 to
+  0.06 s, so this is rare.
 
 ### FND-19 · Burst terrain evaluator
 **Milestone** EA1 · **Claude** 3 d · **You** — · **Needs** FND-17
@@ -605,7 +625,7 @@ finer chunks and a deeper quadtree.
   format does not change.
 - A Burst job runs each operation over all of a chunk's samples before the next one.
 - Chunk buffers move from FND-17's managed pool to native arrays the job can write, and meshes are filled from them with
-  `Mesh.AllocateWritableMeshData`.
+  `Mesh.AllocateWritableMeshData`. The two LOD morph channels of FND-18 can then be half floats (about 70 MB back).
 - `DetMath` and the noise are ported to Burst with `FloatMode.Strict` (no reassociation, no fused multiply-add).
 - The managed path stays as the reference and the fallback. Colliders, altitude queries and map exports use the new
   evaluator too.

@@ -87,6 +87,22 @@ is a regression.
 Baselines are in `Docs/benchmarks/`: `windows-batch.csv` (the FND-17 run below), and `windows-gpu.csv` and `linux-ci.csv`, which do not exist yet (see
 "Not measured").
 
+## FND-18 (terrain LOD morphing): cost against FND-17, 2026-10-18
+
+The machine was slower than in the baseline below, for both builds alike: `descent` averaged 2.3 ms instead of 1.7 ms. So this is an A/B, not a new
+baseline. The two players (FND-17 at `dbb6534`, and FND-18) ran alternately, twice each, 10 s per scenario.
+
+| Scenario | `planets_ms` FND-17 → FND-18 | Worker per chunk | Memory | Detail lag | GCs |
+|---|---|---|---|---|---|
+| descent | 0.487 → 0.507 ms (+4%) | 3.77 → 4.65 ms (+23%) | 355 → 422 MB | 0.01 → 0.01 s | 9 → 9–10 |
+| low-pass | 0.609 → 0.640 ms (+5%) | 3.70 → 4.51 ms (+22%) | 385 → 454 MB | 0.00 → 0.00 s | 5 → 5 |
+| launch-50, base-10 | no change beyond noise (FND-18 was lower) | +5 to 13% | +70 MB | — | same |
+
+- **Main thread:** two more vertex arrays to upload per chunk, +4 to 5%.
+- **Workers:** every chunk below the root samples a 2-sample border instead of 1 (37² samples instead of 35²) and colours its parent's vertices
+  again (17² more colour evaluations).
+- **Memory:** the meshes carry 32 more bytes per vertex (two float4 channels): about +70 MB with the CPU copies.
+
 ## Baseline: 2026-10-18, after FND-17 (garbage-free terrain chunks)
 
 The same player set-up as the run below, after FND-17. Terrain and collision chunks now reuse their arrays: workers fill pooled `ChunkData` with

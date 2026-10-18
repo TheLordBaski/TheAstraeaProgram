@@ -374,5 +374,55 @@ namespace TAP.Tests
                 Assert.AreNotSame(Make(0), Make(0), $"{key}: one chunk handed out twice");
             }
         }
+
+        [Test]
+        public void ChunkMorphTarget_IsItsParentsSurface()
+        {
+            // LOD morphing (FND-18): fully morphed, each of a chunk's four children must look exactly like it.
+            const int n = 32, row = n + 1;
+            const double pu = -0.3, pv = 0.2, ps = 1.0 / 64;
+            static Vector3d Decode(Vector4 e)
+            {
+                // TerrainMorph.hlsl's octahedral decoding
+                var p = new Vector3d(e.x, e.y, 1 - Math.Abs(e.x) - Math.Abs(e.y));
+                double t = Math.Max(0, -p.z);
+                p.x -= (p.x >= 0 ? 1 : -1) * t;
+                p.y -= (p.y >= 0 ? 1 : -1) * t;
+                return p.normalized;
+            }
+            foreach (var (key, t) in AllTerrains())
+            {
+                var parent = TAP.Simulation.TerrainChunkGenerator.Generate(t, t.Radius, 1, pu, pv, ps, n, t.HasOcean, true);
+                for (int q = 0; q < 4; q++)
+                {
+                    int qx = q & 1, qy = q >> 1;
+                    var child = TAP.Simulation.TerrainChunkGenerator.Generate(t, t.Radius, 1, pu + qx * ps / 2, pv + qy * ps / 2, ps / 2, n, t.HasOcean, true);
+                    for (int j = 0; j <= n; j++)
+                        for (int i = 0; i <= n; i++)
+                        {
+                            int vi = j * row + i;
+                            int a = ((qy * n + j - (j & 1)) / 2) * row + (qx * n + i - (i & 1)) / 2;
+                            int b = ((qy * n + j + (j & 1)) / 2) * row + (qx * n + i + (i & 1)) / 2;
+                            var m = child.UV2[vi];
+                            Vector3d target = child.CenterBF + (Vector3d)(child.Positions[vi] + (Vector3)m);
+                            Vector3d onParent = parent.CenterBF + (Vector3d)(parent.Positions[a] + parent.Positions[b]) * 0.5;
+                            Assert.Less((target - onParent).magnitude, 0.01, $"{key}: child {q} vertex ({i}, {j}) is off its parent's surface");
+                            Assert.AreEqual(ps * Math.PI * 0.25 * t.Radius, m.w, 1e-3 * m.w, $"{key}: parent arc");
+                            var e = child.UV3[vi];
+                            Vector3d parentNormal = ((Vector3d)parent.Normals[a] + (Vector3d)parent.Normals[b]).normalized;
+                            Assert.Greater(Vector3d.Dot(Decode(e), parentNormal), 0.99999, $"{key}: child {q} vertex ({i}, {j}) parent normal");
+                            int packed = (int)e.z;
+                            Color32 ca = parent.Colors[a], cb = parent.Colors[b];
+                            Assert.AreEqual((ca.r + cb.r) / 2.0, packed & 255, 1, $"{key}: parent red");
+                            Assert.AreEqual((ca.g + cb.g) / 2.0, (packed >> 8) & 255, 1, $"{key}: parent green");
+                            Assert.AreEqual((ca.b + cb.b) / 2.0, packed >> 16, 1, $"{key}: parent blue");
+                            Assert.AreEqual((ca.a + cb.a) / 510.0, e.w, 1e-6, $"{key}: parent water flag");
+                        }
+                }
+                // A root chunk has no parent and never morphs.
+                var root = TAP.Simulation.TerrainChunkGenerator.Generate(t, t.Radius, 0, -1, -1, 2, 8, t.HasOcean, false);
+                Assert.That(root.UV2, Has.All.EqualTo(Vector4.zero), $"{key}: root morph");
+            }
+        }
     }
 }

@@ -58,6 +58,12 @@ namespace TAP.Simulation
         public Color32[] Colors;
         public Vector2[] UV0;
         public Vector2[] UV1;
+        /// <summary>
+        /// LOD morph (visual chunks only): UV2 = the move from this vertex to its parent chunk's surface, and the parent's arc
+        /// (m; 0 for a root chunk, which never morphs); UV3 = the parent's normal (octahedral), its colour (RGB packed into
+        /// one float) and its water flag. See TerrainMorph.hlsl.
+        /// </summary>
+        public Vector4[] UV2, UV3;
         public int[] Triangles;
         public Vector3d CenterBF;
         public Vector3 BoundsMin, BoundsMax;
@@ -79,8 +85,9 @@ namespace TAP.Simulation
             new System.Collections.Generic.Dictionary<(int, bool, bool), System.Collections.Generic.Stack<ChunkData>>();
 
         // Sample scratch per thread (the workers, and the main thread when it builds a chunk right away).
-        [ThreadStatic] private static Vector3d[] _dirs;
+        [ThreadStatic] private static Vector3d[] _dirs, _parentNormals;
         [ThreadStatic] private static double[] _heights, _fields;
+        [ThreadStatic] private static Color32[] _parentColors;
 
         /// <summary>Gives a chunk's arrays back for reuse. Only once nothing reads the chunk any more; null is ignored.</summary>
         public static void Release(ChunkData data)
@@ -113,10 +120,26 @@ namespace TAP.Simulation
                 Colors = colors ? new Color32[vcount] : null,
                 UV0 = new Vector2[vcount],
                 UV1 = new Vector2[vcount],
+                UV2 = colors ? new Vector4[vcount] : null,
+                UV3 = colors ? new Vector4[vcount] : null,
             };
         }
 
         private static T[] Scratch<T>(ref T[] a, int length) => a != null && a.Length >= length ? a : (a = new T[length]);
+
+        /// <summary>A unit vector in two numbers (octahedral mapping); TerrainMorph.hlsl decodes it.</summary>
+        public static Vector2 Octahedral(Vector3d n)
+        {
+            double s = Math.Abs(n.x) + Math.Abs(n.y) + Math.Abs(n.z);
+            double x = n.x / s, y = n.y / s;
+            if (n.z < 0)
+            {
+                double fx = (1 - Math.Abs(y)) * (x >= 0 ? 1 : -1);
+                y = (1 - Math.Abs(x)) * (y >= 0 ? 1 : -1);
+                x = fx;
+            }
+            return new Vector2((float)x, (float)y);
+        }
 
         public static int[] Triangles(int n, bool rightHanded, bool skirts)
         {
@@ -190,7 +213,11 @@ namespace TAP.Simulation
 
         private static ChunkData Build(TerrainGenerator gen, double radius, int face, double u0, double v0, double size, int n, bool ocean, bool skirts, bool colors)
         {
-            int g = n + 3; // grid with 1-sample border for normals
+            // A visual chunk below the root also carries its parent's surface for LOD morphing. The parent's grid is every
+            // second vertex of ours (n is even), and its normals need samples two steps out: a 2-sample border.
+            bool morph = colors && size < 2 - 1e-9;
+            int border = morph ? 2 : 1;
+            int g = n + 1 + 2 * border; // grid with a border for normals
             int nf = gen.FieldCount;
             var dirs = Scratch(ref _dirs, g * g);
             var heights = Scratch(ref _heights, g * g);
@@ -198,12 +225,12 @@ namespace TAP.Simulation
             for (int j = 0; j < g; j++)
                 for (int i = 0; i < g; i++)
                 {
-                    double u = u0 + size * (i - 1) / n;
-                    double v = v0 + size * (j - 1) / n;
+                    double u = u0 + size * (i - border) / n;
+                    double v = v0 + size * (j - border) / n;
                     var d = CubeSphere.ToSphere(face, u, v);
                     int k = j * g + i;
                     // The border only shapes normals; colours need the full sample (every field) at the vertices.
-                    bool vertex = colors && i >= 1 && j >= 1 && i <= n + 1 && j <= n + 1;
+                    bool vertex = colors && i >= border && j >= border && i <= n + border && j <= n + border;
                     dirs[k] = d;
                     heights[k] = gen.Sample(d, fields, k * nf, vertex);
                 }
@@ -220,27 +247,32 @@ namespace TAP.Simulation
             data.CenterBF = center;
             data.MinHeight = double.MaxValue;
             data.MaxHeight = double.MinValue;
+            int K(int i, int j) => (j + border) * g + (i + border);
             Vector3d P(int i, int j)
             {
-                int k = (j + 1) * g + (i + 1);
+                int k = K(i, j);
                 double h = heights[k];
                 if (ocean && h < 0) h = 0;
                 return dirs[k] * (radius + h);
+            }
+            // The normal at (i, j) from neighbours s steps away: s = 1 for this chunk, 2 for its parent.
+            Vector3d Normal(int i, int j, int s)
+            {
+                int k = K(i, j);
+                if (ocean && heights[k] < 0) return dirs[k];
+                Vector3d nrm = Vector3d.Cross(P(i + s, j) - P(i - s, j), P(i, j + s) - P(i, j - s)).normalized;
+                return Vector3d.Dot(nrm, dirs[k]) < 0 ? -nrm : nrm;
             }
             Vector3 bmin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue), bmax = -bmin;
             for (int j = 0; j <= n; j++)
                 for (int i = 0; i <= n; i++)
                 {
-                    int k = (j + 1) * g + (i + 1);
+                    int k = K(i, j);
                     double hRaw = heights[k];
                     bool water = ocean && hRaw < 0;
                     Vector3d p = P(i, j);
                     Vector3d dir = dirs[k];
-                    Vector3d du = P(i + 1, j) - P(i - 1, j);
-                    Vector3d dv = P(i, j + 1) - P(i, j - 1);
-                    Vector3d nrm = Vector3d.Cross(du, dv).normalized;
-                    if (Vector3d.Dot(nrm, dir) < 0) nrm = -nrm;
-                    if (water) nrm = dir;
+                    Vector3d nrm = Normal(i, j, 1);
                     int vi = j * row + i;
                     if (colors)
                     {
@@ -260,6 +292,43 @@ namespace TAP.Simulation
                     if (hh < data.MinHeight) data.MinHeight = hh;
                     if (hh > data.MaxHeight) data.MaxHeight = hh;
                 }
+            if (morph)
+            {
+                // The parent's own normal and colour at its vertices (every second one of ours), as the parent computes them.
+                var parentNormals = Scratch(ref _parentNormals, row * row);
+                var parentColors = Scratch(ref _parentColors, row * row);
+                for (int j = 0; j <= n; j += 2)
+                    for (int i = 0; i <= n; i += 2)
+                    {
+                        int k = K(i, j), vi = j * row + i;
+                        Vector3d pn = Normal(i, j, 2);
+                        var col = gen.Colorize(dirs[k], heights[k], fields, k * nf, Vector3d.Dot(pn, dirs[k]));
+                        col.a = ocean && heights[k] < 0 ? (byte)255 : (byte)0;
+                        parentNormals[vi] = pn;
+                        parentColors[vi] = col;
+                    }
+                // Every vertex's point on the parent's surface: a parent vertex, the middle of a parent edge, or the middle of
+                // the diagonal (a, c) that splits each parent quad into the triangles (a, b, c) and (a, c, d).
+                float parentArc = (float)(2 * size * Math.PI * 0.25 * radius);
+                for (int j = 0; j <= n; j++)
+                    for (int i = 0; i <= n; i++)
+                    {
+                        int ia = i - (i & 1), ja = j - (j & 1), ib = i + (i & 1), jb = j + (j & 1);
+                        int a = ja * row + ia, b = jb * row + ib, vi = j * row + i;
+                        Vector3 delta = (Vector3)((P(ia, ja) + P(ib, jb)) * 0.5 - P(i, j));
+                        Vector3d pn = (parentNormals[a] + parentNormals[b]).normalized;
+                        Color32 ca = parentColors[a], cb = parentColors[b];
+                        double r = (ca.r + cb.r) >> 1, gr = (ca.g + cb.g) >> 1, bl = (ca.b + cb.b) >> 1;
+                        data.UV2[vi] = new Vector4(delta.x, delta.y, delta.z, parentArc);
+                        Vector2 oct = Octahedral(pn);
+                        data.UV3[vi] = new Vector4(oct.x, oct.y, (float)(r + gr * 256 + bl * 65536), (ca.a + cb.a) / 510f);
+                    }
+            }
+            else if (colors)
+            {
+                Array.Clear(data.UV2, 0, row * row);
+                Array.Clear(data.UV3, 0, row * row);
+            }
             if (skirts)
             {
                 double depth = Math.Max(2.0, size * Math.PI * 0.25 * radius / n * 0.8);
@@ -267,13 +336,17 @@ namespace TAP.Simulation
                 {
                     int src = perim[k];
                     int i = src % row, j = src / row;
-                    int gk = (j + 1) * g + (i + 1);
-                    Vector3d p = P(i, j) - dirs[gk] * depth;
+                    Vector3d p = P(i, j) - dirs[K(i, j)] * depth;
                     int vi = row * row + k;
                     Vector3 local = (Vector3)(p - center);
                     data.Positions[vi] = local;
                     data.Normals[vi] = data.Normals[src];
-                    if (colors) data.Colors[vi] = data.Colors[src];
+                    if (colors)
+                    {
+                        data.Colors[vi] = data.Colors[src];
+                        data.UV2[vi] = data.UV2[src];
+                        data.UV3[vi] = data.UV3[src];
+                    }
                     data.UV0[vi] = data.UV0[src];
                     data.UV1[vi] = data.UV1[src];
                     bmin = Vector3.Min(bmin, local);

@@ -140,7 +140,7 @@ Each step can ship on its own. The steps are plan tasks:
 | 2. Schedule better | FND-20 | EA2, only once the queue fills up |
 | 3. Remove the garbage | FND-17, done | EA1 |
 | 4. Evaluate in Burst | FND-19 | EA1, after FND-17 |
-| 5. Morph between LODs | FND-18 | EA1 |
+| 5. Morph between LODs | FND-18, built, waiting for your review | EA1 |
 | 6. Fill the mid range | part of ART-07a | EA1 |
 | 7. Later | none yet | — |
 
@@ -185,6 +185,10 @@ collection is the cost that shows, so removing the garbage comes first.
    channel. In the vertex shader, blend from that to the real height over the last part of the split distance. This
    removes pops on descent and most coastline jumps, and costs one float per vertex. Collisions are unaffected: they use
    their own full-detail grid.
+
+   Built on 2026-10-18. Positions, normals, colours and the water flag all morph, in every terrain pass. A render test finds a child at its
+   swap distance within 1 colour level of its parent. Cost: +4 to 5% main-thread terrain time and about 70 MB. The side-by-side
+   recording waits for your review.
 6. **Fill the mid range with texture (KSP 2's tiers).**
    - Give each biome one large-scale tiling normal/height texture, 1 to 3 km across.
    - Step the near textures' UV scale with distance from the camera (not altitude).

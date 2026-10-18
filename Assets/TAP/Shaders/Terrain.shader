@@ -74,6 +74,7 @@ Shader "TAP/Terrain"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "PlanetWeather.hlsl"
+            #include "TerrainMorph.hlsl"
 
             struct Attributes
             {
@@ -82,6 +83,8 @@ Shader "TAP/Terrain"
                 float4 color : COLOR;
                 float2 uv0 : TEXCOORD0;
                 float2 uv1 : TEXCOORD1;
+                float4 uv2 : TEXCOORD2; // LOD morph: the move to the parent's surface, the parent's arc
+                float4 uv3 : TEXCOORD3; // LOD morph: the parent's normal, colour and water flag
             };
 
             struct Varyings
@@ -138,17 +141,20 @@ Shader "TAP/Terrain"
             Varyings vert(Attributes v)
             {
                 Varyings o;
-                VertexPositionInputs p = GetVertexPositionInputs(v.positionOS.xyz);
+                float k = TerrainMorphFactor(v.positionOS.xyz, v.uv2);
+                float3 normalOS = TerrainMorphNormal(v.normalOS, v.uv3, k);
+                VertexPositionInputs p = GetVertexPositionInputs(TerrainMorphPosition(v.positionOS.xyz, v.uv2, k));
                 o.positionCS = p.positionCS;
                 o.positionWS = p.positionWS;
                 // Terrain roots use uniform scale. Remove that scale before normalization:
                 // the far view's inverse scale produced zero normals and NaNs on the GPU.
-                float3 direction = mul((float3x3)GetObjectToWorldMatrix(), v.normalOS);
+                float3 direction = mul((float3x3)GetObjectToWorldMatrix(), normalOS);
                 direction /= max(max(abs(direction.x), max(abs(direction.y), abs(direction.z))), 1e-20);
                 o.normalWS = SafeNormalize(direction);
-                o.normalOS = v.normalOS;
-                o.color = v.color;
-                o.detailPos = float3(v.uv0.x, v.uv0.y, v.uv1.x);
+                o.normalOS = normalOS;
+                o.color = TerrainMorphColor(v.color, v.uv3, k);
+                // The detail textures move with the ground (uv0, uv1.x: body-fixed metres; uv2.xyz: the same frame).
+                o.detailPos = float3(v.uv0.x, v.uv0.y, v.uv1.x) + v.uv2.xyz * k;
                 o.fogFactor = ComputeFogFactor(p.positionCS.z);
                 return o;
             }
@@ -377,9 +383,15 @@ Shader "TAP/Terrain"
             #pragma vertex vert
             #pragma fragment frag
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-            struct Attributes { float4 positionOS : POSITION; };
+            #include "TerrainMorph.hlsl"
+            struct Attributes { float4 positionOS : POSITION; float4 uv2 : TEXCOORD2; };
             struct Varyings { float4 positionCS : SV_POSITION; };
-            Varyings vert(Attributes v) { Varyings o; o.positionCS = TransformObjectToHClip(v.positionOS.xyz); return o; }
+            Varyings vert(Attributes v)
+            {
+                Varyings o;
+                o.positionCS = TransformObjectToHClip(TerrainMorphPosition(v.positionOS.xyz, v.uv2, TerrainMorphFactor(v.positionOS.xyz, v.uv2)));
+                return o;
+            }
             half frag(Varyings i) : SV_Target { return 0; }
             ENDHLSL
         }
@@ -394,12 +406,15 @@ Shader "TAP/Terrain"
             #pragma vertex vert
             #pragma fragment frag
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; };
+            #include "TerrainMorph.hlsl"
+            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; float4 uv2 : TEXCOORD2; float4 uv3 : TEXCOORD3; };
             struct Varyings { float4 positionCS : SV_POSITION; float3 normalWS : TEXCOORD0; };
             Varyings vert(Attributes v)
             {
-                Varyings o; o.positionCS = TransformObjectToHClip(v.positionOS.xyz);
-                float3 direction = mul((float3x3)GetObjectToWorldMatrix(), v.normalOS);
+                Varyings o;
+                float k = TerrainMorphFactor(v.positionOS.xyz, v.uv2);
+                o.positionCS = TransformObjectToHClip(TerrainMorphPosition(v.positionOS.xyz, v.uv2, k));
+                float3 direction = mul((float3x3)GetObjectToWorldMatrix(), TerrainMorphNormal(v.normalOS, v.uv3, k));
                 direction /= max(max(abs(direction.x), max(abs(direction.y), abs(direction.z))), 1e-20);
                 o.normalWS = SafeNormalize(direction); return o;
             }
