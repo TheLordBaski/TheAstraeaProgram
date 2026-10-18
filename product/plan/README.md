@@ -9,7 +9,7 @@ It adds TAP's own additions:
 - planned expansions for more star systems and trade routes.
 
 **What it contains:**
-- 216 tasks in 18 workstreams;
+- 221 tasks in 18 workstreams;
 - milestones from the first internal foundations to 1.0;
 - estimates for a solo developer working with Claude;
 - the decisions still open.
