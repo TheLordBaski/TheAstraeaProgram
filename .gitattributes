@@ -133,3 +133,5 @@ Assets/Animations/Baked/**/*.asset lfs
 *.mid lfs
 Assets/Plugins/FMOD/**/*.a lfs
 Assets/Plugins/FMOD/**/Contents/MacOS/* lfs
+# FMOD mac plugins: CRLF would break the bundle code signature
+Assets/Plugins/FMOD/**/Info.plist text eol=lf

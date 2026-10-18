@@ -89,3 +89,6 @@ Desktop.ini
 
 # website: its own repo (TheLordBaski/TAPWeb)
 /product/website/
+
+# FMOD editor log
+fmod_editor.log
