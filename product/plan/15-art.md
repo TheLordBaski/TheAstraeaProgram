@@ -133,6 +133,11 @@ rest.
   - triplanar detail textures per biome;
   - rock on slopes, snow and ice by height and latitude;
   - distance blending to avoid tiling.
+- Mid-range detail, between the near materials (which fade out within 1.6 km) and the orbital maps. These are KSP 2's
+  tiers; see [TERRAIN_LOD_RESEARCH.md](../../Docs/TERRAIN_LOD_RESEARCH.md).
+  - One large-scale tiling normal/height texture per biome, 1 to 3 km across.
+  - The near textures' UV scale stepped by distance from the camera (not altitude, which makes them swim).
+  - Height blending up close, alpha blending beyond about 100 m.
 - Scatter: rocks and boulders with colliders near vessels, density per biome.
 - Oceans v2: waves, shore foam, a per-body liquid colour.
 - Texture sets for Tellus, Luma, Pruina, Rubra and Vigil.

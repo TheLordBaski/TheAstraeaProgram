@@ -524,3 +524,92 @@ after 1.0, but retrofitting a single-system game is far more expensive than star
 - [x] Saves carry system ids, and slice saves migrate to `home/...`.
 - [x] Nothing in gameplay code assumes a single star (a test searches for `System.Root` use outside the system
       service, and another for literal body ids).
+
+### FND-16 · Terrain streaming benchmark
+**Milestone** M1 · **Claude** 1 d · **You** — · **Needs** FND-13
+
+Step 1 of the terrain plan in [TERRAIN_LOD_RESEARCH.md](../../Docs/TERRAIN_LOD_RESEARCH.md): measure terrain streaming before
+optimising it. The FND-13 scenarios launch from the pad, where the terrain barely changes.
+
+- Two scenarios: `descent` (a dive from orbit to the surface of Tellus) and `low-pass` (1 km above the ground at 2 km/s).
+- Terrain columns: worker time per chunk, the queue, uploads per frame, garbage and collections, and how long the
+  ground under the camera stays coarser than the LOD wants.
+
+**Done when**
+- [x] Both scenarios run headless in the Windows player and in the editor.
+- [x] The CSV has the terrain columns, and `compare-benchmark.ps1` compares them.
+- [x] A baseline with these numbers is recorded in `Docs/PERFORMANCE.md` ("Baseline: 2026-10-18").
+
+Built (`BenchmarkRunner.cs`, counters in `CubeSphere.cs` and `PlanetTerrain.cs`, `compare-benchmark.ps1`,
+[Docs/PERFORMANCE.md](../../Docs/PERFORMANCE.md)):
+- **Numbers (player, no window):** 3.8 ms of worker time per chunk; the terrain's main-thread share is 0.35 to 0.41 ms.
+  The chunk under the camera is never more than a frame or two coarser than wanted. Uploads come in bursts that hit the
+  cap of 12 a frame.
+- **What it says:** six workers could make about 1,500 chunks a second, and the paths ask for 145 to 176, so the
+  first-in-first-out queue costs nothing yet. The cost that shows is garbage: 89 to 106 collections in 10 s while
+  streaming, against 28 to 31 on the pad (FND-17).
+- **Not done:** the same run found `map-40`, `warp-max` and the start-up slower than on 2026-10-12. The home system has
+  grown to 22 bodies since; not investigated here.
+
+### FND-17 · Garbage-free terrain chunks
+**Milestone** EA1 · **Claude** 1.5 d · **You** — · **Needs** FND-16
+
+Every chunk allocates about ten managed arrays (roughly 100 to 160 KB), and the main thread copies them into the mesh.
+While streaming, Mono collects three times as often as on the pad, and every collection stops the main thread.
+
+- Pooled native buffers per worker for samples, fields and vertices.
+- Meshes filled with `Mesh.AllocateWritableMeshData` off the main thread and applied with
+  `ApplyAndDisposeWritableMeshData`; one native index buffer per resolution, handedness and skirt setting.
+- Collision chunks use the same path.
+
+**Done when**
+- [ ] `descent` and `low-pass` collect garbage no more often than the pad scenarios (within 10%).
+- [ ] The editor's allocation counter shows no managed allocation per chunk made.
+- [ ] The terrain fingerprint and the collision tests are unchanged.
+
+### FND-18 · Terrain LOD morphing
+**Milestone** EA1 · **Claude** 1.5 d · **You** 0.5 d · **Needs** FND-02
+
+A chunk swaps to its four children in one frame, which shows as popping on descent. The ocean is flattened into the
+same mesh, so the coastline jumps too.
+
+- Each vertex also stores its height as the parent chunk would give it, in a spare vertex channel.
+- The vertex shader blends from that height to the real one over the last part of the split distance (as in CDLOD).
+- Collisions are unchanged: they use their own full-detail grid.
+
+**Done when**
+- [ ] You see no popping in a recorded descent from orbit to the launch site, and coastlines do not jump.
+- [ ] `planets_ms` in `descent` and `low-pass` is no more than 10% higher.
+
+### FND-19 · Burst terrain evaluator
+**Milestone** EA1 · **Claude** 3 d · **You** — · **Needs** FND-17
+
+`LayeredTerrain.Sample` interprets the terrain definition one sample at a time in managed code. BurstPQS showed this
+step about six times faster when every operation runs over a whole chunk in Burst. That buys room for more noise,
+finer chunks and a deeper quadtree.
+
+- Each body's terrain definition compiles once into a flat list of operations (native arrays of plain structs). The JSON
+  format does not change.
+- A Burst job runs each operation over all of a chunk's samples before the next one.
+- `DetMath` and the noise are ported to Burst with `FloatMode.Strict` (no reassociation, no fused multiply-add).
+- The managed path stays as the reference and the fallback. Colliders, altitude queries and map exports use the new
+  evaluator too.
+
+**Done when**
+- [ ] The terrain fingerprint is bit for bit identical on the Burst path, in the editor and in the Windows player.
+- [ ] Worker time per chunk in `descent` is at least three times lower.
+- [ ] A setting or command-line switch selects the managed path, and a test compares the two.
+
+### FND-20 · Terrain request scheduling: priority and look-ahead
+**Milestone** EA2 · **Claude** 1 d · **You** — · **Needs** FND-16
+
+The work queue is first in, first out, so a far chunk asked for earlier is built before a near one. FND-16 found that
+this costs nothing yet: the workers are mostly idle. Build this task when more detail (FND-19, more octaves, a deeper
+quadtree) makes the queue fill up.
+
+- A priority queue ranked by distance or screen error, re-ranked each frame; chunks in the view frustum first.
+- Requests around where the camera will be 1 to 2 s ahead, along its velocity.
+- Stale requests dropped before they run; the work moved to Unity's job system.
+
+**Done when**
+- [ ] With the queue full, `detail_lag_s` in `descent` and `low-pass` is lower than with first in, first out.

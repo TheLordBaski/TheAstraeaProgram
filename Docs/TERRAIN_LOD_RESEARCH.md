@@ -132,7 +132,20 @@ The gaps:
 
 ## Recommended plan
 
-In order; each step can ship on its own.
+Each step can ship on its own. The steps are plan tasks:
+
+| Step | Task | Milestone |
+|---|---|---|
+| 1. Measure | FND-16, done | M1 |
+| 2. Schedule better | FND-20 | EA2, only once the queue fills up |
+| 3. Remove the garbage | FND-17 | EA1, first |
+| 4. Evaluate in Burst | FND-19 | EA1, after FND-17 |
+| 5. Morph between LODs | FND-18 | EA1 |
+| 6. Fill the mid range | part of ART-07a | EA1 |
+| 7. Later | none yet | — |
+
+The measurements of step 1 changed the order. The workers are mostly idle, so better scheduling can wait. Garbage
+collection is the cost that shows, so removing the garbage comes first.
 
 1. **Measure.** Add two benchmark scenarios: `descent` (from orbit to the surface of Tellus) and `low-pass` (1 km up at
    about 2 km/s). Record:

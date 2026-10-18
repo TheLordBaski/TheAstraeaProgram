@@ -16,6 +16,7 @@ FND-12,"Logs, crash handling and in-game bug reports",01-foundations.md,M1,M1,1.
 FND-13,Performance baseline and budgets,01-foundations.md,M1,M1,2.0,0.5,False,
 FND-14,Remove single-mission assumptions; game events and objectives,01-foundations.md,M1,M1,3.0,0.5,False,FND-01
 FND-15,"Multi-system data model: a galaxy of one system, ready for more",01-foundations.md,M1,M1,2.0,0.5,False,
+FND-16,Terrain streaming benchmark,01-foundations.md,M1,M1,1.0,0.0,False,FND-13
 HUB-01,Site plan,11-space-center.md,M1,M1,1.0,1.0,False,
 PRT-01,"Catalogue spec, naming and stat framework",05-parts.md,M1,M1,2.0,2.0,False,D-01
 QA-01,Test strategy,17-quality.md,M1,M1,1.0,0.5,False,
@@ -59,6 +60,9 @@ FLT-09,Launch clamps,04-flight-systems.md,EA1,EA1,2.0,0.5,False,
 FLT-13,Precision at solar distances,04-flight-systems.md,EA1,EA1,2.0,0.0,False,FND-01
 FLT-14,Part-count performance,04-flight-systems.md,EA1,EA1,5.0,1.0,False,FND-13
 FLT-15,Tweakables,04-flight-systems.md,EA1,EA1,3.0,0.5,False,ASM-02
+FND-17,Garbage-free terrain chunks,01-foundations.md,EA1,EA1,1.5,0.0,False,FND-16
+FND-18,Terrain LOD morphing,01-foundations.md,EA1,EA1,1.5,0.5,False,FND-02
+FND-19,Burst terrain evaluator,01-foundations.md,EA1,EA1,3.0,0.0,False,FND-17
 HUB-02,"Hub scene, camera and facility screens",11-space-center.md,EA1,EA1,4.0,1.0,False,FND-07 HUB-01
 HUB-03,"Day, night and time in the hub",11-space-center.md,EA1,EA1,1.0,0.5,False,HUB-02 FND-01
 HUB-06,Launch and return flow,11-space-center.md,EA1,EA1,2.0,0.5,False,HUB-02 ASM-07 SCI-06
@@ -141,6 +145,7 @@ FLT-10,Docking v2: sizes and docking mode,04-flight-systems.md,EA2,EA2,3.0,0.5,F
 FLT-12,Physics range and many vessels,04-flight-systems.md,EA2,EA2,3.0,0.5,False,
 FLT-17,"Control fins, airbrakes and lifting reentry",04-flight-systems.md,EA2,EA2,3.0,1.0,False,PRT-12b
 FLT-18,Engine families,04-flight-systems.md,EA2,EA2,4.0,1.0,False,FLT-01 FLT-02 FLT-04
+FND-20,Terrain request scheduling: priority and look-ahead,01-foundations.md,EA2,EA2,1.0,0.0,False,FND-16
 NAV-05,Transfer windows and planning help,03-navigation.md,EA2,EA2,4.0,1.0,False,NAV-02 SYS-01
 NAV-10,Alarm clock,03-navigation.md,EA2,EA2,2.0,0.5,False,NAV-02
 PRT-06,Crew parts and crew transfer,05-parts.md,EA2,EA2,3.0,0.5,False,CRW-01
