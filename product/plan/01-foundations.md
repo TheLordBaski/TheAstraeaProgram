@@ -591,8 +591,8 @@ same mesh, so the coastline jumps too.
 - Collisions are unchanged: they use their own full-detail grid.
 
 **Done when**
-- [ ] You see no popping in a recorded descent from orbit to the launch site, and coastlines do not jump. (Recording ready for review: the
-      benchmark descent at a quarter speed, morphing on and off side by side, levels 9 to 13. A render test through the terrain shader finds a child
+- [x] You see no popping in a recorded descent from orbit to the launch site, and coastlines do not jump. (Approved on 2026-10-18 from the
+      benchmark descent at a quarter speed, morphing on and off side by side, levels 9 to 13: no popping, and the coast is fine. A render test through the terrain shader finds a child
       chunk, at the distance where it replaces its parent, within 1 colour level of the parent; off, it differs by up to 142 levels.)
 - [x] `planets_ms` in `descent` and `low-pass` is no more than 10% higher. (+4% and +5%, FND-17 and FND-18 players run alternately;
       `PERFORMANCE.md`.)
