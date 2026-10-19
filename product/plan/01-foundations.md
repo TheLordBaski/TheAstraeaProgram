@@ -613,6 +613,12 @@ Built (`CubeSphere.cs`, `TerrainMorph.hlsl`, `Terrain.shader`, `PlanetTerrain.cs
   back with half-precision channels.
 - **Not done:** a chunk that arrives late (its parent kept waiting for it) starts partly morphed and still moves a little. Measured lag is 0.00 to
   0.06 s, so this is rare.
+- **Fixed on 2026-10-19.** In the map, Tellus showed as a bulging, part-black blob.
+  - The cause: the map's sphere and the far view use this shader with meshes that have no UV2/UV3, and D3D12 does not read missing
+    channels as zero.
+  - The fix: morphing now needs the material's `_LodMorph`, which only `PlanetTerrain` sets on its own material (the map's copy turns it off).
+    With it off, the shader reads nothing from UV2/UV3.
+  - `PlanetVisualTests.TerrainShaderLeavesMeshesWithoutMorphDataAlone` renders such a mesh to keep it that way.
 
 ### FND-19 · Burst terrain evaluator
 **Milestone** EA1 · **Claude** 3 d · **You** — · **Needs** FND-17

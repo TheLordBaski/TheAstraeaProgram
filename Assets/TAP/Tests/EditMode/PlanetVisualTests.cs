@@ -174,5 +174,38 @@ namespace TAP.Tests
                 Assert.That(block.GetTexture("_PlanetWeather"),Is.SameAs(weather));Assert.That(block.GetTexture("_PlanetNoise"),Is.SameAs(noise));
             } finally { UnityEngine.Object.DestroyImmediate(weather);UnityEngine.Object.DestroyImmediate(noise);UnityEngine.Object.DestroyImmediate(p); }
         }
+        [Test] public void TerrainShaderLeavesMeshesWithoutMorphDataAlone()
+        {
+            // The map's sphere and the far view draw meshes with no UV2/UV3, which D3D12 does not read as zero (FND-18 bug: a
+            // bulging, black planet in the map). With the material's default _LodMorph = 0, the morph global must change nothing.
+            var mat=new Material(Shader.Find("TAP/Terrain"));
+            mat.SetVector("_BodySunDir",new Vector4(.6f,.6f,-.5f,1));mat.SetVector("_BodySunColor",Vector4.one);
+            Assert.That(mat.GetFloat("_LodMorph"),Is.Zero,"only PlanetTerrain's material morphs");
+            var prim=GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            var mesh=UnityEngine.Object.Instantiate(prim.GetComponent<MeshFilter>().sharedMesh);mesh.uv2=null;mesh.uv3=null;
+            UnityEngine.Object.DestroyImmediate(prim);
+            var go=new GameObject("No morph data"){layer=31};go.AddComponent<MeshFilter>().sharedMesh=mesh;go.AddComponent<MeshRenderer>().sharedMaterial=mat;
+            go.transform.localScale=Vector3.one*1000;
+            var camGo=new GameObject("Morph camera");var cam=camGo.AddComponent<Camera>();camGo.AddComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
+            cam.cullingMask=1<<31;cam.clearFlags=CameraClearFlags.SolidColor;cam.backgroundColor=Color.black;cam.nearClipPlane=1;cam.farClipPlane=100000;
+            camGo.transform.position=new Vector3(0,0,-3000);
+            var rt=new RenderTexture(128,128,24);cam.targetTexture=rt;var tex=new Texture2D(128,128,TextureFormat.RGB24,false);
+            Color32[] Shot(float split)
+            {
+                Shader.SetGlobalFloat("_TerrainMorphSplit",split);
+                UnityEngine.Rendering.RenderPipeline.SubmitRenderRequest(cam,new UnityEngine.Rendering.Universal.UniversalRenderPipeline.SingleCameraRequest{destination=rt});
+                var prev=RenderTexture.active;RenderTexture.active=rt;tex.ReadPixels(new Rect(0,0,128,128),0,0);RenderTexture.active=prev;
+                return tex.GetPixels32();
+            }
+            try {
+                var off=Shot(0);var on=Shot(2.2f);
+                Assert.That(off[64*128+64].r,Is.GreaterThan(50),"the sphere is drawn");
+                Assert.That(on,Is.EqualTo(off),"a mesh without morph data must not morph");
+            } finally {
+                Shader.SetGlobalFloat("_TerrainMorphSplit",0);
+                UnityEngine.Object.DestroyImmediate(go);UnityEngine.Object.DestroyImmediate(mesh);UnityEngine.Object.DestroyImmediate(camGo);
+                rt.Release();UnityEngine.Object.DestroyImmediate(rt);UnityEngine.Object.DestroyImmediate(tex);UnityEngine.Object.DestroyImmediate(mat);
+            }
+        }
     }
 }

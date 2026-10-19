@@ -86,8 +86,16 @@ namespace TAP.Simulation
         public void SetVisualMaterial(Material material)
         {
             Material = material;
+            EnableMorph(material);
             foreach (var renderer in GetComponentsInChildren<MeshRenderer>(true)) renderer.sharedMaterial = material;
         }
+
+        /// <summary>Only this terrain's chunks carry LOD morph data (UV2, UV3): its material alone may read them.</summary>
+        private static void EnableMorph(Material material)
+        {
+            if (material != null) material.SetFloat(LodMorphId, 1);
+        }
+        private static readonly int LodMorphId = Shader.PropertyToID("_LodMorph");
         public int MeshBuildBudget = 12;
 
         private TerrainNode[] _roots;
@@ -119,6 +127,7 @@ namespace TAP.Simulation
         {
             Body = body;
             Material = mat;
+            EnableMorph(mat);
             double arc0 = Math.PI * 0.5 * body.Radius;
             MaxLevel = Mathf.Clamp(Mathf.RoundToInt((float)Math.Log(arc0 / (ChunkResolution * 3.2), 2)), 4, 16);
             _roots = new TerrainNode[6];

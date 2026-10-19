@@ -56,6 +56,7 @@ namespace TAP.Game
                 foreach(var fb in scene.FarView.Bodies) if(fb.Body==b) v.Bind(fb.Material,p,(float)ScaledSpace.Scale,false);
                 if(p.Surface!=null) {
                     var mm=new Material(mat) { name="Map surface "+b.Id }; v.map[b]=mm;
+                    mm.SetFloat("_LodMorph",0); // a copy of the chunks' material, for the map's sphere, which has no morph data
                     v.Bind(mm,p,(float)MapView.Scale,true); scene.Map.SetVisualMaterial(b,mm,p.Surface);
                 }
             }

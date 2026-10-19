@@ -50,11 +50,47 @@ Shader "TAP/Terrain"
         _RingProfile ("Ring profile", 2D) = "white" {}
         _RingRange ("Ring inner, outer, 1, enabled", Vector) = (0, 0, 0, 0)
         _RingNormal ("Ring plane normal (world)", Vector) = (0, 1, 0, 0)
+        // LOD morphing (TerrainMorph.hlsl): only PlanetTerrain's chunks carry the data, and PlanetTerrain sets this on its material.
+        // Every other mesh drawn with this shader (far view, map, menu, body lab) has no UV2/UV3, which do not read as zero.
+        _LodMorph ("LOD morph", Float) = 0
     }
     SubShader
     {
         Tags { "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" "Queue" = "Geometry" }
         LOD 100
+
+        HLSLINCLUDE
+        #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+        // One set of material constants for every pass (the depth passes read _LodMorph too), as the SRP batcher needs.
+        CBUFFER_START(UnityPerMaterial)
+            float4 _DetailTex_ST;
+            float _DetailScaleNear;
+            float _DetailScaleFar;
+            float _DetailStrength;
+            float _WaterSpecular;
+            float _AmbientBoost;
+            float4 _SpaceAmbient;
+            float _SkyAmbient;
+            float _DistanceScale;
+            float4 _BodySunDir;
+            float4 _BodySunColor;
+            float4 _HazeColor;
+            float _Transmittance;
+            float4 _BaseColor, _CloudParams;
+            float _SurfaceEnabled, _BiomeMode, _MapMode, _Radius, _CloudEnabled, _OceanTime, _OceanRoughness;
+            float _SurfaceSaturation,_SurfaceNormalStrength,_OceanColourBlend;
+            float4 _SurfaceTint,_OceanColour;
+            float4 _RegionalDetail;
+            float4 _OceanShallow;
+            float _SatelliteStrength, _OrbitalNear;
+            float _TextureBias;
+            float4 _BodyCenter;
+            float4x4 _WorldToBody;
+            float4 _RingRange;
+            float4 _RingNormal;
+            float _LodMorph;
+        CBUFFER_END
+        ENDHLSL
 
         Pass
         {
@@ -110,34 +146,6 @@ Shader "TAP/Terrain"
             TEXTURE2D_ARRAY(_SatelliteDetail); SAMPLER(sampler_SatelliteDetail);
             TEXTURE2D(_RingProfile); SAMPLER(sampler_RingProfile);
 
-            CBUFFER_START(UnityPerMaterial)
-                float4 _DetailTex_ST;
-                float _DetailScaleNear;
-                float _DetailScaleFar;
-                float _DetailStrength;
-                float _WaterSpecular;
-                float _AmbientBoost;
-                float4 _SpaceAmbient;
-                float _SkyAmbient;
-                float _DistanceScale;
-                float4 _BodySunDir;
-                float4 _BodySunColor;
-                float4 _HazeColor;
-                float _Transmittance;
-                float4 _BaseColor, _CloudParams;
-                float _SurfaceEnabled, _BiomeMode, _MapMode, _Radius, _CloudEnabled, _OceanTime, _OceanRoughness;
-                float _SurfaceSaturation,_SurfaceNormalStrength,_OceanColourBlend;
-                float4 _SurfaceTint,_OceanColour;
-                float4 _RegionalDetail;
-                float4 _OceanShallow;
-                float _SatelliteStrength, _OrbitalNear;
-                float _TextureBias;
-                float4 _BodyCenter;
-                float4x4 _WorldToBody;
-                float4 _RingRange;
-                float4 _RingNormal;
-            CBUFFER_END
-
             Varyings vert(Attributes v)
             {
                 Varyings o;
@@ -154,7 +162,7 @@ Shader "TAP/Terrain"
                 o.normalOS = normalOS;
                 o.color = TerrainMorphColor(v.color, v.uv3, k);
                 // The detail textures move with the ground (uv0, uv1.x: body-fixed metres; uv2.xyz: the same frame).
-                o.detailPos = float3(v.uv0.x, v.uv0.y, v.uv1.x) + v.uv2.xyz * k;
+                o.detailPos = TerrainMorphPosition(float3(v.uv0.x, v.uv0.y, v.uv1.x), v.uv2, k);
                 o.fogFactor = ComputeFogFactor(p.positionCS.z);
                 return o;
             }
