@@ -24,10 +24,14 @@ namespace TAP.Simulation
         };
 
         /// <summary>Unit sphere direction for face coordinates u, v in [-1, 1].</summary>
-        public static Vector3d ToSphere(int face, double u, double v)
+        public static Vector3d ToSphere(int face, double u, double v) => FromTangents(face, Tangent(u), Tangent(v));
+
+        /// <summary>The equi-angular mapping's tangent of a face coordinate in [-1, 1].</summary>
+        public static double Tangent(double u) => Math.Tan(u * Math.PI * 0.25);
+
+        /// <summary>Unit sphere direction for the tangents of u and v (<see cref="Tangent"/>): a grid needs one per row and column.</summary>
+        public static Vector3d FromTangents(int face, double tu, double tv)
         {
-            double tu = Math.Tan(u * Math.PI * 0.25);
-            double tv = Math.Tan(v * Math.PI * 0.25);
             Vector3d p = Normals[face] + AxisA[face] * tu + AxisB[face] * tv;
             return p.normalized;
         }
@@ -85,9 +89,13 @@ namespace TAP.Simulation
             new System.Collections.Generic.Dictionary<(int, bool, bool), System.Collections.Generic.Stack<ChunkData>>();
 
         // Sample scratch per thread (the workers, and the main thread when it builds a chunk right away).
-        [ThreadStatic] private static Vector3d[] _dirs, _parentNormals;
-        [ThreadStatic] private static double[] _heights, _fields;
-        [ThreadStatic] private static Color32[] _parentColors;
+        [ThreadStatic] private static Vector3d[] _dirs, _points, _parentNormals;
+        [ThreadStatic] private static double[] _heights, _fields, _tanU, _tanV;
+        [ThreadStatic] private static Color32[] _parentColors, _colorOut, _parentOut;
+        // Batches for the terrain (TerrainGenerator.SampleMany, ColorizeMany): which samples are full, and the colour requests.
+        [ThreadStatic] private static bool[] _full;
+        [ThreadStatic] private static int[] _colorSamples, _parentSamples;
+        [ThreadStatic] private static double[] _cosSlopes, _parentCosSlopes;
 
         /// <summary>Gives a chunk's arrays back for reuse. Only once nothing reads the chunk any more; null is ignored.</summary>
         public static void Release(ChunkData data)
@@ -128,18 +136,7 @@ namespace TAP.Simulation
         private static T[] Scratch<T>(ref T[] a, int length) => a != null && a.Length >= length ? a : (a = new T[length]);
 
         /// <summary>A unit vector in two numbers (octahedral mapping); TerrainMorph.hlsl decodes it.</summary>
-        public static Vector2 Octahedral(Vector3d n)
-        {
-            double s = Math.Abs(n.x) + Math.Abs(n.y) + Math.Abs(n.z);
-            double x = n.x / s, y = n.y / s;
-            if (n.z < 0)
-            {
-                double fx = (1 - Math.Abs(y)) * (x >= 0 ? 1 : -1);
-                y = (1 - Math.Abs(x)) * (y >= 0 ? 1 : -1);
-                x = fx;
-            }
-            return new Vector2((float)x, (float)y);
-        }
+        public static Vector2 Octahedral(Vector3d n) => ChunkGeometry.Octahedral(n);
 
         public static int[] Triangles(int n, bool rightHanded, bool skirts)
         {
@@ -211,7 +208,7 @@ namespace TAP.Simulation
         /// <summary>Chunks generated on any thread, and the Stopwatch ticks spent in <see cref="Generate"/> (the benchmark reads them).</summary>
         public static long Generated, GenerateTicks;
 
-        private static ChunkData Build(TerrainGenerator gen, double radius, int face, double u0, double v0, double size, int n, bool ocean, bool skirts, bool colors)
+        private static unsafe ChunkData Build(TerrainGenerator gen, double radius, int face, double u0, double v0, double size, int n, bool ocean, bool skirts, bool colors)
         {
             // A visual chunk below the root also carries its parent's surface for LOD morphing. The parent's grid is every
             // second vertex of ours (n is even), and its normals need samples two steps out: a 2-sample border.
@@ -219,142 +216,63 @@ namespace TAP.Simulation
             int border = morph ? 2 : 1;
             int g = n + 1 + 2 * border; // grid with a border for normals
             int nf = gen.FieldCount;
+            bool burst = LayeredTerrain.UseBurst;
             var dirs = Scratch(ref _dirs, g * g);
+            var points = Scratch(ref _points, g * g);
             var heights = Scratch(ref _heights, g * g);
             var fields = Scratch(ref _fields, Math.Max(1, g * g * nf));
-            for (int j = 0; j < g; j++)
-                for (int i = 0; i < g; i++)
-                {
-                    double u = u0 + size * (i - border) / n;
-                    double v = v0 + size * (j - border) / n;
-                    var d = CubeSphere.ToSphere(face, u, v);
-                    int k = j * g + i;
-                    // The border only shapes normals; colours need the full sample (every field) at the vertices.
-                    bool vertex = colors && i >= border && j >= border && i <= n + border && j <= n + border;
-                    dirs[k] = d;
-                    heights[k] = gen.Sample(d, fields, k * nf, vertex);
-                }
-            Vector3d cDir = CubeSphere.ToSphere(face, u0 + size * 0.5, v0 + size * 0.5);
-            double ch = gen.Height(cDir);
-            if (ocean && ch < 0) ch = 0;
-            var center = cDir * (radius + ch);
-            var origin = new Vector3d(Math.Floor(center.x / DetailPeriod) * DetailPeriod, Math.Floor(center.y / DetailPeriod) * DetailPeriod, Math.Floor(center.z / DetailPeriod) * DetailPeriod);
-
-            int row = n + 1;
+            var full = Scratch(ref _full, g * g);
+            var tanU = Scratch(ref _tanU, g);
+            var tanV = Scratch(ref _tanV, g);
+            for (int i = 0; i < g; i++)
+            {
+                tanU[i] = CubeSphere.Tangent(u0 + size * (i - border) / n);
+                tanV[i] = CubeSphere.Tangent(v0 + size * (i - border) / n);
+            }
+            int row = n + 1, parents = (n / 2 + 1) * (n / 2 + 1);
             var perim = skirts ? Perimeter(n) : Array.Empty<int>();
-            int vcount = row * row + perim.Length;
-            var data = Rent(n, skirts, colors, vcount);
-            data.CenterBF = center;
-            data.MinHeight = double.MaxValue;
-            data.MaxHeight = double.MinValue;
-            int K(int i, int j) => (j + border) * g + (i + border);
-            Vector3d P(int i, int j)
+            var data = Rent(n, skirts, colors, row * row + perim.Length);
+            var colorSamples = Scratch(ref _colorSamples, row * row);
+            var cosSlopes = Scratch(ref _cosSlopes, row * row);
+            var colorOut = Scratch(ref _colorOut, row * row);
+            var parentSamples = Scratch(ref _parentSamples, parents);
+            var parentCosSlopes = Scratch(ref _parentCosSlopes, parents);
+            var parentOut = Scratch(ref _parentOut, parents);
+            var parentNormals = Scratch(ref _parentNormals, row * row);
+            var parentColors = Scratch(ref _parentColors, row * row);
+            Vector3d cDir = CubeSphere.ToSphere(face, u0 + size * 0.5, v0 + size * 0.5);
+            fixed (double* tu = tanU) fixed (double* tv = tanV) fixed (Vector3d* d = dirs) fixed (Vector3d* pts = points) fixed (bool* fl = full)
+            fixed (double* h = heights) fixed (Vector3* pos = data.Positions) fixed (Vector3* nrm = data.Normals) fixed (Vector2* uv0 = data.UV0)
+            fixed (Vector2* uv1 = data.UV1) fixed (Vector4* uv2 = data.UV2) fixed (Vector4* uv3 = data.UV3) fixed (Color32* col = data.Colors)
+            fixed (int* cs = colorSamples) fixed (double* cc = cosSlopes) fixed (Color32* co = colorOut) fixed (int* ps = parentSamples)
+            fixed (double* pc = parentCosSlopes) fixed (Color32* po = parentOut) fixed (Vector3d* pn = parentNormals) fixed (Color32* pcol = parentColors)
+            fixed (int* per = perim)
             {
-                int k = K(i, j);
-                double h = heights[k];
-                if (ocean && h < 0) h = 0;
-                return dirs[k] * (radius + h);
-            }
-            // The normal at (i, j) from neighbours s steps away: s = 1 for this chunk, 2 for its parent.
-            Vector3d Normal(int i, int j, int s)
-            {
-                int k = K(i, j);
-                if (ocean && heights[k] < 0) return dirs[k];
-                Vector3d nrm = Vector3d.Cross(P(i + s, j) - P(i - s, j), P(i, j + s) - P(i, j - s)).normalized;
-                return Vector3d.Dot(nrm, dirs[k]) < 0 ? -nrm : nrm;
-            }
-            Vector3 bmin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue), bmax = -bmin;
-            for (int j = 0; j <= n; j++)
-                for (int i = 0; i <= n; i++)
+                var c = new ChunkGrid
                 {
-                    int k = K(i, j);
-                    double hRaw = heights[k];
-                    bool water = ocean && hRaw < 0;
-                    Vector3d p = P(i, j);
-                    Vector3d dir = dirs[k];
-                    Vector3d nrm = Normal(i, j, 1);
-                    int vi = j * row + i;
-                    if (colors)
-                    {
-                        var col = gen.Colorize(dir, hRaw, fields, k * nf, Vector3d.Dot(nrm, dir));
-                        col.a = water ? (byte)255 : (byte)0; // the shader's water flag
-                        data.Colors[vi] = col;
-                    }
-                    Vector3 local = (Vector3)(p - center);
-                    data.Positions[vi] = local;
-                    data.Normals[vi] = (Vector3)nrm;
-                    Vector3d dc = p - origin;
-                    data.UV0[vi] = new Vector2((float)dc.x, (float)dc.y);
-                    data.UV1[vi] = new Vector2((float)dc.z, (float)(water ? 0 : hRaw));
-                    bmin = Vector3.Min(bmin, local);
-                    bmax = Vector3.Max(bmax, local);
-                    double hh = water ? 0 : hRaw;
-                    if (hh < data.MinHeight) data.MinHeight = hh;
-                    if (hh > data.MaxHeight) data.MaxHeight = hh;
-                }
-            if (morph)
-            {
-                // The parent's own normal and colour at its vertices (every second one of ours), as the parent computes them.
-                var parentNormals = Scratch(ref _parentNormals, row * row);
-                var parentColors = Scratch(ref _parentColors, row * row);
-                for (int j = 0; j <= n; j += 2)
-                    for (int i = 0; i <= n; i += 2)
-                    {
-                        int k = K(i, j), vi = j * row + i;
-                        Vector3d pn = Normal(i, j, 2);
-                        var col = gen.Colorize(dirs[k], heights[k], fields, k * nf, Vector3d.Dot(pn, dirs[k]));
-                        col.a = ocean && heights[k] < 0 ? (byte)255 : (byte)0;
-                        parentNormals[vi] = pn;
-                        parentColors[vi] = col;
-                    }
-                // Every vertex's point on the parent's surface: a parent vertex, the middle of a parent edge, or the middle of
-                // the diagonal (a, c) that splits each parent quad into the triangles (a, b, c) and (a, c, d).
-                float parentArc = (float)(2 * size * Math.PI * 0.25 * radius);
-                for (int j = 0; j <= n; j++)
-                    for (int i = 0; i <= n; i++)
-                    {
-                        int ia = i - (i & 1), ja = j - (j & 1), ib = i + (i & 1), jb = j + (j & 1);
-                        int a = ja * row + ia, b = jb * row + ib, vi = j * row + i;
-                        Vector3 delta = (Vector3)((P(ia, ja) + P(ib, jb)) * 0.5 - P(i, j));
-                        Vector3d pn = (parentNormals[a] + parentNormals[b]).normalized;
-                        Color32 ca = parentColors[a], cb = parentColors[b];
-                        double r = (ca.r + cb.r) >> 1, gr = (ca.g + cb.g) >> 1, bl = (ca.b + cb.b) >> 1;
-                        data.UV2[vi] = new Vector4(delta.x, delta.y, delta.z, parentArc);
-                        Vector2 oct = Octahedral(pn);
-                        data.UV3[vi] = new Vector4(oct.x, oct.y, (float)(r + gr * 256 + bl * 65536), (ca.a + cb.a) / 510f);
-                    }
+                    N = n, Border = border, G = g, Row = row, Radius = radius, Ocean = ocean, Colors = colors, Morph = morph,
+                    FaceNormal = CubeSphere.Normals[face], AxisA = CubeSphere.AxisA[face], AxisB = CubeSphere.AxisB[face], TanU = tu, TanV = tv,
+                    Dirs = d, Points = pts, Full = fl, Heights = h, Positions = pos, Normals = nrm, UV0 = uv0, UV1 = uv1, UV2 = uv2, UV3 = uv3,
+                    Colors32 = col, ColorSamples = cs, CosSlopes = cc, ColorOut = co, ParentSamples = ps, ParentCosSlopes = pc, ParentOut = po,
+                    ParentNormals = pn, ParentColors = pcol, ParentArc = (float)(2 * size * Math.PI * 0.25 * radius), Perimeter = per,
+                    PerimeterCount = perim.Length, SkirtDepth = Math.Max(2.0, size * Math.PI * 0.25 * radius / n * 0.8),
+                };
+                if (burst) ChunkGeometry.DirectionsBurst(&c); else ChunkGeometry.Directions(&c);
+                gen.SampleMany(dirs, full, heights, fields, g * g);
+                double ch = gen.Height(cDir);
+                if (ocean && ch < 0) ch = 0;
+                c.Center = cDir * (radius + ch);
+                c.Origin = new Vector3d(Math.Floor(c.Center.x / DetailPeriod) * DetailPeriod, Math.Floor(c.Center.y / DetailPeriod) * DetailPeriod, Math.Floor(c.Center.z / DetailPeriod) * DetailPeriod);
+                if (burst) ChunkGeometry.VerticesBurst(&c); else ChunkGeometry.Vertices(&c);
+                if (colors) gen.ColorizeMany(dirs, heights, fields, colorSamples, cosSlopes, colorOut, row * row);
+                if (morph) gen.ColorizeMany(dirs, heights, fields, parentSamples, parentCosSlopes, parentOut, c.ParentRequests);
+                if (burst) ChunkGeometry.FinishBurst(&c); else ChunkGeometry.Finish(&c);
+                data.CenterBF = c.Center;
+                data.MinHeight = c.MinHeight;
+                data.MaxHeight = c.MaxHeight;
+                data.BoundsMin = c.BoundsMin;
+                data.BoundsMax = c.BoundsMax;
             }
-            else if (colors)
-            {
-                Array.Clear(data.UV2, 0, row * row);
-                Array.Clear(data.UV3, 0, row * row);
-            }
-            if (skirts)
-            {
-                double depth = Math.Max(2.0, size * Math.PI * 0.25 * radius / n * 0.8);
-                for (int k = 0; k < perim.Length; k++)
-                {
-                    int src = perim[k];
-                    int i = src % row, j = src / row;
-                    Vector3d p = P(i, j) - dirs[K(i, j)] * depth;
-                    int vi = row * row + k;
-                    Vector3 local = (Vector3)(p - center);
-                    data.Positions[vi] = local;
-                    data.Normals[vi] = data.Normals[src];
-                    if (colors)
-                    {
-                        data.Colors[vi] = data.Colors[src];
-                        data.UV2[vi] = data.UV2[src];
-                        data.UV3[vi] = data.UV3[src];
-                    }
-                    data.UV0[vi] = data.UV0[src];
-                    data.UV1[vi] = data.UV1[src];
-                    bmin = Vector3.Min(bmin, local);
-                    bmax = Vector3.Max(bmax, local);
-                }
-            }
-            data.BoundsMin = bmin;
-            data.BoundsMax = bmax;
             data.Triangles = Triangles(n, CubeSphere.FaceIsRightHanded(face), skirts);
             return data;
         }

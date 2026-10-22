@@ -9,6 +9,8 @@ namespace TAP.Core
     public sealed class Noise3D
     {
         private readonly int[] _p = new int[512];
+        /// <summary>The permutation table (512 entries), for the Burst terrain kernels.</summary>
+        internal int[] Permutation => _p;
 
         public Noise3D(int seed)
         {

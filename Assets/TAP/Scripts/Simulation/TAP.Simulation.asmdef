@@ -1,10 +1,10 @@
 {
     "name": "TAP.Simulation",
     "rootNamespace": "TAP.Simulation",
-    "references": ["TAP.Core", "TAP.Parts", "TAP.Persistence", "TAP.Trajectory"],
+    "references": ["Unity.Burst", "TAP.Core", "TAP.Parts", "TAP.Persistence", "TAP.Trajectory"],
     "includePlatforms": [],
     "excludePlatforms": [],
-    "allowUnsafeCode": false,
+    "allowUnsafeCode": true,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,

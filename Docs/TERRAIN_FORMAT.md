@@ -194,9 +194,15 @@ Heights and biomes are the same bits on every platform:
 - the terrain uses only plain arithmetic and its own exp, log, sin, cos and atan (`DetMath`), never System.Math;
 - the noise tables come from a copy of .NET's seeded random generator.
 
+Terrain chunks are built in Burst (FND-19): `TerrainKernels` evaluates the same definition, compiled into plain struct arrays,
+with the same arithmetic in the same order (strict float mode), so it gives the same bits as the classes. Single-point
+queries (heights, biomes) use the classes. `-terrain-managed` builds chunks with the classes too.
+
 `Assets/TAP/Tests/EditMode/TerrainFingerprint.txt` holds heights and biomes at 300 fixed points per body. A unit test
 compares them bit for bit, and a program built from the same source with .NET 9 gives the same bits on Windows and on
-Linux (see the FND-02 issue).
+Linux (see the FND-02 issue). Another test does the same through the Burst kernels, and a third builds whole chunks both ways.
+In a player build, `TAP.exe -batchmode -autotest terrain -fingerprint <file> -report <file>` checks both ways (exit code 1 on
+a mismatch).
 
 **After changing terrain data on purpose, record it again: *TAP → Terrain → Record Fingerprint*.** The test says so
 when the data changed.

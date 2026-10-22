@@ -632,14 +632,38 @@ finer chunks and a deeper quadtree.
 - A Burst job runs each operation over all of a chunk's samples before the next one.
 - Chunk buffers move from FND-17's managed pool to native arrays the job can write, and meshes are filled from them with
   `Mesh.AllocateWritableMeshData`. The two LOD morph channels of FND-18 can then be half floats (about 70 MB back).
+  (Not done; see Built.)
 - `DetMath` and the noise are ported to Burst with `FloatMode.Strict` (no reassociation, no fused multiply-add).
 - The managed path stays as the reference and the fallback. Colliders, altitude queries and map exports use the new
   evaluator too.
 
 **Done when**
-- [ ] The terrain fingerprint is bit for bit identical on the Burst path, in the editor and in the Windows player.
-- [ ] Worker time per chunk in `descent` is at least three times lower.
-- [ ] A setting or command-line switch selects the managed path, and a test compares the two.
+- [x] The terrain fingerprint is bit for bit identical on the Burst path, in the editor and in the Windows player. (Editor:
+      `TerrainTests.BurstTerrain_MatchesTheRecordedFingerprint`. Windows player, Mono with Burst's compiled code:
+      `-autotest terrain -fingerprint <file>` finds 7,200 points, 0 mismatches, with the classes and with the kernels.)
+- [x] Worker time per chunk in `descent` is at least three times lower. (2.4 ms against 9.4 to 12.3 ms with `-terrain-managed`,
+      3.9 to 5.2 times, on a machine busy with other work. Building chunks alone, best rounds: 1.5 against 5.3 ms, 3.5 times.)
+- [x] A setting or command-line switch selects the managed path, and a test compares the two. (`LayeredTerrain.UseBurst`,
+      `-terrain-managed`; `TerrainTests.BurstChunks_AreTheManagedChunks` builds whole chunks of every body both ways, bit for bit.)
+
+Built (`LayeredTerrain.Burst.cs`, `TerrainKernels.cs`, `ChunkGeometry.cs`, `TerrainCheck.cs`, the `chunks` benchmark scenario,
+[Docs/PERFORMANCE.md](../../Docs/PERFORMANCE.md) "FND-19"):
+- **The program.** Each `LayeredTerrain` compiles its classes once into plain struct arrays: noises with their permutation
+  tables, fields, terms, layers, craters, rifts, dunes, colour rules and flat areas (refreshed when one is added or removed).
+- **The kernels.** `TerrainKernels` mirrors `SampleCore`, the fields, terms, layers and `Colorize` line for line and calls the
+  same `DetMath`, `MathD` and `Vector3d`, compiled by Burst in strict float mode. They take the arrays pinned with `fixed`, so
+  there is no native memory to manage. `TerrainGenerator.SampleMany` and `ColorizeMany` are the batch calls; the default is a
+  loop over `Sample` and `Colorize`.
+- **The chunk's geometry too.** The geometry (directions, normals, positions, UVs, LOD morph data, skirts) was half of what was
+  left. `ChunkGeometry` is one implementation, run as Burst or as plain C# by the same switch, so both give the same bits.
+  The tangents are now worked out once per row and column, and each grid point's position once.
+- **Package:** `com.unity.burst` 1.8.30, already in the project through URP, is now a direct dependency; TAP.Core and
+  TAP.Simulation allow unsafe code.
+- **Not done as planned:**
+  - The kernels evaluate sample by sample, not each operation over the whole chunk: 1.5 ms a chunk met the target without it.
+  - Chunk buffers are still FND-17's managed pool, and the morph channels are still full floats: the 70 MB stays.
+  - Height and biome queries for single points, and the editor's map exports, still use the classes. Their results are the
+    same bits.
 
 ### FND-20 · Terrain request scheduling: priority and look-ahead
 **Milestone** EA2 · **Claude** 1 d · **You** — · **Needs** FND-16

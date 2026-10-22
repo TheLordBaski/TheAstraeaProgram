@@ -77,6 +77,69 @@ namespace TAP.Tests
             Assert.AreEqual(0, res.Mismatches, string.Join("\n", res.Details));
         }
 
+        /// <summary>FND-19: the Burst kernels give the recorded heights bit for bit (biomes stay with the classes).</summary>
+        [Test]
+        public void BurstTerrain_MatchesTheRecordedFingerprint()
+        {
+            Assert.IsTrue(Unity.Burst.BurstCompiler.IsEnabled, "Burst compilation is off: this would only test the kernels' managed copy");
+            string path = Path.Combine(Application.dataPath, "TAP/Tests/EditMode/TerrainFingerprint.txt");
+            var terrains = new Dictionary<string, LayeredTerrain>();
+            foreach (var (key, t) in AllTerrains()) terrains[key] = t;
+            bool was = LayeredTerrain.UseBurst;
+            try
+            {
+                LayeredTerrain.UseBurst = true;
+                var res = TerrainFingerprint.Verify(File.ReadAllText(path), k => terrains.TryGetValue(k, out var t) ? t : null, batch: true);
+                Assert.IsEmpty(res.Changed, "terrain data changed since the fingerprint was recorded: record it again (TAP → Terrain → Record Fingerprint)");
+                Assert.Greater(res.Checked, 1000);
+                Assert.AreEqual(0, res.Mismatches, string.Join("\n", res.Details));
+            }
+            finally { LayeredTerrain.UseBurst = was; }
+        }
+
+        /// <summary>FND-19: whole chunks (heights, normals, colours, LOD morph data, collision chunks) are the same bits from Burst and the classes.</summary>
+        [Test]
+        public void BurstChunks_AreTheManagedChunks()
+        {
+            Assert.IsTrue(Unity.Burst.BurstCompiler.IsEnabled, "Burst compilation is off: this would only test the kernels' managed copy");
+            bool was = LayeredTerrain.UseBurst;
+            try
+            {
+                foreach (var (key, t) in AllTerrains())
+                {
+                    var cases = new List<(int face, double u0, double v0, double size)>
+                    {
+                        (0, -1, -1, 1), (2, 0.25, -0.5, 1.0 / 16), (4, -0.3, 0.2, 1.0 / 128), (5, 0.61, -0.07, 1.0 / 1024), (1, -0.7, 0.4, 1.0 / 8192),
+                    };
+                    // the ground under a flat area (the launch complex), blended into the land
+                    foreach (var a in t.FlatAreas)
+                    {
+                        TAP.Simulation.CubeSphere.FromSphere(a.Center, out int f, out double u, out double v);
+                        cases.Add((f, u - 1.0 / 2048, v - 1.0 / 2048, 1.0 / 1024));
+                    }
+                    foreach (var (face, u0, v0, size) in cases)
+                        foreach (bool visual in new[] { true, false })
+                        {
+                            string what = $"{key} face {face} at ({u0}, {v0}) size {size}" + (visual ? "" : ", collision");
+                            LayeredTerrain.UseBurst = false;
+                            var m = TAP.Simulation.TerrainChunkGenerator.Generate(t, t.Radius, face, u0, v0, size, 32, t.HasOcean, visual, visual);
+                            LayeredTerrain.UseBurst = true;
+                            var b = TAP.Simulation.TerrainChunkGenerator.Generate(t, t.Radius, face, u0, v0, size, 32, t.HasOcean, visual, visual);
+                            Assert.AreNotSame(m, b);
+                            CollectionAssert.AreEqual(m.Positions, b.Positions, $"{what}: positions");
+                            CollectionAssert.AreEqual(m.Normals, b.Normals, $"{what}: normals");
+                            Assert.AreEqual((m.CenterBF, m.MinHeight, m.MaxHeight), (b.CenterBF, b.MinHeight, b.MaxHeight), $"{what}: centre and heights");
+                            if (!visual) continue;
+                            CollectionAssert.AreEqual(m.Colors, b.Colors, $"{what}: colours");
+                            CollectionAssert.AreEqual(m.UV1, b.UV1, $"{what}: uv1");
+                            CollectionAssert.AreEqual(m.UV2, b.UV2, $"{what}: morph");
+                            CollectionAssert.AreEqual(m.UV3, b.UV3, $"{what}: parent normal and colour");
+                        }
+                }
+            }
+            finally { LayeredTerrain.UseBurst = was; }
+        }
+
         [Test]
         public void DetMath_AgreesWithSystemMath()
         {

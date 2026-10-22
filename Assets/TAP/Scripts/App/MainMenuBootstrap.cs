@@ -11,6 +11,7 @@ namespace TAP.App
             CommandLine.Apply();
             if (GameSession.AutoTest == "flow") FlowTest.Launch(); // walk the menu screens below
             else if (GameSession.AutoTest == "bench") BenchmarkRunner.Launch();
+            else if (GameSession.AutoTest == "terrain") { TerrainCheck.Run(); return; }
             else if (GameSession.AutoTest == "locale") { Loc.Audit = true; LocaleTest.Launch(); }
             else if (!string.IsNullOrEmpty(GameSession.AutoTest))
             {

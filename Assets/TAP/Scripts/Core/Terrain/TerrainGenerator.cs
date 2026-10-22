@@ -43,6 +43,27 @@ namespace TAP.Core
         /// <summary>Surface colour of a full sample. cosSlope: cosine of the ground's tilt (1 = level).</summary>
         public abstract Color32 Colorize(Vector3d dir, double height, double[] fields, int offset, double cosSlope);
 
+        /// <summary>
+        /// <see cref="Sample"/> for samples 0..count: sample k's height in heights[k], its fields at fields[k·FieldCount], full[k] as
+        /// Sample's full. LayeredTerrain runs whole batches in Burst; the result is the same.
+        /// </summary>
+        public virtual void SampleMany(Vector3d[] dirs, bool[] full, double[] heights, double[] fields, int count)
+        {
+            int nf = FieldCount;
+            for (int k = 0; k < count; k++) heights[k] = Sample(dirs[k], fields, k * nf, full[k]);
+        }
+
+        /// <summary><see cref="Colorize"/> for colours 0..count: colour i of the full sample samples[i] (as in <see cref="SampleMany"/>), tilted cosSlopes[i].</summary>
+        public virtual void ColorizeMany(Vector3d[] dirs, double[] heights, double[] fields, int[] samples, double[] cosSlopes, Color32[] colors, int count)
+        {
+            int nf = FieldCount;
+            for (int i = 0; i < count; i++)
+            {
+                int k = samples[i];
+                colors[i] = Colorize(dirs[k], heights[k], fields, k * nf, cosSlopes[i]);
+            }
+        }
+
         /// <summary>The biome at a direction. Biomes belong to the natural ground: flat areas never change them.</summary>
         public abstract Biome BiomeAt(Vector3d dir);
 

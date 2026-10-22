@@ -32,6 +32,7 @@ and `TAP.benchmark-seconds`, and so on.
 | `warp-max` | Ten vessels in orbit, the active one at the highest time warp (100,000×). |
 | `descent` | Terrain streaming: a probe in an 80 km orbit of Tellus, and the camera diving at 30° from 80 km to 100 m above the launch site in the first 60% of the measurement (6 s), then hovering. The dive loses the same fraction of its height every second, so the quadtree must deliver one level about every 0.6 s. |
 | `low-pass` | Terrain streaming: the camera flying east from the launch site 1 km above the ground at 2 km/s. |
+| `chunks` | Building terrain chunks alone (FND-19): home-planet chunks near the launch site, one after another on the main thread, in turn with the Burst kernels and the classes. Short rounds alternate and each way's fastest round counts, so other programs' load hardly shows. Two rows, `chunks` and `chunks-managed`; the time per chunk is in `worker_ms_per_chunk`. |
 
 In `descent` and `low-pass` the camera flies the path alone (the flight camera is switched off) and the probe stays in orbit: a vessel that low and fast
 would be braked by the air within seconds. Before the measurement the camera waits at the start of the path (at least the 3 s warm-up) until the ground
@@ -86,6 +87,25 @@ is a regression.
 
 Baselines are in `Docs/benchmarks/`: `windows-batch.csv` (the FND-17 run below), and `windows-gpu.csv` and `linux-ci.csv`, which do not exist yet (see
 "Not measured").
+
+## FND-19 (Burst terrain evaluator), 2026-10-22
+
+The same Windows player, with Burst's compiled code, and the same machine. The machine was busy with other work all along
+(70 to 77% CPU load, other programs), so the streaming numbers are slow for both ways alike. `-terrain-managed` builds chunks the
+FND-18 way (the classes, plain C# geometry); the runs alternated, twice each.
+
+| Scenario | Worker per chunk, managed → Burst | Main-thread terrain (`planets_ms`) | Detail lag |
+|---|---|---|---|
+| chunks (alone, best rounds) | 5.26 to 5.49 → 1.49 to 1.58 ms (3.5×) | — | — |
+| descent | 9.41 and 12.28 → 2.44 and 2.37 ms (3.9 and 5.2×) | 1.12 to 1.32 ms either way | 0.02 to 0.13 → 0.00 s |
+| low-pass | 8.70 and 9.44 → 2.57 and 2.72 ms (3.4 and 3.5×) | 1.31 to 1.58 ms either way | 0.00 s |
+
+- **Where the time went** (editor, one Tellus chunk):
+  - Samples (37 × 37, 29 noise octaves each): 9.6 → 1.1 ms. Colours: 2.3 → 0.3 ms.
+  - The geometry, now Burst too: about 1 ms → under 0.2 ms.
+- **The main thread** is unchanged: it never built chunks.
+- **Not a baseline:** `windows-batch.csv` stays the FND-17 run, because this machine's load would have marked every scenario
+  slower.
 
 ## FND-18 (terrain LOD morphing): cost against FND-17, 2026-10-18
 

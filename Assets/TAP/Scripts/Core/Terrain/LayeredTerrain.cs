@@ -10,7 +10,7 @@ namespace TAP.Core
     /// biomes (see the definition for the format). Deterministic: the same definition gives the same bits on every
     /// platform (plain arithmetic and <see cref="DetMath"/>, no System.Math transcendentals).
     /// </summary>
-    public sealed class LayeredTerrain : TerrainGenerator
+    public sealed partial class LayeredTerrain : TerrainGenerator
     {
         public readonly TerrainDefinition Def;
         public readonly string BodyId;
@@ -131,6 +131,7 @@ namespace TAP.Core
             // Flat areas from the definition (a fitted one samples the ground made so far).
             if (def.flatAreas != null)
                 foreach (var a in def.flatAreas) AddFlatArea(a, notify: false);
+            CompileProgram();
         }
 
         private Exception Error(string message) => new FormatException($"Terrain of {BodyId ?? "a body"}: {message}");
@@ -369,6 +370,7 @@ namespace TAP.Core
                 if (i >= 0) list[i] = a;
                 else list.Add(a);
                 _flats = list.ToArray();
+                _flatOps = FlatOps(_flats);
             }
             if (!string.IsNullOrEmpty(a.Id)) _places[a.Id] = a.Center;
             if (notify) RaiseEdited(a.Center, a.Reach / Radius);
@@ -396,6 +398,7 @@ namespace TAP.Core
                 removed = list[i];
                 list.RemoveAt(i);
                 _flats = list.ToArray();
+                _flatOps = FlatOps(_flats);
             }
             RaiseEdited(removed.Center, removed.Reach / Radius);
             return true;
@@ -755,11 +758,11 @@ namespace TAP.Core
             public double Shore;
         }
 
-        private enum NoiseType { Fbm, Ridged, Billow, Perlin }
-        private enum Shape { None, Smooth, Linear, Range, Below, AtLeast }
-        private enum Src { Field, Height, Slope, Latitude, AbsLatitude, Longitude, Shore, Near, Sum }
-        private enum LayerKind { Noise, Field, Constant, Craters, Rift, Canyons, Terraces, Dunes, Ellipsoid }
-        private enum BlendMode { Add, Max, Min }
+        internal enum NoiseType { Fbm, Ridged, Billow, Perlin }
+        internal enum Shape { None, Smooth, Linear, Range, Below, AtLeast }
+        internal enum Src { Field, Height, Slope, Latitude, AbsLatitude, Longitude, Shore, Near, Sum }
+        internal enum LayerKind { Noise, Field, Constant, Craters, Rift, Canyons, Terraces, Dunes, Ellipsoid }
+        internal enum BlendMode { Add, Max, Min }
 
         private static double ApplyShape(Shape s, double v, double a, double b)
         {
@@ -794,7 +797,7 @@ namespace TAP.Core
             }
         }
 
-        private struct Spot
+        internal struct Spot
         {
             public Vector3d Dir;
             public double Radius, Amount, Toward, Strength, CosReach;

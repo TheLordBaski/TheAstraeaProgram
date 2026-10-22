@@ -30,7 +30,7 @@ namespace TAP.App
     /// </summary>
     public sealed class BenchmarkRunner : MonoBehaviour
     {
-        public static readonly string[] AllScenarios = { "startup", "launch-50", "launch-150", "launch-300", "base-10", "map-40", "warp-max", "descent", "low-pass" };
+        public static readonly string[] AllScenarios = { "startup", "launch-50", "launch-150", "launch-300", "base-10", "map-40", "warp-max", "descent", "low-pass", "chunks" };
 
         private const float Warmup = 3f;
         private float _seconds = 10f;
@@ -111,11 +111,51 @@ namespace TAP.App
                 case "warp-max": return Orbits(db, 10, name, map: false, warp: true);
                 case "descent":
                 case "low-pass": return Terrain(db, name);
+                case "chunks": return Chunks();
                 default: throw new ArgumentException("Unknown scenario " + name);
             }
         }
 
         // ------------------------------------------------------------------ scenarios
+
+        /// <summary>
+        /// Building terrain chunks alone (FND-19): chunks of the home planet near the launch site, made one after another on this
+        /// thread, in turn with the Burst kernels and with the classes. Short rounds alternate, and each way's fastest round counts, so
+        /// other programs' load hardly shows. Two rows, chunks (Burst) and chunks-managed, with the time per chunk in worker_ms_per_chunk.
+        /// </summary>
+        private IEnumerator Chunks()
+        {
+            var sys = CelestialSystem.Default;
+            var body = sys.HomeBody;
+            CubeSphere.FromSphere(sys.Def.launchSite.UpBF, out int face, out double u0, out double v0);
+            bool was = LayeredTerrain.UseBurst;
+            int seq = 0;
+            double Round(bool burst, int n)
+            {
+                LayeredTerrain.UseBurst = burst;
+                var sw = Stopwatch.StartNew();
+                for (int i = 0; i < n; i++, seq++)
+                    TerrainChunkGenerator.Release(TerrainChunkGenerator.Generate(body.Terrain, body.Radius, face, u0 + (seq % 40) * 0.002, v0 + (seq % 7) * 0.003,
+                        1.0 / 512, 32, body.HasOcean, true));
+                return sw.Elapsed.TotalMilliseconds / n;
+            }
+            Round(true, 4);
+            Round(false, 2);
+            double burstBest = double.MaxValue, managedBest = double.MaxValue;
+            int rounds = 0;
+            float end = Time.realtimeSinceStartup + _seconds;
+            while (Time.realtimeSinceStartup < end)
+            {
+                managedBest = Math.Min(managedBest, Round(false, 4));
+                burstBest = Math.Min(burstBest, Round(true, 12));
+                rounds++;
+                yield return null;
+            }
+            LayeredTerrain.UseBurst = was;
+            _rows.Add(new Row { Scenario = "chunks", Seconds = _seconds, Chunks = rounds * 12, WorkerMs = burstBest });
+            _rows.Add(new Row { Scenario = "chunks-managed", Seconds = _seconds, Chunks = rounds * 4, WorkerMs = managedBest });
+            Debug.Log($"[Benchmark] chunks: Burst {burstBest:F2} ms, managed {managedBest:F2} ms a chunk (best of {rounds} rounds), x{managedBest / burstBest:F1}");
+        }
 
         /// <summary>Main menu to hub: a new game and the space center on screen (budget: under 20 s).</summary>
         private IEnumerator Startup()

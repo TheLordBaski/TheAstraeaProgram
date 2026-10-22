@@ -1,10 +1,10 @@
 {
     "name": "TAP.Core",
     "rootNamespace": "TAP.Core",
-    "references": [],
+    "references": ["Unity.Burst"],
     "includePlatforms": [],
     "excludePlatforms": [],
-    "allowUnsafeCode": false,
+    "allowUnsafeCode": true,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,

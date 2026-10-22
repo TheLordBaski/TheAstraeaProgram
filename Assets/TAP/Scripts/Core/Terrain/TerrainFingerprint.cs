@@ -74,11 +74,24 @@ namespace TAP.Core
         /// Compares the terrains with a recorded fingerprint. checkHash: false to skip the data check (another runtime may
         /// write the definition's numbers differently, while the data files are the same).
         /// </summary>
-        public static Result Verify(string recorded, Func<string, LayeredTerrain> terrainFor, bool checkHash = true)
+        public static Result Verify(string recorded, Func<string, LayeredTerrain> terrainFor, bool checkHash = true, bool batch = false)
         {
             var res = new Result();
             LayeredTerrain t = null;
             bool skip = false;
+            // batch: heights through SampleMany (the Burst kernels while LayeredTerrain.UseBurst is on) instead of Height.
+            var one = new Vector3d[1];
+            var notFull = new bool[1];
+            var height = new double[1];
+            double[] fields = null;
+            double Height(Vector3d d)
+            {
+                if (!batch) return t.Height(d);
+                if (fields == null || fields.Length < Math.Max(1, t.FieldCount)) fields = new double[Math.Max(16, t.FieldCount)];
+                one[0] = d;
+                t.SampleMany(one, notFull, height, fields, 1);
+                return height[0];
+            }
             foreach (var raw in recorded.Split('\n'))
             {
                 string line = raw.Trim();
@@ -95,7 +108,7 @@ namespace TAP.Core
                 if (skip || t == null) continue;
                 int i = int.Parse(parts[0], CultureInfo.InvariantCulture);
                 var d = Point(i);
-                long bits = BitConverter.DoubleToInt64Bits(t.Height(d));
+                long bits = BitConverter.DoubleToInt64Bits(Height(d));
                 string biome = t.BiomeAt(d).Id;
                 res.Checked++;
                 if (bits.ToString("x16") != parts[1] || biome != parts[2])

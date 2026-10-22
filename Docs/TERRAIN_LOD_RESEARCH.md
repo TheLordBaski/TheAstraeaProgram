@@ -139,7 +139,7 @@ Each step can ship on its own. The steps are plan tasks:
 | 1. Measure | FND-16, done | M1 |
 | 2. Schedule better | FND-20 | EA2, only once the queue fills up |
 | 3. Remove the garbage | FND-17, done | EA1 |
-| 4. Evaluate in Burst | FND-19 | EA1, after FND-17 |
+| 4. Evaluate in Burst | FND-19, done | EA1 |
 | 5. Morph between LODs | FND-18, done | EA1 |
 | 6. Fill the mid range | part of ART-07a | EA1 |
 | 7. Later | none yet | — |
