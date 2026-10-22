@@ -661,7 +661,7 @@ Built (`LayeredTerrain.Burst.cs`, `TerrainKernels.cs`, `ChunkGeometry.cs`, `Terr
   TAP.Simulation allow unsafe code.
 - **Not done as planned:**
   - The kernels evaluate sample by sample, not each operation over the whole chunk: 1.5 ms a chunk met the target without it.
-  - Chunk buffers are still FND-17's managed pool, and the morph channels are still full floats: the 70 MB stays.
+  - Chunk buffers are still FND-17's managed pool, and the morph channels are still full floats: the 70 MB stays (FND-21).
   - Height and biome queries for single points, and the editor's map exports, still use the classes. Their results are the
     same bits.
 
@@ -678,3 +678,21 @@ quadtree) makes the queue fill up.
 
 **Done when**
 - [ ] With the queue full, `detail_lag_s` in `descent` and `low-pass` is lower than with first in, first out.
+
+### FND-21 · Compact terrain vertices
+**Milestone** EA1 · **Claude** 0.5 d · **You** — · **Needs** FND-18, FND-19
+
+FND-18's LOD morph data made every terrain vertex 32 bytes bigger (two float4 channels), about +70 MB. FND-19 was to win
+that back with half floats and did not.
+
+- Chunk meshes are filled with `Mesh.SetVertexBufferParams` and `SetVertexBufferData` in a compact layout: positions,
+  normals, UV0 and UV1 stay full floats, the colour stays 4 bytes, and the morph data becomes half floats where precision allows.
+- The parent's colour leaves UV3.z (r + 256 g + 65536 b does not fit a half float) for a 4-byte channel of its own, with the
+  water flag.
+- `TerrainMorph.hlsl` and `Terrain.shader` read the new layout. `_LodMorph` still keeps meshes without morph data (the map,
+  the far view) from morphing.
+
+**Done when**
+- [ ] Working-set memory in `descent` and `low-pass` is at least 50 MB lower than with FND-19 (players run alternately).
+- [ ] The LOD morph still shows no popping in a side-by-side descent capture.
+- [ ] All EditMode tests pass, `TerrainTests.BurstChunks_AreTheManagedChunks` and `TerrainTests.ChunkMorphTarget_IsItsParentsSurface` among them.

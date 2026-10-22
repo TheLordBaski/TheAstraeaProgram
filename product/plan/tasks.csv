@@ -63,6 +63,7 @@ FLT-15,Tweakables,04-flight-systems.md,EA1,EA1,3.0,0.5,False,ASM-02
 FND-17,Garbage-free terrain chunks,01-foundations.md,EA1,EA1,1.5,0.0,False,FND-16
 FND-18,Terrain LOD morphing,01-foundations.md,EA1,EA1,1.5,0.5,False,FND-02
 FND-19,Burst terrain evaluator,01-foundations.md,EA1,EA1,3.0,0.0,False,FND-17
+FND-21,Compact terrain vertices,01-foundations.md,EA1,EA1,0.5,0.0,False,FND-18 FND-19
 HUB-02,"Hub scene, camera and facility screens",11-space-center.md,EA1,EA1,4.0,1.0,False,FND-07 HUB-01
 HUB-03,"Day, night and time in the hub",11-space-center.md,EA1,EA1,1.0,0.5,False,HUB-02 FND-01
 HUB-06,Launch and return flow,11-space-center.md,EA1,EA1,2.0,0.5,False,HUB-02 ASM-07 SCI-06
