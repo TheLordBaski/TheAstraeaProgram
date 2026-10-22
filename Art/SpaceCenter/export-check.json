@@ -1,0 +1,86 @@
+[
+  {
+    "id": "01_VehicleAssembly",
+    "result": "PASS",
+    "triangles": 132020,
+    "meshes": 94,
+    "bounds_blender_xyz": [
+      80.0,
+      74.0,
+      77.70000297630713
+    ],
+    "uv": true
+  },
+  {
+    "id": "02_LaunchComplex",
+    "result": "PASS",
+    "triangles": 35104,
+    "meshes": 25,
+    "bounds_blender_xyz": [
+      86.0,
+      78.0,
+      91.00000635390597
+    ],
+    "uv": true
+  },
+  {
+    "id": "03_ScienceCentre",
+    "result": "PASS",
+    "triangles": 26140,
+    "meshes": 25,
+    "bounds_blender_xyz": [
+      82.0,
+      68.0,
+      32.200010116939666
+    ],
+    "uv": true
+  },
+  {
+    "id": "04_TrackingStation",
+    "result": "PASS",
+    "triangles": 36440,
+    "meshes": 23,
+    "bounds_blender_xyz": [
+      86.0,
+      73.0,
+      22.202394710032422
+    ],
+    "uv": true
+  },
+  {
+    "id": "05_TrainingFacility",
+    "result": "PASS",
+    "triangles": 17250,
+    "meshes": 22,
+    "bounds_blender_xyz": [
+      80.0,
+      73.0,
+      20.700004802195508
+    ],
+    "uv": true
+  },
+  {
+    "id": "06_TestingFacility",
+    "result": "PASS",
+    "triangles": 30064,
+    "meshes": 28,
+    "bounds_blender_xyz": [
+      90.0,
+      82.0,
+      35.00000667974746
+    ],
+    "uv": true
+  },
+  {
+    "id": "07_MissionControl",
+    "result": "PASS",
+    "triangles": 13355,
+    "meshes": 24,
+    "bounds_blender_xyz": [
+      78.0,
+      65.0,
+      43.700006057861174
+    ],
+    "uv": true
+  }
+]

@@ -25,8 +25,9 @@ namespace TAP.Game
             var go = new GameObject("AssemblyScene");
             var scene = go.AddComponent<AssemblyScene>();
             Instance = scene;
-            EditorVisuals.BuildHangar();
+            EditorVisuals.BuildHangar(out var assemblyBounds);
             scene.CameraRig = EditorCamera.Create();
+            scene.CameraRig.AssemblyBounds = assemblyBounds;
             scene.Editor = go.AddComponent<AssemblyEditor>();
             scene.Editor.DesignChanged += () => scene._dirty = true;
             scene.Editor.Init(scene.CameraRig.Cam, scene.CameraRig);

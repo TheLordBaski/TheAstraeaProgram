@@ -1,0 +1,19 @@
+{
+  "result": "GEOMETRY_PASS_UNITY_RECHECK_PENDING",
+  "id": "01_VehicleAssembly",
+  "triangles": 17460,
+  "protected_files_unchanged": 96,
+  "shared_palette_unchanged": true,
+  "camera_and_lighting": "retained",
+  "changed_render_pixel_fraction": 0.1284837962962963,
+  "checks": [
+    "FBX round-trip",
+    "GLB triangle and palette parity",
+    "Unity prefab source GUID and material mapping intact",
+    "ArmorPaint refreshed",
+    "96 protected files unchanged"
+  ],
+  "pending": [
+    "Unity live re-import: Editor startup did not expose Pipeline"
+  ]
+}

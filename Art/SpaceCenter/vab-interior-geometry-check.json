@@ -1,0 +1,480 @@
+{
+  "result": "PASS",
+  "triangles": 132020,
+  "zero_area_triangles": 0,
+  "meshes": [
+    {
+      "mesh": "VEHICLE ASSEMBLY",
+      "triangles": 2168,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "01",
+      "triangles": 396,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "SERVICE",
+      "triangles": 1372,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "SERVICE.001",
+      "triangles": 1372,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "ASSEMBLY 01",
+      "triangles": 1988,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "W / 01",
+      "triangles": 456,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "E / 01",
+      "triangles": 452,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "W / 02",
+      "triangles": 796,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "E / 02",
+      "triangles": 792,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "W / 03",
+      "triangles": 1028,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "E / 03",
+      "triangles": 1024,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "W / 04",
+      "triangles": 504,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "E / 04",
+      "triangles": 500,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "W / 05",
+      "triangles": 752,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "E / 05",
+      "triangles": 748,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "W / 06",
+      "triangles": 928,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "E / 06",
+      "triangles": 924,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "120 t  /  BRIDGE 01",
+      "triangles": 2864,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "FIRE",
+      "triangles": 468,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "FIRE.001",
+      "triangles": 468,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "FIRE.002",
+      "triangles": 468,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "FIRE.003",
+      "triangles": 468,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Foundation",
+      "triangles": 12,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Site markings",
+      "triangles": 48,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "VAB West wall",
+      "triangles": 12,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "VAB East wall",
+      "triangles": 12,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "VAB Rear wall",
+      "triangles": 12,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "VAB Front wall",
+      "triangles": 36,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "VAB Roof",
+      "triangles": 12,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Shells",
+      "triangles": 36,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Cladding",
+      "triangles": 948,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Side louvers",
+      "triangles": 384,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Facade maintenance",
+      "triangles": 1384,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "VAB Door Left",
+      "triangles": 372,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "VAB Door Right",
+      "triangles": 372,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Hangar door and tracks",
+      "triangles": 24,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Threshold paint",
+      "triangles": 12,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Roof crane",
+      "triangles": 48,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Roof rails",
+      "triangles": 1520,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Roof plant and vents",
+      "triangles": 5136,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Glazing and mullions",
+      "triangles": 1080,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Doors and frames",
+      "triangles": 152,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Signs",
+      "triangles": 12,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Service ducts",
+      "triangles": 1012,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Site furniture",
+      "triangles": 576,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Floodlights",
+      "triangles": 240,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Apron lanes",
+      "triangles": 24,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Service cabinets",
+      "triangles": 544,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Service vehicle",
+      "triangles": 544,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Flush cladding",
+      "triangles": 120,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Door edge seals",
+      "triangles": 36,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Office plinths",
+      "triangles": 24,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Office perimeter trim",
+      "triangles": 72,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Floor",
+      "triangles": 12,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Floor markings",
+      "triangles": 624,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Wall lining",
+      "triangles": 564,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Primary steel",
+      "triangles": 3044,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior West gallery 01",
+      "triangles": 1720,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior East gallery 01",
+      "triangles": 1612,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Rear gallery 01",
+      "triangles": 688,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior West gallery 02",
+      "triangles": 1720,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior East gallery 02",
+      "triangles": 1612,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Rear gallery 02",
+      "triangles": 688,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior West gallery 03",
+      "triangles": 1720,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior East gallery 03",
+      "triangles": 1612,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Rear gallery 03",
+      "triangles": 688,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior West gallery 04",
+      "triangles": 1720,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior East gallery 04",
+      "triangles": 1612,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Rear gallery 04",
+      "triangles": 688,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior West gallery 05",
+      "triangles": 1720,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior East gallery 05",
+      "triangles": 1612,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Rear gallery 05",
+      "triangles": 688,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior West gallery 06",
+      "triangles": 1720,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior East gallery 06",
+      "triangles": 1612,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Rear gallery 06",
+      "triangles": 688,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Stair tower 01",
+      "triangles": 3280,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Stair tower 02",
+      "triangles": 3280,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Stair tower 03",
+      "triangles": 3280,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Stair tower 04",
+      "triangles": 3280,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Stair tower 05",
+      "triangles": 3280,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Stair tower 06",
+      "triangles": 3280,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Stair tower posts",
+      "triangles": 512,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Freight lift",
+      "triangles": 3424,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Roof trusses",
+      "triangles": 2784,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Crane rails",
+      "triangles": 48,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Bridge crane",
+      "triangles": 872,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Services",
+      "triangles": 11232,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Lighting fixtures",
+      "triangles": 648,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Stored engines",
+      "triangles": 11984,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Tank transport cradles",
+      "triangles": 7600,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Fairings and adapters",
+      "triangles": 3648,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Tool bays",
+      "triangles": 848,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Storage racks",
+      "triangles": 3488,
+      "zero_area_triangles": 0
+    },
+    {
+      "mesh": "Interior Safety equipment",
+      "triangles": 1136,
+      "zero_area_triangles": 0
+    }
+  ],
+  "clear_envelope_unobstructed": true,
+  "all_meshes_have_uvs": true,
+  "finite_vertices": true
+}

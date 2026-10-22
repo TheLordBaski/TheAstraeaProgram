@@ -1,0 +1,20 @@
+{
+  "result": "GEOMETRY_PASS_UNITY_RECHECK_PENDING",
+  "id": "01_VehicleAssembly",
+  "triangles": 17364,
+  "removed": [
+    "external corner columns",
+    "door portal",
+    "projecting crown",
+    "office fascia overhang"
+  ],
+  "rib_width_metres": 0.035,
+  "roof_thickness_metres": 0.1,
+  "edge_bevel_metres": 0.005,
+  "protected_files_unchanged": 96,
+  "camera_lighting_palette": "unchanged",
+  "FBX_roundtrip": "PASS",
+  "GLB_triangle_palette_checks": "PASS",
+  "ArmorPaint": "refreshed",
+  "Unity_live_import": "not rechecked"
+}

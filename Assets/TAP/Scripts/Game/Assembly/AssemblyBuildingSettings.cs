@@ -11,7 +11,7 @@ namespace TAP.Game
         public const string ResourcePath = "Settings/AssemblyBuilding";
 
         [Tooltip("Working height in metres above the floor: a craft can be raised until its top reaches it. A taller craft " +
-                 "stands on the floor and the engineer's report says so. The hall itself is 64 m high.")]
+                 "stands on the floor and the engineer's report says so. The authored VAB has about 68 m of clear height.")]
         [Min(5f)]
         public float maxCraftHeight = 60f;
 

@@ -17,8 +17,7 @@ namespace TAP.Game
     }
 
     /// <summary>
-    /// The space center scene (FND-07): the launch complex as placeholder boxes with a slow camera, and the buildings that open
-    /// the assembly building, the launch pad and the tracking station. HUB-01 and HUB-02 replace the look and the camera.
+    /// The space center hub, with the authored VAB, launch pad and tracking-station entry points.
     /// </summary>
     public sealed class SpaceCenterScene : MonoBehaviour
     {
@@ -105,13 +104,10 @@ namespace TAP.Game
 
         private void BuildAssembly()
         {
-            var f = NewFacility(Assembly, "Assembly Building", new Vector3(-220, 75, 10));
-            var t = f.transform;
-            Box("Hall", t, new Vector3(-220, 29, 10), new Vector3(90, 58, 70), new Color(0.88f, 0.89f, 0.9f));
-            Box("Roof", t, new Vector3(-220, 59, 10), new Vector3(92, 2, 72), new Color(0.35f, 0.37f, 0.4f));
-            Box("Stripe", t, new Vector3(-220, 40, 10), new Vector3(91, 4, 71), new Color(0.2f, 0.4f, 0.75f));
-            Box("Door", t, new Vector3(-174.6f, 22, 10), new Vector3(1, 44, 24), new Color(0.15f, 0.16f, 0.18f));
-            Box("Annex", t, new Vector3(-220, 8, -50), new Vector3(60, 16, 28), new Color(0.78f, 0.8f, 0.82f));
+            var f = NewFacility(Assembly, "Assembly Building", new Vector3(-220, 90, 10));
+            var model = VabModel.Create();
+            model.transform.SetParent(f.transform, false);
+            model.transform.SetPositionAndRotation(new Vector3(-220, 0, 10), Quaternion.Euler(0, 90, 0));
         }
 
         private void BuildTracking()

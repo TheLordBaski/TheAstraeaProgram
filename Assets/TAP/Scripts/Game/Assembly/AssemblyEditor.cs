@@ -38,7 +38,7 @@ namespace TAP.Game
         public bool AutoStaging = true;
         public bool ShowMarkers = true;
         public float FloorHeight = 0f;
-        /// <summary>Gap between the floor and the lowest point of a craft standing on the build platform (its deck is 0.18 m high).</summary>
+        /// <summary>Gap between the finished assembly floor and the lowest point of the craft.</summary>
         public const float FloorClearance = 0.25f;
         /// <summary>Building limits (height), edited in the Unity editor.</summary>
         public AssemblyBuildingSettings Building;
@@ -431,7 +431,7 @@ namespace TAP.Game
         public void FrameCraft(bool instant = false)
         {
             if (CameraRig == null) return;
-            // An empty floor gets a comfortable overview of the build platform.
+            // An empty floor gets a comfortable overview of the assembly space.
             var b = Design.parts.Count > 0 ? CraftBounds() : new Bounds(new Vector3(0, 3.5f, 0), new Vector3(6, 7, 6));
             CameraRig.Frame(b, instant);
         }

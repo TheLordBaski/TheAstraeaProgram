@@ -1,0 +1,23 @@
+{
+  "result": "PASS",
+  "compiler": "Unity Roslyn with generated project response files",
+  "assemblies": [
+    {
+      "assembly": "TAP.Game",
+      "result": "PASS"
+    },
+    {
+      "assembly": "TAP.Editor",
+      "result": "PASS"
+    },
+    {
+      "assembly": "TAP.Tests.EditMode",
+      "result": "PASS"
+    },
+    {
+      "assembly": "TAP.Tests.PlayMode",
+      "result": "PASS"
+    }
+  ],
+  "unity_editor_test_run": false
+}

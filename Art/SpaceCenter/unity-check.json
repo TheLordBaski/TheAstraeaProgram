@@ -1,0 +1,105 @@
+[
+  {
+    "id": "01_VehicleAssembly",
+    "result": "PASS",
+    "triangles": 132020,
+    "renderers": 94,
+    "size": [
+      79.99999,
+      77.7,
+      73.99999
+    ],
+    "colliders": 138,
+    "clearVolumeUnobstructed": true,
+    "clearSize": [
+      24.0,
+      67.9,
+      30.0
+    ],
+    "assemblyOrigin": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "assemblyFloorRaycast": true,
+    "fbxAxisSigns": [
+      -1.0,
+      -1.0
+    ],
+    "material": "Assets/TAP/Art/SpaceCenter/Materials/SpaceCenter_PBR.mat",
+    "prefab": "Assets/TAP/Art/SpaceCenter/Prefabs/01_VehicleAssembly.prefab",
+    "assemblyPrefab": "Assets/TAP/Art/SpaceCenter/Prefabs/VAB_AssemblySpace.prefab"
+  },
+  {
+    "id": "02_LaunchComplex",
+    "result": "PASS",
+    "renderers": 25,
+    "triangles": 35104,
+    "size": [
+      85.99999,
+      91.0,
+      77.99999
+    ],
+    "material": "Assets/TAP/Art/SpaceCenter/Materials/SpaceCenter_PBR.mat"
+  },
+  {
+    "id": "03_ScienceCentre",
+    "result": "PASS",
+    "renderers": 25,
+    "triangles": 26140,
+    "size": [
+      82.0,
+      32.2000046,
+      67.99999
+    ],
+    "material": "Assets/TAP/Art/SpaceCenter/Materials/SpaceCenter_PBR.mat"
+  },
+  {
+    "id": "04_TrackingStation",
+    "result": "PASS",
+    "renderers": 23,
+    "triangles": 36440,
+    "size": [
+      85.99999,
+      22.2023888,
+      72.99999
+    ],
+    "material": "Assets/TAP/Art/SpaceCenter/Materials/SpaceCenter_PBR.mat"
+  },
+  {
+    "id": "05_TrainingFacility",
+    "result": "PASS",
+    "renderers": 22,
+    "triangles": 17250,
+    "size": [
+      79.99999,
+      20.7,
+      72.99999
+    ],
+    "material": "Assets/TAP/Art/SpaceCenter/Materials/SpaceCenter_PBR.mat"
+  },
+  {
+    "id": "06_TestingFacility",
+    "result": "PASS",
+    "renderers": 28,
+    "triangles": 30064,
+    "size": [
+      90.0,
+      35.0,
+      81.99999
+    ],
+    "material": "Assets/TAP/Art/SpaceCenter/Materials/SpaceCenter_PBR.mat"
+  },
+  {
+    "id": "07_MissionControl",
+    "result": "PASS",
+    "renderers": 24,
+    "triangles": 13355,
+    "size": [
+      78.0,
+      43.7,
+      64.99999
+    ],
+    "material": "Assets/TAP/Art/SpaceCenter/Materials/SpaceCenter_PBR.mat"
+  }
+]

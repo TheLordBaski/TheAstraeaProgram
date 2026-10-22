@@ -1,0 +1,29 @@
+{
+  "success": true,
+  "command": "command eval_file",
+  "data": {
+    "command": "eval_file",
+    "parameters": {
+      "file": "Art/SpaceCenter/Source/InstallSpaceCenter.cs",
+      "timeout": "120000"
+    },
+    "result": {
+      "output": null,
+      "diagnostics": [],
+      "success": true,
+      "result": {
+        "result": "PASS",
+        "facilities": 7,
+        "material": "Assets/TAP/Art/SpaceCenter/Materials/SpaceCenter_PBR.mat",
+        "prefab": "Assets/TAP/Art/SpaceCenter/Prefabs/00_SpaceCentre_Facilities.prefab"
+      }
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7800,
+      "projectPath": "D:\\Dev\\KSP"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

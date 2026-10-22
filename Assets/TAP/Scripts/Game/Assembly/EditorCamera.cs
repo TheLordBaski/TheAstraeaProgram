@@ -15,9 +15,10 @@ namespace TAP.Game
         /// <summary>Pivot height range; the assembly editor keeps MaxHeight at the building's height limit.</summary>
         public float MinHeight = 0.5f, MaxHeight = 40f;
         public float MinDistance = 2.5f, MaxDistance = 120f;
+        public Bounds AssemblyBounds;
 
-        private float _yaw = 30f, _pitch = 12f, _dist = 16f, _height = 4f;
-        private float _tYaw = 30f, _tPitch = 12f, _tDist = 16f, _tHeight = 4f;
+        private float _yaw = 210f, _pitch = 12f, _dist = 16f, _height = 4f;
+        private float _tYaw = 210f, _tPitch = 12f, _tDist = 16f, _tHeight = 4f;
 
         public static EditorCamera Create()
         {
@@ -100,6 +101,11 @@ namespace TAP.Game
             Vector3 pos = pivot - q * Vector3.forward * _dist;
             if (pos.y < 0.3f) pos.y = 0.3f; // stay above the floor
             transform.SetPositionAndRotation(pos, Quaternion.LookRotation(pivot - pos, Vector3.up));
+            // Cut away the camera-side building when zoomed outside, keeping tall rockets visible.
+            float entry = 0;
+            if (AssemblyBounds.size.sqrMagnitude > 0 && !AssemblyBounds.Contains(pos))
+                AssemblyBounds.IntersectRay(new Ray(pos, transform.forward), out entry);
+            Cam.nearClipPlane = Mathf.Max(.1f, entry + .05f);
         }
     }
 }

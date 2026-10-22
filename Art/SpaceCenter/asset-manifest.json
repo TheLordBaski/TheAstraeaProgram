@@ -1,0 +1,139 @@
+{
+  "facilities": [
+    {
+      "id": "01_VehicleAssembly",
+      "triangles": 132020,
+      "vertices": 230284,
+      "meshes": 94,
+      "bounds_blender_xyz": [
+        80.0,
+        74.0,
+        77.69999694824219
+      ],
+      "campus_offset": [
+        -95,
+        65,
+        0
+      ],
+      "units": "metres",
+      "origin": "ground centre",
+      "uv": "16 padded atlas tiles"
+    },
+    {
+      "id": "02_LaunchComplex",
+      "triangles": 35104,
+      "vertices": 60268,
+      "meshes": 25,
+      "bounds_blender_xyz": [
+        86.0,
+        78.0,
+        91.0
+      ],
+      "campus_offset": [
+        95,
+        65,
+        0
+      ],
+      "units": "metres",
+      "origin": "ground centre",
+      "uv": "16 padded atlas tiles"
+    },
+    {
+      "id": "03_ScienceCentre",
+      "triangles": 26140,
+      "vertices": 44912,
+      "meshes": 25,
+      "bounds_blender_xyz": [
+        82.0,
+        68.0,
+        32.20000076293945
+      ],
+      "campus_offset": [
+        -125,
+        -55,
+        0
+      ],
+      "units": "metres",
+      "origin": "ground centre",
+      "uv": "16 padded atlas tiles"
+    },
+    {
+      "id": "04_TrackingStation",
+      "triangles": 36440,
+      "vertices": 65864,
+      "meshes": 23,
+      "bounds_blender_xyz": [
+        86.0,
+        73.0,
+        22.2023868560791
+      ],
+      "campus_offset": [
+        80,
+        -60,
+        0
+      ],
+      "units": "metres",
+      "origin": "ground centre",
+      "uv": "16 padded atlas tiles"
+    },
+    {
+      "id": "05_TrainingFacility",
+      "triangles": 17250,
+      "vertices": 28396,
+      "meshes": 22,
+      "bounds_blender_xyz": [
+        80.0,
+        73.0,
+        20.700000762939453
+      ],
+      "campus_offset": [
+        -55,
+        -145,
+        0
+      ],
+      "units": "metres",
+      "origin": "ground centre",
+      "uv": "16 padded atlas tiles"
+    },
+    {
+      "id": "06_TestingFacility",
+      "triangles": 30064,
+      "vertices": 51728,
+      "meshes": 28,
+      "bounds_blender_xyz": [
+        90.0,
+        82.0,
+        35.0
+      ],
+      "campus_offset": [
+        100,
+        -160,
+        0
+      ],
+      "units": "metres",
+      "origin": "ground centre",
+      "uv": "16 padded atlas tiles"
+    },
+    {
+      "id": "07_MissionControl",
+      "triangles": 13355,
+      "vertices": 21057,
+      "meshes": 24,
+      "bounds_blender_xyz": [
+        78.0,
+        65.0,
+        43.70000076293945
+      ],
+      "campus_offset": [
+        -25,
+        -50,
+        0
+      ],
+      "units": "metres",
+      "origin": "ground centre",
+      "uv": "16 padded atlas tiles"
+    }
+  ],
+  "total_triangles": 290373,
+  "texture_resolution": 2048
+}

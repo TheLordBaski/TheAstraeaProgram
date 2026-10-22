@@ -69,21 +69,9 @@ namespace TAP.Game
             planets.AddSurfaceObject(body, tower, deckTop, rot, true);
 
             // Assembly building ~420 m west of the pad
-            var vab = new GameObject("AssemblyBuilding");
-            var vb = new MeshBuilder();
-            Vector3 vc = new Vector3(0, 0, -420);
-            vb.Box((int)MatSlot.White, vc + new Vector3(0, 32, 0), new Vector3(70, 64, 50));
-            vb.Box((int)MatSlot.Dark, vc + new Vector3(0, 28, 25.1f), new Vector3(26, 56, 0.4f));
-            vb.Box((int)MatSlot.Blue, vc + new Vector3(0, 62, 25.2f), new Vector3(40, 3, 0.3f));
-            vb.Box((int)MatSlot.Grey, vc + new Vector3(45, 8, 0), new Vector3(20, 16, 30));
-            var vmesh = vb.ToMesh("vab", out int[] vslots);
-            PartModelFactory.AddRenderer(vab, vmesh, vslots);
-            var vcol = vab.AddComponent<BoxCollider>();
-            vcol.center = vc + new Vector3(0, 32, 0);
-            vcol.size = new Vector3(70, 64, 50);
-            vab.layer = Layers.Terrain;
+            var vab = VabModel.Create();
             // Building sits on the terrain at padAltitude (not the deck).
-            Vector3d ground = up * (body.Radius + site.padAltitude);
+            Vector3d ground = up * (body.Radius + site.padAltitude) + rot * new Vector3d(0, 0, -420);
             planets.AddSurfaceObject(body, vab, ground, rot, true);
         }
     }

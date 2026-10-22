@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="3" result="Passed" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-22 06:20:09Z" end-time="2026-10-22 06:20:09Z" duration="0.3094583">
+  <test-suite type="TestSuite" id="1000" name="The Astraea Program" fullname="The Astraea Program" runstate="Runnable" testcasecount="267" result="Passed" start-time="2026-10-22 06:20:09Z" end-time="2026-10-22 06:20:09Z" duration="0.309458" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1303" name="TAP.Tests.EditMode.dll" fullname="D:/Dev/KSP/Temp/VabValidation/Library/ScriptAssemblies/TAP.Tests.EditMode.dll" runstate="Runnable" testcasecount="227" result="Passed" start-time="2026-10-22 06:20:09Z" end-time="2026-10-22 06:20:09Z" duration="0.269429" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="230396" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1304" name="TAP" fullname="TAP" runstate="Runnable" testcasecount="227" result="Passed" start-time="2026-10-22 06:20:09Z" end-time="2026-10-22 06:20:09Z" duration="0.252820" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1305" name="Tests" fullname="TAP.Tests" runstate="Runnable" testcasecount="227" result="Passed" start-time="2026-10-22 06:20:09Z" end-time="2026-10-22 06:20:09Z" duration="0.234177" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1298" name="VabIntegrationTests" fullname="TAP.Tests.VabIntegrationTests" classname="TAP.Tests.VabIntegrationTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-10-22 06:20:09Z" end-time="2026-10-22 06:20:09Z" duration="0.210510" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1299" name="AssemblyVab_LoadsAtRocketOrigin_WithClearPhysicalWorkspace" fullname="TAP.Tests.VabIntegrationTests.AssemblyVab_LoadsAtRocketOrigin_WithClearPhysicalWorkspace" methodname="AssemblyVab_LoadsAtRocketOrigin_WithClearPhysicalWorkspace" classname="TAP.Tests.VabIntegrationTests" runstate="Runnable" seed="1164822088" result="Passed" start-time="2026-10-22 06:20:09Z" end-time="2026-10-22 06:20:09Z" duration="0.149524" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-suite type="ParameterizedMethod" id="1302" name="FrameCraft_KeepsTheRocketInFrontOfTheNearPlane" fullname="TAP.Tests.VabIntegrationTests.FrameCraft_KeepsTheRocketInFrontOfTheNearPlane" classname="TAP.Tests.VabIntegrationTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-22 06:20:09Z" end-time="2026-10-22 06:20:09Z" duration="0.030903" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1300" name="FrameCraft_KeepsTheRocketInFrontOfTheNearPlane(6.0f,False)" fullname="TAP.Tests.VabIntegrationTests.FrameCraft_KeepsTheRocketInFrontOfTheNearPlane(6.0f,False)" methodname="FrameCraft_KeepsTheRocketInFrontOfTheNearPlane" classname="TAP.Tests.VabIntegrationTests" runstate="Runnable" seed="1707934274" result="Passed" start-time="2026-10-22 06:20:09Z" end-time="2026-10-22 06:20:09Z" duration="0.023755" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1301" name="FrameCraft_KeepsTheRocketInFrontOfTheNearPlane(60.0f,True)" fullname="TAP.Tests.VabIntegrationTests.FrameCraft_KeepsTheRocketInFrontOfTheNearPlane(60.0f,True)" methodname="FrameCraft_KeepsTheRocketInFrontOfTheNearPlane" classname="TAP.Tests.VabIntegrationTests" runstate="Runnable" seed="769177737" result="Passed" start-time="2026-10-22 06:20:09Z" end-time="2026-10-22 06:20:09Z" duration="0.001394" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+                <output><![CDATA[Saving results to: C:/Users/jakub/AppData/LocalLow/Astraea Works/The Astraea Program\TestResults.xml
+]]></output>
+              </test-case>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

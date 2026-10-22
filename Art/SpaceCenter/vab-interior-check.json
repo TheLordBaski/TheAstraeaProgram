@@ -1,0 +1,34 @@
+{
+  "result": "PASS",
+  "triangles": 132020,
+  "mesh_renderers": 94,
+  "colliders": 138,
+  "reserved_width_depth_height_m": [
+    24,
+    30,
+    67.9
+  ],
+  "central_geometry_empty": true,
+  "central_collision_empty": true,
+  "assembly_origin_centred": true,
+  "floor_collision_raycast": true,
+  "zero_area_triangles": 0,
+  "fbx_roundtrip": true,
+  "unity_import": true,
+  "glb_triangles_and_markers": true,
+  "shared_material": true,
+  "armorpaint": "refreshed and saved",
+  "protected_files_unchanged": 96,
+  "campus_prefab_references_valid": true,
+  "preview_scene": "Assets\\TAP\\Art\\SpaceCenter\\Scenes\\VAB_Interior_Preview.unity",
+  "not_checked": [
+    "built-game performance",
+    "player traversal",
+    "assembly-screen integration"
+  ],
+  "static_equipment": [
+    "crane",
+    "freight lift",
+    "sliding door leaves"
+  ]
+}

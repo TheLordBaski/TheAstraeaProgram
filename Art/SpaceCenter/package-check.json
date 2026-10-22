@@ -1,0 +1,17 @@
+{
+  "result": "PASS",
+  "facilities": 7,
+  "triangles": 290373,
+  "checks": [
+    "source files",
+    "embedded GLB textures",
+    "GLB palette pixel parity",
+    "GLB UVs",
+    "FBX re-import",
+    "Unity triangle parity",
+    "URP prefabs",
+    "PBR map size and packing",
+    "neutral architectural palette",
+    "Unity texture byte parity"
+  ]
+}

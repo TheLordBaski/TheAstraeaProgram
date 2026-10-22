@@ -1,0 +1,6 @@
+Revisions/
+Source/*.log
+Source/*.pid
+Source/__pycache__/
+Source/Temp/
+Source/*.work/

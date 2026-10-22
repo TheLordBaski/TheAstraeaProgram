@@ -1,0 +1,60 @@
+{
+  "result": "PASS",
+  "views": [
+    "space-centre hub",
+    "assembly editor",
+    "flight launch-site scenery"
+  ],
+  "runtime_prefabs": [
+    {
+      "prefab": "Assets\\TAP\\Resources\\SpaceCenter\\01_VehicleAssembly.prefab",
+      "shared_mesh_and_material": true
+    },
+    {
+      "prefab": "Assets\\TAP\\Resources\\SpaceCenter\\VAB_AssemblySpace.prefab",
+      "shared_mesh_and_material": true
+    }
+  ],
+  "tests": [
+    {
+      "mode": "editmode",
+      "result": "PASS",
+      "tests": 3,
+      "names": [
+        "TAP.Tests.VabIntegrationTests.AssemblyVab_LoadsAtRocketOrigin_WithClearPhysicalWorkspace",
+        "TAP.Tests.VabIntegrationTests.FrameCraft_KeepsTheRocketInFrontOfTheNearPlane(6.0f,False)",
+        "TAP.Tests.VabIntegrationTests.FrameCraft_KeepsTheRocketInFrontOfTheNearPlane(60.0f,True)"
+      ]
+    },
+    {
+      "mode": "playmode",
+      "result": "PASS",
+      "tests": 2,
+      "names": [
+        "TAP.Tests.VabSceneTests.HubAndAssembly_LoadTheAuthoredVab_WithAnEditableStarterRocket",
+        "TAP.Tests.VabSceneTests.LaunchSiteVab_IsAnAuthoredKinematicSurfaceObject"
+      ]
+    }
+  ],
+  "validation": "isolated copy of this project in Unity 6000.5.7f1",
+  "live_editor_session": "left open; tests ran separately",
+  "game_camera_capture": "Art\\SpaceCenter\\Previews\\VAB_InGame.png",
+  "validation_texture_import": "VAB full resolution; unrelated textures reduced to 256px in the disposable test project",
+  "protected_files_unchanged": 96,
+  "validated_source_hashes": {
+    "Assets/TAP/Scripts/Game/Assembly/AssemblyScene.cs": "3940f88a8fa28e22bed8f9f870d08682144b2c4c5482dbb8740d0d8e64148f04",
+    "Assets/TAP/Scripts/Game/Assembly/EditorCamera.cs": "90fa126393ca59983d329d09ddbbad3b2c8b26697498dd0a3a2a9362bf3f6c93",
+    "Assets/TAP/Scripts/Game/Assembly/EditorVisuals.cs": "62d38958c94cfa2d477ece3946070753c5de124f04a68857090a2bc35a81ae69",
+    "Assets/TAP/Scripts/Game/SpaceCenter/VabModel.cs": "e8a50d7edd485b9d866aa18c615da57942f35b3e0406501538c61f6557d43adb",
+    "Assets/TAP/Scripts/Game/SpaceCenter/SpaceCenterScene.cs": "45e3efea788238ccb51b7673eb696f934910e725ea01387ce662b4499d833aac",
+    "Assets/TAP/Scripts/Game/Flight/LaunchSiteBuilder.cs": "37562e453882cd11782b665a117c2297c81aecda0fa6981a6fe3f38c88fa4f21",
+    "Assets/TAP/Tests/EditMode/VabIntegrationTests.cs": "61574c0cbedcf4a0822036eaba0edb55d3c97b2fb735c73dfb8e215e7b94a115",
+    "Assets/TAP/Tests/PlayMode/VabSceneTests.cs": "db75c6f8d091befd21514c97d57149326c14098234f2dc28c242aa30aeb1067b"
+  },
+  "craft_height_limit_m": 60,
+  "equipment": "static crane, lift and doors",
+  "not_checked": [
+    "standalone player build",
+    "performance profiling"
+  ]
+}

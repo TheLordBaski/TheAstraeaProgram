@@ -1,0 +1,12 @@
+{
+  "success": false,
+  "command": "unity command eval_file",
+  "data": null,
+  "errors": [
+    {
+      "code": "COMMAND_FAILED",
+      "message": "No Pipeline instance found for project: D:\\Dev\\KSP. Make sure Unity Editor is running with the Pipeline package installed."
+    }
+  ],
+  "warnings": []
+}
