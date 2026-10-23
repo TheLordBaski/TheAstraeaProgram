@@ -32,6 +32,14 @@ ART-08a,"Atmospheric scattering (Tellus, Rubra)",15-art.md,EA1,EA1,2.5,1.0,False
 ART-11,Visual clarity pass,15-art.md,EA1,EA1,2.0,2.0,False,UX-04 ART-07a
 ART-12,Store and marketing art,15-art.md,EA1,EA1,1.0,3.0,False,ART-11
 ART-13,Interface icons and flags,15-art.md,EA1,EA1,1.0,2.0,False,UX-01
+ART-14,Prove the Gaea 2 authoring and export workflow,15-art.md,EA1,EA1,0.0,0.0,True,FND-02
+ART-15,Correct terrain normal blending and record the baseline,15-art.md,EA1,EA1,0.0,0.0,True,FND-02
+ART-16,Add four-channel visual biome maps and authoring controls,15-art.md,EA1,EA1,0.0,0.0,True,ART-15
+ART-17,Author the first four seamless regional tiles in Gaea 2,15-art.md,EA1,EA1,0.0,0.0,True,ART-14
+ART-18,Blend regional terrain normals across visual biomes,15-art.md,EA1,EA1,0.0,0.0,True,ART-16 ART-17
+ART-19,Add procedural ground materials within each visual biome,15-art.md,EA1,EA1,0.0,0.0,True,ART-18
+ART-20,"Connect ground, regional and orbital texture scales",15-art.md,EA1,EA1,0.0,0.0,True,ART-19
+ART-21,Validate the Tellus slice and gate the remaining-body rollout,15-art.md,EA1,EA1,0.0,0.0,True,ART-20
 ASM-01,Part browser v2,06-assembly-building.md,EA1,EA1,3.0,1.0,False,PRT-09
 ASM-02,Tweakables in the assembly building,06-assembly-building.md,EA1,EA1,2.0,0.5,False,
 ASM-03,Action group editor,06-assembly-building.md,EA1,EA1,2.0,0.5,False,FLT-07

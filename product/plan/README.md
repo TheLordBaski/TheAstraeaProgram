@@ -9,12 +9,17 @@ It adds TAP's own additions:
 - planned expansions for more star systems and trade routes.
 
 **What it contains:**
-- 221 tasks in 18 workstreams;
+- 230 tasks in 18 workstreams;
 - milestones from the first internal foundations to 1.0;
 - estimates for a solo developer working with Claude;
 - the decisions still open.
 
 Written 2026-09-27, after the vertical slice (M0).
+
+2026-10-23: added eight EA1 tasks (ART-14 through ART-21) for Gaea 2 visual biomes, regional normals, procedural
+ground materials and distance transitions in [Art and visuals](15-art.md#visual-biomes-gaea-2-authoring-and-ksp-2-texture-tiers).
+Their estimates are TBD until the first tile and Tellus comparison; the milestone/schedule estimates below remain
+the earlier baseline. The generated `tasks.csv` includes the new tasks and flags their estimates as TBD.
 
 ## Documents
 
