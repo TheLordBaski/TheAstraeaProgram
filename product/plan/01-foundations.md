@@ -677,7 +677,37 @@ quadtree) makes the queue fill up.
 - Stale requests dropped before they run; the work moved to Unity's job system.
 
 **Done when**
-- [ ] With the queue full, `detail_lag_s` in `descent` and `low-pass` is lower than with first in, first out.
+- [x] With the queue full, `detail_lag_s` in `descent` and `low-pass` is lower than with first in, first out. (One worker, the managed path
+      and Ultra terrain detail, two runs each way: `descent` 6.28 and 6.28 → 0.20 and 0.31 s, with `max_level_s` 7.25 → 4.27 and 4.40 s;
+      `low-pass` 0.01 and 0.01 → 0.00 and 0.00 s.)
+
+Built (`PlanetTerrain.cs` `TerrainWorkers`, `Rank`, `RankOf`, `Prefetch`; `TerrainTests.TerrainRequests_GoNearestFirst_LookAhead_AndDropWhatIsLeftBehind`,
+[Docs/PERFORMANCE.md](../../Docs/PERFORMANCE.md) "FND-20"):
+- **The queue.** Surface chunks wait in a list, and a worker takes the lowest rank. Colliders and the far view go first, in order.
+  The node itself is the work item, so a request allocates nothing.
+- **The rank,** worked out again every frame for every waiting chunk:
+  - The camera's distance from the chunk's parent, in the parent's arcs (its error on screen). All four children of a split rank
+    alike, so one far sibling cannot hold the split up.
+  - A hundredth of the distance to the parent's middle breaks the ties among the chunks the camera is over.
+  - Out of the view cone counts four times as far. The cone test has no trigonometry.
+- **Look-ahead.** Ten times a second the LOD also runs where the camera will be in 1.5 s, along its smoothed velocity:
+  - A straight line overshoots a curving, slowing path, so it reaches at most twice the camera's height above the ground, and a fall
+    keeps at least half of that height.
+  - It goes on below any ready chunk, so the next level is asked for while the last is still being made.
+  - These requests rank three arcs behind what the camera needs now, so they only use idle workers.
+  - Nothing is drawn early: drawing still follows the camera, as the LOD morph (FND-18) needs.
+- **Dropping.** A request that neither the camera nor the last look-ahead wants is taken back off the queue and can be asked for
+  again later. A chunk waiting to be made again after a terrain edit is never dropped.
+- **Switches.**
+  - `-terrain-fifo` builds the old way.
+  - `-terrain-workers n` sets the number of threads.
+  - `-benchmark-terrain-detail <scale>` sets the terrain detail for the streaming scenarios.
+- **Costs**, with the default workers (three runs each way): `planets_ms` and frame times are the same within noise. Look-ahead builds
+  5% (`descent`) and 11% (`low-pass`) more chunks.
+- **Not done as planned:** the work stays on our own threads, not Unity's job system:
+  - The workers already run Burst code (FND-19).
+  - A job cannot hold the managed terrain program or the pooled chunk buffers, so moving would mean native buffers first.
+  - Our threads run below normal priority, so Unity's own workers come first.
 
 ### FND-21 · Compact terrain vertices
 **Milestone** EA1 · **Claude** 0.5 d · **You** — · **Needs** FND-18, FND-19

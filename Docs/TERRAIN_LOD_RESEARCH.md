@@ -137,7 +137,7 @@ Each step can ship on its own. The steps are plan tasks:
 | Step | Task | Milestone |
 |---|---|---|
 | 1. Measure | FND-16, done | M1 |
-| 2. Schedule better | FND-20 | EA2, only once the queue fills up |
+| 2. Schedule better | FND-20, done | EA2 |
 | 3. Remove the garbage | FND-17, done | EA1 |
 | 4. Evaluate in Burst | FND-19, done | EA1 |
 | 5. Morph between LODs | FND-18, done | EA1 |
@@ -163,6 +163,12 @@ collection is the cost that shows, so removing the garbage comes first.
    - Rank chunks in the frustum first, and request chunks around where the camera will be 1 to 2 s ahead.
    - Drop stale requests before they run.
    - Move the work to Unity's job system to stop competing with its workers.
+
+   Done on 2026-10-23, all but the job system (FND-20).
+   - With a full queue (one worker, the managed path, Ultra detail), the ground under a descending camera waits at most
+     0.2 to 0.3 s for its detail instead of 6.3 s.
+   - With the default workers the cost does not show.
+   - The threads stay ours: they run Burst code already, below normal priority (`PERFORMANCE.md`, "FND-20").
 3. **Remove the garbage.** Pool native buffers per worker. Fill meshes with `Mesh.AllocateWritableMeshData` in the job and
    apply them with `ApplyAndDisposeWritableMeshData` on the main thread. Keep one native index buffer per resolution,
    handedness and skirt setting.

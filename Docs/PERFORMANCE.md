@@ -23,6 +23,13 @@ Options: `-benchmark-scenarios launch-150,map-40` picks scenarios, `-benchmark-s
 `-benchmark-out` sets the file (default `benchmark.csv` in the user folder). In the editor the same options are PlayerPrefs, `TAP.AutoTest` = `bench`
 and `TAP.benchmark-seconds`, and so on.
 
+Terrain switches, for comparisons:
+- `-terrain-managed` builds chunks with the classes instead of Burst (FND-19).
+- `-terrain-workers n` sets the number of terrain worker threads. The default is the cores but two, 1 to 6; fewer fill the queue.
+- `-terrain-fifo` builds chunks first in, first out, with no look-ahead and nothing dropped, as before FND-20.
+- `-benchmark-terrain-detail <scale>` sets the terrain detail scale in `descent` and `low-pass`. Ultra is 1.3636 (3 / 2.2); the default
+  setting is 1.
+
 | Scenario | What |
 |---|---|
 | `boot`, `startup` | Seconds from starting the program to the main menu, and from the main menu to the space center (a new game). |
@@ -66,7 +73,7 @@ surface chunks, collider chunks and the far view's.
 |---|---|
 | `chunks` | Terrain chunks generated during the measurement, on any thread. |
 | `worker_ms_per_chunk` | Average time inside `TerrainChunkGenerator.Generate` per chunk (summed with thread-safe counters on the worker threads). |
-| `pending_avg`, `pending_max` | `TerrainWorkers.Pending`, the jobs waiting for a worker, sampled every frame. |
+| `pending_avg`, `pending_max` | `TerrainWorkers.Pending`, the jobs waiting for a worker, sampled every frame. The log line also gives the requests dropped before a worker took them (FND-20). |
 | `uploads_per_frame`, `uploads_max` | Chunk meshes filled in `PlanetTerrain.BuildCompleted` per frame; it stops at `MeshBuildBudget` (12) or 6 ms. |
 | `complete_s` | Seconds from the flight scene being up to `PlanetTerrain.Complete`: every root chunk facing the camera has its mesh. |
 | `max_level_s` | Seconds from the start of the measurement until the chunk under the camera is at `MaxLevel` (13 on Tellus: 115 m chunks, wanted below about 680 m at the default terrain detail). Empty if never: 1 km up, level 12 is the finest the LOD asks for. |
@@ -87,6 +94,35 @@ is a regression.
 
 Baselines are in `Docs/benchmarks/`: `windows-batch.csv` (the FND-17 run below), and `windows-gpu.csv` and `linux-ci.csv`, which do not exist yet (see
 "Not measured").
+
+## FND-20 (terrain request scheduling): priority and look-ahead against first in, first out, 2026-10-23
+
+One player, run alternately with and without `-terrain-fifo`.
+
+**With the queue full** (`-terrain-workers 1 -terrain-managed -benchmark-terrain-detail 1.3636`, two runs each way):
+
+| Scenario | Detail lag | `max_level_s` | Queue (avg / max) | Chunks | `planets_ms` |
+|---|---|---|---|---|---|
+| descent | 6.28 / 6.28 → 0.20 / 0.31 s | 7.25 → 4.27 / 4.40 s | 158–161 / 323 → 218–223 / 684 | 1,894 → 1,741 | 0.47–0.54 → 0.56–0.64 ms |
+| low-pass | 0.01 / 0.01 → 0.00 / 0.00 s | — | 56–63 / 102 → 364–401 / 760 | 2,479 → 2,561 | 0.80–0.88 → 0.71–0.79 ms |
+
+- **Why the descent improves:** first in, first out, the ground under the camera waits behind every chunk asked for before it. Ranked,
+  it is built first.
+- **Dropped requests:** 580 to 740 in `descent` and 750 to 820 in `low-pass`, which no longer wanted them. That is why `descent` makes
+  fewer chunks.
+- **The longer queue** is the look-ahead's requests. They rank behind what the camera needs now, so they wait for an idle worker.
+
+**With the default workers** (three runs each way), the queue never fills and the lag is 0.00 s both ways:
+
+| Scenario | `planets_ms` | Average frame | Chunks | Working set |
+|---|---|---|---|---|
+| descent | 0.354–0.368 → 0.362–0.376 ms | 1.77–1.78 → 1.78–1.80 ms | 1,392 → 1,456 | 251–253 → 252–253 MB |
+| low-pass | 0.447–0.465 → 0.427–0.464 ms | 2.76–2.84 → 2.65–2.77 ms | 1,712 → 1,904 | 269–309 → 311–326 MB |
+
+- **Main thread:** the same within noise.
+- **What the look-ahead costs:** 5% more chunks in `descent` and 11% in `low-pass`, a few of them for places the camera never reached.
+- **Burst, one worker, default detail:** the queue still did not fill (first in, first out, at most 15), so that is not a test of the
+  order.
 
 ## FND-21 (compact terrain vertices): memory against FND-19, 2026-10-23
 

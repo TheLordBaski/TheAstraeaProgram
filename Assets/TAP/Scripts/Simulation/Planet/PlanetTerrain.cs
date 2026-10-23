@@ -7,36 +7,140 @@ using UnityEngine;
 
 namespace TAP.Simulation
 {
-    /// <summary>Background worker threads that generate terrain chunk geometry.</summary>
+    /// <summary>
+    /// Background worker threads that generate terrain chunk geometry. Other work (colliders, the far view) goes first, in order.
+    /// Surface chunks wait in a list and the lowest <see cref="TerrainNode.Priority"/> goes next, which their terrain re-ranks every
+    /// frame (FND-20).
+    /// </summary>
     public static class TerrainWorkers
     {
-        private static readonly BlockingCollection<Action> Queue = new BlockingCollection<Action>(new ConcurrentQueue<Action>());
+        private static readonly object Lock = new object();
+        private static readonly Queue<Action> Jobs = new Queue<Action>();
+        private static readonly List<TerrainNode> Chunks = new List<TerrainNode>();
         private static Thread[] _threads;
-        public static int Pending => Queue.Count;
+        private static bool _paused;
+        /// <summary>First in, first out, with no look-ahead and nothing dropped: the order before FND-20, to compare against (<c>-terrain-fifo</c>).</summary>
+        public static bool Fifo = Array.IndexOf(Environment.GetCommandLineArgs(), "-terrain-fifo") >= 0;
+        /// <summary>Worker threads: all cores but two, 1 to 6, or <c>-terrain-workers n</c> (fewer fill the queue, to compare orders).</summary>
+        public static readonly int Count = WorkerCount();
+        /// <summary>Chunk requests dropped before a worker took them, because the LOD no longer wanted them (main thread).</summary>
+        public static long Dropped;
+        public static int Pending { get { lock (Lock) return Jobs.Count + Chunks.Count; } }
 
         public static void Enqueue(Action job)
         {
-            EnsureStarted();
-            Queue.Add(job);
+            lock (Lock)
+            {
+                Jobs.Enqueue(job);
+                Start();
+                Monitor.Pulse(Lock);
+            }
         }
 
-        private static void EnsureStarted()
+        /// <summary>Queues a chunk for its terrain's <see cref="PlanetTerrain.Build"/>; false if it is waiting already.</summary>
+        public static bool Enqueue(TerrainNode n)
+        {
+            lock (Lock)
+            {
+                if (n.Queued) return false;
+                n.Queued = true;
+                Chunks.Add(n);
+                Start();
+                Monitor.Pulse(Lock);
+                return true;
+            }
+        }
+
+        /// <summary>Takes a chunk back off the queue; false if it was not waiting (a worker has it, or it was never queued).</summary>
+        public static bool Remove(TerrainNode n)
+        {
+            lock (Lock)
+            {
+                if (!n.Queued) return false;
+                Chunks.Remove(n);
+                n.Queued = false;
+                return true;
+            }
+        }
+
+        /// <summary>Tests: while paused the workers take nothing, and <see cref="TakeNext"/> hands out what they would have.</summary>
+        public static void Pause(bool paused)
+        {
+            lock (Lock)
+            {
+                _paused = paused;
+                Monitor.PulseAll(Lock);
+            }
+        }
+
+        public static TerrainNode TakeNext()
+        {
+            lock (Lock) return Chunks.Count > 0 ? Take() : null;
+        }
+
+        /// <summary>Tests: the chunks waiting now.</summary>
+        public static List<TerrainNode> Waiting()
+        {
+            lock (Lock) return new List<TerrainNode>(Chunks);
+        }
+
+        private static int WorkerCount()
+        {
+            var args = Environment.GetCommandLineArgs();
+            int i = Array.IndexOf(args, "-terrain-workers");
+            if (i >= 0 && i + 1 < args.Length && int.TryParse(args[i + 1], out int n) && n > 0) return n;
+            return Mathf.Clamp(Environment.ProcessorCount - 2, 1, 6);
+        }
+
+        // under the lock
+        private static void Start()
         {
             if (_threads != null) return;
-            int n = Mathf.Clamp(Environment.ProcessorCount - 2, 1, 6);
-            _threads = new Thread[n];
-            for (int i = 0; i < n; i++)
+            _threads = new Thread[Count];
+            for (int i = 0; i < Count; i++)
             {
-                _threads[i] = new Thread(() =>
-                {
-                    foreach (var job in Queue.GetConsumingEnumerable())
-                    {
-                        try { job(); }
-                        catch (Exception e) { Debug.LogException(e); }
-                    }
-                }) { IsBackground = true, Name = "TerrainWorker" + i, Priority = System.Threading.ThreadPriority.BelowNormal };
+                _threads[i] = new Thread(Work) { IsBackground = true, Name = "TerrainWorker" + i, Priority = System.Threading.ThreadPriority.BelowNormal };
                 _threads[i].Start();
             }
+        }
+
+        private static void Work()
+        {
+            while (true)
+            {
+                Action job = null;
+                TerrainNode chunk = null;
+                lock (Lock)
+                {
+                    while (_paused || (Jobs.Count == 0 && Chunks.Count == 0)) Monitor.Wait(Lock);
+                    if (Jobs.Count > 0) job = Jobs.Dequeue();
+                    else chunk = Take();
+                }
+                try
+                {
+                    if (job != null) job();
+                    else chunk.Owner.Build(chunk);
+                }
+                catch (Exception e) { Debug.LogException(e); }
+            }
+        }
+
+        // under the lock: the lowest rank, or the oldest in Fifo
+        private static TerrainNode Take()
+        {
+            int best = 0;
+            if (!Fifo)
+                for (int i = 1; i < Chunks.Count; i++)
+                    if (Chunks[i].Priority < Chunks[best].Priority) best = i;
+            var n = Chunks[best];
+            if (Fifo) Chunks.RemoveAt(0);
+            else
+            {
+                Chunks[best] = Chunks[Chunks.Count - 1];
+                Chunks.RemoveAt(Chunks.Count - 1);
+            }
+            n.Queued = false;
+            return n;
         }
     }
 
@@ -59,6 +163,10 @@ namespace TAP.Simulation
         public bool Shown;
         public int LastUsedFrame;
         public int Generation; // bumped when the node is released or its ground changes: older results are dropped
+        // the worker queue (FND-20): the rank (lower is built sooner), whether it waits there (TerrainWorkers' lock), the last frame the LOD wanted it
+        public double Priority;
+        public bool Queued;
+        public int Wanted, Needed; // Needed: by the LOD at the camera itself, not only ahead
     }
 
     /// <summary>
@@ -119,6 +227,13 @@ namespace TAP.Simulation
         private Vector3d _camBF;
         private double _camDist;
         private double _horizonAngle;
+        /// <summary>How far ahead (s) the terrain asks for the chunks the camera will want, along its velocity (FND-20).</summary>
+        public const double LookAhead = 1.5;
+        private const double MaxLookAheadSpeed = 20000; // m/s; faster is a jump (another vessel, a new scene), not a flight
+        private Vector3d _aheadBF, _viewBF, _velocityBF;
+        private double _aheadHorizon, _viewCos, _viewSin, _lastTime = -1, _clock, _prefetchClock = double.NegativeInfinity, _peak;
+        private int _prefetchFrame = -1;
+        private readonly List<TerrainNode> _queued = new List<TerrainNode>(); // this terrain's chunks in TerrainWorkers' queue
         private int _frame;
         private int _camFace;
         private double _camU, _camV;
@@ -143,6 +258,8 @@ namespace TAP.Simulation
             EnableMorph(mat);
             double arc0 = Math.PI * 0.5 * body.Radius;
             MaxLevel = Mathf.Clamp(Mathf.RoundToInt((float)Math.Log(arc0 / (ChunkResolution * 3.2), 2)), 4, 16);
+            // how far past the horizon the highest peaks still show
+            _peak = body.Terrain.MaxHeight > 0 ? Math.Acos(Math.Min(1, body.Radius / (body.Radius + body.Terrain.MaxHeight))) : 0;
             _roots = new TerrainNode[6];
             for (int f = 0; f < 6; f++) _roots[f] = MakeNode(null, f, 0, -1, -1, 2);
         }
@@ -163,15 +280,50 @@ namespace TAP.Simulation
 
         /// <summary>
         /// Updates LOD and chunk transforms. camTrue: camera position relative to the body centre (inertial);
-        /// bodyCenterUnity: body centre in Unity space; bodyRot: body rotation (body-fixed -> inertial).
+        /// bodyCenterUnity: body centre in Unity space; bodyRot: body rotation (body-fixed -> inertial); view: the camera, whose view
+        /// cone is built first.
         /// </summary>
-        public void UpdateTerrain(Vector3d camTrue, Vector3d bodyCenterUnity, QuaternionD bodyRot)
+        public void UpdateTerrain(Vector3d camTrue, Vector3d bodyCenterUnity, QuaternionD bodyRot, Camera view = null)
+        {
+            double now = Time.realtimeSinceStartupAsDouble, dt = _lastTime < 0 ? 0 : now - _lastTime;
+            _lastTime = now;
+            Vector3d forward = view != null ? (Vector3d)view.transform.forward : Vector3d.zero;
+            double half = view != null ? Math.Atan(Math.Tan(view.fieldOfView * 0.5 * MathD.Deg2Rad) * Math.Sqrt(1 + view.aspect * view.aspect)) : Math.PI;
+            UpdateTerrain(camTrue, bodyCenterUnity, bodyRot, dt, forward, half);
+        }
+
+        /// <summary>
+        /// As above, with dt: real seconds since the last update (0: unknown), forward: where the camera looks (inertial, Unity's axes; zero:
+        /// everywhere), halfAngle: from there to a corner of the view (rad).
+        /// </summary>
+        public void UpdateTerrain(Vector3d camTrue, Vector3d bodyCenterUnity, QuaternionD bodyRot, double dt, Vector3d forward, double halfAngle)
         {
             _frame++;
+            Vector3d last = _camBF;
             _camBF = bodyRot.Inverse() * camTrue;
             _camDist = _camBF.magnitude;
             double r = Body.Radius + Math.Min(Body.Terrain.MinHeight, 0);
-            _horizonAngle = _camDist > r ? Math.Acos(Math.Min(1, r / _camDist)) : Math.PI;
+            _horizonAngle = Horizon(_camDist, r);
+            Vector3d velocity = dt > 0 ? (_camBF - last) / dt : Vector3d.zero;
+            if (velocity.magnitude > MaxLookAheadSpeed) _velocityBF = Vector3d.zero;
+            else if (dt > 0) _velocityBF = Vector3d.Lerp(_velocityBF, velocity, 1 - Math.Exp(-dt / 0.3)); // frame times jitter
+            // Where the camera will be. A straight line overshoots a curving, slowing path, so it reaches at most twice the camera's
+            // height, and a fall keeps at least half of that height (the LOD scales with it).
+            double height = Math.Max(_camDist - Body.Radius, 1);
+            Vector3d move = _velocityBF * LookAhead;
+            if (move.magnitude > 2 * height) move = move.normalized * (2 * height);
+            _aheadBF = _camBF + move;
+            if (_aheadBF.magnitude < Body.Radius + 0.5 * height) _aheadBF = _aheadBF.normalized * (Body.Radius + 0.5 * height);
+            _aheadHorizon = Horizon(_aheadBF.magnitude, r);
+            // Moving less than a tenth of its height, the LOD ahead is the LOD here. The look-ahead runs ten times a second.
+            _clock += dt;
+            bool lookAhead = !TerrainWorkers.Fifo && (_aheadBF - _camBF).magnitude > 0.1 * height;
+            bool prefetch = lookAhead && _clock - _prefetchClock >= 0.1;
+            if (prefetch) { _prefetchClock = _clock; _prefetchFrame = _frame; }
+            else if (!lookAhead) _prefetchFrame = -1;
+            _viewBF = (bodyRot.Inverse() * forward).normalized;
+            _viewCos = Math.Cos(halfAngle);
+            _viewSin = Math.Sin(halfAngle);
             Shader.SetGlobalFloat(MorphSplitId, MorphEnabled ? SplitFactor * DetailScale : 0); // the split rule of Visit, for TerrainMorph.hlsl
             BuildCompleted();
             _shownThisFrame.Clear();
@@ -184,8 +336,10 @@ namespace TAP.Simulation
                 {
                     Visit(root);
                     if (root.State != 2 && IsVisible(root)) complete = false;
+                    if (prefetch) Prefetch(root);
                 }
             Complete = complete;
+            Rank();
 
             Quaternion rot = bodyRot.ToQuaternion();
             foreach (var n in _shownThisFrame)
@@ -203,43 +357,60 @@ namespace TAP.Simulation
             if (_frame % 120 == 0) Prune();
         }
 
-        private bool IsVisible(TerrainNode n)
+        private static double Horizon(double dist, double r) => dist > r ? Math.Acos(Math.Min(1, r / dist)) : Math.PI;
+
+        private bool IsVisible(TerrainNode n) => IsVisible(n, _camBF, _horizonAngle);
+
+        private bool IsVisible(TerrainNode n, Vector3d eye, double horizon)
         {
-            double ang = Vector3d.AngleRad(n.CenterDir, _camBF);
-            double peak = Body.Terrain.MaxHeight > 0 ? Math.Acos(Math.Min(1, Body.Radius / (Body.Radius + Body.Terrain.MaxHeight))) : 0;
-            return ang < _horizonAngle + peak + n.AngularRadius + 0.02;
+            double ang = Vector3d.AngleRad(n.CenterDir, eye);
+            return ang < horizon + _peak + n.AngularRadius + 0.02;
         }
 
-        private double DistanceTo(TerrainNode n)
+        private double DistanceTo(TerrainNode n) => DistanceTo(n, _camBF);
+
+        private double DistanceTo(TerrainNode n, Vector3d eye) => Math.Max(0, CentreDistance(n, eye) - n.ArcSize * 0.75);
+
+        private double CentreDistance(TerrainNode n, Vector3d eye) => (n.CenterDir * (Body.Radius + 0.5 * (n.MinH + n.MaxH)) - eye).magnitude;
+
+        private bool WantsSplit(TerrainNode n, Vector3d eye) => n.Level < MaxLevel && DistanceTo(n, eye) < n.ArcSize * SplitFactor * DetailScale;
+
+        private void Split(TerrainNode n)
         {
-            double h = 0.5 * (n.MinH + n.MaxH);
-            Vector3d c = n.CenterDir * (Body.Radius + h);
-            double d = (c - _camBF).magnitude - n.ArcSize * 0.75;
-            return Math.Max(0, d);
+            if (n.Children != null) return;
+            double h = n.Size * 0.5;
+            n.Children = new[]
+            {
+                MakeNode(n, n.Face, n.Level + 1, n.U0, n.V0, h),
+                MakeNode(n, n.Face, n.Level + 1, n.U0 + h, n.V0, h),
+                MakeNode(n, n.Face, n.Level + 1, n.U0, n.V0 + h, h),
+                MakeNode(n, n.Face, n.Level + 1, n.U0 + h, n.V0 + h, h),
+            };
+        }
+
+        /// <summary>
+        /// The LOD wants this node's mesh this frame, at the camera (<paramref name="now"/>) or ahead: it is asked for if it has none,
+        /// and kept while it waits.
+        /// </summary>
+        private void Want(TerrainNode n, bool now)
+        {
+            n.Wanted = _frame;
+            if (now) n.Needed = _frame;
+            if (n.State == 0) Request(n);
         }
 
         private void Visit(TerrainNode n)
         {
             if (!IsVisible(n)) return;
-            if (n.State == 0) Request(n);
-            bool wantSplit = n.Level < MaxLevel && DistanceTo(n) < n.ArcSize * SplitFactor * DetailScale;
+            Want(n, true);
+            bool wantSplit = WantsSplit(n, _camBF);
             if (wantSplit)
             {
-                if (n.Children == null)
-                {
-                    double h = n.Size * 0.5;
-                    n.Children = new[]
-                    {
-                        MakeNode(n, n.Face, n.Level + 1, n.U0, n.V0, h),
-                        MakeNode(n, n.Face, n.Level + 1, n.U0 + h, n.V0, h),
-                        MakeNode(n, n.Face, n.Level + 1, n.U0, n.V0 + h, h),
-                        MakeNode(n, n.Face, n.Level + 1, n.U0 + h, n.V0 + h, h),
-                    };
-                }
+                Split(n);
                 bool allReady = true;
                 foreach (var c in n.Children)
                 {
-                    if (c.State == 0) Request(c);
+                    Want(c, true);
                     if (c.State != 2) allReady = false;
                 }
                 if (allReady)
@@ -257,18 +428,87 @@ namespace TAP.Simulation
             }
         }
 
+        /// <summary>
+        /// Look-ahead (FND-20): asks for the chunks the LOD will want where the camera is going, <see cref="LookAhead"/> s along its
+        /// velocity, before it gets there. Unlike <see cref="Visit"/> it goes on below any ready chunk, so the next level is asked for
+        /// while the last one is still being made. These rank after what the camera needs now (<see cref="RankOf"/>), so they use
+        /// idle workers. Nothing is drawn early: what is drawn still follows the camera, as the LOD morph needs.
+        /// </summary>
+        private void Prefetch(TerrainNode n)
+        {
+            if (!IsVisible(n, _aheadBF, _aheadHorizon)) return;
+            Want(n, false);
+            if (n.State != 2 || !WantsSplit(n, _aheadBF)) return;
+            Split(n);
+            foreach (var c in n.Children) Want(c, false);
+            foreach (var c in n.Children) Prefetch(c);
+        }
+
         private void Request(TerrainNode n)
         {
             if (n.State == 0) n.State = 1;
+            n.Priority = RankOf(n);
+            if (TerrainWorkers.Enqueue(n)) _queued.Add(n);
+        }
+
+        /// <summary>On a worker thread: makes a requested chunk. <see cref="BuildCompleted"/> drops it if the node changed meanwhile.</summary>
+        public void Build(TerrainNode n)
+        {
             int gen = n.Generation;
-            var body = Body;
-            int res = ChunkResolution;
-            bool ocean = body.HasOcean;
-            TerrainWorkers.Enqueue(() =>
+            _completed.Enqueue((n, TerrainChunkGenerator.Generate(Body.Terrain, Body.Radius, n.Face, n.U0, n.V0, n.Size, ChunkResolution, Body.HasOcean, true), gen));
+        }
+
+        /// <summary>
+        /// Re-ranks this terrain's waiting chunks, and drops those the LOD no longer wants, now or at the last look-ahead (FND-20). A
+        /// ready chunk waiting to be made again (new ground after a terrain edit) is never dropped: it would keep the old ground.
+        /// </summary>
+        private void Rank()
+        {
+            for (int i = _queued.Count - 1; i >= 0; i--)
             {
-                if (gen != n.Generation) return;
-                _completed.Enqueue((n, TerrainChunkGenerator.Generate(body.Terrain, body.Radius, n.Face, n.U0, n.V0, n.Size, res, ocean, true), gen));
-            });
+                var n = _queued[i];
+                if (n.Queued && (TerrainWorkers.Fifo || n.Wanted == _frame || n.Wanted == _prefetchFrame || n.State == 2))
+                {
+                    if (!TerrainWorkers.Fifo) n.Priority = RankOf(n);
+                    continue;
+                }
+                if (n.Queued && TerrainWorkers.Remove(n))
+                {
+                    n.State = 0;
+                    TerrainWorkers.Dropped++;
+                }
+                _queued[i] = _queued[_queued.Count - 1];
+                _queued.RemoveAt(_queued.Count - 1);
+            }
+        }
+
+        /// <summary>
+        /// A waiting chunk's rank, lower first: the camera's distance from its parent in the parent's arcs (the parent's error on
+        /// screen), so all four children of a split rank alike and none holds the split up. A hundredth of the distance to the parent's
+        /// middle orders the chunks the camera is over. Out of view counts four times as far; wanted only ahead, three arcs further.
+        /// </summary>
+        private double RankOf(TerrainNode n)
+        {
+            var p = n.Parent ?? n;
+            bool now = n.Needed == _frame;
+            Vector3d centre = p.CenterDir * (Body.Radius + 0.5 * (p.MinH + p.MaxH));
+            double c = (centre - (now ? _camBF : _aheadBF)).magnitude, radius = p.ArcSize * 0.75;
+            double rank = (Math.Max(0, c - radius) + 0.01 * c) / p.ArcSize;
+            if (!InView(centre, radius)) rank *= 4;
+            return now ? rank : rank + 3;
+        }
+
+        /// <summary>
+        /// Whether a sphere is in the camera's view cone, or holds the camera. The cone's tip moves back until the cone touches the
+        /// sphere, which leaves a point test with no trigonometry (this runs for every waiting chunk every frame).
+        /// </summary>
+        private bool InView(Vector3d centre, double radius)
+        {
+            if (_viewBF.sqrMagnitude == 0) return true;
+            Vector3d to = centre - _camBF;
+            if (to.sqrMagnitude <= radius * radius) return true;
+            to += _viewBF * (radius / _viewSin);
+            return Vector3d.Dot(to, _viewBF) > to.magnitude * _viewCos;
         }
 
         /// <summary>
@@ -355,7 +595,7 @@ namespace TAP.Simulation
             foreach (var c in n.Children)
             {
                 PruneNode(c);
-                if (c.LastUsedFrame > _frame - 600 || c.Children != null || c.State == 1) anyRecent = true;
+                if (c.Wanted > _frame - 600 || c.Children != null || c.State == 1) anyRecent = true;
             }
             if (!anyRecent && n.Level >= 3)
             {
@@ -366,6 +606,7 @@ namespace TAP.Simulation
 
         private void Release(TerrainNode n)
         {
+            TerrainWorkers.Remove(n);
             n.Generation++;
             if (n.Go != null) { n.Go.SetActive(false); _pool.Push(n.Go); n.Go = null; }
             if (n.Mesh != null) { Destroy(n.Mesh); n.Mesh = null; }
@@ -383,6 +624,7 @@ namespace TAP.Simulation
         private void OnDestroy()
         {
             // Stop pending jobs writing into destroyed nodes.
+            foreach (var n in _queued) TerrainWorkers.Remove(n);
             if (_roots != null) foreach (var r in _roots) Invalidate(r);
         }
 

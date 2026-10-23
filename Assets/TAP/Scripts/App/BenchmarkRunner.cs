@@ -298,6 +298,8 @@ namespace TAP.App
             GameSession.Save.scene = "flight";
             GameSession.ResumeFlight();
             yield return WaitFlight();
+            // the terrain detail scale (the Ultra setting is 3 / 2.2 = 1.36): more chunks, to fill the queue (FND-20)
+            if (float.TryParse(Arg("-benchmark-terrain-detail"), NumberStyles.Float, CultureInfo.InvariantCulture, out float detail)) PlanetTerrain.DetailScale = detail;
             float ready = Time.realtimeSinceStartup;
             var scene = FlightSceneController.Instance;
             if (!scene.Sim.Planets.Terrains.TryGetValue(body, out var terrain)) throw new InvalidOperationException(body.Name + " has no terrain");
@@ -340,7 +342,7 @@ namespace TAP.App
             var times = new List<float>();
             SimTimers.Reset();
             long chunks = Interlocked.Read(ref TerrainChunkGenerator.Generated), ticks = Interlocked.Read(ref TerrainChunkGenerator.GenerateTicks);
-            long uploads = PlanetTerrain.MeshUploads, lastUploads = uploads, pendingSum = 0;
+            long uploads = PlanetTerrain.MeshUploads, lastUploads = uploads, pendingSum = 0, dropped = TerrainWorkers.Dropped;
             int gc = GC.CollectionCount(0), pendingMax = 0, uploadsMax = 0;
             // per frame in the editor and development builds; a release player does not record it (the column stays empty)
             using var allocated = ProfilerRecorder.StartNew(ProfilerCategory.Memory, "GC Allocated In Frame");
@@ -391,7 +393,8 @@ namespace TAP.App
             Memory(row);
             _rows.Add(row);
             Debug.Log($"[Benchmark] {scenario}: {row.Frames} frames, {row.Avg:F2} ms average ({(row.Avg > 0 ? 1000 / row.Avg : 0):F0} fps), 99% under {row.P99:F2} ms, {row.WorkingSetMb:F0} MB; " +
-                $"{row.Chunks} chunks at {row.WorkerMs:F2} ms, queue {row.PendingAvg:F0} (max {row.PendingMax}), {row.UploadsAvg:F2} uploads a frame (max {row.UploadsMax}), {row.GcCollections} GCs");
+                $"{row.Chunks} chunks at {row.WorkerMs:F2} ms, queue {row.PendingAvg:F0} (max {row.PendingMax}), {row.UploadsAvg:F2} uploads a frame (max {row.UploadsMax}), " +
+                $"{TerrainWorkers.Dropped - dropped} requests dropped, {TerrainWorkers.Count} workers{(TerrainWorkers.Fifo ? " first in first out" : "")}, lag {row.DetailLagS:F2} s, {row.GcCollections} GCs");
         }
 
         private static void Memory(Row row)

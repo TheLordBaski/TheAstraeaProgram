@@ -512,5 +512,96 @@ namespace TAP.Tests
                 Assert.That(root.UV2, Has.All.EqualTo(Vector4.zero), $"{key}: root morph");
             }
         }
+
+        [Test]
+        public void TerrainRequests_GoNearestFirst_LookAhead_AndDropWhatIsLeftBehind()
+        {
+            // FND-20. The workers are paused and this thread builds one chunk a frame, as a full queue would.
+            var sys = CelestialSystem.LoadFromResources();
+            var body = sys.HomeBody;
+            Vector3d site = sys.Def.launchSite.UpBF, east = Geo.East(site);
+            Vector3d cam = site * (body.Radius + Math.Max(0, body.Terrain.Height(site)) + 3000);
+            var objects = new List<GameObject>();
+            bool fifo = TAP.Simulation.TerrainWorkers.Fifo;
+            TAP.Simulation.PlanetTerrain NewTerrain()
+            {
+                var go = new GameObject("FND-20 test terrain");
+                objects.Add(go);
+                var t = go.AddComponent<TAP.Simulation.PlanetTerrain>();
+                t.MeshBuildBudget = 1000;
+                t.Init(body, null);
+                return t;
+            }
+            void Frame(TAP.Simulation.PlanetTerrain t, Vector3d at, double dt) => t.UpdateTerrain(at, Vector3d.zero, QuaternionD.identity, dt, Vector3d.zero, Math.PI);
+            // frames until the ground under the camera is as fine as the LOD wants
+            int Settle(TAP.Simulation.PlanetTerrain t)
+            {
+                for (int frame = 1; frame <= 5000; frame++)
+                {
+                    Frame(t, cam, 0);
+                    if (t.LevelUnderCamera >= 0 && !t.DetailBehind) return frame;
+                    var n = TAP.Simulation.TerrainWorkers.TakeNext();
+                    if (n != null) n.Owner.Build(n);
+                }
+                return -1;
+            }
+            void Drain()
+            {
+                while (TAP.Simulation.TerrainWorkers.TakeNext() != null) { }
+            }
+            TAP.Simulation.TerrainWorkers.Pause(true);
+            try
+            {
+                Drain();
+                TAP.Simulation.TerrainWorkers.Fifo = false;
+                var t = NewTerrain();
+                int ranked = Settle(t);
+                // the rest of the LOD around the camera; standing still, nothing more is asked for
+                for (int i = 0; i < 20000; i++)
+                {
+                    var n = TAP.Simulation.TerrainWorkers.TakeNext();
+                    n?.Owner.Build(n);
+                    Frame(t, cam, 0);
+                    if (n == null && TAP.Simulation.TerrainWorkers.Waiting().Count == 0) break;
+                }
+                Assert.That(TAP.Simulation.TerrainWorkers.Waiting(), Is.Empty, "settled, standing still");
+
+                // Flying east at 2 km/s: chunks where the camera will be in 1.5 s are asked for, which the LOD here does not want yet.
+                Frame(t, cam - east * 2000, 0);
+                Frame(t, cam, 1);
+                double Dist(TAP.Simulation.TerrainNode n, Vector3d eye) =>
+                    Math.Max(0, (n.CenterDir * (body.Radius + 0.5 * (n.MinH + n.MaxH)) - eye).magnitude - n.ArcSize * 0.75);
+                var ahead = TAP.Simulation.TerrainWorkers.Waiting();
+                Assert.That(ahead.Exists(n => n.Parent != null && Dist(n.Parent, cam) >= n.Parent.ArcSize * t.SplitFactor * TAP.Simulation.PlanetTerrain.DetailScale),
+                    "look-ahead asks for chunks beyond the LOD at the camera");
+
+                // Jumping to the other side of the planet: none of those is wanted any more, and none is left to build.
+                long dropped = TAP.Simulation.TerrainWorkers.Dropped;
+                Frame(t, -cam, 1);
+                Assert.That(TAP.Simulation.TerrainWorkers.Dropped - dropped, Is.EqualTo(ahead.Count), "requests left behind are dropped");
+                Assert.That(ahead.TrueForAll(n => n.State == 0 && !n.Queued), "a dropped chunk can be asked for again");
+                Drain();
+
+                // The same settling, first in first out.
+                TAP.Simulation.TerrainWorkers.Fifo = true;
+                int inOrder = Settle(NewTerrain());
+                TestContext.Out.WriteLine($"settled after {ranked} chunks by priority, {inOrder} first in first out; look-ahead asked for {ahead.Count}");
+                Assert.That(ranked, Is.GreaterThan(0), "settles with priorities");
+                Assert.That(inOrder, Is.GreaterThan(0), "settles first in first out");
+                Assert.That(ranked * 2, Is.LessThan(inOrder), $"the ground under the camera is made first: {ranked} chunks, first in first out {inOrder}");
+            }
+            finally
+            {
+                Drain();
+                TAP.Simulation.TerrainWorkers.Fifo = fifo;
+                TAP.Simulation.TerrainWorkers.Pause(false);
+                Shader.SetGlobalFloat("_TerrainMorphSplit", 0);
+                foreach (var go in objects)
+                {
+                    foreach (var mf in go.GetComponentsInChildren<MeshFilter>(true)) UnityEngine.Object.DestroyImmediate(mf.sharedMesh);
+                    UnityEngine.Object.DestroyImmediate(go);
+                }
+            }
+        }
     }
 }
