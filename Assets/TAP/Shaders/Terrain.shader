@@ -119,8 +119,9 @@ Shader "TAP/Terrain"
                 float4 color : COLOR;
                 float2 uv0 : TEXCOORD0;
                 float2 uv1 : TEXCOORD1;
-                float4 uv2 : TEXCOORD2; // LOD morph: the move to the parent's surface, the parent's arc
-                float4 uv3 : TEXCOORD3; // LOD morph: the parent's normal, colour and water flag
+                float4 uv2 : TEXCOORD2; // LOD morph (TerrainVertex): the move to the parent's surface, the parent's arc (km)
+                float2 uv3 : TEXCOORD3; // LOD morph: the parent's normal
+                float4 uv4 : TEXCOORD4; // LOD morph: the parent's colour and water flag
             };
 
             struct Varyings
@@ -160,7 +161,7 @@ Shader "TAP/Terrain"
                 direction /= max(max(abs(direction.x), max(abs(direction.y), abs(direction.z))), 1e-20);
                 o.normalWS = SafeNormalize(direction);
                 o.normalOS = normalOS;
-                o.color = TerrainMorphColor(v.color, v.uv3, k);
+                o.color = TerrainMorphColor(v.color, v.uv4, k);
                 // The detail textures move with the ground (uv0, uv1.x: body-fixed metres; uv2.xyz: the same frame).
                 o.detailPos = TerrainMorphPosition(float3(v.uv0.x, v.uv0.y, v.uv1.x), v.uv2, k);
                 o.fogFactor = ComputeFogFactor(p.positionCS.z);
@@ -415,7 +416,7 @@ Shader "TAP/Terrain"
             #pragma fragment frag
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "TerrainMorph.hlsl"
-            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; float4 uv2 : TEXCOORD2; float4 uv3 : TEXCOORD3; };
+            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; float4 uv2 : TEXCOORD2; float2 uv3 : TEXCOORD3; };
             struct Varyings { float4 positionCS : SV_POSITION; float3 normalWS : TEXCOORD0; };
             Varyings vert(Attributes v)
             {

@@ -693,6 +693,25 @@ that back with half floats and did not.
   the far view) from morphing.
 
 **Done when**
-- [ ] Working-set memory in `descent` and `low-pass` is at least 50 MB lower than with FND-19 (players run alternately).
-- [ ] The LOD morph still shows no popping in a side-by-side descent capture.
-- [ ] All EditMode tests pass, `TerrainTests.BurstChunks_AreTheManagedChunks` and `TerrainTests.ChunkMorphTarget_IsItsParentsSurface` among them.
+- [x] Working-set memory in `descent` and `low-pass` is at least 50 MB lower than with FND-19 (players run alternately). (147 to 173 MB lower:
+      252 and 286 MB against 423 to 458 MB.)
+- [x] The LOD morph still shows no popping in a side-by-side descent capture. (A child chunk rendered at its swap distance is still within 1
+      colour level of its parent, up to 142 without morphing; the side-by-side descent recording shows nothing new.)
+- [x] All EditMode tests pass, `TerrainTests.BurstChunks_AreTheManagedChunks` and `TerrainTests.ChunkMorphTarget_IsItsParentsSurface` among them.
+      (230 EditMode and 40 body lab tests.)
+
+Built (`ChunkGeometry.cs` `TerrainVertex`, `PlanetTerrain.BuildCompleted`, `TerrainMorph.hlsl`, `Terrain.shader`, `TerrainTests.Half_IsUnitysHalf`,
+[Docs/PERFORMANCE.md](../../Docs/PERFORMANCE.md) "FND-21"):
+- **The vertex.** `ChunkGeometry` packs each vertex into one 60-byte `TerrainVertex` on the worker, with Burst or without:
+  - the move to the parent's surface and the parent's arc (in km, which fits a half) as four half floats;
+  - the parent's octahedral normal as two;
+  - the parent's colour and water flag as bytes.
+- **The upload.** `PlanetTerrain` uploads that with `SetVertexBufferParams` and `SetVertexBufferData`, then drops the CPU copy
+  (`UploadMeshData(true)`). A chunk that is made again gets a new mesh.
+- **The half conversion** is integer arithmetic. `math.f32tof16` goes through float maths, which Burst flushes to zero for tiny
+  values, so its Burst and plain bits differed. Ties round to even, as IEEE and GPUs do; Unity's `Mathf.FloatToHalf` rounds them
+  away from zero.
+- **More than planned:** dropping the CPU copy was not in the plan. It is most of the saving, and only the renderer reads
+  these meshes.
+- **Kept as before:** `ChunkData` keeps its separate full-precision arrays (the tests, the far view and the body lab read
+  them).

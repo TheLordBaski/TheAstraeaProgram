@@ -1,10 +1,26 @@
 using System;
+using System.Runtime.InteropServices;
 using TAP.Core;
 using Unity.Burst;
 using UnityEngine;
 
 namespace TAP.Simulation
 {
+    /// <summary>
+    /// A terrain vertex as the GPU gets it (FND-21): 60 bytes instead of the 76 of separate channels. The LOD morph data is in half
+    /// floats: the move to the parent's surface (m), the parent's arc (km, so it fits a half), the parent's normal (octahedral), and the
+    /// parent's colour with the water flag in bytes. Terrain.shader and TerrainMorph.hlsl read this layout.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct TerrainVertex
+    {
+        public Vector3 Position, Normal;
+        public Color32 Color;
+        public Vector2 UV0, UV1;
+        public ushort MoveX, MoveY, MoveZ, ParentArcKm, ParentNormalX, ParentNormalY;
+        public Color32 Parent;
+    }
+
     /// <summary>One chunk being built: its grid (with a border of samples for normals), the scratch and the arrays it fills.</summary>
     internal unsafe struct ChunkGrid
     {
@@ -34,6 +50,7 @@ namespace TAP.Simulation
         public double SkirtDepth;
         public Vector3 BoundsMin, BoundsMax;
         public double MinHeight, MaxHeight;
+        public TerrainVertex* Vertices;
     }
 
     /// <summary>
@@ -205,6 +222,45 @@ namespace TAP.Simulation
             }
             c->BoundsMin = bmin;
             c->BoundsMax = bmax;
+            if (!c->Colors) return;
+            // Pack every vertex for the GPU. UV3.z holds the parent's RGB as r + 256 g + 65536 b (an integer, exact in a float).
+            for (int vi = 0, count = row * row + c->PerimeterCount; vi < count; vi++)
+            {
+                Vector4 move = c->UV2[vi], parent = c->UV3[vi];
+                int rgb = (int)parent.z;
+                c->Vertices[vi] = new TerrainVertex
+                {
+                    Position = c->Positions[vi], Normal = c->Normals[vi], Color = c->Colors32[vi], UV0 = c->UV0[vi], UV1 = c->UV1[vi],
+                    MoveX = Half(move.x), MoveY = Half(move.y), MoveZ = Half(move.z), ParentArcKm = Half(move.w * 0.001f),
+                    ParentNormalX = Half(parent.x), ParentNormalY = Half(parent.y),
+                    Parent = new Color32((byte)(rgb & 255), (byte)((rgb >> 8) & 255), (byte)(rgb >> 16), (byte)(parent.w * 255 + 0.5f)),
+                };
+            }
+        }
+
+        /// <summary>
+        /// A float as an IEEE half (round to nearest, ties to even), in integer arithmetic only: Burst flushes subnormal floats to zero,
+        /// so a conversion through float maths (math.f32tof16) gives other bits for tiny values than plain C# does.
+        /// </summary>
+        internal static ushort Half(float v)
+        {
+            uint x = *(uint*)&v;
+            uint sign = (x >> 16) & 0x8000;
+            int exp = (int)((x >> 23) & 0xff) - 112; // rebias 127 → 15
+            uint mant = x & 0x7fffff;
+            if (exp >= 31) return (ushort)(sign | (exp == 143 && mant != 0 ? 0x7e00u : 0x7c00u)); // too big: infinity (NaN stays NaN)
+            if (exp <= 0)
+            {
+                if (exp < -10) return (ushort)sign; // below half's smallest subnormal
+                mant |= 0x800000;
+                int shift = 14 - exp;
+                uint sub = mant >> shift, rest = mant & ((1u << shift) - 1), mid = 1u << (shift - 1);
+                if (rest > mid || (rest == mid && (sub & 1) != 0)) sub++;
+                return (ushort)(sign | sub);
+            }
+            uint h = ((uint)exp << 10) | (mant >> 13), r = mant & 0x1fff;
+            if (r > 0x1000 || (r == 0x1000 && (h & 1) != 0)) h++; // a carry into the exponent is right (up to infinity)
+            return (ushort)(sign | h);
         }
 
         /// <summary>Vector3d.normalized, without its static zero.</summary>

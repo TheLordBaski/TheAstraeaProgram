@@ -88,6 +88,21 @@ is a regression.
 Baselines are in `Docs/benchmarks/`: `windows-batch.csv` (the FND-17 run below), and `windows-gpu.csv` and `linux-ci.csv`, which do not exist yet (see
 "Not measured").
 
+## FND-21 (compact terrain vertices): memory against FND-19, 2026-10-23
+
+The FND-19 player (`Build/Windows-FND19`) and the FND-21 player ran alternately, twice each.
+
+| Scenario | Working set | Unity's memory | `planets_ms` | Worker per chunk | Detail lag |
+|---|---|---|---|---|---|
+| descent | 423 / 425 → 252 / 252 MB (−171, −173) | 297 → 164 MB | 0.42 / 0.39 → 0.41 / 0.45 ms | 1.15 → 1.17 / 1.19 ms | 0.00 s |
+| low-pass | 433 / 458 → 286 / 286 MB (−147, −172) | 306 → 165 MB | 0.51 / 0.55 → 0.50 / 0.58 ms | 1.15 / 1.30 → 1.19 / 1.22 ms | 0.00 s |
+
+- **Most of the drop:** chunk meshes now keep no CPU copy of their vertices (`UploadMeshData(true)`).
+- **The rest:** each vertex is 60 bytes instead of 76, because the morph data is in half floats.
+- **Unchanged:** the main thread and the workers take the same time as before.
+- **This run:** the machine was quieter than for FND-19, so this run's FND-19 worker times (1.15 ms) are lower than in the table
+  below.
+
 ## FND-19 (Burst terrain evaluator), 2026-10-22
 
 The same Windows player, with Burst's compiled code, and the same machine. The machine was busy with other work all along

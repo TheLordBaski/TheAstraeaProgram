@@ -10,11 +10,14 @@
 
 float _TerrainMorphSplit; // global: SplitFactor x the player's terrain detail
 
-// 1 = the parent's surface, 0 = the chunk's own. uv2.w is the parent's arc (m); 0 for a root chunk.
+// The vertex data (TerrainVertex, FND-21): uv2 = the move to the parent's surface (m) and the parent's arc (km; 0 for a root chunk),
+// uv3 = the parent's normal (octahedral), uv4 = the parent's colour with the water flag.
+
+// 1 = the parent's surface, 0 = the chunk's own.
 float TerrainMorphFactor(float3 positionOS, float4 uv2)
 {
     if (_LodMorph < 0.5) return 0;
-    float end = uv2.w * _TerrainMorphSplit;
+    float end = uv2.w * 1000 * _TerrainMorphSplit;
     if (!(end > 0)) return 0;
     float d = length(TransformObjectToWorld(positionOS) - _WorldSpaceCameraPos);
     return saturate((d - 0.6 * end) / (0.3 * end));
@@ -23,26 +26,17 @@ float TerrainMorphFactor(float3 positionOS, float4 uv2)
 // The point (or detail texture coordinate) moved towards the parent's surface: uv2.xyz is the whole move.
 float3 TerrainMorphPosition(float3 p, float4 uv2, float k) { return k > 0 ? p + uv2.xyz * k : p; }
 
-// The parent's normal, octahedral in uv3.xy (TerrainChunkGenerator.Octahedral).
-float3 TerrainMorphNormal(float3 normalOS, float4 uv3, float k)
+// The parent's normal, octahedral (ChunkGeometry.Octahedral).
+float3 TerrainMorphNormal(float3 normalOS, float2 uv3, float k)
 {
     if (k <= 0) return normalOS;
-    float3 p = float3(uv3.xy, 1 - abs(uv3.x) - abs(uv3.y));
+    float3 p = float3(uv3, 1 - abs(uv3.x) - abs(uv3.y));
     float t = saturate(-p.z);
     p.xy -= (step(0, p.xy) * 2 - 1) * t;
     return normalize(lerp(normalOS, normalize(p), k));
 }
 
-// The parent's colour: RGB bytes packed as r + 256 g + 65536 b in uv3.z (exact in a float), the water flag in uv3.w.
-float4 TerrainMorphColor(float4 color, float4 uv3, float k)
-{
-    if (k <= 0) return color;
-    float v = uv3.z;
-    float b = floor(v / 65536);
-    v -= b * 65536;
-    float g = floor(v / 256);
-    float4 parent = float4(float3(v - g * 256, g, b) / 255, uv3.w);
-    return lerp(color, parent, k);
-}
+// The parent's colour and water flag.
+float4 TerrainMorphColor(float4 color, float4 uv4, float k) { return k > 0 ? lerp(color, uv4, k) : color; }
 
 #endif

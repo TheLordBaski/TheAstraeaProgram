@@ -134,10 +134,28 @@ namespace TAP.Tests
                             CollectionAssert.AreEqual(m.UV1, b.UV1, $"{what}: uv1");
                             CollectionAssert.AreEqual(m.UV2, b.UV2, $"{what}: morph");
                             CollectionAssert.AreEqual(m.UV3, b.UV3, $"{what}: parent normal and colour");
+                            CollectionAssert.AreEqual(m.Vertices, b.Vertices, $"{what}: packed vertices");
                         }
                 }
             }
             finally { LayeredTerrain.UseBurst = was; }
+        }
+
+        [Test]
+        public void Half_IsUnitysHalf()
+        {
+            // FND-21's integer conversion against Unity's own, over normal, subnormal, tie and overflowing values.
+            var values = new List<float> { 0f, -0f, 1f, -1f, 0.5f, 65504f, 65520f, 1e6f, -1e6f, 6.1035156e-5f, 5.96e-8f, 2.98e-8f, 1e-9f, 1.00048828125f, 1.00146484375f, -2049f };
+            var r = new System.Random(5);
+            for (int i = 0; i < 20000; i++) values.Add((float)((r.NextDouble() - 0.5) * Math.Pow(2, r.Next(-30, 18))));
+            foreach (float v in values)
+            {
+                ushort mine = TAP.Simulation.TerrainChunkGenerator.Half(v), unity = Mathf.FloatToHalf(v);
+                if (mine == unity) continue;
+                // Unity rounds exact ties away from zero; IEEE (and the GPU) rounds them to even.
+                Assert.AreEqual(Math.Abs((double)Mathf.HalfToFloat(unity) - v), Math.Abs((double)Mathf.HalfToFloat(mine) - v), $"{v:R}: not a tie");
+                Assert.AreEqual(0, mine & 1, $"{v:R}: a tie goes to even");
+            }
         }
 
         [Test]
@@ -480,6 +498,13 @@ namespace TAP.Tests
                             Assert.AreEqual((ca.g + cb.g) / 2.0, (packed >> 8) & 255, 1, $"{key}: parent green");
                             Assert.AreEqual((ca.b + cb.b) / 2.0, packed >> 16, 1, $"{key}: parent blue");
                             Assert.AreEqual((ca.a + cb.a) / 510.0, e.w, 1e-6, $"{key}: parent water flag");
+                            // what the GPU gets (FND-21): half floats and bytes
+                            var v = child.Vertices[vi];
+                            Assert.AreEqual(m.x, Mathf.HalfToFloat(v.MoveX), 1e-3 * Math.Abs(m.x) + 1e-4, $"{key}: packed move");
+                            Assert.AreEqual(m.w / 1000, Mathf.HalfToFloat(v.ParentArcKm), 1e-3 * m.w / 1000, $"{key}: packed arc");
+                            Assert.AreEqual(e.x, Mathf.HalfToFloat(v.ParentNormalX), 1e-3, $"{key}: packed parent normal");
+                            Assert.AreEqual(new Color32((byte)(packed & 255), (byte)((packed >> 8) & 255), (byte)(packed >> 16), (byte)(e.w * 255 + 0.5f)), v.Parent, $"{key}: packed parent colour");
+                            Assert.AreEqual(child.Positions[vi], v.Position, $"{key}: packed position");
                         }
                 }
                 // A root chunk has no parent and never morphs.

@@ -68,6 +68,8 @@ namespace TAP.Simulation
         /// one float) and its water flag. See TerrainMorph.hlsl.
         /// </summary>
         public Vector4[] UV2, UV3;
+        /// <summary>Visual chunks: every vertex packed for the GPU (<see cref="TerrainVertex"/>), what PlanetTerrain uploads.</summary>
+        public TerrainVertex[] Vertices;
         public int[] Triangles;
         public Vector3d CenterBF;
         public Vector3 BoundsMin, BoundsMax;
@@ -130,6 +132,7 @@ namespace TAP.Simulation
                 UV1 = new Vector2[vcount],
                 UV2 = colors ? new Vector4[vcount] : null,
                 UV3 = colors ? new Vector4[vcount] : null,
+                Vertices = colors ? new TerrainVertex[vcount] : null,
             };
         }
 
@@ -137,6 +140,9 @@ namespace TAP.Simulation
 
         /// <summary>A unit vector in two numbers (octahedral mapping); TerrainMorph.hlsl decodes it.</summary>
         public static Vector2 Octahedral(Vector3d n) => ChunkGeometry.Octahedral(n);
+
+        /// <summary>A float as an IEEE half, the same bits with Burst and without (the packed vertices' morph data).</summary>
+        public static ushort Half(float v) => ChunkGeometry.Half(v);
 
         public static int[] Triangles(int n, bool rightHanded, bool skirts)
         {
@@ -246,7 +252,7 @@ namespace TAP.Simulation
             fixed (Vector2* uv1 = data.UV1) fixed (Vector4* uv2 = data.UV2) fixed (Vector4* uv3 = data.UV3) fixed (Color32* col = data.Colors)
             fixed (int* cs = colorSamples) fixed (double* cc = cosSlopes) fixed (Color32* co = colorOut) fixed (int* ps = parentSamples)
             fixed (double* pc = parentCosSlopes) fixed (Color32* po = parentOut) fixed (Vector3d* pn = parentNormals) fixed (Color32* pcol = parentColors)
-            fixed (int* per = perim)
+            fixed (int* per = perim) fixed (TerrainVertex* packed = data.Vertices)
             {
                 var c = new ChunkGrid
                 {
@@ -255,7 +261,7 @@ namespace TAP.Simulation
                     Dirs = d, Points = pts, Full = fl, Heights = h, Positions = pos, Normals = nrm, UV0 = uv0, UV1 = uv1, UV2 = uv2, UV3 = uv3,
                     Colors32 = col, ColorSamples = cs, CosSlopes = cc, ColorOut = co, ParentSamples = ps, ParentCosSlopes = pc, ParentOut = po,
                     ParentNormals = pn, ParentColors = pcol, ParentArc = (float)(2 * size * Math.PI * 0.25 * radius), Perimeter = per,
-                    PerimeterCount = perim.Length, SkirtDepth = Math.Max(2.0, size * Math.PI * 0.25 * radius / n * 0.8),
+                    PerimeterCount = perim.Length, SkirtDepth = Math.Max(2.0, size * Math.PI * 0.25 * radius / n * 0.8), Vertices = packed,
                 };
                 if (burst) ChunkGeometry.DirectionsBurst(&c); else ChunkGeometry.Directions(&c);
                 gen.SampleMany(dirs, full, heights, fields, g * g);

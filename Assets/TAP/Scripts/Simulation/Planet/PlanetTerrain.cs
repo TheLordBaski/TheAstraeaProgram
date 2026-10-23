@@ -82,6 +82,19 @@ namespace TAP.Simulation
         /// <summary>LOD morphing between a chunk and its parent (TerrainMorph.hlsl); off only to compare against.</summary>
         public static bool MorphEnabled = true;
         private static readonly int MorphSplitId = Shader.PropertyToID("_TerrainMorphSplit");
+
+        /// <summary>The chunk meshes' vertex layout: <see cref="TerrainVertex"/>.</summary>
+        private static readonly UnityEngine.Rendering.VertexAttributeDescriptor[] VertexLayout =
+        {
+            new UnityEngine.Rendering.VertexAttributeDescriptor(UnityEngine.Rendering.VertexAttribute.Position, UnityEngine.Rendering.VertexAttributeFormat.Float32, 3),
+            new UnityEngine.Rendering.VertexAttributeDescriptor(UnityEngine.Rendering.VertexAttribute.Normal, UnityEngine.Rendering.VertexAttributeFormat.Float32, 3),
+            new UnityEngine.Rendering.VertexAttributeDescriptor(UnityEngine.Rendering.VertexAttribute.Color, UnityEngine.Rendering.VertexAttributeFormat.UNorm8, 4),
+            new UnityEngine.Rendering.VertexAttributeDescriptor(UnityEngine.Rendering.VertexAttribute.TexCoord0, UnityEngine.Rendering.VertexAttributeFormat.Float32, 2),
+            new UnityEngine.Rendering.VertexAttributeDescriptor(UnityEngine.Rendering.VertexAttribute.TexCoord1, UnityEngine.Rendering.VertexAttributeFormat.Float32, 2),
+            new UnityEngine.Rendering.VertexAttributeDescriptor(UnityEngine.Rendering.VertexAttribute.TexCoord2, UnityEngine.Rendering.VertexAttributeFormat.Float16, 4),
+            new UnityEngine.Rendering.VertexAttributeDescriptor(UnityEngine.Rendering.VertexAttribute.TexCoord3, UnityEngine.Rendering.VertexAttributeFormat.Float16, 2),
+            new UnityEngine.Rendering.VertexAttributeDescriptor(UnityEngine.Rendering.VertexAttribute.TexCoord4, UnityEngine.Rendering.VertexAttributeFormat.UNorm8, 4),
+        };
         public Material Material;
         public void SetVisualMaterial(Material material)
         {
@@ -288,17 +301,14 @@ namespace TAP.Simulation
             {
                 var (n, d, gen) = item;
                 if (d == null || gen != n.Generation || n.State == 0) { TerrainChunkGenerator.Release(d); continue; }
-                if (n.Mesh == null) n.Mesh = new Mesh { name = $"terrain_{Body.Id}_{n.Face}_{n.Level}" };
-                n.Mesh.Clear();
-                n.Mesh.SetVertices(d.Positions);
-                n.Mesh.SetNormals(d.Normals);
-                n.Mesh.SetColors(d.Colors);
-                n.Mesh.SetUVs(0, d.UV0);
-                n.Mesh.SetUVs(1, d.UV1);
-                n.Mesh.SetUVs(2, d.UV2);
-                n.Mesh.SetUVs(3, d.UV3);
+                // Meshes keep no CPU copy (UploadMeshData below), so a chunk made again (a terrain edit) gets a new one.
+                if (n.Mesh != null) Destroy(n.Mesh);
+                n.Mesh = new Mesh { name = $"terrain_{Body.Id}_{n.Face}_{n.Level}" };
+                n.Mesh.SetVertexBufferParams(d.Vertices.Length, VertexLayout);
+                n.Mesh.SetVertexBufferData(d.Vertices, 0, 0, d.Vertices.Length);
                 n.Mesh.SetTriangles(d.Triangles, 0, false);
                 n.Mesh.bounds = new Bounds((d.BoundsMin + d.BoundsMax) * 0.5f, d.BoundsMax - d.BoundsMin);
+                n.Mesh.UploadMeshData(true);
                 n.MeshCenterBF = d.CenterBF;
                 n.MinH = d.MinHeight;
                 n.MaxH = d.MaxHeight;
@@ -311,6 +321,7 @@ namespace TAP.Simulation
                     n.Go.SetActive(false);
                     n.Shown = false;
                 }
+                else n.Go.GetComponent<MeshFilter>().sharedMesh = n.Mesh;
                 n.State = 2;
                 built++;
                 MeshUploads++;
